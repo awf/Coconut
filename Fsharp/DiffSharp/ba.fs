@@ -1,4 +1,5 @@
-﻿module ba
+﻿[<ReflectedDefinition>]
+module ba
 
 open System
 open System.Diagnostics
@@ -51,8 +52,9 @@ let rodrigues_rotate_point (rot:_[]) (X:_[]) =
         let w = mult_by_scalar rot theta_inv
         let w_cross_X = cross w X    
         let tmp = (dot_prod w X) * (1. - costheta)
-
-        add_vec3 (mult_by_scalar X costheta) (mult_by_scalar w_cross_X sintheta) (mult_by_scalar w tmp)
+        let v1 = mult_by_scalar X costheta
+        let v2 = mult_by_scalar w_cross_X sintheta 
+        add_vec (add_vec v1 v2) (mult_by_scalar w tmp)
     else
         add_vec X (cross rot X)
 
@@ -62,9 +64,15 @@ let radial_distort (rad_params:_[]) (proj:_[]) =
     mult_by_scalar proj L
 
 let project (cam:_[]) (X:_[]) =
-    let Xcam = rodrigues_rotate_point cam.[ROT_IDX..(ROT_IDX+2)] (sub_vec X cam.[CENTER_IDX..(CENTER_IDX+2)])
-    let distorted = radial_distort cam.[RAD_IDX..(RAD_IDX+1)] (mult_by_scalar Xcam.[0..1] (1./Xcam.[2]))
-    add_vec cam.[X0_IDX..(X0_IDX+1)] (mult_by_scalar distorted cam.[FOCAL_IDX])
+    let Xcam = rodrigues_rotate_point 
+                  cam.[ROT_IDX..(ROT_IDX+2)]  
+                  (sub_vec X cam.[CENTER_IDX..(CENTER_IDX+2)])
+    let distorted = radial_distort 
+                      cam.[RAD_IDX..(RAD_IDX+1)] 
+                      (mult_by_scalar Xcam.[0..1] (1./Xcam.[2]))
+    add_vec 
+        cam.[X0_IDX..(X0_IDX+1)] 
+        (mult_by_scalar distorted cam.[FOCAL_IDX])
 
 let compute_reproj_err (cam:_[]) (X:_[]) w (feat:_[]) =
     mult_by_scalar (sub_vec (project cam X) feat) w

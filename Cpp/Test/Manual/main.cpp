@@ -4,30 +4,23 @@
 #include <chrono>
 #include <cassert>
 
-//#define DO_GMM
-//#define DO_BA
-//#define DO_HAND
-#define DO_HAND_COMPLICATED
-
 #include "../utils.h"
 #include "../defs.h"
-#ifdef DO_GMM
+
 #include "../gmm.h"
 #include "gmm_d.h"
-#elif defined DO_BA
+
 #include "../ba.h"
 #include "ba_d.h"
-#elif (defined DO_HAND || defined DO_HAND_COMPLICATED) && defined DO_EIGEN
+
 #include "../hand_eigen.h"
 #include "hand_eigen_d.h"
-#endif
 
 using std::cout;
 using std::endl;
 using std::string;
 using namespace std::chrono;
 
-#ifdef DO_GMM
 void test_gmm(const string& fn_in, const string& fn_out,
   int nruns_f, int nruns_J, bool replicate_point)
 {
@@ -240,6 +233,7 @@ void test_hand(const string& model_dir, const string& fn_in, const string& fn_ou
 
 int main(int argc, char *argv[])
 {
+  assert(argc >= 6);
   string dir_in(argv[1]);
   string dir_out(argv[2]);
   string fn(argv[3]);

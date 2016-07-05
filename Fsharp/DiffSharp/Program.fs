@@ -2,6 +2,24 @@
 open System.Diagnostics
 open System.IO
 
+module Flat =
+  //awf experiment with ReflectedDefinition
+  open Microsoft.FSharp.Quotations
+  let rec analyse (e:Expr) =
+        match e with
+        // Special-casing some common pattens.  In fact the rewriter should do this.
+        | Patterns.Lambda (a, Patterns.Lambda (b,c)) -> sprintf "fun %A %A -> %s" a b (analyse c)
+        | Patterns.Lambda (a,b) -> sprintf "fun %A -> %s" a (analyse b)
+  //      | Patterns.Call (None, (+), elist) -> if elist.Length = 2 then sprintf "%A + %A" (analyse elist.Head) (analyse elist.Tail.Head) else "ARGH"
+        | Patterns.Call (None, op, elist) -> 
+            match op.Name with
+            | "op_Addition" -> sprintf "%A + %A" (analyse elist.Head) (analyse elist.Tail.Head) 
+            | _ -> sprintf "CALL %s(%s)" op.Name (String.concat ", " (List.map analyse elist))
+        | Patterns.Var(x) -> sprintf "%A" x
+        | _ -> sprintf "PUNT[%A]" e 
+
+  ///awf
+
 #if MODE_AD
 open DiffSharp.AD
 let D_seed (x:float) = D x
@@ -142,6 +160,23 @@ let test_ba fn_in fn_out nruns_f nruns_J =
     let m = X.Length
     let p = obs.Length
     
+
+    // let rodrigues_rotate_point_ (rot:D[]) (X:D[]) =
+
+    //awf experiment with ReflectedDefinition
+
+    let prfun modu fn = 
+     let a = System.Reflection.Assembly.GetExecutingAssembly()
+     let methodInfo = a.GetType(modu).GetMethod(fn)
+     let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
+     match reflDefnOpt with
+     | None -> printfn "%s failed" fn
+     | Some(e) -> printfn "reflected %s = %A\n OR [%s]" fn e (Flat.analyse e)
+    prfun "ba" "rodrigues_rotate_point_"
+    prfun "ba" "add_vec"
+    prfun "ba" "cross"
+
+    printfn "Doing BA"
 
     let jac_stop_watch = Stopwatch.StartNew()
     if nruns_J>0 then   

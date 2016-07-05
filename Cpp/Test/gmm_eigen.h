@@ -34,7 +34,7 @@ using ArrayX = Eigen::Array<T, -1, 1>;
 // x: d*n points
 // err: 1 output
 template<typename T>
-void gmm_objective(int d, int k, int n,
+void gmm_objective_eigen(int d, int k, int n,
   const T* const alphas,
   const T* const means,
   const T* const icf,
@@ -58,10 +58,8 @@ double log_wishart_prior(int p, int k,
   const vector<MatrixX<T>>& Qs,
   const T* const icf);
 
-#ifdef DO_EIGEN
-
 template<typename T>
-void gmm_objective_no_priors(int d, int k, int n,
+void gmm_objective_no_priors_eigen(int d, int k, int n,
   const Map<const ArrayX<T>>& alphas,
   const vector<Map<const VectorX<T>>>& mus,
   const ArrayX<T>& sum_qs,
@@ -78,14 +76,12 @@ void preprocess(int d, int k,
   ArrayX<T>& sum_qs,
   vector<MatrixX<T>>& Qs);
 
-#elif defined DO_EIGEN_VECTOR
-
 // logsumexp of cols
 template<typename T>
 void logsumexp(const MatrixX<T>& X, ArrayX<T>& out);
 
 template<typename T>
-void gmm_objective_no_priors(int d, int k, int n,
+void gmm_objective_no_priors_eigen_vector(int d, int k, int n,
   Map<const ArrayX<T>> const& alphas,
   Map<const MatrixX<T>> const& means,
   ArrayX<T> const& sum_qs,
@@ -100,8 +96,6 @@ void preprocess(int d, int k,
   ArrayX<T>& sum_qs,
   vector<MatrixX<T>>& Qs);
 
-
-#endif
 
 ////////////////////////////////////////////////////////////
 //////////////////// Definitions ///////////////////////////
@@ -138,10 +132,8 @@ double log_wishart_prior(int p, int k,
   return 0.5*wishart.gamma*wishart.gamma*sum_frob - wishart.m*sum_qs.sum() - k*C;
 }
 
-#ifdef DO_EIGEN
-
 template<typename T>
-void gmm_objective_no_priors(int d, int k, int n,
+void gmm_objective_no_priors_eigen(int d, int k, int n,
   const Map<const ArrayX<T>>& alphas,
   const vector<Map<const VectorX<T>>>& mus,
   const ArrayX<T>& sum_qs,
@@ -217,7 +209,7 @@ void preprocess(int d, int k,
 }
 
 template<typename T>
-void gmm_objective(int d, int k, int n,
+void gmm_objective_eigen(int d, int k, int n,
   const T* const alphas,
   const T* const means,
   const T* const icf,
@@ -234,12 +226,10 @@ void gmm_objective(int d, int k, int n,
   preprocess(d, k, means, icf, mus, sum_qs, Qs);
 
   Map<const ArrayX<T>> map_alphas(alphas, k);
-  gmm_objective_no_priors(d, k, n, map_alphas, mus, sum_qs,
+  gmm_objective_no_priors_eigen(d, k, n, map_alphas, mus, sum_qs,
     Qs, x, wishart, err);
   *err = *err + log_wishart_prior(d, k, wishart, sum_qs, Qs, icf);
 }
-
-#elif defined DO_EIGEN_VECTOR
 
 // logsumexp of cols
 template<typename T>
@@ -251,7 +241,7 @@ void logsumexp(const MatrixX<T>& X, ArrayX<T>& out)
 }
 
 template<typename T>
-void gmm_objective_no_priors(int d, int k, int n,
+void gmm_objective_no_priors_eigen_vector(int d, int k, int n,
   Map<const ArrayX<T>> const& alphas,
   Map<const MatrixX<T>> const& means,
   ArrayX<T> const& sum_qs,
@@ -305,7 +295,7 @@ void preprocess(int d, int k,
 }
 
 template<typename T>
-void gmm_objective(int d, int k, int n,
+void gmm_objective_eigen_vector(int d, int k, int n,
   const T* const alphas,
   const T* const means,
   const T* const icf,
@@ -328,5 +318,3 @@ void gmm_objective(int d, int k, int n,
     Qs, map_x, wishart, err);
   *err += log_wishart_prior(d, k, wishart, sum_qs, Qs, icf);
 }
-
-#endif
