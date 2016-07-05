@@ -26,3 +26,7 @@ ipch/
 
 # Python
 __pycache__
+*.db
+AutodiffTools.VC.VC.opendb
+*.exe
+coconut/sample.obj
