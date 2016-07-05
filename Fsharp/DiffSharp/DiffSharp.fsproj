@@ -35,7 +35,7 @@
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\Release\DiffSharp\</OutputPath>
-    <DefineConstants>TRACE;MODE_AD;DO_BA</DefineConstants>
+    <DefineConstants>TRACE;MODE_AD;DO_COMPILE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\DiffSharp.XML</DocumentationFile>
@@ -65,6 +65,7 @@
     <Compile Include="ba.fs" />
     <Compile Include="hand.fs" />
     <Compile Include="hand_d.fs" />
+    <Compile Include="compiler.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
