@@ -1,8 +1,6 @@
 ﻿module cruntime
 
-type Number = double
-type Vector = double List
-type Matrix = Vector List
+open linalg
 
 type AnyNumeric = 
 (*  | ZeroD of Number
