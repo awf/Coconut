@@ -1,11 +1,38 @@
 #include "runtime/fsharp.h"
 #include <stdio.h>
 
+/* Oringinal code:
+Lambda (a,
+Lambda (b,
+NewArray (Double,
+Call (None, op_Subtraction,
+[Call (None, op_Multiply,
+[Call (None, GetArray, [a, Value (1)]),
+Call (None, GetArray, [b, Value (2)])]),
+Call (None, op_Multiply,
+[Call (None, GetArray, [a, Value (2)]),
+Call (None, GetArray, [b, Value (1)])])]),
+Call (None, op_Subtraction,
+[Call (None, op_Multiply,
+[Call (None, GetArray, [a, Value (2)]),
+Call (None, GetArray, [b, Value (0)])]),
+Call (None, op_Multiply,
+[Call (None, GetArray, [a, Value (0)]),
+Call (None, GetArray, [b, Value (2)])])]),
+Call (None, op_Subtraction,
+[Call (None, op_Multiply,
+[Call (None, GetArray, [a, Value (0)]),
+Call (None, GetArray, [b, Value (1)])]),
+Call (None, op_Multiply,
+[Call (None, GetArray, [a, Value (1)]),
+Call (None, GetArray, [b, Value (0)])])]))))
+*/
+
 /* Preprocessed code:
 Lambda (a,
 Lambda (b,
 Let (array1,
-NewArray (d,
+NewArray (Double,
 Call (None, op_Subtraction,
 [Call (None, op_Multiply,
 [Call (None, GetArray,
@@ -53,46 +80,98 @@ array_number_t* linalg_cross(array_number_t* a, array_number_t* b) {
 	array1->arr[2] = a->arr[0] * b->arr[1] - a->arr[1] * b->arr[0];;
 	return array1;
 }
+/* Oringinal code:
+Lambda (x,
+Lambda (y,
+Call (None, Map,
+[Lambda (a, Call (None, op_Multiply, [a, y])), x])))
+*/
+
 /* Preprocessed code:
 Lambda (x,
 Lambda (y,
-Let (closure,
+Let (closure5,
 Call (None, makeClosure,
-[Lambda (env,
-Lambda (x,
-Call (None, op_Multiply,
-[x,
+[Lambda (env3,
+Lambda (a,
+Let (y2,
 Call (None, envRef,
-[env, Value ("y")])]))),
+[env3, Value ("y")]),
+Call (None, op_Multiply,
+[a, y2])))),
 Call (None, makeEnv,
 [NewUnionCase (Cons,
 NewTuple (Value ("y"),
-Value (2.0)),
+Value (42.0)),
 NewUnionCase (Empty))])]),
 Call (None, Map,
-[Lambda (lambdaArg,
-Call (None, applyClosure,
-[closure, lambdaArg])), x]))))
+[Lambda (arg4,
+Call (None, applyClosure, [closure5, arg4])),
+x]))))
 */
 
 // Generated C code for linalg.mult_by_scalar:
 
-typedef struct env_t_1 {
+typedef struct env_t_6 {
 	number_t y;
-} env_t_1;
-env_t_1* make_env_t_1(number_t y) {
-	env_t_1* env = (env_t_1*)malloc(sizeof(env_t_1));
+} env_t_6;
+env_t_6* make_env_t_6(number_t y) {
+	env_t_6* env = (env_t_6*)malloc(sizeof(env_t_6));
 	env->y = y;
 	return env;
 }
 
-number_t lambda1(env_t_1* env, number_t x) {
-
-	return x * env->y;
+number_t lambda6(env_t_6* env3, number_t a) {
+	number_t y2 = env3->y;
+	return a * y2;
 }
 array_number_t* linalg_mult_by_scalar(array_number_t* x, number_t y) {
-	closure_t* closure = make_closure(lambda1, make_env_t_1(y));
-	return array_map(closure, x);
+	closure_t* closure5 = make_closure(lambda6, make_env_t_6(y));
+	return array_map(closure5, x);
+}
+/* Oringinal code:
+Lambda (x,
+Lambda (y,
+Call (None, Map2,
+[Lambda (x, Lambda (y, Call (None, op_Addition, [x, y]))),
+x, y])))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Lambda (y,
+Let (closure9,
+Call (None, makeClosure,
+[Lambda (env7,
+Lambda (x,
+Lambda (y,
+Call (None, op_Addition,
+[x, y])))),
+Call (None, makeEnv, [NewUnionCase (Empty)])]),
+Call (None, Map2,
+[Lambda (arg8,
+Call (None, applyClosure, [closure9, arg8])),
+x, y]))))
+*/
+
+// Generated C code for linalg.add_vec:
+
+typedef struct env_t_10 {
+	number_t dummy_variable;
+} env_t_10;
+env_t_10* make_env_t_10() {
+	env_t_10* env = (env_t_10*)malloc(sizeof(env_t_10));
+
+	return env;
+}
+
+number_t lambda10(env_t_10* env7, number_t x, number_t y) {
+
+	return x + y;
+}
+array_number_t* linalg_add_vec(array_number_t* x, array_number_t* y) {
+	closure_t* closure9 = make_closure(lambda10, make_env_t_10());
+	return array_map2(closure9, x, y);
 }
 
 int main()
@@ -113,5 +192,7 @@ int main()
 	array_print(c);
 	array_number_t* d = linalg_mult_by_scalar(c, 15.0);
 	array_print(d);
+	array_number_t* e = linalg_add_vec(a, b);
+	array_print(e);
 	return 0;
 }
