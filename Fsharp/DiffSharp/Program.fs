@@ -277,7 +277,7 @@ let main argv =
 #endif
 #if DO_COMPILE
     compiler.compile "linalg" "cross"
-    (*compiler.compile "linalg" "mult_by_scalar"*)
+    compiler.compile "linalg" "mult_by_scalar"
     (*let list = [1.; 2.; 3.]
     let y = 2.
     (*

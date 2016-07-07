@@ -95,7 +95,7 @@ let rec ccodegenType (t: System.Type): string =
 (* C code generation for an expression *)
 let rec ccodegen (e:Expr): string =
   match e with
-  | ApplyClosure (closure) -> sprintf "%s->env->y = y" closure.Name
+  | ApplyClosure (closure) -> sprintf "%s" closure.Name
   | Patterns.Lambda (x, body) -> sprintf "ERROR LAMBDA NOT SUPPORTED!"
   | EnvRef(env, name) -> sprintf "%s->%s" (ccodegen env) name
   | Patterns.Call (None, op, elist) -> 
@@ -132,9 +132,9 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
       let fieldsDecl = String.concat "," fieldsDeclList
       let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
-      let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" envName envName fieldsDecl envName envName fieldsInit
+      let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" envName envName fieldsDecl envName envName envName fieldsInit
       let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, v) -> v) fields))
-      (sprintf "make_closure(%s, %s);" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName])
+      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName])
     | _ -> 
       (ccodegen e, [])
   (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) (rhs), funs)
@@ -203,17 +203,12 @@ let rec lambdaLift (e: Expr): Expr =
         let variableName = Expr.Value(fcur.Name)
         Expr.Let(ncur, <@@ envRef %%env %%variableName @@>, acc)) convertedBody freeNewVars
       let closureFun = LambdaN(envVar :: inputs, closuredBody)
-      (*let closureVar = new Var(newVar "closure", typeof<Closure<double, double>>)*)
       let assembly = System.Reflection.Assembly.GetExecutingAssembly()
       let makeClosureInfo = assembly.GetType("cruntime").GetMethod("makeClosure").MakeGenericMethod(typeof<double>, typeof<double>)
-      let createdEnv = <@@ makeEnv ["y", 2.] @@>
-      let closureFun2 = <@@ (fun env x -> x * (envRef env "y")) @@>
+      let createdEnv = <@@ makeEnv ["y", 2.] @@> (* TODO generalize *)
+      let closureFun2 = <@@ (fun env x -> x * (envRef env "y")) @@> (* TODO generalize *)
       let createdClosure = Expr.Call(makeClosureInfo, [closureFun2; createdEnv])
-      (*let createdClosure2 = <@@ makeClosure (fun env x -> x * (envRef env "y")) %%createdEnv @@>*)
-      (*let closureVarExpr = Expr.Var(closureVar)
-      Expr.Let(closureVar, createdClosure, <@@ applyClosure (%%closureVarExpr: Closure<double, double>) @@>)
-      *)
-      <@@ applyClosure (%%createdClosure: Closure<double, double>) @@>
+      <@@ applyClosure (%%createdClosure: Closure<double, double>) @@> (* TODO generalize *)
     result
   | LambdaN (inputs, body) ->
     LambdaN (inputs, lambdaLift body)
@@ -238,6 +233,6 @@ let compile (moduleName: string) (methodName: string) =
    | None -> printfn "%s failed" methodName
    | Some(e) -> 
      let preprocessed = cpreprocess e
-     printfn "preprocessed code:\n%A\n" (preprocessed)
+     printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName)
-     printfn "Generated C code for %s.%s:\n\n%s" moduleName methodName generated
+     printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
