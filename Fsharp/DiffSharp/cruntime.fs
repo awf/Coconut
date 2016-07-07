@@ -25,6 +25,6 @@ let makeEnv (bindings: (string * AnyNumeric) List): Environment =
 let makeClosure<'a, 'b> (lambda: Environment -> 'a -> 'b) (env: Environment): Closure<'a, 'b> = 
   {lambda = lambda; env = env}
 
-let applyClosure<'a, 'b> (closure: Closure<'a, 'b>) (arg: 'a): 'b = 
-  closure.lambda closure.env arg
+let applyClosure<'a, 'b> (closure: Closure<'a, 'b>) (lambdaArg: 'a): 'b = 
+  closure.lambda closure.env lambdaArg
 
