@@ -38,8 +38,18 @@ array_number_t* array_map(closure_t* closure, array_number_t* arr) {
 	array_number_t* res = (array_number_t*)malloc(sizeof(number_t) * arr->length);
 	res->length = arr->length;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
-	for (int i = 0; i < arr->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr->arr[i]); // TODO
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, arr->arr[i]);
+	}
+	return res;
+}
+
+array_number_t* array_map2(closure_t* closure, array_number_t* arr1, array_number_t* arr2) {
+	array_number_t* res = (array_number_t*)malloc(sizeof(number_t) * arr1->length);
+	res->length = arr1->length;
+	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, arr1->arr[i], arr2->arr[i]); 
 	}
 	return res;
 }
