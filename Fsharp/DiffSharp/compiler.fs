@@ -25,9 +25,20 @@ let (|TopLevelFunction|) (e: Expr): (Var List * Expr) =
   | LambdaN(inputs, body) -> (inputs, body) 
   | _ -> ([], e)
 
-let (|MakeClosure|_|) (e: Expr): (Expr * Expr) Option = 
+let (|MakeClosure|_|) (e: Expr): (Var * Expr * Expr) Option = 
   match e with 
-  | Patterns.Call (None, op, elist) when op.Name = "makeClosure" -> Some (elist.[0], elist.[1])
+  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); makeEnv]) when op.Name = "makeClosure" -> Some (envVar, body, makeEnv)
+  | _ -> None
+
+let (|ApplyClosure|_|) (e: Expr): Var Option = 
+  match e with 
+  | Patterns.Lambda(arg, Patterns.Call (None, op, [Patterns.Var(closure); Patterns.Var(arg2)])) when (op.Name = "applyClosure") && (arg = arg2) ->
+     Some (closure)
+  | _ -> None
+
+let (|EnvRef|_|) (e: Expr): (Expr * string) Option = 
+  match e with 
+  | Patterns.Call (None, op, [env; Patterns.Value(s, _)]) when op.Name = "envRef" -> Some (env, s.ToString())
   | _ -> None
 
 let LambdaN (inputs: Var List, body: Expr): Expr =
@@ -53,10 +64,17 @@ let rec prettyprint (e:Expr): string =
 
 let mutable variable_counter = 0
 
+let incrementAndGetVariableCounter: int = 
+  variable_counter <- variable_counter + 1
+  variable_counter
+
+let getVariableCounter: int = 
+  variable_counter
+
 (* Generates a unique variable name *)
 let newVar (name: string): string = 
-  variable_counter <- variable_counter + 1
-  sprintf "%s%d" name variable_counter
+  let id = incrementAndGetVariableCounter
+  sprintf "%s%d" name id
 
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
@@ -66,17 +84,23 @@ let rec ccodegenType (t: System.Type): string =
     "number_t"
   else if (t = typeof<double>) then
     "number_t"
-  else 
+  else if (t = typeof<Environment>) then 
+    ("env_t_" + getVariableCounter.ToString() + "*")
+    else if (t = typeof<Closure<double, double>>) then 
+    ("closure_t*")
+  else
     t.ToString()
 
 
 (* C code generation for an expression *)
 let rec ccodegen (e:Expr): string =
   match e with
+  | ApplyClosure (closure) -> sprintf "%s->env->y = y" closure.Name
   | Patterns.Lambda (x, body) -> sprintf "ERROR LAMBDA NOT SUPPORTED!"
+  | EnvRef(env, name) -> sprintf "%s->%s" (ccodegen env) name
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> sprintf "%s %s %s" (prettyprint elist.[0]) opname (ccodegen elist.[1]) 
+      | OperatorName opname -> sprintf "%s %s %s" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
       | "GetArray" -> sprintf "%s[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
       | "Map" when op.DeclaringType.Name = "ArrayModule" -> sprintf "array_map(%s)" (String.concat ", " (List.map ccodegen elist))
       | _ -> sprintf "ERROR CALL %s(%s)" op.Name (String.concat ", " (List.map ccodegen elist))
@@ -89,27 +113,41 @@ let rec ccodegen (e:Expr): string =
   | _ -> sprintf "ERROR[%A]" e
 
 (* C code generation for a statement in the form of `let var = e` *)
-let ccodegenStatement (var: Var, e: Expr): string = 
-  let rhs = 
+let rec ccodegenStatement (var: Var, e: Expr): string * string List = 
+  let (rhs, funs) = 
     match e with 
     | Patterns.NewArray(tp, elems) -> 
-      sprintf "malloc(sizeof(%s) * %d);\n\t%s" (ccodegenType tp) (List.length elems) 
-        (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s[%d] = %s;" var.Name index (ccodegen elem)) elems))
-    | MakeClosure(lam, env) ->
-      sprintf "MAKE CLOSURE { %A, %A }" lam env
+      let args = (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s[%d] = %s;" var.Name index (ccodegen elem)) elems))
+      let rhs = sprintf "malloc(sizeof(%s) * %d);\n\t%s" (ccodegenType tp) (List.length elems) args
+      (rhs, [])
+    | MakeClosure(envVar, lamBody, env) ->
+      let lambdaName = newVar "lambda"
+      let id = getVariableCounter
+      let envName = sprintf "env_t_%d" id
+      let fields = ["number_t", "y"]  (* TODO generalize *)
+      let fieldsDeclList = List.map (fun (tp, v) -> tp + " " + v) fields
+      let fieldsStructDecl = (String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList))
+      let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
+      let fieldsDecl = String.concat "," fieldsDeclList
+      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
+      let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" envName envName fieldsDecl envName envName fieldsInit
+      let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, v) -> v) fields))
+      (sprintf "make_closure(%s, %s);" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName])
     | _ -> 
-      ccodegen e
-  sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) (rhs)
+      (ccodegen e, [])
+  (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) (rhs), funs)
 
 (* C code generation for a function *)
-let ccodegenFunction (e: Expr) (name: string): string =
+and ccodegenFunction (e: Expr) (name: string): string =
   let rec extractHeader exp curInputs statements = match exp with 
     | LambdaN (inputs, body) -> extractHeader body (List.append curInputs inputs) statements
     | Patterns.Let(x, e1, e2) -> extractHeader e2 curInputs (List.append statements [(x, e1)])
     | _ -> (exp, curInputs, statements)
   let (result, inputs, statements) = extractHeader e [] []
-  let statementsCode = (String.concat "\n\t" (List.map ccodegenStatement statements))
-  sprintf "%s %s(%s) {\n\t%s\n\treturn %s;\n}" (ccodegenType(result.Type)) name (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs)) statementsCode (ccodegen result)
+  let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement statements)
+  let statementsCode = (String.concat "\n\t" statementsCodeList)
+  let closuresCode = (String.concat "\n" (List.concat closuresList))
+  sprintf "%s\n%s %s(%s) {\n\t%s\n\treturn %s;\n}" (closuresCode) (ccodegenType(result.Type)) name (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs)) statementsCode (ccodegen result)
 
 (* Performs a simple kind of ANF conversion for specific statements. *)
 let rec anfConversion (e: Expr): Expr = 
