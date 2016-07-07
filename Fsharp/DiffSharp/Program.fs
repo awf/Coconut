@@ -276,18 +276,7 @@ let main argv =
     test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
 #if DO_COMPILE
-    (*compiler.compile "linalg" "cross"
-    compiler.compile "linalg" "mult_by_scalar"*)
-    compiler.compile "linalg" "add_vec"
-    (*let list = [1.; 2.; 3.]
-    let y = 2.
-    (*
-    let closure = makeClosure (fun env x -> x * (envRef env "y")) (makeEnv [("y", y)])
-    let res = List.map (applyClosure closure) list
-    *)
-    let res = List.map (fun x -> x * y) list
-    printf "%A\n" res
-    *)
+    compiler.compileSeveral "linalg" ["cross"; "mult_by_scalar"; "add_vec"]
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "model/") (dir_in + fn) (dir_out + fn) nruns_f nruns_J

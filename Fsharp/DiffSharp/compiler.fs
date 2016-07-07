@@ -25,11 +25,16 @@ let (|TopLevelFunction|) (e: Expr): (Var List * Expr) =
   | LambdaN(inputs, body) -> (inputs, body) 
   | _ -> ([], e)
 
-let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((string * string) List)) Option = 
+let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string) List)) Option = 
   match e with 
-  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, [Patterns.NewUnionCase(_, list)])]) when op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
-    printf "%A" list (* TODO *)
-    Some (envVar, body, [])
+  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, list)]) when op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
+    let envList = 
+      let rec extractElems l = match l with
+        | [ Patterns.NewUnionCase(_, [Patterns.NewTuple([Patterns.Value(v, _);e]); tl]) ] ->
+          (e.Type, v.ToString()) :: extractElems([tl])
+        | _ -> []
+      extractElems list
+    Some (envVar, body, envList)
   | _ -> None
 
 let (|ApplyClosure|_|) (e: Expr): Var Option = 
@@ -73,18 +78,12 @@ let rec prettyprint (e:Expr): string =
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | _ -> sprintf "ERROR[%A]" e
 
-let mutable variable_counter = 1
-
-let incrementAndGetVariableCounter: int = 
-  variable_counter <- variable_counter + 1
-  variable_counter
-
-let getVariableCounter: int = 
-  variable_counter
+let mutable variable_counter = 0
 
 (* Generates a unique variable name *)
 let newVar (name: string): string = 
-  let id = incrementAndGetVariableCounter
+  variable_counter <- variable_counter + 1
+  let id = variable_counter
   sprintf "%s%d" name id
 
 (* C code generation for a type *)
@@ -97,7 +96,7 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<double>) ->
     "number_t"
   | _ when (t = typeof<Environment>) -> 
-    ("env_t_" + getVariableCounter.ToString() + "*")
+    ("env_t_" + variable_counter.ToString() + "*")
   | _ when (t.Name = typeof<Closure<_, _>>.Name) ->
     "closure_t*"
   | _ ->
@@ -136,11 +135,12 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       (rhs, [])
     | MakeClosure(envVar, lamBody, fields) ->
       let lambdaName = newVar "lambda"
-      let id = getVariableCounter
+      let id = variable_counter
       let envName = sprintf "env_t_%d" id
-      (*let fields = ["number_t", "y"]  (* TODO generalize *) *)
-      let fieldsDeclList = List.map (fun (tp, v) -> tp + " " + v) fields
-      let fieldsStructDecl = (String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList))
+      let fieldsDeclList = List.map (fun (tp, v) -> ccodegenType(tp) + " " + v) fields
+      let fieldsStructDecl = match fieldsDeclList with 
+      | [] -> (ccodegenType (typeof<AnyNumeric>)) + " dummy_variable;" (* This is because C does not accept structs without any member *)
+      | _ ->(String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList))
       let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
       let fieldsDecl = String.concat "," fieldsDeclList
       let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
@@ -205,7 +205,6 @@ let closureConversion (e: Expr): Expr =
   let rec lambdaLift (exp: Expr): Expr =
     match exp with 
     | LambdaN (inputs, body) -> 
-      printfn "Creating Closure"
       let freeVars = listDiff (List.ofSeq (body.GetFreeVars())) inputs
       let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
       let freeNewVars = List.zip freeVars newVars
@@ -219,15 +218,27 @@ let closureConversion (e: Expr): Expr =
         let closureFun = LambdaN(envVar :: inputs, closuredBody)
         let assembly = System.Reflection.Assembly.GetExecutingAssembly()
         let makeClosureInfoGeneric = assembly.GetType("cruntime").GetMethod("makeClosure")
-        (*let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(typeof<double>, typeof<double>) (* TODO generalize *)*)
-        let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(typeof<double>, typeof<double -> double>) (* TODO generalize *)
-        (*let createdEnv = <@@ makeEnv ["y", 2.] @@> (* TODO generalize *) *)
-        let createdEnv = <@@ makeEnv [] @@> (* TODO generalize *)
-        (*let closureFun2 = <@@ (fun env x -> x * (envRef env "y")) @@> (* TODO generalize *)*)
-        let closureFun2 = closureFun
-        let createdClosure = Expr.Call(makeClosureInfo, [closureFun2; createdEnv])
-        (*<@@ applyClosure (%%createdClosure: Closure<double, double>) @@> (* TODO generalize *) *)
-        <@@ applyClosure (%%createdClosure: Closure<double, double -> double>) @@> (* TODO generalize *)
+        let (inType, outType) = 
+          let args = exp.Type.GetGenericArguments()
+          (args.[0], args.[1])
+        let makeEnvInfo = assembly.GetType("cruntime").GetMethod("makeEnv")
+        let makeEnvArg = 
+          [List.fold (fun acc (cur: Var) -> 
+            let (vstr, vexp) = (Expr.Value(cur.Name.ToString()), Expr.Var(cur))
+            (* 
+               The next line uses the same number everytime for the associated value. 
+               This is because the code generator handles an appropriate variable assigment whenever it is needed 
+            *)
+            <@@ (((%%vstr: string), 42. ): string * double) :: (%%acc: (string * double) List) @@> ) <@@ []: (string * double) List @@>  freeVars]
+        let createdEnv = Expr.Call(makeEnvInfo, makeEnvArg)
+        let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(inType, outType)
+        let createdClosure = Expr.Call(makeClosureInfo, [closureFun; createdEnv])
+        let applyClosureInfoGeneric = assembly.GetType("cruntime").GetMethod("applyClosure")
+        let applyClosureInfo = applyClosureInfoGeneric.MakeGenericMethod(inType, outType)
+        let argVar = new Var(newVar "arg", inType)
+        let closureVar = new Var(newVar "closure", createdClosure.Type)
+        let call = Expr.Lambda(argVar, Expr.Call(applyClosureInfo, [Expr.Var(closureVar); Expr.Var(argVar)]))
+        Expr.Let(closureVar, createdClosure, call)
       result
     | Patterns.Let(x, e1, e2) -> Expr.Let(x, lambdaLift e1, lambdaLift e2)
     | Patterns.Value(v, tp) -> exp
@@ -259,3 +270,6 @@ let compile (moduleName: string) (methodName: string) =
      printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName)
      printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
+
+let compileSeveral (moduleName: string) (methodNames: string List) =
+  List.iter (compile moduleName) methodNames
