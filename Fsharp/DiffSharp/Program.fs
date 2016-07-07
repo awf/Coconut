@@ -276,8 +276,8 @@ let main argv =
     test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
 #if DO_COMPILE
-    (*compiler.compile "linalg" "cross"*)
-    compiler.compile "linalg" "mult_by_scalar"
+    compiler.compile "linalg" "cross"
+    (*compiler.compile "linalg" "mult_by_scalar"*)
     (*let list = [1.; 2.; 3.]
     let y = 2.
     (*

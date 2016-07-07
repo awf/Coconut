@@ -79,7 +79,7 @@ let newVar (name: string): string =
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   if(t.IsArray) then
-   "array_" + (ccodegenType (t.GetElementType()))
+   "array_" + (ccodegenType (t.GetElementType())) + "*"
   else if(t.IsGenericParameter) then
     "number_t"
   else if (t = typeof<double>) then
@@ -101,7 +101,7 @@ let rec ccodegen (e:Expr): string =
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | OperatorName opname -> sprintf "%s %s %s" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
-      | "GetArray" -> sprintf "%s[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
+      | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
       | "Map" when op.DeclaringType.Name = "ArrayModule" -> sprintf "array_map(%s)" (String.concat ", " (List.map ccodegen elist))
       | _ -> sprintf "ERROR CALL %s(%s)" op.Name (String.concat ", " (List.map ccodegen elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
@@ -117,8 +117,10 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
   let (rhs, funs) = 
     match e with 
     | Patterns.NewArray(tp, elems) -> 
-      let args = (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s[%d] = %s;" var.Name index (ccodegen elem)) elems))
-      let rhs = sprintf "malloc(sizeof(%s) * %d);\n\t%s" (ccodegenType tp) (List.length elems) args
+      let args = (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems))
+      let arrTp = ("array_" + (ccodegenType tp)) 
+      let elemTp = (ccodegenType tp)
+      let rhs = sprintf "(%s*)malloc(sizeof(%s));\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" arrTp arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
       (rhs, [])
     | MakeClosure(envVar, lamBody, env) ->
       let lambdaName = newVar "lambda"
@@ -225,7 +227,7 @@ let rec lambdaLift (e: Expr): Expr =
   | _ -> failwith (sprintf "%A not handled yet!" e)
 
 let cpreprocess (e: Expr): Expr = 
-  letLifting (lambdaLift e)
+  anfConversion (letLifting (lambdaLift e))
 
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string) = 
