@@ -24,4 +24,24 @@ closure_t* make_closure(lambda_t lam, env_t env) {
 	return c;
 }
 
+void array_print(array_number_t* arr) {
+	printf("[");
+	for (int i = 0; i < arr->length; i++) {
+		printf("%f", arr->arr[i]);
+		if (i != arr->length - 1)
+			printf(", ");
+	}
+	printf("]\n");
+}
+
+array_number_t* array_map(closure_t* closure, array_number_t* arr) {
+	array_number_t* res = (array_number_t*)malloc(sizeof(number_t) * arr->length);
+	res->length = arr->length;
+	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	for (int i = 0; i < arr->length; i++) {
+		res->arr[i] = closure->lam(closure->env, arr->arr[i]); // TODO
+	}
+	return res;
+}
+
 #endif
