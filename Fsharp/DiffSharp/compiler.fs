@@ -25,9 +25,11 @@ let (|TopLevelFunction|) (e: Expr): (Var List * Expr) =
   | LambdaN(inputs, body) -> (inputs, body) 
   | _ -> ([], e)
 
-let (|MakeClosure|_|) (e: Expr): (Var * Expr * Expr) Option = 
+let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((string * string) List)) Option = 
   match e with 
-  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); makeEnv]) when op.Name = "makeClosure" -> Some (envVar, body, makeEnv)
+  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, [Patterns.NewUnionCase(_, list)])]) when op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
+    printf "%A" list (* TODO *)
+    Some (envVar, body, [])
   | _ -> None
 
 let (|ApplyClosure|_|) (e: Expr): Var Option = 
@@ -39,6 +41,15 @@ let (|ApplyClosure|_|) (e: Expr): Var Option =
 let (|EnvRef|_|) (e: Expr): (Expr * string) Option = 
   match e with 
   | Patterns.Call (None, op, [env; Patterns.Value(s, _)]) when op.Name = "envRef" -> Some (env, s.ToString())
+  | _ -> None
+
+let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
+  match e with 
+  | Patterns.Call (None, op, argList) -> 
+    match (op.Name, op.DeclaringType.Name) with
+    | ("Map", "ArrayModule") -> Some("array_map", argList)
+    | ("Map2", "ArrayModule") -> Some("array_map2", argList)
+    | _ -> None 
   | _ -> None
 
 let LambdaN (inputs: Var List, body: Expr): Expr =
@@ -62,7 +73,7 @@ let rec prettyprint (e:Expr): string =
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | _ -> sprintf "ERROR[%A]" e
 
-let mutable variable_counter = 0
+let mutable variable_counter = 1
 
 let incrementAndGetVariableCounter: int = 
   variable_counter <- variable_counter + 1
@@ -78,37 +89,38 @@ let newVar (name: string): string =
 
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
-  if(t.IsArray) then
+  match t with 
+  | _ when t.IsArray ->
    "array_" + (ccodegenType (t.GetElementType())) + "*"
-  else if(t.IsGenericParameter) then
+  | _ when (t.IsGenericParameter) ->
+    failwith "does not know how to generate code for a generic type"
+  | _ when (t = typeof<double>) ->
     "number_t"
-  else if (t = typeof<double>) then
-    "number_t"
-  else if (t = typeof<Environment>) then 
+  | _ when (t = typeof<Environment>) -> 
     ("env_t_" + getVariableCounter.ToString() + "*")
-    else if (t = typeof<Closure<double, double>>) then 
-    ("closure_t*")
-  else
-    t.ToString()
+  | _ when (t.Name = typeof<Closure<_, _>>.Name) ->
+    "closure_t*"
+  | _ ->
+    failwith (sprintf "does not know how to generate code for the type `%s` with name `%s`" (t.ToString()) (t.Name))
 
 
 (* C code generation for an expression *)
 let rec ccodegen (e:Expr): string =
   match e with
   | ApplyClosure (closure) -> sprintf "%s" closure.Name
-  | Patterns.Lambda (x, body) -> sprintf "ERROR LAMBDA NOT SUPPORTED!"
+  | Patterns.Lambda (x, body) -> failwith (sprintf "ERROR lambda should always be in the form of closure creation.\n`%A`" e)
   | EnvRef(env, name) -> sprintf "%s->%s" (ccodegen env) name
+  | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | OperatorName opname -> sprintf "%s %s %s" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
       | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
-      | "Map" when op.DeclaringType.Name = "ArrayModule" -> sprintf "array_map(%s)" (String.concat ", " (List.map ccodegen elist))
       | _ -> sprintf "ERROR CALL %s(%s)" op.Name (String.concat ", " (List.map ccodegen elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
-    failwith (sprintf "ERROR new array should always be the rhs of a let binding\n`%A`" e)
+    failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)
   | Patterns.Let(x, e1, e2) -> 
-    failwith (sprintf "ERROR let bindings should occur ONLY in top level\n`%A`" e)
+    failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | _ -> sprintf "ERROR[%A]" e
 
@@ -122,11 +134,11 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let elemTp = (ccodegenType tp)
       let rhs = sprintf "(%s*)malloc(sizeof(%s));\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" arrTp arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
       (rhs, [])
-    | MakeClosure(envVar, lamBody, env) ->
+    | MakeClosure(envVar, lamBody, fields) ->
       let lambdaName = newVar "lambda"
       let id = getVariableCounter
       let envName = sprintf "env_t_%d" id
-      let fields = ["number_t", "y"]  (* TODO generalize *)
+      (*let fields = ["number_t", "y"]  (* TODO generalize *) *)
       let fieldsDeclList = List.map (fun (tp, v) -> tp + " " + v) fields
       let fieldsStructDecl = (String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList))
       let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
@@ -186,43 +198,53 @@ let letLifting (e: Expr): Expr =
   LambdaN(inputs, LetN(ll, te))
   
 
-(* Performs lambda lifting to make the program closer to C code *)
-let rec lambdaLift (e: Expr): Expr = 
+(* Performs closure conversion to make the program closer to C code *)
+let closureConversion (e: Expr): Expr = 
   let listDiff list1 list2 = 
     List.filter (fun x -> not (List.exists (fun y -> x = y) list2)) list1
-  match e with 
-  | LambdaN (inputs, body) when Seq.exists (fun x -> not (Seq.exists (fun y -> x = y) inputs)) (body.GetFreeVars()) -> 
-    let freeVars = listDiff (List.ofSeq (body.GetFreeVars())) inputs
-    let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
-    let freeNewVars = List.zip freeVars newVars
-    let convertedBody = (lambdaLift body).Substitute(fun v -> Option.map (fun (x, y) -> Expr.Var(y)) (List.tryFind (fun (x, y) -> x = v) freeNewVars))
-    let result = 
-      let envVar = new Var(newVar "env", typeof<Environment>)
-      let env = Expr.Var(envVar)
-      let closuredBody = List.fold (fun acc (fcur: Var, ncur) -> 
-        let variableName = Expr.Value(fcur.Name)
-        Expr.Let(ncur, <@@ envRef %%env %%variableName @@>, acc)) convertedBody freeNewVars
-      let closureFun = LambdaN(envVar :: inputs, closuredBody)
-      let assembly = System.Reflection.Assembly.GetExecutingAssembly()
-      let makeClosureInfo = assembly.GetType("cruntime").GetMethod("makeClosure").MakeGenericMethod(typeof<double>, typeof<double>)
-      let createdEnv = <@@ makeEnv ["y", 2.] @@> (* TODO generalize *)
-      let closureFun2 = <@@ (fun env x -> x * (envRef env "y")) @@> (* TODO generalize *)
-      let createdClosure = Expr.Call(makeClosureInfo, [closureFun2; createdEnv])
-      <@@ applyClosure (%%createdClosure: Closure<double, double>) @@> (* TODO generalize *)
-    result
-  | LambdaN (inputs, body) ->
-    LambdaN (inputs, lambdaLift body)
-  | Patterns.Let(x, e1, e2) -> Expr.Let(x, lambdaLift e1, lambdaLift e2)
-  | Patterns.Value(v, tp) -> e
-  | Patterns.NewArray(tp, elems) -> 
-    Expr.NewArray(tp, List.map lambdaLift elems)
-  | Patterns.Call (None, op, elist) -> Expr.Call(op, List.map lambdaLift elist)
-  | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map lambdaLift elist)
-  | Patterns.Var (x) -> Expr.Var(x)
-  | _ -> failwith (sprintf "%A not handled yet!" e)
+  let rec lambdaLift (exp: Expr): Expr =
+    match exp with 
+    | LambdaN (inputs, body) -> 
+      printfn "Creating Closure"
+      let freeVars = listDiff (List.ofSeq (body.GetFreeVars())) inputs
+      let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
+      let freeNewVars = List.zip freeVars newVars
+      let convertedBody = (lambdaLift body).Substitute(fun v -> Option.map (fun (x, y) -> Expr.Var(y)) (List.tryFind (fun (x, y) -> x = v) freeNewVars))
+      let result = 
+        let envVar = new Var(newVar "env", typeof<Environment>)
+        let env = Expr.Var(envVar)
+        let closuredBody = List.fold (fun acc (fcur: Var, ncur) -> 
+          let variableName = Expr.Value(fcur.Name)
+          Expr.Let(ncur, <@@ envRef %%env %%variableName @@>, acc)) convertedBody freeNewVars
+        let closureFun = LambdaN(envVar :: inputs, closuredBody)
+        let assembly = System.Reflection.Assembly.GetExecutingAssembly()
+        let makeClosureInfoGeneric = assembly.GetType("cruntime").GetMethod("makeClosure")
+        (*let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(typeof<double>, typeof<double>) (* TODO generalize *)*)
+        let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(typeof<double>, typeof<double -> double>) (* TODO generalize *)
+        (*let createdEnv = <@@ makeEnv ["y", 2.] @@> (* TODO generalize *) *)
+        let createdEnv = <@@ makeEnv [] @@> (* TODO generalize *)
+        (*let closureFun2 = <@@ (fun env x -> x * (envRef env "y")) @@> (* TODO generalize *)*)
+        let closureFun2 = closureFun
+        let createdClosure = Expr.Call(makeClosureInfo, [closureFun2; createdEnv])
+        (*<@@ applyClosure (%%createdClosure: Closure<double, double>) @@> (* TODO generalize *) *)
+        <@@ applyClosure (%%createdClosure: Closure<double, double -> double>) @@> (* TODO generalize *)
+      result
+    | Patterns.Let(x, e1, e2) -> Expr.Let(x, lambdaLift e1, lambdaLift e2)
+    | Patterns.Value(v, tp) -> exp
+    | Patterns.NewArray(tp, elems) -> 
+      Expr.NewArray(tp, List.map lambdaLift elems)
+    | Patterns.Call (None, op, elist) -> 
+      let telist = List.map lambdaLift elist
+      Expr.Call(op, telist)
+    | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map lambdaLift elist)
+    | Patterns.Var (x) -> Expr.Var(x)
+    | _ -> failwith (sprintf "%A not handled yet!" exp)
+  let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
+  let te = lambdaLift(body)
+  LambdaN(inputs, te)
 
 let cpreprocess (e: Expr): Expr = 
-  anfConversion (letLifting (lambdaLift e))
+  anfConversion (letLifting (closureConversion e))
 
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string) = 
@@ -232,6 +254,7 @@ let compile (moduleName: string) (methodName: string) =
   match reflDefnOpt with
    | None -> printfn "%s failed" methodName
    | Some(e) -> 
+     printfn "/* Oringinal code:\n%A\n*/\n" (e)
      let preprocessed = cpreprocess e
      printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName)
