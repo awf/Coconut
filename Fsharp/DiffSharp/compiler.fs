@@ -275,10 +275,12 @@ let closureConversion (e: Expr): Expr =
 let cpreprocess (e: Expr): Expr = 
   anfConversion (letLifting (closureConversion e))
 
+let assembly = System.Reflection.Assembly.GetExecutingAssembly()
+
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string) = 
-  let a = System.Reflection.Assembly.GetExecutingAssembly()
-  let methodInfo = a.GetType(moduleName).GetMethod(methodName)
+  
+  let methodInfo = assembly.GetType(moduleName).GetMethod(methodName)
   let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
   match reflDefnOpt with
    | None -> printfn "%s failed" methodName
@@ -294,3 +296,9 @@ let compileSeveral (moduleName: string) (methodNames: string List) =
     existingMethods <- (moduleName, m) :: existingMethods
     compile moduleName m
   ) methodNames
+
+
+let compileModule (moduleName: string) = 
+  let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) (List.filter (fun (x: System.Reflection.MethodInfo) -> 
+      x.DeclaringType.Name = moduleName) (List.ofArray (assembly.GetType(moduleName).GetMethods())))
+  compileSeveral moduleName methods
