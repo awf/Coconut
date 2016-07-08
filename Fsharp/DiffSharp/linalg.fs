@@ -43,3 +43,21 @@ let rodrigues_rotate_point_mod (rot: Vector) (x: Vector) =
     let v1 = mult_by_scalar x costheta
     let v2 = mult_by_scalar w_cross_X sintheta 
     add_vec (add_vec v1 v2) (mult_by_scalar w tmp)
+
+let project (cam: Vector) (x: Vector) =
+    (* Should be changed to a global constant variable *)
+    let N_CAM_PARAMS = 11
+    let ROT_IDX = 0
+    let CENTER_IDX = 3
+    let FOCAL_IDX = 6
+    let X0_IDX = 7
+    let RAD_IDX = 9
+    let Xcam = rodrigues_rotate_point_mod 
+                  cam.[ROT_IDX..(ROT_IDX+2)]  
+                  (sub_vec x cam.[CENTER_IDX..(CENTER_IDX+2)])
+    let distorted = radial_distort 
+                      cam.[RAD_IDX..(RAD_IDX+1)] 
+                      (mult_by_scalar Xcam.[0..1] (1./Xcam.[2]))
+    add_vec 
+        cam.[X0_IDX..(X0_IDX+1)] 
+        (mult_by_scalar distorted cam.[FOCAL_IDX])

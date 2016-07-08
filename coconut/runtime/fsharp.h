@@ -1,6 +1,7 @@
 #ifndef __FSHARP_CLIB_H__ 
 #define __FSHARP_CLIB_H__ 
 
+typedef int index_t;
 typedef double number_t;
 typedef struct array_number_t {
 	number_t* arr;
@@ -35,7 +36,7 @@ void array_print(array_number_t* arr) {
 }
 
 array_number_t* array_map(closure_t* closure, array_number_t* arr) {
-	array_number_t* res = (array_number_t*)malloc(sizeof(number_t) * arr->length);
+	array_number_t* res = (array_number_t*)malloc(sizeof(array_number_t));
 	res->length = arr->length;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
@@ -45,7 +46,7 @@ array_number_t* array_map(closure_t* closure, array_number_t* arr) {
 }
 
 array_number_t* array_map2(closure_t* closure, array_number_t* arr1, array_number_t* arr2) {
-	array_number_t* res = (array_number_t*)malloc(sizeof(number_t) * arr1->length);
+	array_number_t* res = (array_number_t*)malloc(sizeof(array_number_t));
 	res->length = arr1->length;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
@@ -60,6 +61,17 @@ number_t array_sum(array_number_t* arr) {
 		sum += arr->arr[i];
 	}
 	return sum;
+}
+
+array_number_t* array_slice(array_number_t* arr, index_t start, index_t end) {
+	index_t size = end - start + 1;
+	array_number_t* res = (array_number_t*)malloc(sizeof(array_number_t));
+	res->length = size;
+	res->arr = (number_t*)malloc(sizeof(number_t) * size);
+	for (int i = 0; i < size; i++) {
+		res->arr[i] = arr->arr[start + i];
+	}
+	return res;
 }
 
 #endif

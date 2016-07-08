@@ -61,6 +61,10 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
+    | ("GetArraySlice", "OperatorIntrinsics") -> 
+      Some("array_slice", List.map (fun x -> match x with 
+         | Patterns.NewUnionCase(_, [v]) -> v
+         | _ -> x) argList)
     | (methodName, moduleName) when (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> Some(sprintf "%s_%s" moduleName methodName, argList)
     | _ -> None 
   | _ -> None
@@ -103,6 +107,8 @@ let rec ccodegenType (t: System.Type): string =
     failwith "does not know how to generate code for a generic type"
   | _ when (t = typeof<double>) ->
     "number_t"
+  | _ when (t = typeof<int>) ->
+    "index_t"
   | _ when (t = typeof<Environment>) -> 
     ("env_t_" + variable_counter.ToString() + "*")
   | _ when (t.Name = typeof<Closure<_, _>>.Name) ->
@@ -258,6 +264,8 @@ let closureConversion (e: Expr): Expr =
       Expr.Call(op, telist)
     | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map lambdaLift elist)
     | Patterns.Var (x) -> Expr.Var(x)
+    | ExprShape.ShapeCombination(o, exprs) ->
+        ExprShape.RebuildShapeCombination(o, List.map lambdaLift exprs)
     | _ -> failwith (sprintf "%A not handled yet!" exp)
   let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
   let te = lambdaLift(body)

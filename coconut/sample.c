@@ -483,6 +483,186 @@ array_number_t* linalg_rodrigues_rotate_point_mod(array_number_t* rot, array_num
 	array_number_t* v2 = linalg_mult_by_scalar(w_cross_X, sintheta);
 	return linalg_add_vec(linalg_add_vec(v1, v2), linalg_mult_by_scalar(w, tmp));
 }
+/* Oringinal code:
+Lambda (cam,
+Lambda (x,
+Let (N_CAM_PARAMS, Value (11),
+Let (ROT_IDX, Value (0),
+Let (CENTER_IDX, Value (3),
+Let (FOCAL_IDX, Value (6),
+Let (X0_IDX, Value (7),
+Let (RAD_IDX, Value (9),
+Let (Xcam,
+Call (None,
+rodrigues_rotate_point_mod,
+[Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+ROT_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[ROT_IDX,
+Value (2)]))]),
+Call (None, sub_vec,
+[x,
+Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+CENTER_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[CENTER_IDX,
+Value (2)]))])])]),
+Let (distorted,
+Call (None,
+radial_distort,
+[Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+RAD_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[RAD_IDX,
+Value (1)]))]),
+Call (None,
+mult_by_scalar,
+[Call (None,
+GetArraySlice,
+[Xcam,
+NewUnionCase (Some,
+Value (0)),
+NewUnionCase (Some,
+Value (1))]),
+Call (None,
+op_Division,
+[Value (1.0),
+Call (None,
+GetArray,
+[Xcam,
+Value (2)])])])]),
+Call (None, add_vec,
+[Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+X0_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[X0_IDX,
+Value (1)]))]),
+Call (None,
+mult_by_scalar,
+[distorted,
+Call (None,
+GetArray,
+[cam,
+FOCAL_IDX])])])))))))))))
+*/
+
+/* Preprocessed code:
+Lambda (cam,
+Lambda (x,
+Let (N_CAM_PARAMS, Value (11),
+Let (ROT_IDX, Value (0),
+Let (CENTER_IDX, Value (3),
+Let (FOCAL_IDX, Value (6),
+Let (X0_IDX, Value (7),
+Let (RAD_IDX, Value (9),
+Let (Xcam,
+Call (None,
+rodrigues_rotate_point_mod,
+[Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+ROT_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[ROT_IDX,
+Value (2)]))]),
+Call (None, sub_vec,
+[x,
+Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+CENTER_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[CENTER_IDX,
+Value (2)]))])])]),
+Let (distorted,
+Call (None,
+radial_distort,
+[Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+RAD_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[RAD_IDX,
+Value (1)]))]),
+Call (None,
+mult_by_scalar,
+[Call (None,
+GetArraySlice,
+[Xcam,
+NewUnionCase (Some,
+Value (0)),
+NewUnionCase (Some,
+Value (1))]),
+Call (None,
+op_Division,
+[Value (1.0),
+Call (None,
+GetArray,
+[Xcam,
+Value (2)])])])]),
+Call (None, add_vec,
+[Call (None,
+GetArraySlice,
+[cam,
+NewUnionCase (Some,
+X0_IDX),
+NewUnionCase (Some,
+Call (None,
+op_Addition,
+[X0_IDX,
+Value (1)]))]),
+Call (None,
+mult_by_scalar,
+[distorted,
+Call (None,
+GetArray,
+[cam,
+FOCAL_IDX])])])))))))))))
+*/
+
+// Generated C code for linalg.project:
+
+
+array_number_t* linalg_project(array_number_t* cam, array_number_t* x) {
+	index_t N_CAM_PARAMS = 11;
+	index_t ROT_IDX = 0;
+	index_t CENTER_IDX = 3;
+	index_t FOCAL_IDX = 6;
+	index_t X0_IDX = 7;
+	index_t RAD_IDX = 9;
+	array_number_t* Xcam = linalg_rodrigues_rotate_point_mod(array_slice(cam, ROT_IDX, ROT_IDX + 2), linalg_sub_vec(x, array_slice(cam, CENTER_IDX, CENTER_IDX + 2)));
+	array_number_t* distorted = linalg_radial_distort(array_slice(cam, RAD_IDX, RAD_IDX + 1), linalg_mult_by_scalar(array_slice(Xcam, 0, 1), 1 / Xcam->arr[2]));
+	return linalg_add_vec(array_slice(cam, X0_IDX, X0_IDX + 1), linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
+}
 int main()
 {
 	array_number_t* a = (array_number_t*)malloc(sizeof(number_t) * 3);
@@ -515,5 +695,15 @@ int main()
 	array_print(j);
 	array_number_t* k = linalg_rodrigues_rotate_point_mod(a, b);
 	array_print(k);
+	array_number_t* l = array_slice(k, 1, 2);
+	array_print(l);
+	array_number_t* cam = (array_number_t*)malloc(sizeof(array_number_t));
+	cam->length = 11;
+	cam->arr = (number_t*)malloc(sizeof(number_t) * 11);
+	for (int i = 0; i < 11; i++) {
+		cam->arr[i] = i * 2.0;
+	}
+	array_number_t* m = linalg_project(cam, j);
+	array_print(m);
 	return 0;
 }
