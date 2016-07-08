@@ -379,22 +379,29 @@ array_number_t* linalg_radial_distort(array_number_t* rad_params, array_number_t
 Lambda (rot,
 Lambda (x,
 Let (sqtheta, Call (None, sqnorm, [rot]),
+IfThenElse (Call (None, op_Inequality,
+[sqtheta, Value (0.0)]),
 Let (theta, Call (None, Sqrt, [sqtheta]),
 Let (costheta, Call (None, Cos, [theta]),
-Let (sintheta, Call (None, Sin, [theta]),
+Let (sintheta,
+Call (None, Sin, [theta]),
 Let (theta_inv,
 Call (None, op_Division,
 [Value (1.0), theta]),
 Let (w,
-Call (None, mult_by_scalar,
+Call (None,
+mult_by_scalar,
 [rot, theta_inv]),
 Let (w_cross_X,
-Call (None, cross, [w, x]),
+Call (None, cross,
+[w, x]),
 Let (tmp,
-Call (None, op_Multiply,
+Call (None,
+op_Multiply,
 [Call (None,
 dot_prod,
-[w, x]),
+[w,
+x]),
 Call (None,
 op_Subtraction,
 [Value (1.0),
@@ -402,7 +409,8 @@ costheta])]),
 Let (v1,
 Call (None,
 mult_by_scalar,
-[x, costheta]),
+[x,
+costheta]),
 Let (v2,
 Call (None,
 mult_by_scalar,
@@ -417,29 +425,44 @@ v2]),
 Call (None,
 mult_by_scalar,
 [w,
-tmp])])))))))))))))
+tmp])])))))))))),
+Call (None, add_vec,
+[x, Call (None, cross, [rot, x])])))))
 */
 
 /* Preprocessed code:
 Lambda (rot,
 Lambda (x,
 Let (sqtheta, Call (None, sqnorm, [rot]),
+Let (ite23,
+IfThenElse (Call (None, op_Inequality,
+[sqtheta, Value (0.0)]),
 Let (theta, Call (None, Sqrt, [sqtheta]),
-Let (costheta, Call (None, Cos, [theta]),
-Let (sintheta, Call (None, Sin, [theta]),
+Let (costheta,
+Call (None, Cos, [theta]),
+Let (sintheta,
+Call (None, Sin, [theta]),
 Let (theta_inv,
-Call (None, op_Division,
-[Value (1.0), theta]),
+Call (None,
+op_Division,
+[Value (1.0),
+theta]),
 Let (w,
-Call (None, mult_by_scalar,
-[rot, theta_inv]),
+Call (None,
+mult_by_scalar,
+[rot,
+theta_inv]),
 Let (w_cross_X,
-Call (None, cross, [w, x]),
+Call (None,
+cross,
+[w, x]),
 Let (tmp,
-Call (None, op_Multiply,
+Call (None,
+op_Multiply,
 [Call (None,
 dot_prod,
-[w, x]),
+[w,
+x]),
 Call (None,
 op_Subtraction,
 [Value (1.0),
@@ -447,7 +470,8 @@ costheta])]),
 Let (v1,
 Call (None,
 mult_by_scalar,
-[x, costheta]),
+[x,
+costheta]),
 Let (v2,
 Call (None,
 mult_by_scalar,
@@ -462,24 +486,35 @@ v2]),
 Call (None,
 mult_by_scalar,
 [w,
-tmp])])))))))))))))
+tmp])])))))))))),
+Call (None, add_vec,
+[x, Call (None, cross, [rot, x])])),
+ite23))))
 */
 
-// Generated C code for linalg.rodrigues_rotate_point_mod:
+// Generated C code for linalg.rodrigues_rotate_point:
 
 
-array_number_t* linalg_rodrigues_rotate_point_mod(array_number_t* rot, array_number_t* x) {
+array_number_t* linalg_rodrigues_rotate_point(array_number_t* rot, array_number_t* x) {
 	number_t sqtheta = linalg_sqnorm(rot);
-	number_t theta = sqrt(sqtheta);
-	number_t costheta = cos(theta);
-	number_t sintheta = sin(theta);
-	number_t theta_inv = 1 / theta;
-	array_number_t* w = linalg_mult_by_scalar(rot, theta_inv);
-	array_number_t* w_cross_X = linalg_cross(w, x);
-	number_t tmp = linalg_dot_prod(w, x) * 1 - costheta;
-	array_number_t* v1 = linalg_mult_by_scalar(x, costheta);
-	array_number_t* v2 = linalg_mult_by_scalar(w_cross_X, sintheta);
-	return linalg_add_vec(linalg_add_vec(v1, v2), linalg_mult_by_scalar(w, tmp));
+	array_number_t* ite23 = NULL;
+	if (sqtheta != 0) {
+		number_t theta = sqrt(sqtheta);
+		number_t costheta = cos(theta);
+		number_t sintheta = sin(theta);
+		number_t theta_inv = 1 / theta;
+		array_number_t* w = linalg_mult_by_scalar(rot, theta_inv);
+		array_number_t* w_cross_X = linalg_cross(w, x);
+		number_t tmp = linalg_dot_prod(w, x) * 1 - costheta;
+		array_number_t* v1 = linalg_mult_by_scalar(x, costheta);
+		array_number_t* v2 = linalg_mult_by_scalar(w_cross_X, sintheta);
+		ite23 = linalg_add_vec(linalg_add_vec(v1, v2), linalg_mult_by_scalar(w, tmp));
+	}
+	else {
+
+		ite23 = linalg_add_vec(x, linalg_cross(rot, x));
+	}
+	return ite23;
 }
 /* Oringinal code:
 Lambda (cam,
@@ -492,7 +527,7 @@ Let (X0_IDX, Value (7),
 Let (RAD_IDX, Value (9),
 Let (Xcam,
 Call (None,
-rodrigues_rotate_point_mod,
+rodrigues_rotate_point,
 [Call (None,
 GetArraySlice,
 [cam,
@@ -575,7 +610,7 @@ Let (X0_IDX, Value (7),
 Let (RAD_IDX, Value (9),
 Let (Xcam,
 Call (None,
-rodrigues_rotate_point_mod,
+rodrigues_rotate_point,
 [Call (None,
 GetArraySlice,
 [cam,
@@ -657,7 +692,7 @@ array_number_t* linalg_project(array_number_t* cam, array_number_t* x) {
 	index_t FOCAL_IDX = 6;
 	index_t X0_IDX = 7;
 	index_t RAD_IDX = 9;
-	array_number_t* Xcam = linalg_rodrigues_rotate_point_mod(array_slice(cam, ROT_IDX, ROT_IDX + 2), linalg_sub_vec(x, array_slice(cam, CENTER_IDX, CENTER_IDX + 2)));
+	array_number_t* Xcam = linalg_rodrigues_rotate_point(array_slice(cam, ROT_IDX, ROT_IDX + 2), linalg_sub_vec(x, array_slice(cam, CENTER_IDX, CENTER_IDX + 2)));
 	array_number_t* distorted = linalg_radial_distort(array_slice(cam, RAD_IDX, RAD_IDX + 1), linalg_mult_by_scalar(array_slice(Xcam, 0, 1), 1 / Xcam->arr[2]));
 	return linalg_add_vec(array_slice(cam, X0_IDX, X0_IDX + 1), linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
 }
@@ -740,7 +775,7 @@ int main()
 	printf("%f\n", i);
 	array_number_t* j = linalg_radial_distort(a, b);
 	array_print(j);
-	array_number_t* k = linalg_rodrigues_rotate_point_mod(a, b);
+	array_number_t* k = linalg_rodrigues_rotate_point(a, b);
 	array_print(k);
 	array_number_t* l = array_slice(k, 1, 2);
 	array_print(l);
