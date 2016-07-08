@@ -69,6 +69,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
     | ("arrayPrint", "utils") -> Some("array_print", argList)
+    | ("numberPrint", "utils") -> Some("number_print", argList)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
@@ -316,21 +317,22 @@ let cpreprocess (e: Expr): Expr =
 let assembly = System.Reflection.Assembly.GetExecutingAssembly()
 
 (* The entry point for the compiler which invokes different phases and code generators *)
-let compile (moduleName: string) (methodName: string) = 
+let compile (moduleName: string) (methodName: string): string = 
   
   let methodInfo = assembly.GetType(moduleName).GetMethod(methodName)
   let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
   match reflDefnOpt with
-   | None -> printfn "%s failed" methodName
+   | None -> failwith (sprintf "%s failed" methodName)
    | Some(e) -> 
      printfn "/* Oringinal code:\n%A\n*/\n" (e)
      let preprocessed = cpreprocess e
      printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName)
      printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
+     generated
 
 let compileSeveral (moduleName: string) (methodNames: string List) =
-  List.iter (fun m -> 
+  List.map (fun m -> 
     existingMethods <- (moduleName, m) :: existingMethods
     compile moduleName m
   ) methodNames
@@ -339,4 +341,10 @@ let compileSeveral (moduleName: string) (methodNames: string List) =
 let compileModule (moduleName: string) = 
   let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) (List.filter (fun (x: System.Reflection.MethodInfo) -> 
       x.DeclaringType.Name = moduleName) (List.ofArray (assembly.GetType(moduleName).GetMethods())))
-  compileSeveral moduleName methods
+  let generatedMethods = compileSeveral moduleName methods
+  let header = """#include "runtime/fsharp.h"
+#include <stdio.h>
+#include <math.h>
+"""
+  System.IO.File.WriteAllLines("../../coconut/" + moduleName + ".h", header :: generatedMethods)
+  ()

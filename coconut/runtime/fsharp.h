@@ -74,4 +74,8 @@ array_number_t* array_slice(array_number_t* arr, index_t start, index_t end) {
 	return res;
 }
 
+void number_print(number_t num) {
+	printf("%f\n", num);
+}
+
 #endif
