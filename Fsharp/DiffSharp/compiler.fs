@@ -48,12 +48,15 @@ let (|EnvRef|_|) (e: Expr): (Expr * string) Option =
   | Patterns.Call (None, op, [env; Patterns.Value(s, _)]) when op.Name = "envRef" -> Some (env, s.ToString())
   | _ -> None
 
+let mutable existingMethods: (string * string) List = []
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
     | ("Map", "ArrayModule") -> Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
+    | (methodName, moduleName) when (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> Some(sprintf "%s_%s" moduleName methodName, argList)
     | _ -> None 
   | _ -> None
 
@@ -176,6 +179,7 @@ let rec anfConversion (e: Expr): Expr =
     Expr.Call(op, List.map anfConversion elist)
   | _ -> e
 
+(* Lifts let bindings to top-level statements *)
 let letLifting (e: Expr): Expr = 
   let rec constructTopLevelLets(exp: Expr): Expr * (Var * Expr) List = 
     match exp with 
@@ -254,6 +258,7 @@ let closureConversion (e: Expr): Expr =
   let te = lambdaLift(body)
   LambdaN(inputs, te)
 
+(* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
   anfConversion (letLifting (closureConversion e))
 
@@ -272,4 +277,7 @@ let compile (moduleName: string) (methodName: string) =
      printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
 
 let compileSeveral (moduleName: string) (methodNames: string List) =
-  List.iter (compile moduleName) methodNames
+  List.iter (fun m -> 
+    existingMethods <- (moduleName, m) :: existingMethods
+    compile moduleName m
+  ) methodNames
