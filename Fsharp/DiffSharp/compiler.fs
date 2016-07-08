@@ -9,9 +9,11 @@ let (|OperatorName|_|) methodName =
     | "op_Multiply" -> Some("*")
     | "op_Subtraction" -> Some("-")
     | "op_Division" -> Some("/")
+    | "op_Inequality" -> Some("!=")
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
+  (* TODO implement in tail recursive way *)
   let rec lambdaNExtract exp = match exp with
     | Patterns.Lambda(x, body) -> 
       let (inputs, newBody) = lambdaNExtract body
@@ -20,6 +22,14 @@ let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option =
   match lambdaNExtract e with 
   | ([], _) -> None
   | (inputs, body) -> Some(inputs, body)
+
+let (|LetN|_|) (e: Expr): ((Var * Expr) List * Expr) Option = 
+  let rec letNExtract exp statements = match exp with 
+    | Patterns.Let(x, e1, e2) -> letNExtract e2 (List.append statements [(x, e1)]) 
+    | _ -> (statements, exp)
+  match letNExtract e [] with 
+  | ([], _) -> None
+  | (statements, body) -> Some(statements, body)
 
 let (|TopLevelFunction|) (e: Expr): (Var List * Expr) = 
   match e with 
@@ -139,14 +149,14 @@ let rec ccodegen (e:Expr): string =
 
 (* C code generation for a statement in the form of `let var = e` *)
 let rec ccodegenStatement (var: Var, e: Expr): string * string List = 
-  let (rhs, funs) = 
+  let (rhs, funs, includesLhs) = 
     match e with 
     | Patterns.NewArray(tp, elems) -> 
       let args = (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems))
       let arrTp = ("array_" + (ccodegenType tp)) 
       let elemTp = (ccodegenType tp)
       let rhs = sprintf "(%s*)malloc(sizeof(%s));\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" arrTp arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
-      (rhs, [])
+      (rhs, [], false)
     | MakeClosure(envVar, lamBody, fields) ->
       let lambdaName = newVar "lambda"
       let id = variable_counter
@@ -160,10 +170,25 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
       let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" envName envName fieldsDecl envName envName envName fieldsInit
       let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, v) -> v) fields))
-      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName])
+      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName], false)
+    | Patterns.IfThenElse(cond, e1, e2) ->
+      let ccodegenStatements exp = 
+        let (stmts, res) = match exp with 
+        | LetN(stmts, res) -> stmts, res
+        | _ -> [], exp
+        let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement stmts)
+        let statementsCode = (String.concat "\n\t\t" statementsCodeList)
+        (sprintf "%s\n\t\t%s = %s;" statementsCode (var.Name) (ccodegen res), List.concat closuresList)
+      let (e1code, e1closures) = ccodegenStatements e1
+      let (e2code, e2closures) = ccodegenStatements e2
+      (sprintf "%s %s = NULL;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
+        (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
     | _ -> 
-      (ccodegen e, [])
-  (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) (rhs), funs)
+      (ccodegen e, [], false)
+  if(includesLhs) then 
+    (rhs, funs) 
+  else
+    (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) rhs, funs)
 
 (* C code generation for a function *)
 and ccodegenFunction (e: Expr) (name: string): string =
@@ -184,7 +209,10 @@ let rec anfConversion (e: Expr): Expr =
   | Patterns.Value(v, tp) -> e
   | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion body)
   | Patterns.NewArray(tp, elems) -> 
-    let variable = new Var(newVar "array", tp.MakeArrayType())
+    let variable = new Var(newVar "array", e.Type)
+    Expr.Let(variable, e, Expr.Var(variable))
+  | Patterns.IfThenElse(cond, e1, e2) ->
+    let variable = new Var(newVar "ite", e.Type)
     Expr.Let(variable, e, Expr.Var(variable))
   | Patterns.Call (x, op, elist) -> 
     Expr.Call(op, List.map anfConversion elist)
