@@ -1,6 +1,8 @@
 ﻿[<ReflectedDefinition>]
 module linalg
 
+open utils
+
 type Number = double
 type Vector = double array
 type Matrix = Vector array
@@ -70,3 +72,33 @@ let compute_reproj_err (cam: Vector) (x: Vector) w (feat: Vector) =
 
 let compute_zach_weight_error w =
     1. - w*w
+
+let test1 (dum: Vector) = 
+  let a = [| 1.0; 2.0; 3.0 |]
+  let b = [| 5.0; 6.0; 7.0 |]
+  arrayPrint a
+  arrayPrint b
+  let c = cross a b
+  arrayPrint c
+  let d = mult_by_scalar c 15.0
+  arrayPrint d
+  let e = add_vec a b
+  arrayPrint e
+  let f = sub_vec a b
+  arrayPrint f
+  let g = add_vec3 a b c
+  arrayPrint g
+  let h = sqnorm a
+  numberPrint h
+  let i = dot_prod a b
+  numberPrint i
+  let j = radial_distort a b
+  arrayPrint j
+  let k = rodrigues_rotate_point a b
+  arrayPrint k
+  let l = k.[1..2]
+  arrayPrint l
+  let cam = [|0.; 2.; 4.; 6.; 8.; 10.; 12.; 14.; 16.; 18.; 20.|]
+  let m = project cam j 
+  arrayPrint m
+  ()
