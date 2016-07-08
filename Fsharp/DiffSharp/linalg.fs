@@ -61,3 +61,9 @@ let project (cam: Vector) (x: Vector) =
     add_vec 
         cam.[X0_IDX..(X0_IDX+1)] 
         (mult_by_scalar distorted cam.[FOCAL_IDX])
+
+let compute_reproj_err (cam: Vector) (x: Vector) w (feat: Vector) =
+    mult_by_scalar (sub_vec (project cam x) feat) w
+
+let compute_zach_weight_error w =
+    1. - w*w

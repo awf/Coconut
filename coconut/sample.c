@@ -3,6 +3,55 @@
 #include <math.h>
 
 /* Oringinal code:
+Lambda (x,
+Lambda (y,
+Call (None, Map,
+[Lambda (a, Call (None, op_Multiply, [a, y])), x])))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Lambda (y,
+Let (closure4,
+Call (None, makeClosure,
+[Lambda (env2,
+Lambda (a,
+Let (y1,
+Call (None, envRef,
+[env2, Value ("y")]),
+Call (None, op_Multiply,
+[a, y1])))),
+Call (None, makeEnv,
+[NewUnionCase (Cons,
+NewTuple (Value ("y"),
+Value (42.0)),
+NewUnionCase (Empty))])]),
+Call (None, Map,
+[Lambda (arg3,
+Call (None, applyClosure, [closure4, arg3])),
+x]))))
+*/
+
+// Generated C code for linalg.mult_by_scalar:
+
+typedef struct env_t_5 {
+	number_t y;
+} env_t_5;
+env_t_5* make_env_t_5(number_t y) {
+	env_t_5* env = (env_t_5*)malloc(sizeof(env_t_5));
+	env->y = y;
+	return env;
+}
+
+number_t lambda5(env_t_5* env2, number_t a) {
+	number_t y1 = env2->y;
+	return a * y1;
+}
+array_number_t* linalg_mult_by_scalar(array_number_t* x, number_t y) {
+	closure_t* closure4 = make_closure(lambda5, make_env_t_5(y));
+	return array_map(closure4, x);
+}
+/* Oringinal code:
 Lambda (a,
 Lambda (b,
 NewArray (Double,
@@ -32,7 +81,7 @@ Call (None, GetArray, [b, Value (0)])])]))))
 /* Preprocessed code:
 Lambda (a,
 Lambda (b,
-Let (array1,
+Let (array6,
 NewArray (Double,
 Call (None, op_Subtraction,
 [Call (None, op_Multiply,
@@ -66,69 +115,20 @@ Call (None, op_Multiply,
 [Call (None, GetArray,
 [a, Value (1)]),
 Call (None, GetArray,
-[b, Value (0)])])])), array1)))
+[b, Value (0)])])])), array6)))
 */
 
 // Generated C code for linalg.cross:
 
 
 array_number_t* linalg_cross(array_number_t* a, array_number_t* b) {
-	array_number_t* array1 = (array_number_t*)malloc(sizeof(array_number_t));
-	array1->length = 3;
-	array1->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array1->arr[0] = a->arr[1] * b->arr[2] - a->arr[2] * b->arr[1];
-	array1->arr[1] = a->arr[2] * b->arr[0] - a->arr[0] * b->arr[2];
-	array1->arr[2] = a->arr[0] * b->arr[1] - a->arr[1] * b->arr[0];;
-	return array1;
-}
-/* Oringinal code:
-Lambda (x,
-Lambda (y,
-Call (None, Map,
-[Lambda (a, Call (None, op_Multiply, [a, y])), x])))
-*/
-
-/* Preprocessed code:
-Lambda (x,
-Lambda (y,
-Let (closure5,
-Call (None, makeClosure,
-[Lambda (env3,
-Lambda (a,
-Let (y2,
-Call (None, envRef,
-[env3, Value ("y")]),
-Call (None, op_Multiply,
-[a, y2])))),
-Call (None, makeEnv,
-[NewUnionCase (Cons,
-NewTuple (Value ("y"),
-Value (42.0)),
-NewUnionCase (Empty))])]),
-Call (None, Map,
-[Lambda (arg4,
-Call (None, applyClosure, [closure5, arg4])),
-x]))))
-*/
-
-// Generated C code for linalg.mult_by_scalar:
-
-typedef struct env_t_6 {
-	number_t y;
-} env_t_6;
-env_t_6* make_env_t_6(number_t y) {
-	env_t_6* env = (env_t_6*)malloc(sizeof(env_t_6));
-	env->y = y;
-	return env;
-}
-
-number_t lambda6(env_t_6* env3, number_t a) {
-	number_t y2 = env3->y;
-	return a * y2;
-}
-array_number_t* linalg_mult_by_scalar(array_number_t* x, number_t y) {
-	closure_t* closure5 = make_closure(lambda6, make_env_t_6(y));
-	return array_map(closure5, x);
+	array_number_t* array6 = (array_number_t*)malloc(sizeof(array_number_t));
+	array6->length = 3;
+	array6->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array6->arr[0] = a->arr[1] * b->arr[2] - a->arr[2] * b->arr[1];
+	array6->arr[1] = a->arr[2] * b->arr[0] - a->arr[0] * b->arr[2];
+	array6->arr[2] = a->arr[0] * b->arr[1] - a->arr[1] * b->arr[0];;
+	return array6;
 }
 /* Oringinal code:
 Lambda (x,
@@ -177,6 +177,27 @@ array_number_t* linalg_add_vec(array_number_t* x, array_number_t* y) {
 /* Oringinal code:
 Lambda (x,
 Lambda (y,
+Lambda (z,
+Call (None, add_vec, [Call (None, add_vec, [x, y]), z]))))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Lambda (y,
+Lambda (z,
+Call (None, add_vec, [Call (None, add_vec, [x, y]), z]))))
+*/
+
+// Generated C code for linalg.add_vec3:
+
+
+array_number_t* linalg_add_vec3(array_number_t* x, array_number_t* y, array_number_t* z) {
+
+	return linalg_add_vec(linalg_add_vec(x, y), z);
+}
+/* Oringinal code:
+Lambda (x,
+Lambda (y,
 Call (None, Map2,
 [Lambda (x,
 Lambda (y, Call (None, op_Subtraction, [x, y]))),
@@ -221,28 +242,6 @@ array_number_t* linalg_sub_vec(array_number_t* x, array_number_t* y) {
 }
 /* Oringinal code:
 Lambda (x,
-Lambda (y,
-Lambda (z,
-Call (None, add_vec, [Call (None, add_vec, [x, y]), z]))))
-*/
-
-/* Preprocessed code:
-Lambda (x,
-Lambda (y,
-Lambda (z,
-Call (None, add_vec, [Call (None, add_vec, [x, y]), z]))))
-*/
-
-// Generated C code for linalg.add_vec3:
-
-
-array_number_t* linalg_add_vec3(array_number_t* x, array_number_t* y, array_number_t* z) {
-
-	return linalg_add_vec(linalg_add_vec(x, y), z);
-}
-
-/* Oringinal code:
-Lambda (x,
 Call (None, Sum,
 [Call (None, Map,
 [Lambda (x, Call (None, op_Multiply, [x, x])), x])]))
@@ -280,7 +279,6 @@ number_t linalg_sqnorm(array_number_t* x) {
 	closure_t* closure17 = make_closure(lambda18, make_env_t_18());
 	return array_sum(array_map(closure17, x));
 }
-
 /* Oringinal code:
 Lambda (x,
 Lambda (y,
@@ -663,6 +661,55 @@ array_number_t* linalg_project(array_number_t* cam, array_number_t* x) {
 	array_number_t* distorted = linalg_radial_distort(array_slice(cam, RAD_IDX, RAD_IDX + 1), linalg_mult_by_scalar(array_slice(Xcam, 0, 1), 1 / Xcam->arr[2]));
 	return linalg_add_vec(array_slice(cam, X0_IDX, X0_IDX + 1), linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
 }
+/* Oringinal code:
+Lambda (cam,
+Lambda (x,
+Lambda (w,
+Lambda (feat,
+Call (None, mult_by_scalar,
+[Call (None, sub_vec,
+[Call (None, project, [cam, x]),
+feat]), w])))))
+*/
+
+/* Preprocessed code:
+Lambda (cam,
+Lambda (x,
+Lambda (w,
+Lambda (feat,
+Call (None, mult_by_scalar,
+[Call (None, sub_vec,
+[Call (None, project, [cam, x]),
+feat]), w])))))
+*/
+
+// Generated C code for linalg.compute_reproj_err:
+
+
+array_number_t* linalg_compute_reproj_err(array_number_t* cam, array_number_t* x, number_t w, array_number_t* feat) {
+
+	return linalg_mult_by_scalar(linalg_sub_vec(linalg_project(cam, x), feat), w);
+}
+/* Oringinal code:
+Lambda (w,
+Call (None, op_Subtraction,
+[Value (1.0), Call (None, op_Multiply, [w, w])]))
+*/
+
+/* Preprocessed code:
+Lambda (w,
+Call (None, op_Subtraction,
+[Value (1.0), Call (None, op_Multiply, [w, w])]))
+*/
+
+// Generated C code for linalg.compute_zach_weight_error:
+
+
+number_t linalg_compute_zach_weight_error(number_t w) {
+
+	return 1 - w * w;
+}
+
 int main()
 {
 	array_number_t* a = (array_number_t*)malloc(sizeof(number_t) * 3);
