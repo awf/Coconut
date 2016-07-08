@@ -276,7 +276,7 @@ let main argv =
     test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
 #if DO_COMPILE
-    compiler.compileSeveral "linalg" ["cross"; "mult_by_scalar"; "add_vec"; "sub_vec"; "add_vec3"]
+    compiler.compileSeveral "linalg" ["cross"; "mult_by_scalar"; "add_vec"; "sub_vec"; "add_vec3"; "sqnorm"; "dot_prod"]
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "model/") (dir_in + fn) (dir_out + fn) nruns_f nruns_J

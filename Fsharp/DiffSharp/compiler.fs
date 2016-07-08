@@ -56,6 +56,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     match (op.Name, op.DeclaringType.Name) with
     | ("Map", "ArrayModule") -> Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
+    | ("Sum", "ArrayModule") -> Some("array_sum", argList)
     | (methodName, moduleName) when (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> Some(sprintf "%s_%s" moduleName methodName, argList)
     | _ -> None 
   | _ -> None

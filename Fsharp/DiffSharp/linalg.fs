@@ -19,3 +19,9 @@ let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
 
 let inline sub_vec (x: Vector) (y: Vector) =
     Array.map2 (-) x y
+
+let inline sqnorm (x: Vector) =
+    Array.sum (Array.map (fun x -> x*x) x)
+
+let inline dot_prod (x: Vector) (y: Vector) =
+    Array.sum (Array.map2 (*) x y)

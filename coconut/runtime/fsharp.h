@@ -54,4 +54,12 @@ array_number_t* array_map2(closure_t* closure, array_number_t* arr1, array_numbe
 	return res;
 }
 
+number_t array_sum(array_number_t* arr) {
+	number_t sum = 0;
+	for (int i = 0; i < arr->length; i++) {
+		sum += arr->arr[i];
+	}
+	return sum;
+}
+
 #endif

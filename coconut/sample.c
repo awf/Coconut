@@ -240,6 +240,96 @@ array_number_t* linalg_add_vec3(array_number_t* x, array_number_t* y, array_numb
 	return linalg_add_vec(linalg_add_vec(x, y), z);
 }
 
+/* Oringinal code:
+Lambda (x,
+Call (None, Sum,
+[Call (None, Map,
+[Lambda (x, Call (None, op_Multiply, [x, x])), x])]))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Let (closure17,
+Call (None, makeClosure,
+[Lambda (env15, Lambda (x, Call (None, op_Multiply, [x, x]))),
+Call (None, makeEnv, [NewUnionCase (Empty)])]),
+Call (None, Sum,
+[Call (None, Map,
+[Lambda (arg16,
+Call (None, applyClosure, [closure17, arg16])),
+x])])))
+*/
+
+// Generated C code for linalg.sqnorm:
+
+typedef struct env_t_18 {
+	number_t dummy_variable;
+} env_t_18;
+env_t_18* make_env_t_18() {
+	env_t_18* env = (env_t_18*)malloc(sizeof(env_t_18));
+
+	return env;
+}
+
+number_t lambda18(env_t_18* env15, number_t x) {
+
+	return x * x;
+}
+number_t linalg_sqnorm(array_number_t* x) {
+	closure_t* closure17 = make_closure(lambda18, make_env_t_18());
+	return array_sum(array_map(closure17, x));
+}
+
+/* Oringinal code:
+Lambda (x,
+Lambda (y,
+Call (None, Sum,
+[Call (None, Map2,
+[Lambda (x,
+Lambda (y,
+Call (None, op_Multiply, [x, y]))),
+x, y])])))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Lambda (y,
+Let (closure21,
+Call (None, makeClosure,
+[Lambda (env19,
+Lambda (x,
+Lambda (y,
+Call (None, op_Multiply,
+[x, y])))),
+Call (None, makeEnv, [NewUnionCase (Empty)])]),
+Call (None, Sum,
+[Call (None, Map2,
+[Lambda (arg20,
+Call (None, applyClosure,
+[closure21, arg20])), x, y])]))))
+*/
+
+// Generated C code for linalg.dot_prod:
+
+typedef struct env_t_22 {
+	number_t dummy_variable;
+} env_t_22;
+env_t_22* make_env_t_22() {
+	env_t_22* env = (env_t_22*)malloc(sizeof(env_t_22));
+
+	return env;
+}
+
+number_t lambda22(env_t_22* env19, number_t x, number_t y) {
+
+	return x * y;
+}
+number_t linalg_dot_prod(array_number_t* x, array_number_t* y) {
+	closure_t* closure21 = make_closure(lambda22, make_env_t_22());
+	return array_sum(array_map2(closure21, x, y));
+}
+
+
 int main()
 {
 	array_number_t* a = (array_number_t*)malloc(sizeof(number_t) * 3);
@@ -264,5 +354,9 @@ int main()
 	array_print(f);
 	array_number_t* g = linalg_add_vec3(a, b, c);
 	array_print(g);
+	number_t h = linalg_sqnorm(a);
+	printf("%f\n", h);
+	number_t i = linalg_dot_prod(a, b);
+	printf("%f\n", i);
 	return 0;
 }
