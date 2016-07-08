@@ -13,3 +13,9 @@ let inline cross (a: Vector) (b: Vector) =
 
 let inline add_vec (x: Vector) (y: Vector) =
     Array.map2 (+) x y
+
+let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
+  add_vec (add_vec x y) z
+
+let inline sub_vec (x: Vector) (y: Vector) =
+    Array.map2 (-) x y

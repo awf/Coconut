@@ -173,6 +173,72 @@ array_number_t* linalg_add_vec(array_number_t* x, array_number_t* y) {
 	closure_t* closure9 = make_closure(lambda10, make_env_t_10());
 	return array_map2(closure9, x, y);
 }
+/* Oringinal code:
+Lambda (x,
+Lambda (y,
+Call (None, Map2,
+[Lambda (x,
+Lambda (y, Call (None, op_Subtraction, [x, y]))),
+x, y])))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Lambda (y,
+Let (closure13,
+Call (None, makeClosure,
+[Lambda (env11,
+Lambda (x,
+Lambda (y,
+Call (None, op_Subtraction,
+[x, y])))),
+Call (None, makeEnv, [NewUnionCase (Empty)])]),
+Call (None, Map2,
+[Lambda (arg12,
+Call (None, applyClosure, [closure13, arg12])),
+x, y]))))
+*/
+
+// Generated C code for linalg.sub_vec:
+
+typedef struct env_t_14 {
+	number_t dummy_variable;
+} env_t_14;
+env_t_14* make_env_t_14() {
+	env_t_14* env = (env_t_14*)malloc(sizeof(env_t_14));
+
+	return env;
+}
+
+number_t lambda14(env_t_14* env11, number_t x, number_t y) {
+
+	return x - y;
+}
+array_number_t* linalg_sub_vec(array_number_t* x, array_number_t* y) {
+	closure_t* closure13 = make_closure(lambda14, make_env_t_14());
+	return array_map2(closure13, x, y);
+}
+/* Oringinal code:
+Lambda (x,
+Lambda (y,
+Lambda (z,
+Call (None, add_vec, [Call (None, add_vec, [x, y]), z]))))
+*/
+
+/* Preprocessed code:
+Lambda (x,
+Lambda (y,
+Lambda (z,
+Call (None, add_vec, [Call (None, add_vec, [x, y]), z]))))
+*/
+
+// Generated C code for linalg.add_vec3:
+
+
+array_number_t* linalg_add_vec3(array_number_t* x, array_number_t* y, array_number_t* z) {
+
+	return linalg_add_vec(linalg_add_vec(x, y), z);
+}
 
 int main()
 {
@@ -194,5 +260,9 @@ int main()
 	array_print(d);
 	array_number_t* e = linalg_add_vec(a, b);
 	array_print(e);
+	array_number_t* f = linalg_sub_vec(a, b);
+	array_print(f);
+	array_number_t* g = linalg_add_vec3(a, b, c);
+	array_print(g);
 	return 0;
 }
