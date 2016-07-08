@@ -13,7 +13,7 @@ env_t_5* make_env_t_5(number_t y) {
 
 number_t lambda5(env_t_5* env2, number_t a) {
 	number_t y1 = env2->y;
-	return a * y1;
+	return (a) * (y1);
 }
 array_number_t* linalg_mult_by_scalar(array_number_t* x, number_t y) {
 	closure_t* closure4 = make_closure(lambda5, make_env_t_5(y));
@@ -24,9 +24,9 @@ array_number_t* linalg_cross(array_number_t* a, array_number_t* b) {
 	array_number_t* array6 = (array_number_t*)malloc(sizeof(array_number_t));
 	array6->length=3;
 	array6->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array6->arr[0] = a->arr[1] * b->arr[2] - a->arr[2] * b->arr[1];
-	array6->arr[1] = a->arr[2] * b->arr[0] - a->arr[0] * b->arr[2];
-	array6->arr[2] = a->arr[0] * b->arr[1] - a->arr[1] * b->arr[0];;
+	array6->arr[0] = ((a->arr[1]) * (b->arr[2])) - ((a->arr[2]) * (b->arr[1]));
+	array6->arr[1] = ((a->arr[2]) * (b->arr[0])) - ((a->arr[0]) * (b->arr[2]));
+	array6->arr[2] = ((a->arr[0]) * (b->arr[1])) - ((a->arr[1]) * (b->arr[0]));;
 	return array6;
 }
 typedef struct env_t_10 {
@@ -40,7 +40,7 @@ env_t_10* make_env_t_10() {
 
 number_t lambda10(env_t_10* env7, number_t x, number_t y) {
 	
-	return x + y;
+	return (x) + (y);
 }
 array_number_t* linalg_add_vec(array_number_t* x, array_number_t* y) {
 	closure_t* closure9 = make_closure(lambda10, make_env_t_10());
@@ -62,7 +62,7 @@ env_t_14* make_env_t_14() {
 
 number_t lambda14(env_t_14* env11, number_t x, number_t y) {
 	
-	return x - y;
+	return (x) - (y);
 }
 array_number_t* linalg_sub_vec(array_number_t* x, array_number_t* y) {
 	closure_t* closure13 = make_closure(lambda14, make_env_t_14());
@@ -79,7 +79,7 @@ env_t_18* make_env_t_18() {
 
 number_t lambda18(env_t_18* env15, number_t x) {
 	
-	return x * x;
+	return (x) * (x);
 }
 number_t linalg_sqnorm(array_number_t* x) {
 	closure_t* closure17 = make_closure(lambda18, make_env_t_18());
@@ -96,7 +96,7 @@ env_t_22* make_env_t_22() {
 
 number_t lambda22(env_t_22* env19, number_t x, number_t y) {
 	
-	return x * y;
+	return (x) * (y);
 }
 number_t linalg_dot_prod(array_number_t* x, array_number_t* y) {
 	closure_t* closure21 = make_closure(lambda22, make_env_t_22());
@@ -105,21 +105,21 @@ number_t linalg_dot_prod(array_number_t* x, array_number_t* y) {
 
 array_number_t* linalg_radial_distort(array_number_t* rad_params, array_number_t* proj) {
 	number_t rsq = linalg_sqnorm(proj);
-	number_t L = 1 + rad_params->arr[0] * rsq + rad_params->arr[1] * rsq * rsq;
+	number_t L = ((1) + ((rad_params->arr[0]) * (rsq))) + (((rad_params->arr[1]) * (rsq)) * (rsq));
 	return linalg_mult_by_scalar(proj, L);
 }
 
 array_number_t* linalg_rodrigues_rotate_point(array_number_t* rot, array_number_t* x) {
 	number_t sqtheta = linalg_sqnorm(rot);
 	array_number_t* ite23 = NULL;
-	if(sqtheta != 0) {
+	if((sqtheta) != (0)) {
 		number_t theta = sqrt(sqtheta);
 		number_t costheta = cos(theta);
 		number_t sintheta = sin(theta);
-		number_t theta_inv = 1 / theta;
+		number_t theta_inv = (1) / (theta);
 		array_number_t* w = linalg_mult_by_scalar(rot, theta_inv);
 		array_number_t* w_cross_X = linalg_cross(w, x);
-		number_t tmp = linalg_dot_prod(w, x) * 1 - costheta;
+		number_t tmp = (linalg_dot_prod(w, x)) * ((1) - (costheta));
 		array_number_t* v1 = linalg_mult_by_scalar(x, costheta);
 		array_number_t* v2 = linalg_mult_by_scalar(w_cross_X, sintheta);
 		ite23 = linalg_add_vec(linalg_add_vec(v1, v2), linalg_mult_by_scalar(w, tmp));
@@ -137,9 +137,9 @@ array_number_t* linalg_project(array_number_t* cam, array_number_t* x) {
 	index_t FOCAL_IDX = 6;
 	index_t X0_IDX = 7;
 	index_t RAD_IDX = 9;
-	array_number_t* Xcam = linalg_rodrigues_rotate_point(array_slice(cam, ROT_IDX, ROT_IDX + 2), linalg_sub_vec(x, array_slice(cam, CENTER_IDX, CENTER_IDX + 2)));
-	array_number_t* distorted = linalg_radial_distort(array_slice(cam, RAD_IDX, RAD_IDX + 1), linalg_mult_by_scalar(array_slice(Xcam, 0, 1), 1 / Xcam->arr[2]));
-	return linalg_add_vec(array_slice(cam, X0_IDX, X0_IDX + 1), linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
+	array_number_t* Xcam = linalg_rodrigues_rotate_point(array_slice(cam, ROT_IDX, (ROT_IDX) + (2)), linalg_sub_vec(x, array_slice(cam, CENTER_IDX, (CENTER_IDX) + (2))));
+	array_number_t* distorted = linalg_radial_distort(array_slice(cam, RAD_IDX, (RAD_IDX) + (1)), linalg_mult_by_scalar(array_slice(Xcam, 0, 1), (1) / (Xcam->arr[2])));
+	return linalg_add_vec(array_slice(cam, X0_IDX, (X0_IDX) + (1)), linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
 }
 
 array_number_t* linalg_compute_reproj_err(array_number_t* cam, array_number_t* x, number_t w, array_number_t* feat) {
@@ -149,7 +149,7 @@ array_number_t* linalg_compute_reproj_err(array_number_t* cam, array_number_t* x
 
 number_t linalg_compute_zach_weight_error(number_t w) {
 	
-	return 1 - w * w;
+	return (1) - ((w) * (w));
 }
 
 void linalg_test1(array_number_t* dum) {

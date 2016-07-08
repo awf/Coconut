@@ -277,7 +277,8 @@ let main argv =
 #endif
 #if DO_COMPILE
     compiler.compileModule "linalg"
-    
+    linalg.test1 [||]
+
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "model/") (dir_in + fn) (dir_out + fn) nruns_f nruns_J

@@ -140,7 +140,7 @@ let rec ccodegen (e:Expr): string =
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> sprintf "%s %s %s" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
+      | OperatorName opname -> sprintf "(%s) %s (%s)" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
       | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
       | _ -> sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
@@ -324,11 +324,11 @@ let compile (moduleName: string) (methodName: string): string =
   match reflDefnOpt with
    | None -> failwith (sprintf "%s failed" methodName)
    | Some(e) -> 
-     printfn "/* Oringinal code:\n%A\n*/\n" (e)
+     (* printfn "/* Oringinal code:\n%A\n*/\n" (e) *)
      let preprocessed = cpreprocess e
-     printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
+     (* printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed) *)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName)
-     printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
+     (* printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated *)
      generated
 
 let compileSeveral (moduleName: string) (methodNames: string List) =
