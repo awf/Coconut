@@ -70,6 +70,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
     | ("arrayPrint", "utils") -> Some("array_print", argList)
     | ("numberPrint", "utils") -> Some("number_print", argList)
+    | ("arrayMapToMatrix", "utils") -> Some("array_map_to_matrix", argList)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
@@ -113,8 +114,10 @@ let newVar (name: string): string =
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
-  | _ when t.IsArray ->
-   "array_" + (ccodegenType (t.GetElementType())) + "*"
+  | _ when t = typeof<double[][]> ->
+   "array_array_number_t"
+  | _ when t = typeof<double[]> ->
+   "array_number_t"
   | _ when (t.IsGenericParameter) ->
     failwith "does not know how to generate code for a generic type"
   | _ when (t = typeof<double>) ->
@@ -158,9 +161,9 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
     match e with 
     | Patterns.NewArray(tp, elems) -> 
       let args = (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems))
-      let arrTp = ("array_" + (ccodegenType tp)) 
+      let arrTp = ccodegenType (tp.MakeArrayType()) 
       let elemTp = (ccodegenType tp)
-      let rhs = sprintf "(%s*)malloc(sizeof(%s));\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" arrTp arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
+      let rhs = sprintf "(%s)malloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
       (rhs, [], false)
     | MakeClosure(envVar, lamBody, fields) ->
       let lambdaName = newVar "lambda"
@@ -175,7 +178,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
       let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" envName envName fieldsDecl envName envName envName fieldsInit
       let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, v) -> v) fields))
-      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName], false)
+      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true], false)
     | Patterns.IfThenElse(cond, e1, e2) ->
       let ccodegenStatements exp = 
         let (stmts, res) = match exp with 
@@ -198,7 +201,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
     (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) rhs, funs)
 
 (* C code generation for a function *)
-and ccodegenFunction (e: Expr) (name: string): string =
+and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
   let rec extractHeader exp curInputs statements = match exp with 
     | LambdaN (inputs, body) -> extractHeader body (List.append curInputs inputs) statements
     | Patterns.Let(x, e1, e2) -> extractHeader e2 curInputs (List.append statements [(x, e1)])
@@ -207,7 +210,10 @@ and ccodegenFunction (e: Expr) (name: string): string =
   let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement statements)
   let statementsCode = (String.concat "\n\t" statementsCodeList)
   let closuresCode = (String.concat "\n" (List.concat closuresList))
-  sprintf "%s\n%s %s(%s) {\n\t%s\n\treturn %s;\n}" (closuresCode) (ccodegenType(result.Type)) name (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs)) statementsCode (ccodegen result)
+  let resultType = if(isForClosure) then "value_t" else ccodegenType(result.Type)
+  let parameters = (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs))
+  let finalStatement = if(isForClosure) then sprintf "value_t res;\n\tres.%s_value = %s;\n\treturn res;" (ccodegenType(result.Type)) (ccodegen result) else sprintf "return %s;" (ccodegen result)
+  sprintf "%s\n%s %s(%s) {\n\t%s\n\t%s\n}" closuresCode resultType name parameters statementsCode finalStatement
 
 (* Performs a simple kind of ANF conversion for specific statements. *)
 let rec anfConversion (letRhs: bool) (e: Expr): Expr = 
@@ -327,7 +333,7 @@ let compile (moduleName: string) (methodName: string): string =
      (* printfn "/* Oringinal code:\n%A\n*/\n" (e) *)
      let preprocessed = cpreprocess e
      (* printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed) *)
-     let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName)
+     let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName) false
      (* printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated *)
      generated
 

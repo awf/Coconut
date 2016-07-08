@@ -67,17 +67,35 @@ let project (cam: Vector) (x: Vector) =
         cam.[X0_IDX..(X0_IDX+1)] 
         (mult_by_scalar distorted cam.[FOCAL_IDX])
 
-let compute_reproj_err (cam: Vector) (x: Vector) w (feat: Vector) =
+let compute_reproj_err (cam: Vector) (x: Vector) (w: Number) (feat: Vector) =
     mult_by_scalar (sub_vec (project cam x) feat) w
 
 let compute_zach_weight_error w =
     1. - w*w
 
-let test1 (dum: Vector) = 
+let w_err (w:Vector) = 
+    Array.map compute_zach_weight_error w 
+
+(*
+let reproj_err (cams:Matrix) (X:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): Matrix =
+    let n = cams.Length
+    let p = w.Length
+    let range = arrayRange 0 (p - 1)
+    Array.map (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] X.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
+*)
+
+(*
+let foo (x: Vector): Vector = 
+  Array.map (fun i -> i * 10.0) x
+*)
+
+let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
   let b = [| 5.0; 6.0; 7.0 |]
   arrayPrint a
   arrayPrint b
+(*  arrayPrint (foo b) *)
+
   let c = cross a b
   arrayPrint c
   let d = mult_by_scalar c 15.0

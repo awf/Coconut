@@ -5,3 +5,9 @@ let arrayPrint (v: double[]): Unit =
 
 let numberPrint (v: double): Unit = 
   printfn "%f" v
+
+let arrayRange (s: int) (e: int): double[] = 
+  [|for i = s to e do yield (double i)|]
+
+let arrayMapToMatrix (f: double -> double[]) (arr: double[]): double[][] = 
+  Array.map f arr
