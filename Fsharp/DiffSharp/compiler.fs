@@ -221,6 +221,9 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
   | Patterns.IfThenElse(cond, e1, e2) when not letRhs ->
     let variable = new Var(newVar "ite", e.Type)
     Expr.Let(variable, Expr.IfThenElse(cond, anfConversion false e1, anfConversion false e2), Expr.Var(variable))
+  | Patterns.Sequential(e1, e2) when not letRhs ->
+    let variable = new Var(newVar "foo", e1.Type)
+    Expr.Let(variable, anfConversion true e1, anfConversion false e2)
   | ExprShape.ShapeCombination(o, exprs) ->
     ExprShape.RebuildShapeCombination(o, List.map (anfConversion false) exprs)
   | _ -> e
