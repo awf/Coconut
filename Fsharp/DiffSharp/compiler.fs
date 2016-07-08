@@ -68,6 +68,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Map", "ArrayModule") -> Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
+    | ("arrayPrint", "utils") -> Some("array_print", argList)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
@@ -123,6 +124,8 @@ let rec ccodegenType (t: System.Type): string =
     ("env_t_" + variable_counter.ToString() + "*")
   | _ when (t.Name = typeof<Closure<_, _>>.Name) ->
     "closure_t*"
+  | _ when (t = typeof<Unit>) ->
+    "void"
   | _ ->
     failwith (sprintf "does not know how to generate code for the type `%s` with name `%s`" (t.ToString()) (t.Name))
 
@@ -144,6 +147,7 @@ let rec ccodegen (e:Expr): string =
     failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)
   | Patterns.Let(x, e1, e2) -> 
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
+  | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | _ -> sprintf "ERROR[%A]" e
 
@@ -187,6 +191,8 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       (ccodegen e, [], false)
   if(includesLhs) then 
     (rhs, funs) 
+  else if (e.Type = typeof<Unit>) then
+    (sprintf "%s;" rhs, funs)
   else
     (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) rhs, funs)
 
@@ -203,19 +209,20 @@ and ccodegenFunction (e: Expr) (name: string): string =
   sprintf "%s\n%s %s(%s) {\n\t%s\n\treturn %s;\n}" (closuresCode) (ccodegenType(result.Type)) name (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs)) statementsCode (ccodegen result)
 
 (* Performs a simple kind of ANF conversion for specific statements. *)
-let rec anfConversion (e: Expr): Expr = 
+let rec anfConversion (letRhs: bool) (e: Expr): Expr = 
   match e with 
-  | Patterns.Let(x, e1, e2) -> Expr.Let(x, anfConversion e1, anfConversion e2)
+  | Patterns.Let(x, e1, e2) -> Expr.Let(x, anfConversion true e1, anfConversion false e2)
   | Patterns.Value(v, tp) -> e
-  | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion body)
-  | Patterns.NewArray(tp, elems) -> 
+  | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion false body)
+  | Patterns.NewArray(tp, elems) when not letRhs -> 
     let variable = new Var(newVar "array", e.Type)
+    (* TODO generalize *)
     Expr.Let(variable, e, Expr.Var(variable))
-  | Patterns.IfThenElse(cond, e1, e2) ->
+  | Patterns.IfThenElse(cond, e1, e2) when not letRhs ->
     let variable = new Var(newVar "ite", e.Type)
-    Expr.Let(variable, e, Expr.Var(variable))
-  | Patterns.Call (x, op, elist) -> 
-    Expr.Call(op, List.map anfConversion elist)
+    Expr.Let(variable, Expr.IfThenElse(cond, anfConversion false e1, anfConversion false e2), Expr.Var(variable))
+  | ExprShape.ShapeCombination(o, exprs) ->
+    ExprShape.RebuildShapeCombination(o, List.map (anfConversion false) exprs)
   | _ -> e
 
 (* Lifts let bindings to top-level statements *)
@@ -301,7 +308,7 @@ let closureConversion (e: Expr): Expr =
 
 (* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
-  anfConversion (letLifting (closureConversion e))
+  anfConversion false (letLifting (closureConversion e))
 
 let assembly = System.Reflection.Assembly.GetExecutingAssembly()
 
