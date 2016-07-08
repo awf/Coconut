@@ -8,6 +8,7 @@ let (|OperatorName|_|) methodName =
     | "op_Addition" -> Some("+")
     | "op_Multiply" -> Some("*")
     | "op_Subtraction" -> Some("-")
+    | "op_Division" -> Some("/")
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
@@ -57,6 +58,9 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Map", "ArrayModule") -> Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
+    | ("Sqrt", "Operators") -> Some("sqrt", argList)
+    | ("Sin", "Operators") -> Some("sin", argList)
+    | ("Cos", "Operators") -> Some("cos", argList)
     | (methodName, moduleName) when (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> Some(sprintf "%s_%s" moduleName methodName, argList)
     | _ -> None 
   | _ -> None
@@ -118,7 +122,7 @@ let rec ccodegen (e:Expr): string =
     match op.Name with
       | OperatorName opname -> sprintf "%s %s %s" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
       | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
-      | _ -> sprintf "ERROR CALL %s(%s)" op.Name (String.concat ", " (List.map ccodegen elist))
+      | _ -> sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)

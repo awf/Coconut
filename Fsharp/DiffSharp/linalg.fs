@@ -25,3 +25,21 @@ let inline sqnorm (x: Vector) =
 
 let inline dot_prod (x: Vector) (y: Vector) =
     Array.sum (Array.map2 (*) x y)
+
+let radial_distort (rad_params: Vector) (proj: Vector) =
+    let rsq = sqnorm proj
+    let L = 1. + rad_params.[0] * rsq + rad_params.[1] * rsq * rsq
+    mult_by_scalar proj L
+
+let rodrigues_rotate_point_mod (rot: Vector) (x: Vector) =
+    let sqtheta = sqnorm rot
+    let theta = sqrt sqtheta
+    let costheta = cos theta
+    let sintheta = sin theta
+    let theta_inv = 1. / theta
+    let w = mult_by_scalar rot theta_inv
+    let w_cross_X = cross w x    
+    let tmp = (dot_prod w x) * (1. - costheta)
+    let v1 = mult_by_scalar x costheta
+    let v2 = mult_by_scalar w_cross_X sintheta 
+    add_vec (add_vec v1 v2) (mult_by_scalar w tmp)

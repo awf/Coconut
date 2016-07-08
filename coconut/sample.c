@@ -1,5 +1,6 @@
 #include "runtime/fsharp.h"
 #include <stdio.h>
+#include <math.h>
 
 /* Oringinal code:
 Lambda (a,
@@ -328,8 +329,160 @@ number_t linalg_dot_prod(array_number_t* x, array_number_t* y) {
 	closure_t* closure21 = make_closure(lambda22, make_env_t_22());
 	return array_sum(array_map2(closure21, x, y));
 }
+/* Oringinal code:
+Lambda (rad_params,
+Lambda (proj,
+Let (rsq, Call (None, sqnorm, [proj]),
+Let (L,
+Call (None, op_Addition,
+[Call (None, op_Addition,
+[Value (1.0),
+Call (None, op_Multiply,
+[Call (None, GetArray,
+[rad_params, Value (0)]),
+rsq])]),
+Call (None, op_Multiply,
+[Call (None, op_Multiply,
+[Call (None, GetArray,
+[rad_params, Value (1)]),
+rsq]), rsq])]),
+Call (None, mult_by_scalar, [proj, L])))))
+*/
+
+/* Preprocessed code:
+Lambda (rad_params,
+Lambda (proj,
+Let (rsq, Call (None, sqnorm, [proj]),
+Let (L,
+Call (None, op_Addition,
+[Call (None, op_Addition,
+[Value (1.0),
+Call (None, op_Multiply,
+[Call (None, GetArray,
+[rad_params, Value (0)]),
+rsq])]),
+Call (None, op_Multiply,
+[Call (None, op_Multiply,
+[Call (None, GetArray,
+[rad_params, Value (1)]),
+rsq]), rsq])]),
+Call (None, mult_by_scalar, [proj, L])))))
+*/
+
+// Generated C code for linalg.radial_distort:
 
 
+array_number_t* linalg_radial_distort(array_number_t* rad_params, array_number_t* proj) {
+	number_t rsq = linalg_sqnorm(proj);
+	number_t L = 1 + rad_params->arr[0] * rsq + rad_params->arr[1] * rsq * rsq;
+	return linalg_mult_by_scalar(proj, L);
+}
+/* Oringinal code:
+Lambda (rot,
+Lambda (x,
+Let (sqtheta, Call (None, sqnorm, [rot]),
+Let (theta, Call (None, Sqrt, [sqtheta]),
+Let (costheta, Call (None, Cos, [theta]),
+Let (sintheta, Call (None, Sin, [theta]),
+Let (theta_inv,
+Call (None, op_Division,
+[Value (1.0), theta]),
+Let (w,
+Call (None, mult_by_scalar,
+[rot, theta_inv]),
+Let (w_cross_X,
+Call (None, cross, [w, x]),
+Let (tmp,
+Call (None, op_Multiply,
+[Call (None,
+dot_prod,
+[w, x]),
+Call (None,
+op_Subtraction,
+[Value (1.0),
+costheta])]),
+Let (v1,
+Call (None,
+mult_by_scalar,
+[x, costheta]),
+Let (v2,
+Call (None,
+mult_by_scalar,
+[w_cross_X,
+sintheta]),
+Call (None,
+add_vec,
+[Call (None,
+add_vec,
+[v1,
+v2]),
+Call (None,
+mult_by_scalar,
+[w,
+tmp])])))))))))))))
+*/
+
+/* Preprocessed code:
+Lambda (rot,
+Lambda (x,
+Let (sqtheta, Call (None, sqnorm, [rot]),
+Let (theta, Call (None, Sqrt, [sqtheta]),
+Let (costheta, Call (None, Cos, [theta]),
+Let (sintheta, Call (None, Sin, [theta]),
+Let (theta_inv,
+Call (None, op_Division,
+[Value (1.0), theta]),
+Let (w,
+Call (None, mult_by_scalar,
+[rot, theta_inv]),
+Let (w_cross_X,
+Call (None, cross, [w, x]),
+Let (tmp,
+Call (None, op_Multiply,
+[Call (None,
+dot_prod,
+[w, x]),
+Call (None,
+op_Subtraction,
+[Value (1.0),
+costheta])]),
+Let (v1,
+Call (None,
+mult_by_scalar,
+[x, costheta]),
+Let (v2,
+Call (None,
+mult_by_scalar,
+[w_cross_X,
+sintheta]),
+Call (None,
+add_vec,
+[Call (None,
+add_vec,
+[v1,
+v2]),
+Call (None,
+mult_by_scalar,
+[w,
+tmp])])))))))))))))
+*/
+
+// Generated C code for linalg.rodrigues_rotate_point_mod:
+
+
+array_number_t* linalg_rodrigues_rotate_point_mod(array_number_t* rot, array_number_t* x) {
+	number_t sqtheta = linalg_sqnorm(rot);
+	number_t theta = sqrt(sqtheta);
+	number_t costheta = cos(theta);
+	number_t sintheta = sin(theta);
+	number_t theta_inv = 1 / theta;
+	array_number_t* w = linalg_mult_by_scalar(rot, theta_inv);
+	array_number_t* w_cross_X = linalg_cross(w, x);
+	number_t tmp = linalg_dot_prod(w, x) * 1 - costheta;
+	array_number_t* v1 = linalg_mult_by_scalar(x, costheta);
+	array_number_t* v2 = linalg_mult_by_scalar(w_cross_X, sintheta);
+	return linalg_add_vec(linalg_add_vec(v1, v2), linalg_mult_by_scalar(w, tmp));
+}
 int main()
 {
 	array_number_t* a = (array_number_t*)malloc(sizeof(number_t) * 3);
@@ -358,5 +511,9 @@ int main()
 	printf("%f\n", h);
 	number_t i = linalg_dot_prod(a, b);
 	printf("%f\n", i);
+	array_number_t* j = linalg_radial_distort(a, b);
+	array_print(j);
+	array_number_t* k = linalg_rodrigues_rotate_point_mod(a, b);
+	array_print(k);
 	return 0;
 }
