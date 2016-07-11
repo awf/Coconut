@@ -16,7 +16,8 @@ let (|OperatorName|_|) methodName =
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
   (* TODO implement in tail recursive way *)
-  let rec lambdaNExtract exp = match exp with
+  let rec lambdaNExtract exp = 
+    match exp with
     | Patterns.Lambda(x, body) -> 
       let (inputs, newBody) = lambdaNExtract body
       (x :: inputs, newBody)
@@ -26,7 +27,8 @@ let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option =
   | (inputs, body) -> Some(inputs, body)
 
 let (|LetN|_|) (e: Expr): ((Var * Expr) List * Expr) Option = 
-  let rec letNExtract exp statements = match exp with 
+  let rec letNExtract exp statements = 
+    match exp with 
     | Patterns.Let(x, e1, e2) -> letNExtract e2 (List.append statements [(x, e1)]) 
     | _ -> (statements, exp)
   match letNExtract e [] with 
@@ -40,13 +42,17 @@ let (|TopLevelFunction|) (e: Expr): (Var List * Expr) =
 
 let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string) List)) Option = 
   match e with 
-  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, list)]) when op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
+  | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, list)]) when 
+      op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
     let envList = 
-      let rec extractElems l = match l with
+      let rec extractElems l = 
+        match l with
         (* The pattern `Patterns.Call (_, _, [e])` performs an additional level of specialization.
            This specialization results in not using a union type for the variables in the enviroment 
            of a closure. *)
-        | [ Patterns.NewUnionCase(_, [Patterns.NewTuple([Patterns.Value(v, _);Patterns.Call (_, _, [e])]); tl]) ] ->
+        | [ Patterns.NewUnionCase(_, 
+             [ Patterns.NewTuple([Patterns.Value(v, _); 
+                                  Patterns.Call (_, _, [e])]); tl]) ] ->
           (e.Type, v.ToString()) :: extractElems([tl])
         | _ -> []
       extractElems list
@@ -55,13 +61,16 @@ let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string) List)) Op
 
 let (|ApplyClosure|_|) (e: Expr): Var Option = 
   match e with 
-  | Patterns.Lambda(arg, Patterns.Call (None, op, [Patterns.Var(closure); Patterns.Var(arg2)])) when (op.Name = "applyClosure") && (arg = arg2) ->
+  | Patterns.Lambda(arg, Patterns.Call (None, op, [Patterns.Var(closure); Patterns.Var(arg2)])) when 
+     (op.Name = "applyClosure") && (arg = arg2) ->
      Some (closure)
   | _ -> None
 
 let (|EnvRef|_|) (e: Expr): (Expr * string) Option = 
   match e with 
-  | Patterns.Call(None, getOp, [Patterns.Call (None, op, [env; Patterns.Value(s, _)])]) when getOp.Name.StartsWith("get") && op.Name = "envRef" -> Some (env, s.ToString())
+  | Patterns.Call(None, getOp, [Patterns.Call (None, op, [env; Patterns.Value(s, _)])]) when 
+      getOp.Name.StartsWith("get") && op.Name = "envRef" -> 
+      Some (env, s.ToString())
   | _ -> None
 
 let mutable existingMethods: (string * string) List = []
@@ -79,13 +88,16 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Cos", "Operators") -> Some("cos", argList)
     | ("ToInt", "Operators") -> Some("(int)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> 
-      Some("array_slice", List.map (fun x -> match x with 
+      Some("array_slice", List.map (fun x -> 
+         match x with 
          | Patterns.NewUnionCase(_, [v]) -> v
          | _ -> x) argList)
-    | (methodName, moduleName) when (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> Some(sprintf "%s_%s" moduleName methodName, argList)
+    | (methodName, moduleName) when 
+        (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> 
+        Some(sprintf "%s_%s" moduleName methodName, argList)
     | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
-       let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
-       Some(attr.Method, argList)
+        let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
+        Some(attr.Method, argList)
     | _ -> None 
   | _ -> None
 
@@ -106,7 +118,8 @@ let rec prettyprint (e:Expr): string =
       | "GetArray" -> sprintf "%s[%s]" (prettyprint elist.[0]) (prettyprint elist.[1])
       | _ -> sprintf "ERROR CALL ``\n\t%s(%s)\n``" op.Name (String.concat ", " (List.map prettyprint elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
-  | Patterns.NewArray(tp, elems) -> sprintf "Array[%s](%s)" (tp.ToString()) (String.concat ", " (List.map prettyprint elems))
+  | Patterns.NewArray(tp, elems) -> 
+    sprintf "Array[%s](%s)" (tp.ToString()) (String.concat ", " (List.map prettyprint elems))
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | _ -> sprintf "ERROR[%A]" e
 
@@ -170,30 +183,39 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
   let (rhs, funs, includesLhs) = 
     match e with 
     | Patterns.NewArray(tp, elems) -> 
-      let args = (String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems))
+      let args = String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems)
       let arrTp = ccodegenType (tp.MakeArrayType()) 
       let elemTp = (ccodegenType tp)
-      let rhs = sprintf "(%s)malloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
+      let rhs = sprintf "(%s)malloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" 
+                  arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
       (rhs, [], false)
     | MakeClosure(envVar, lamBody, fields) ->
       let lambdaName = newVar "lambda"
       let id = variable_counter
       let envName = sprintf "env_t_%d" id
       let fieldsDeclList = List.map (fun (tp, v) -> ccodegenType(tp) + " " + v) fields
-      let fieldsStructDecl = match fieldsDeclList with 
-      | [] -> (ccodegenType (typeof<AnyNumeric>)) + " dummy_variable;" (* This is because C does not accept structs without any member *)
-      | _ ->(String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList))
+      let fieldsStructDecl = 
+        match fieldsDeclList with 
+        | [] -> 
+           (* This is because C does not accept structs without any member *)
+          (ccodegenType (typeof<AnyNumeric>)) + " dummy_variable;"
+        | _ ->
+          String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
       let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
       let fieldsDecl = String.concat "," fieldsDeclList
       let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
-      let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" envName envName fieldsDecl envName envName envName fieldsInit
+      let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" 
+                         envName envName fieldsDecl envName envName envName fieldsInit
       let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, v) -> v) fields))
-      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true], false)
+      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, 
+        [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true], 
+        false)
     | Patterns.IfThenElse(cond, e1, e2) ->
       let ccodegenStatements exp = 
-        let (stmts, res) = match exp with 
-        | LetN(stmts, res) -> stmts, res
-        | _ -> [], exp
+        let (stmts, res) = 
+          match exp with 
+          | LetN(stmts, res) -> stmts, res
+          | _ -> [], exp
         let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement stmts)
         let statementsCode = (String.concat "\n\t\t" statementsCodeList)
         (sprintf "%s\n\t\t%s = %s;" statementsCode (var.Name) (ccodegen res), List.concat closuresList)
@@ -212,7 +234,8 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
 
 (* C code generation for a function *)
 and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
-  let rec extractHeader exp curInputs statements = match exp with 
+  let rec extractHeader exp curInputs statements = 
+    match exp with 
     | LambdaN (inputs, body) -> extractHeader body (List.append curInputs inputs) statements
     | Patterns.Let(x, e1, e2) -> extractHeader e2 curInputs (List.append statements [(x, e1)])
     | _ -> (exp, curInputs, statements)
@@ -222,7 +245,11 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
   let closuresCode = (String.concat "\n" (List.concat closuresList))
   let resultType = if(isForClosure) then "value_t" else ccodegenType(result.Type)
   let parameters = (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs))
-  let finalStatement = if(isForClosure) then sprintf "value_t res;\n\tres.%s_value = %s;\n\treturn res;" (ccodegenType(result.Type)) (ccodegen result) else sprintf "return %s;" (ccodegen result)
+  let finalStatement = 
+    if(isForClosure) then 
+      sprintf "value_t res;\n\tres.%s_value = %s;\n\treturn res;" (ccodegenType(result.Type)) (ccodegen result) 
+    else 
+      sprintf "return %s;" (ccodegen result)
   sprintf "%s\n%s %s(%s) {\n\t%s\n\t%s\n}" closuresCode resultType name parameters statementsCode finalStatement
 
 (* Performs a simple kind of ANF conversion for specific statements. *)
@@ -276,14 +303,16 @@ let closureConversion (e: Expr): Expr =
       let freeVars = listDiff (List.ofSeq (body.GetFreeVars())) inputs
       let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
       let freeNewVars = List.zip freeVars newVars
-      let convertedBody = (lambdaLift body).Substitute(fun v -> Option.map (fun (x, y) -> Expr.Var(y)) (List.tryFind (fun (x, y) -> x = v) freeNewVars))
+      let convertedBody = (lambdaLift body).Substitute(fun v -> 
+          Option.map (fun (x, y) -> Expr.Var(y)) (List.tryFind (fun (x, y) -> x = v) freeNewVars))
       let result = 
         let envVar = new Var(newVar "env", typeof<Environment>)
         let env = Expr.Var(envVar)
         let closuredBody = List.fold (fun acc (fcur: Var, ncur: Var) -> 
           let variableName = Expr.Value(fcur.Name)
           let envRefValue = <@@ envRef %%env %%variableName @@>
-          let rhs = match (ncur.Type) with
+          let rhs = 
+            match (ncur.Type) with
             | tp when tp = typeof<Number> -> <@@ getNumber %%envRefValue @@>
             | tp when tp = typeof<Vector> -> <@@ getVector %%envRefValue @@>
             | tp when tp = typeof<Matrix> -> <@@ getMatrix %%envRefValue @@>
@@ -306,7 +335,8 @@ let closureConversion (e: Expr): Expr =
               | tp when tp = typeof<Vector> -> <@@ makeVector %%v @@>
               | tp when tp = typeof<Matrix> -> <@@ makeMatrix %%v @@>
               | tp -> failwith (sprintf "Not supported type %A" tp)
-            <@@ (((%%vstr: string), (%%vexp: AnyNumeric) ): string * AnyNumeric) :: (%%acc: (string * AnyNumeric) List) @@> ) <@@ []: (string * AnyNumeric) List @@>  freeVars]
+            <@@ (((%%vstr: string), (%%vexp: AnyNumeric) ): string * AnyNumeric) :: 
+                  (%%acc: (string * AnyNumeric) List) @@> ) <@@ []: (string * AnyNumeric) List @@>  freeVars]
         let createdEnv = Expr.Call(makeEnvInfo, makeEnvArg)
         let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(inType, outType)
         let createdClosure = Expr.Call(makeClosureInfo, [closureFun; createdEnv])
@@ -362,8 +392,10 @@ let compileSeveral (moduleName: string) (methodNames: string List) =
 
 
 let compileModule (moduleName: string) = 
-  let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) (List.filter (fun (x: System.Reflection.MethodInfo) -> 
-      x.DeclaringType.Name = moduleName) (List.ofArray (assembly.GetType(moduleName).GetMethods())))
+  let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
+                  (List.filter (fun (x: System.Reflection.MethodInfo) -> 
+                    x.DeclaringType.Name = moduleName) 
+                    (List.ofArray (assembly.GetType(moduleName).GetMethods())))
   let generatedMethods = compileSeveral moduleName methods
   let header = """#include "runtime/fsharp.h"
 #include <stdio.h>
