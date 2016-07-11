@@ -1,15 +1,17 @@
 ﻿module utils
 
-let arrayPrint (v: double[]): Unit = 
+open types
+
+let arrayPrint (v: Vector): Unit = 
   printfn "(%s)" (String.concat ", " (Array.map (sprintf "%f") v))
 
-let numberPrint (v: double): Unit = 
+let numberPrint (v: Number): Unit = 
   printfn "%f" v
 
-let arrayRange (s: int) (e: int): double[] = 
+let arrayRange (s: Index) (e: Index): Vector = 
   [|for i = s to e do yield (double i)|]
 
-let arrayMapToMatrix (f: double -> double[]) (arr: double[]): double[][] = 
+let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
   Array.map f arr
 
 let listDiff list1 list2 = 

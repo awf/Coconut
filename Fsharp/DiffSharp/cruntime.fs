@@ -1,11 +1,7 @@
 ﻿module cruntime
 
 open linalg
-
-type AnyNumeric = 
-  | ZeroD of Number
-  | OneD of Vector
-  | TwoD of Matrix
+open types
 
 type Environment = Map<string, AnyNumeric>
 

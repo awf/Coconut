@@ -3,6 +3,7 @@
 open Microsoft.FSharp.Quotations
 open cruntime
 open utils
+open types
 
 let (|OperatorName|_|) methodName =
   match methodName with
@@ -70,7 +71,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
     | ("Map", "ArrayModule") -> 
-      if(e.Type = typeof<double[][]>) then 
+      if(e.Type = typeof<Matrix>) then 
         Some("array_map_to_matrix", argList)
       else
         Some("array_map", argList)
@@ -124,13 +125,13 @@ let newVar (name: string): string =
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
-  | _ when t = typeof<double[][]> ->
+  | _ when t = typeof<Matrix> ->
    "array_array_number_t"
-  | _ when t = typeof<double[]> ->
+  | _ when t = typeof<Vector> ->
    "array_number_t"
   | _ when (t.IsGenericParameter) ->
     failwith "does not know how to generate code for a generic type"
-  | _ when (t = typeof<double>) ->
+  | _ when (t = typeof<Number>) ->
     "number_t"
   | _ when (t = typeof<AnyNumeric>) ->
     "value_t"
@@ -287,9 +288,9 @@ let closureConversion (e: Expr): Expr =
           let variableName = Expr.Value(fcur.Name)
           let envRefValue = <@@ envRef %%env %%variableName @@>
           let rhs = match (ncur.Type) with
-            | tp when tp = typeof<double> -> <@@ getNumber %%envRefValue @@>
-            | tp when tp = typeof<double[]> -> <@@ getVector %%envRefValue @@>
-            | tp when tp = typeof<double[][]> -> <@@ getMatrix %%envRefValue @@>
+            | tp when tp = typeof<Number> -> <@@ getNumber %%envRefValue @@>
+            | tp when tp = typeof<Vector> -> <@@ getVector %%envRefValue @@>
+            | tp when tp = typeof<Matrix> -> <@@ getMatrix %%envRefValue @@>
             | tp -> failwith (sprintf "Not supported type %A" tp)
           Expr.Let(ncur, rhs, acc)) convertedBody freeNewVars
         let closureFun = LambdaN(envVar :: inputs, closuredBody)
@@ -305,9 +306,9 @@ let closureConversion (e: Expr): Expr =
             let vexp = 
               let v = Expr.Var(cur)
               match (v.Type) with
-              | tp when tp = typeof<double> -> <@@ makeNumber %%v @@>
-              | tp when tp = typeof<double[]> -> <@@ makeVector %%v @@>
-              | tp when tp = typeof<double[][]> -> <@@ makeMatrix %%v @@>
+              | tp when tp = typeof<Number> -> <@@ makeNumber %%v @@>
+              | tp when tp = typeof<Vector> -> <@@ makeVector %%v @@>
+              | tp when tp = typeof<Matrix> -> <@@ makeMatrix %%v @@>
               | tp -> failwith (sprintf "Not supported type %A" tp)
             <@@ (((%%vstr: string), (%%vexp: AnyNumeric) ): string * AnyNumeric) :: (%%acc: (string * AnyNumeric) List) @@> ) <@@ []: (string * AnyNumeric) List @@>  freeVars]
         let createdEnv = Expr.Call(makeEnvInfo, makeEnvArg)
