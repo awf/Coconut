@@ -2,6 +2,7 @@
 
 open Microsoft.FSharp.Quotations
 open cruntime
+open utils
 
 let (|OperatorName|_|) methodName =
   match methodName with
@@ -41,7 +42,10 @@ let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string) List)) Op
   | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, list)]) when op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
     let envList = 
       let rec extractElems l = match l with
-        | [ Patterns.NewUnionCase(_, [Patterns.NewTuple([Patterns.Value(v, _);e]); tl]) ] ->
+        (* The pattern `Patterns.Call (_, _, [e])` performs an additional level of specialization.
+           This specialization results in not using a union type for the variables in the enviroment 
+           of a closure. *)
+        | [ Patterns.NewUnionCase(_, [Patterns.NewTuple([Patterns.Value(v, _);Patterns.Call (_, _, [e])]); tl]) ] ->
           (e.Type, v.ToString()) :: extractElems([tl])
         | _ -> []
       extractElems list
@@ -56,7 +60,7 @@ let (|ApplyClosure|_|) (e: Expr): Var Option =
 
 let (|EnvRef|_|) (e: Expr): (Expr * string) Option = 
   match e with 
-  | Patterns.Call (None, op, [env; Patterns.Value(s, _)]) when op.Name = "envRef" -> Some (env, s.ToString())
+  | Patterns.Call(None, getOp, [Patterns.Call (None, op, [env; Patterns.Value(s, _)])]) when getOp.Name.StartsWith("get") && op.Name = "envRef" -> Some (env, s.ToString())
   | _ -> None
 
 let mutable existingMethods: (string * string) List = []
@@ -122,6 +126,8 @@ let rec ccodegenType (t: System.Type): string =
     failwith "does not know how to generate code for a generic type"
   | _ when (t = typeof<double>) ->
     "number_t"
+  | _ when (t = typeof<AnyNumeric>) ->
+    "value_t"
   | _ when (t = typeof<int>) ->
     "index_t"
   | _ when (t = typeof<Environment>) -> 
@@ -223,7 +229,7 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
   | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion false body)
   | Patterns.NewArray(tp, elems) when not letRhs -> 
     let variable = new Var(newVar "array", e.Type)
-    (* TODO generalize *)
+    (* TODO perform ANF conversion for the arguments as well *)
     Expr.Let(variable, e, Expr.Var(variable))
   | Patterns.IfThenElse(cond, e1, e2) when not letRhs ->
     let variable = new Var(newVar "ite", e.Type)
@@ -237,31 +243,29 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
 
 (* Lifts let bindings to top-level statements *)
 let letLifting (e: Expr): Expr = 
-  let rec constructTopLevelLets(exp: Expr): Expr * (Var * Expr) List = 
+  let rec constructTopLevelLets (boundVars: Var List) (exp: Expr): Expr * (Var * Expr) List = 
     match exp with 
     | Patterns.Let(x, e1, e2) ->
-      let (te1, liftedLets1) = constructTopLevelLets e1
-      let (te2, liftedLets2) = constructTopLevelLets e2
-      if(not (Seq.exists (fun y -> not(y = x)) (te1.GetFreeVars()))) then
+      let (te1, liftedLets1) = constructTopLevelLets boundVars e1
+      let (te2, liftedLets2) = constructTopLevelLets (x :: boundVars) e2
+      if(not (List.exists (fun y -> not(y = x)) (listDiff (List.ofSeq (te1.GetFreeVars())) boundVars))) then
         (te2, (x, te1) :: (List.append liftedLets1 liftedLets2))
       else 
         (Expr.Let(x, te1, te2), List.append liftedLets1 liftedLets2)
     | Patterns.Call (None, op, elist) -> 
-      let (tes, lls) = List.unzip (List.map constructTopLevelLets elist)
+      let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) elist)
       (Expr.Call(op, tes), List.concat lls)
     | LambdaN (inputs, body) ->
-      let (te, ll) = constructTopLevelLets body
+      let (te, ll) = constructTopLevelLets boundVars body
       (LambdaN (inputs, te), ll)
     | _ -> (exp, [])
   let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
-  let (te, ll) = constructTopLevelLets(body)
+  let (te, ll) = constructTopLevelLets inputs body
   LambdaN(inputs, LetN(ll, te))
   
 
 (* Performs closure conversion to make the program closer to C code *)
 let closureConversion (e: Expr): Expr = 
-  let listDiff list1 list2 = 
-    List.filter (fun x -> not (List.exists (fun y -> x = y) list2)) list1
   let rec lambdaLift (exp: Expr): Expr =
     match exp with 
     | LambdaN (inputs, body) -> 
@@ -272,9 +276,15 @@ let closureConversion (e: Expr): Expr =
       let result = 
         let envVar = new Var(newVar "env", typeof<Environment>)
         let env = Expr.Var(envVar)
-        let closuredBody = List.fold (fun acc (fcur: Var, ncur) -> 
+        let closuredBody = List.fold (fun acc (fcur: Var, ncur: Var) -> 
           let variableName = Expr.Value(fcur.Name)
-          Expr.Let(ncur, <@@ envRef %%env %%variableName @@>, acc)) convertedBody freeNewVars
+          let envRefValue = <@@ envRef %%env %%variableName @@>
+          let rhs = match (ncur.Type) with
+            | tp when tp = typeof<double> -> <@@ getNumber %%envRefValue @@>
+            | tp when tp = typeof<double[]> -> <@@ getVector %%envRefValue @@>
+            | tp when tp = typeof<double[][]> -> <@@ getMatrix %%envRefValue @@>
+            | tp -> failwith (sprintf "Not supported type %A" tp)
+          Expr.Let(ncur, rhs, acc)) convertedBody freeNewVars
         let closureFun = LambdaN(envVar :: inputs, closuredBody)
         let assembly = System.Reflection.Assembly.GetExecutingAssembly()
         let makeClosureInfoGeneric = assembly.GetType("cruntime").GetMethod("makeClosure")
@@ -284,12 +294,15 @@ let closureConversion (e: Expr): Expr =
         let makeEnvInfo = assembly.GetType("cruntime").GetMethod("makeEnv")
         let makeEnvArg = 
           [List.fold (fun acc (cur: Var) -> 
-            let (vstr, vexp) = (Expr.Value(cur.Name.ToString()), Expr.Var(cur))
-            (* 
-               The next line uses the same number everytime for the associated value. 
-               This is because the code generator handles an appropriate variable assigment whenever it is needed 
-            *)
-            <@@ (((%%vstr: string), 42. ): string * double) :: (%%acc: (string * double) List) @@> ) <@@ []: (string * double) List @@>  freeVars]
+            let vstr = Expr.Value(cur.Name.ToString())
+            let vexp = 
+              let v = Expr.Var(cur)
+              match (v.Type) with
+              | tp when tp = typeof<double> -> <@@ makeNumber %%v @@>
+              | tp when tp = typeof<double[]> -> <@@ makeVector %%v @@>
+              | tp when tp = typeof<double[][]> -> <@@ makeMatrix %%v @@>
+              | tp -> failwith (sprintf "Not supported type %A" tp)
+            <@@ (((%%vstr: string), (%%vexp: AnyNumeric) ): string * AnyNumeric) :: (%%acc: (string * AnyNumeric) List) @@> ) <@@ []: (string * AnyNumeric) List @@>  freeVars]
         let createdEnv = Expr.Call(makeEnvInfo, makeEnvArg)
         let makeClosureInfo = makeClosureInfoGeneric.MakeGenericMethod(inType, outType)
         let createdClosure = Expr.Call(makeClosureInfo, [closureFun; createdEnv])
@@ -332,7 +345,7 @@ let compile (moduleName: string) (methodName: string): string =
    | Some(e) -> 
      (* printfn "/* Oringinal code:\n%A\n*/\n" (e) *)
      let preprocessed = cpreprocess e
-     (* printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed) *)
+     printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName) false
      (* printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated *)
      generated

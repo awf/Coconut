@@ -3,11 +3,9 @@
 open linalg
 
 type AnyNumeric = 
-(*  | ZeroD of Number
+  | ZeroD of Number
   | OneD of Vector
   | TwoD of Matrix
-*)
-  Number
 
 type Environment = Map<string, AnyNumeric>
 
@@ -18,6 +16,24 @@ type Closure<'a, 'b> = {
 
 let envRef (env: Environment) (name: string): AnyNumeric = 
   Map.find name env
+
+let getNumber (v: AnyNumeric): Number = 
+  match v with ZeroD n -> n
+
+let getVector (v: AnyNumeric): Vector = 
+  match v with OneD n -> n
+
+let getMatrix (v: AnyNumeric): Matrix = 
+  match v with TwoD n -> n
+
+let makeNumber (n: Number): AnyNumeric = 
+  ZeroD n
+
+let makeVector (n: Vector): AnyNumeric = 
+  OneD n
+
+let makeMatrix (n: Matrix): AnyNumeric = 
+  TwoD n
 
 let makeEnv (bindings: (string * AnyNumeric) List): Environment = 
   Map.ofList bindings
