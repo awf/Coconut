@@ -14,13 +14,19 @@ let envRef (env: Environment) (name: string): AnyNumeric =
   Map.find name env
 
 let getNumber (v: AnyNumeric): Number = 
-  match v with ZeroD n -> n
+  match v with 
+  | ZeroD n -> n 
+  | _ -> failwith (sprintf "Cannot invoke getNumber for %A" v)
 
 let getVector (v: AnyNumeric): Vector = 
-  match v with OneD n -> n
+  match v with 
+  | OneD n -> n 
+  | _ -> failwith (sprintf "Cannot invoke getVector for %A" v)
 
 let getMatrix (v: AnyNumeric): Matrix = 
-  match v with TwoD n -> n
+  match v with 
+  | TwoD n -> n 
+  | _ -> failwith (sprintf "Cannot invoke getMatrix for %A" v)
 
 let makeNumber (n: Number): AnyNumeric = 
   ZeroD n

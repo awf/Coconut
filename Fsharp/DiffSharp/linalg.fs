@@ -73,18 +73,11 @@ let compute_zach_weight_error w =
 let w_err (w:Vector) = 
     Array.map compute_zach_weight_error w 
 
-
 let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): Matrix =
     let n = cams.Length
     let p = w.Length
     let range = arrayRange 0 (p - 1)
-    Array.map (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
-
-
-(*
-let foo (x: Vector): Vector = 
-  Array.map (fun i -> i * 10.0) x
-*)
+    arrayMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
 
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
