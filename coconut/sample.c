@@ -72,6 +72,7 @@ int main()
 		w->arr[i] = 0.417022;
 	}
 	array_array_number_t err = linalg_reproj_err(cam, X, w, obs, feat);
-	array_array_print(err);
+	matrix_print(err);
+	matrix_read("../ba.txt", 1, 3);
 	return 0;
 }

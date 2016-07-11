@@ -1,6 +1,9 @@
 #ifndef __FSHARP_CLIB_H__ 
 #define __FSHARP_CLIB_H__ 
 
+#include <stdio.h>
+#include <stdlib.h>
+
 typedef int index_t;
 typedef double number_t;
 typedef struct array_number_t {
@@ -16,6 +19,8 @@ typedef union value_t {
 	number_t number_t_value;
 	array_number_t array_number_t_value;
 } value_t;
+
+typedef char* string_t;
 
 typedef value_t (*lambda_t)();
 
@@ -108,13 +113,50 @@ array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr)
 	return res;
 }
 
-void array_array_print(array_array_number_t arr) {
+void matrix_print(array_array_number_t arr) {
 	printf("[\n ");
 	for (int i = 0; i < arr->length; i++) {
 		array_print(arr -> arr[i]);
 		printf("\n ");
 	}
 	printf("]\n");
+}
+
+array_array_number_t matrix_read(string_t name, int start_line, int rows) {
+	FILE * fp;
+    fp = fopen(name, "r");
+    if (fp == NULL) {
+        printf("Couldn't read the file `%s`.", name);
+        exit(1);
+    }
+
+    for(int i = 0; i < start_line; i++) {
+    	while(getc(fp) != '\n') {}
+    }
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = rows;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+	for(int row_index=0; row_index<rows; row_index++) {
+		char cur;
+		int length = 0;
+		int elems = 1;
+		while(1) {
+			char prevCur = cur;
+			cur = getc(fp);
+			if(cur == '\n')
+				break;
+			else if(((cur >= '0' && cur <= '9') || cur == '-') && prevCur == ' ')
+				elems++;
+			length++;
+		}
+		fseek(fp, -length-2, SEEK_CUR);
+		array_number_t one_row = array_range(0, elems - 1);
+		for(int i=0; i<elems; i++) {
+			fscanf(fp, "%lf", &one_row->arr[i]);
+		}
+		res->arr[row_index] = one_row;
+	}
+	return res;
 }
 
 #endif
