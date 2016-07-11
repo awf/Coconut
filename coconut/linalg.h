@@ -32,7 +32,7 @@ array_number_t linalg_cross(array_number_t a, array_number_t b) {
 	return array6;
 }
 typedef struct env_t_10 {
-	number_t dummy_variable;
+	value_t dummy_variable;
 } env_t_10;
 env_t_10* make_env_t_10() {
 	env_t_10* env = (env_t_10*)malloc(sizeof(env_t_10));
@@ -56,7 +56,7 @@ array_number_t linalg_add_vec3(array_number_t x, array_number_t y, array_number_
 	return linalg_add_vec(linalg_add_vec(x, y), z);
 }
 typedef struct env_t_14 {
-	number_t dummy_variable;
+	value_t dummy_variable;
 } env_t_14;
 env_t_14* make_env_t_14() {
 	env_t_14* env = (env_t_14*)malloc(sizeof(env_t_14));
@@ -75,7 +75,7 @@ array_number_t linalg_sub_vec(array_number_t x, array_number_t y) {
 	return array_map2(closure13, x, y);
 }
 typedef struct env_t_18 {
-	number_t dummy_variable;
+	value_t dummy_variable;
 } env_t_18;
 env_t_18* make_env_t_18() {
 	env_t_18* env = (env_t_18*)malloc(sizeof(env_t_18));
@@ -94,7 +94,7 @@ number_t linalg_sqnorm(array_number_t x) {
 	return array_sum(array_map(closure17, x));
 }
 typedef struct env_t_22 {
-	number_t dummy_variable;
+	value_t dummy_variable;
 } env_t_22;
 env_t_22* make_env_t_22() {
 	env_t_22* env = (env_t_22*)malloc(sizeof(env_t_22));
@@ -162,7 +162,7 @@ number_t linalg_compute_zach_weight_error(number_t w) {
 	return (1) - ((w) * (w));
 }
 typedef struct env_t_27 {
-	number_t dummy_variable;
+	value_t dummy_variable;
 } env_t_27;
 env_t_27* make_env_t_27() {
 	env_t_27* env = (env_t_27*)malloc(sizeof(env_t_27));
@@ -179,6 +179,40 @@ value_t lambda27(env_t_27* env24, number_t w) {
 array_number_t linalg_w_err(array_number_t w) {
 	closure_t* closure26 = make_closure(lambda27, make_env_t_27());
 	return array_map(closure26, w);
+}
+typedef struct env_t_36 {
+	array_array_number_t x;
+	array_number_t w;
+	array_array_number_t obs;
+	array_array_number_t feat;
+	array_array_number_t cams;
+} env_t_36;
+env_t_36* make_env_t_36(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
+	env_t_36* env = (env_t_36*)malloc(sizeof(env_t_36));
+	env->x = x;
+	env->w = w;
+	env->obs = obs;
+	env->feat = feat;
+	env->cams = cams;
+	return env;
+}
+
+value_t lambda36(env_t_36* env33, number_t i) {
+	array_array_number_t x32 = env33->x;
+	array_number_t w31 = env33->w;
+	array_array_number_t obs30 = env33->obs;
+	array_array_number_t feat29 = env33->feat;
+	array_array_number_t cams28 = env33->cams;
+	value_t res;
+	res.array_number_t_value = linalg_compute_reproj_err(cams28->arr[(int)(obs30->arr[(int)(i)]->arr[0])], x32->arr[(int)(obs30->arr[(int)(i)]->arr[1])], w31->arr[(int)(i)], feat29->arr[(int)(i)]);
+	return res;
+}
+array_array_number_t linalg_reproj_err(array_array_number_t cams, array_array_number_t x, array_number_t w, array_array_number_t obs, array_array_number_t feat) {
+	index_t n = cams->length;
+	index_t p = w->length;
+	array_number_t range = array_range(0, (p) - (1));
+	closure_t* closure35 = make_closure(lambda36, make_env_t_36(x,w,obs,feat,cams));
+	return array_map_to_matrix(closure35, range);
 }
 
 void linalg_test1(array_number_t dum) {
