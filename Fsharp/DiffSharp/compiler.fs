@@ -71,16 +71,9 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
     | ("Map", "ArrayModule") -> 
-      if(e.Type = typeof<Matrix>) then 
-        Some("array_map_to_matrix", argList)
-      else
         Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
-    | ("arrayPrint", "utils") -> Some("array_print", argList)
-    | ("numberPrint", "utils") -> Some("number_print", argList)
-    | ("arrayMapToMatrix", "utils") -> Some("array_map_to_matrix", argList)
-    | ("arrayRange", "utils") -> Some("array_range", argList)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
@@ -90,6 +83,9 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
          | Patterns.NewUnionCase(_, [v]) -> v
          | _ -> x) argList)
     | (methodName, moduleName) when (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> Some(sprintf "%s_%s" moduleName methodName, argList)
+    | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
+       let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
+       Some(attr.Method, argList)
     | _ -> None 
   | _ -> None
 
@@ -353,7 +349,7 @@ let compile (moduleName: string) (methodName: string): string =
    | Some(e) -> 
      (* printfn "/* Oringinal code:\n%A\n*/\n" (e) *)
      let preprocessed = cpreprocess e
-     printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed)
+     (* printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed) *)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName) false
      (* printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated *)
      generated
