@@ -69,15 +69,21 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
   match e with 
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
-    | ("Map", "ArrayModule") -> Some("array_map", argList)
+    | ("Map", "ArrayModule") -> 
+      if(e.Type = typeof<double[][]>) then 
+        Some("array_map_to_matrix", argList)
+      else
+        Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
     | ("arrayPrint", "utils") -> Some("array_print", argList)
     | ("numberPrint", "utils") -> Some("number_print", argList)
     | ("arrayMapToMatrix", "utils") -> Some("array_map_to_matrix", argList)
+    | ("arrayRange", "utils") -> Some("array_range", argList)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
+    | ("ToInt", "Operators") -> Some("(int)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> 
       Some("array_slice", List.map (fun x -> match x with 
          | Patterns.NewUnionCase(_, [v]) -> v
@@ -147,6 +153,7 @@ let rec ccodegen (e:Expr): string =
   | Patterns.Lambda (x, body) -> failwith (sprintf "ERROR lambda should always be in the form of closure creation.\n`%A`" e)
   | EnvRef(env, name) -> sprintf "%s->%s" (ccodegen env) name
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
+  | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | OperatorName opname -> sprintf "(%s) %s (%s)" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 

@@ -83,12 +83,38 @@ array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
 	return res;
 }
 
+array_number_t array_range(index_t start, index_t end) {
+	index_t size = end - start + 1;
+	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
+	res->length = size;
+	res->arr = (number_t*)malloc(sizeof(number_t) * size);
+	for (int i = 0; i < size; i++) {
+		res->arr[i] = i;
+	}
+	return res;
+}
+
 void number_print(number_t num) {
 	printf("%f\n", num);
 }
 
-array_array_number_t* array_map_to_matrix(closure_t* closure, array_number_t arr) {
-	return 0;
+array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr) {
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = arr->length;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, arr->arr[i]).array_number_t_value;
+	}
+	return res;
+}
+
+void array_array_print(array_array_number_t arr) {
+	printf("[\n ");
+	for (int i = 0; i < arr->length; i++) {
+		array_print(arr -> arr[i]);
+		printf("\n ");
+	}
+	printf("]\n");
 }
 
 #endif

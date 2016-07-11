@@ -11,3 +11,6 @@ let arrayRange (s: int) (e: int): double[] =
 
 let arrayMapToMatrix (f: double -> double[]) (arr: double[]): double[][] = 
   Array.map f arr
+
+let listDiff list1 list2 = 
+  List.filter (fun x -> not (List.exists (fun y -> x = y) list2)) list1
