@@ -77,8 +77,20 @@ let (|EnvRef|_|) (e: Expr): (Expr * string) Option =
 
 let mutable existingMethods: (string * string) List = []
 
+let (|ExistingCompiledMethod|_|) (e: Expr): (string * string * Expr List) Option = 
+  match e with 
+  | Patterns.Call (None, op, argList) -> 
+    match (op.Name, op.DeclaringType.Name) with
+    | (methodName, moduleName) when 
+        (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> 
+        Some(methodName, moduleName, argList)
+    | _ -> None
+  | _ -> None
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
+  | ExistingCompiledMethod (methodName, moduleName, argList) ->
+      Some(sprintf "%s_%s" moduleName methodName, argList)
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
     | (methodName, "ArrayModule") -> 
@@ -93,9 +105,6 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
          match x with 
          | Patterns.NewUnionCase(_, [v]) -> v
          | _ -> x) argList)
-    | (methodName, moduleName) when 
-        (List.exists (fun (x, y) -> x = moduleName && y = methodName) existingMethods) -> 
-        Some(sprintf "%s_%s" moduleName methodName, argList)
     | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
         let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
         Some(attr.Method, argList)
@@ -365,11 +374,36 @@ let closureConversion (e: Expr): Expr =
   let te = lambdaLift(body)
   LambdaN(inputs, te)
 
+let assembly = System.Reflection.Assembly.GetExecutingAssembly()
+
+let optimize (e: Expr): Expr = 
+  let rec inliner (exp: Expr): Expr = 
+    match exp with 
+    | ExistingCompiledMethod (methodName, moduleName, argList) ->
+      let methodInfo = assembly.GetType(moduleName).GetMethod(methodName)
+      let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
+      let isInlined = Seq.isEmpty (methodInfo.GetCustomAttributes(typeof<DontInline>, true))
+      let attrs = (methodInfo.GetMethodImplementationFlags())
+      match reflDefnOpt with
+      | None -> failwith (sprintf "fatal error! Inlining non-inlinable method: %s.%s!" moduleName methodName)
+      | Some(LambdaN(inputs, body)) when isInlined -> 
+        let paramVar (p: System.Reflection.ParameterInfo) = 
+          (Expr.Var(new Var(p.Name, p.ParameterType)), new Var(newVar p.Name, p.ParameterType))
+        (*let paramList = List.zip argList (List.map paramVar (List.ofSeq (methodInfo.GetParameters())))*)
+        let paramList = List.zip (List.map inliner argList) (List.map (fun x -> Expr.Var(x), "") inputs)
+        printfn "%s: name: %A" methodName (List.zip argList paramList) 
+        body.Substitute(fun v -> Option.map (fun (e1, (e2, v1)) -> e1) (List.tryFind (fun (e1, (e2, v1)) -> e2 = Expr.Var(v)) paramList))
+      | _ -> exp
+    | ExprShape.ShapeLambda(i, e) -> Expr.Lambda(i, inliner e)
+    | ExprShape.ShapeVar(v) -> Expr.Var(v)
+    | ExprShape.ShapeCombination(o, exprs) ->
+        ExprShape.RebuildShapeCombination(o, List.map inliner exprs)
+  (* inliner(e) *)
+  e
+
 (* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
-  anfConversion false (letLifting (closureConversion e))
-
-let assembly = System.Reflection.Assembly.GetExecutingAssembly()
+  anfConversion false (letLifting (closureConversion (optimize e)))
 
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string): string = 

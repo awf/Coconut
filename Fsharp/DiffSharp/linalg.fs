@@ -19,8 +19,9 @@ let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
 let inline sub_vec (x: Vector) (y: Vector) =
     arrayMap2 (-) x y
 
+[<DontInline>]
 let inline sqnorm (x: Vector) =
-    arraySum (arrayMap (fun x -> x*x) x)
+    arraySum (arrayMap (fun x1 -> x1*x1) x)
 
 let inline dot_prod (x: Vector) (y: Vector) =
     arraySum (arrayMap2 (*) x y)

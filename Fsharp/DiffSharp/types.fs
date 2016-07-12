@@ -16,3 +16,6 @@ type Timer = System.Diagnostics.Stopwatch
 type CMirror(Method : string) =
     inherit System.Attribute()
     member this.Method = Method
+
+type DontInline() = 
+    inherit System.Attribute()

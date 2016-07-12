@@ -83,10 +83,10 @@ env_t_18* make_env_t_18() {
 	return env;
 }
 
-value_t lambda18(env_t_18* env15, number_t x) {
+value_t lambda18(env_t_18* env15, number_t x1) {
 	
 	value_t res;
-	res.number_t_value = (x) * (x);
+	res.number_t_value = (x1) * (x1);
 	return res;
 }
 number_t linalg_sqnorm(array_number_t x) {
