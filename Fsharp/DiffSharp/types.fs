@@ -9,6 +9,7 @@ type AnyNumeric =
   | ZeroD of Number
   | OneD of Vector
   | TwoD of Matrix
+  | Idx of Index
 
 type CMirror(Method : string) =
     inherit System.Attribute()

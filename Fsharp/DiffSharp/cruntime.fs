@@ -13,6 +13,11 @@ type Closure<'a, 'b> = {
 let envRef (env: Environment) (name: string): AnyNumeric = 
   Map.find name env
 
+let getIndex (v: AnyNumeric): Index = 
+  match v with 
+  | Idx n -> n 
+  | _ -> failwith (sprintf "Cannot invoke getIndex for %A" v)
+
 let getNumber (v: AnyNumeric): Number = 
   match v with 
   | ZeroD n -> n 
@@ -27,6 +32,9 @@ let getMatrix (v: AnyNumeric): Matrix =
   match v with 
   | TwoD n -> n 
   | _ -> failwith (sprintf "Cannot invoke getMatrix for %A" v)
+
+let makeIndex (n: Index): AnyNumeric = 
+  Idx n
 
 let makeNumber (n: Number): AnyNumeric = 
   ZeroD n

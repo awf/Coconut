@@ -305,6 +305,7 @@ let closureConversion (e: Expr): Expr =
           let envRefValue = <@@ envRef %%env %%variableName @@>
           let rhs = 
             match (ncur.Type) with
+            | tp when tp = typeof<Index> -> <@@ getIndex %%envRefValue @@>
             | tp when tp = typeof<Number> -> <@@ getNumber %%envRefValue @@>
             | tp when tp = typeof<Vector> -> <@@ getVector %%envRefValue @@>
             | tp when tp = typeof<Matrix> -> <@@ getMatrix %%envRefValue @@>
@@ -323,6 +324,7 @@ let closureConversion (e: Expr): Expr =
             let vexp = 
               let v = Expr.Var(cur)
               match (v.Type) with
+              | tp when tp = typeof<Index> -> <@@ makeIndex %%v @@>
               | tp when tp = typeof<Number> -> <@@ makeNumber %%v @@>
               | tp when tp = typeof<Vector> -> <@@ makeVector %%v @@>
               | tp when tp = typeof<Matrix> -> <@@ makeMatrix %%v @@>
