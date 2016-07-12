@@ -98,7 +98,12 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
+    | ("Log", "Operators") -> Some("log", argList)
+    | ("Exp", "Operators") -> Some("exp", argList)
+    | ("Pow", "Math") -> Some("pow", argList)
+    | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList)
     | ("ToInt", "Operators") -> Some("(int)", argList)
+    | ("ToDouble", "Operators") -> Some("(double)", argList)
     | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> 
       Some("array_slice", List.map (fun x -> 

@@ -49,15 +49,19 @@ let arrayMap (f: Number -> Number) (arr: Vector): Vector =
 let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vector = 
   Array.map2 f arr1 arr2
 
+[<CMirror("array_map_to_matrix")>]
+let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
+  Array.map f arr
+
 (** Consumer Methods **)
 
 [<CMirror("array_sum")>]
 let arraySum (arr: Vector): Number = 
   Array.sum arr
 
-[<CMirror("array_map_to_matrix")>]
-let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
-  Array.map f arr
+[<CMirror("array_max")>]
+let arrayMax (arr: Vector): Number = 
+  Array.max arr
 
 (** Timing **)
 

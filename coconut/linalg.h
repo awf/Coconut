@@ -385,3 +385,43 @@ void linalg_test1(array_number_t dum) {
 	array_print(m);
 	return ;
 }
+typedef struct env_t_82 {
+	number_t mx;
+} env_t_82;
+env_t_82* make_env_t_82(number_t mx) {
+	env_t_82* env = (env_t_82*)malloc(sizeof(env_t_82));
+	env->mx = mx;
+	return env;
+}
+
+value_t lambda82(env_t_82* env79, number_t x) {
+	number_t mx78 = env79->mx;
+	value_t res;
+	res.number_t_value = exp((x) - (mx78));
+	return res;
+}
+number_t linalg_logsumexp(array_number_t arr) {
+	number_t mx = array_max(arr);
+	closure_t* closure81 = make_closure(lambda82, make_env_t_82(mx));
+	number_t semx = array_sum(array_map(closure81, arr));
+	return (log(semx)) + (mx);
+}
+typedef struct env_t_87 {
+	number_t a;
+} env_t_87;
+env_t_87* make_env_t_87(number_t a) {
+	env_t_87* env = (env_t_87*)malloc(sizeof(env_t_87));
+	env->a = a;
+	return env;
+}
+
+value_t lambda87(env_t_87* env84, number_t j) {
+	number_t a83 = env84->a;
+	value_t res;
+	res.number_t_value = gamma_ln((a83) + ((0.5) * ((1) - ((double)(j)))));
+	return res;
+}
+number_t linalg_log_gamma_distrib(number_t a, number_t p) {
+	closure_t* closure86 = make_closure(lambda87, make_env_t_87(a));
+	return (log(pow(3.14159265358979, (0.25) * ((p) * ((p) - (1)))))) + (array_sum(array_map(closure86, array_range(1, (int)(p)))));
+}

@@ -88,6 +88,16 @@ number_t array_sum(array_number_t arr) {
 	return sum;
 }
 
+number_t array_max(array_number_t arr) {
+	number_t max = - (1 << 21);
+	for (int i = 0; i < arr->length; i++) {
+		number_t cur = arr->arr[i];
+		if(cur > max)
+			max = cur;
+	}
+	return max;
+}
+
 array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
 	index_t size = end - start + 1;
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
@@ -171,6 +181,11 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 	}
 	fclose(fp);
 	return res;
+}
+
+number_t gamma_ln(number_t x) {
+	// TODO needs to be implemented.
+	return x;
 }
 
 /** Timing */

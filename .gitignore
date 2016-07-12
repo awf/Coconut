@@ -30,3 +30,4 @@ __pycache__
 AutodiffTools.VC.VC.opendb
 *.exe
 coconut/sample.obj
+*.obj
