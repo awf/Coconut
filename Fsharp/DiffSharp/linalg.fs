@@ -79,6 +79,31 @@ let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): M
     let range = arrayRange 0 (p - 1)
     arrayMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
 
+let vectorRead (fn: string) (startLine: Index): Vector = 
+    let matrix = matrixRead fn startLine 1
+    matrix.[0]
+
+let numberRead (fn: string) (startLine: Index): Number = 
+    let vector = vectorRead fn startLine
+    vector.[0]
+
+let run_ba_from_file (fn: string) = 
+    let nmp = vectorRead fn 0
+    let n = int nmp.[0]
+    let m = int nmp.[1]
+    let p = int nmp.[2]
+    let one_cam = vectorRead fn 1
+    let cam = arrayMapToMatrix (fun x -> one_cam)  (arrayRange 1 n)
+    let one_x = vectorRead fn 2
+    let x = arrayMapToMatrix (fun x -> one_x)  (arrayRange 1 m)
+    let one_w = numberRead fn 3
+    let w = Array.map (fun x -> one_w)  (arrayRange 1 p)
+    let one_feat = vectorRead fn 4
+    let feat = arrayMapToMatrix (fun x -> one_feat)  (arrayRange 1 p)
+    let obs = arrayMapToMatrix (fun x -> [| 0.0 ; 1.0 |] )  (arrayRange 1 p)
+    matrixPrint obs
+    reproj_err cam x w obs feat
+
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
   let b = [| 5.0; 6.0; 7.0 |]

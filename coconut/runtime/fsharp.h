@@ -114,10 +114,11 @@ array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr)
 }
 
 void matrix_print(array_array_number_t arr) {
-	printf("[\n ");
+	printf("[\n   ");
 	for (int i = 0; i < arr->length; i++) {
+		if (i != 0)
+			printf(" , ");
 		array_print(arr -> arr[i]);
-		printf("\n ");
 	}
 	printf("]\n");
 }
@@ -156,6 +157,7 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 		}
 		res->arr[row_index] = one_row;
 	}
+	fclose(fp);
 	return res;
 }
 

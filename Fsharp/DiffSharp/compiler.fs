@@ -15,7 +15,7 @@ let (|OperatorName|_|) methodName =
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
-  (* TODO implement in tail recursive way *)
+  (* TODO implement in a tail recursive way *)
   let rec lambdaNExtract exp = 
     match exp with
     | Patterns.Lambda(x, body) -> 
@@ -79,8 +79,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
   match e with 
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
-    | ("Map", "ArrayModule") -> 
-        Some("array_map", argList)
+    | ("Map", "ArrayModule") -> Some("array_map", argList)
     | ("Map2", "ArrayModule") -> Some("array_map2", argList)
     | ("Sum", "ArrayModule") -> Some("array_sum", argList)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
@@ -134,24 +133,17 @@ let newVar (name: string): string =
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
-  | _ when t = typeof<Matrix> ->
-   "array_array_number_t"
-  | _ when t = typeof<Vector> ->
-   "array_number_t"
+  | _ when t = typeof<Matrix> -> "array_array_number_t"
+  | _ when t = typeof<Vector> -> "array_number_t"
+  | _ when (t = typeof<Number>) -> "number_t"
+  | _ when (t = typeof<AnyNumeric>) -> "value_t"
+  | _ when (t = typeof<Index>) -> "index_t"
+  | _ when (t = typeof<string>) -> "string_t"
+  | _ when (t = typeof<Environment>) -> "env_t_" + variable_counter.ToString() + "*"
+  | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t*"
+  | _ when (t = typeof<Unit>) -> "void"
   | _ when (t.IsGenericParameter) ->
     failwith "does not know how to generate code for a generic type"
-  | _ when (t = typeof<Number>) ->
-    "number_t"
-  | _ when (t = typeof<AnyNumeric>) ->
-    "value_t"
-  | _ when (t = typeof<int>) ->
-    "index_t"
-  | _ when (t = typeof<Environment>) -> 
-    ("env_t_" + variable_counter.ToString() + "*")
-  | _ when (t.Name = typeof<Closure<_, _>>.Name) ->
-    "closure_t*"
-  | _ when (t = typeof<Unit>) ->
-    "void"
   | _ ->
     failwith (sprintf "does not know how to generate code for the type `%s` with name `%s`" (t.ToString()) (t.Name))
 

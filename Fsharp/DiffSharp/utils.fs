@@ -5,24 +5,21 @@ open System
 
 open System.IO
 
-[<CMirror("array_print")>]
-let arrayPrint (v: Vector): Unit = 
-  printfn "(%s)" (String.concat ", " (Array.map (sprintf "%f") v))
+(** I/O Methods **)
 
 [<CMirror("number_print")>]
 let numberPrint (v: Number): Unit = 
   printfn "%f" v
 
-[<CMirror("array_range")>]
-let arrayRange (s: Index) (e: Index): Vector = 
-  [|for i = s to e do yield (double i)|]
+[<CMirror("array_print")>]
+let arrayPrint (v: Vector): Unit = 
+  printfn "[%s]" (String.concat ", " (Array.map (sprintf "%f") v))
 
-[<CMirror("array_map_to_matrix")>]
-let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
-  Array.map f arr
-
-let listDiff list1 list2 = 
-  List.filter (fun x -> not (List.exists (fun y -> x = y) list2)) list1
+[<CMirror("matrix_print")>]
+let matrixPrint (v: Matrix): Unit = 
+  printf "[\n   "
+  Array.iteri (fun i x -> (if(i <> 0) then printf " , " else ()); arrayPrint x) v
+  printfn "]"
 
 [<CMirror("matrix_read")>]
 let matrixRead (fn: string) (startLine: Index) (rows: Index): Matrix = 
@@ -35,3 +32,24 @@ let matrixRead (fn: string) (startLine: Index) (rows: Index): Matrix =
           System.Double.Parse word) 
         words) 
     intendedLines
+
+(** Constructor Methods **)
+
+[<CMirror("array_range")>]
+let arrayRange (s: Index) (e: Index): Vector = 
+  [|for i = s to e do yield (double i)|]
+
+(** Transformer Methods **)
+
+[<CMirror("array_map")>]
+let arrayMap (f: Number -> Number) (arr: Vector): Vector = 
+  Array.map f arr
+
+[<CMirror("array_map_to_matrix")>]
+let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
+  Array.map f arr
+
+(** Utility Methods (Which are only used in the meta language) **)
+
+let listDiff list1 list2 = 
+  List.filter (fun x -> not (List.exists (fun y -> x = y) list2)) list1

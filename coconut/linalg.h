@@ -215,6 +215,117 @@ array_array_number_t linalg_reproj_err(array_array_number_t cams, array_array_nu
 	return array_map_to_matrix(closure35, range);
 }
 
+array_number_t linalg_vectorRead(string_t fn, index_t startLine) {
+	array_array_number_t matrix = matrix_read(fn, startLine, 1);
+	return matrix->arr[0];
+}
+
+number_t linalg_numberRead(string_t fn, index_t startLine) {
+	array_number_t vector = linalg_vectorRead(fn, startLine);
+	return vector->arr[0];
+}
+typedef struct env_t_58 {
+	array_number_t one_cam;
+} env_t_58;
+env_t_58* make_env_t_58(array_number_t one_cam) {
+	env_t_58* env = (env_t_58*)malloc(sizeof(env_t_58));
+	env->one_cam = one_cam;
+	return env;
+}
+
+value_t lambda58(env_t_58* env38, number_t x) {
+	array_number_t one_cam37 = env38->one_cam;
+	value_t res;
+	res.array_number_t_value = one_cam37;
+	return res;
+}
+typedef struct env_t_59 {
+	array_number_t one_x;
+} env_t_59;
+env_t_59* make_env_t_59(array_number_t one_x) {
+	env_t_59* env = (env_t_59*)malloc(sizeof(env_t_59));
+	env->one_x = one_x;
+	return env;
+}
+
+value_t lambda59(env_t_59* env42, number_t x) {
+	array_number_t one_x41 = env42->one_x;
+	value_t res;
+	res.array_number_t_value = one_x41;
+	return res;
+}
+typedef struct env_t_60 {
+	number_t one_w;
+} env_t_60;
+env_t_60* make_env_t_60(number_t one_w) {
+	env_t_60* env = (env_t_60*)malloc(sizeof(env_t_60));
+	env->one_w = one_w;
+	return env;
+}
+
+value_t lambda60(env_t_60* env46, number_t x) {
+	number_t one_w45 = env46->one_w;
+	value_t res;
+	res.number_t_value = one_w45;
+	return res;
+}
+typedef struct env_t_61 {
+	array_number_t one_feat;
+} env_t_61;
+env_t_61* make_env_t_61(array_number_t one_feat) {
+	env_t_61* env = (env_t_61*)malloc(sizeof(env_t_61));
+	env->one_feat = one_feat;
+	return env;
+}
+
+value_t lambda61(env_t_61* env50, number_t x) {
+	array_number_t one_feat49 = env50->one_feat;
+	value_t res;
+	res.array_number_t_value = one_feat49;
+	return res;
+}
+typedef struct env_t_62 {
+	value_t dummy_variable;
+} env_t_62;
+env_t_62* make_env_t_62() {
+	env_t_62* env = (env_t_62*)malloc(sizeof(env_t_62));
+	
+	return env;
+}
+
+value_t lambda62(env_t_62* env53, number_t x) {
+	array_number_t array56 = (array_number_t)malloc(sizeof(int) * 2);
+	array56->length=2;
+	array56->arr = (number_t*)malloc(sizeof(number_t) * 2);
+	array56->arr[0] = 0;
+	array56->arr[1] = 1;;
+	value_t res;
+	res.array_number_t_value = array56;
+	return res;
+}
+array_array_number_t linalg_run_ba_from_file(string_t fn) {
+	array_number_t nmp = linalg_vectorRead(fn, 0);
+	index_t n = (int)(nmp->arr[0]);
+	index_t m = (int)(nmp->arr[1]);
+	index_t p = (int)(nmp->arr[2]);
+	array_number_t one_cam = linalg_vectorRead(fn, 1);
+	closure_t* closure40 = make_closure(lambda58, make_env_t_58(one_cam));
+	array_number_t one_x = linalg_vectorRead(fn, 2);
+	closure_t* closure44 = make_closure(lambda59, make_env_t_59(one_x));
+	number_t one_w = linalg_numberRead(fn, 3);
+	closure_t* closure48 = make_closure(lambda60, make_env_t_60(one_w));
+	array_number_t one_feat = linalg_vectorRead(fn, 4);
+	closure_t* closure52 = make_closure(lambda61, make_env_t_61(one_feat));
+	closure_t* closure55 = make_closure(lambda62, make_env_t_62());
+	array_array_number_t cam = array_map_to_matrix(closure40, array_range(1, n));
+	array_array_number_t x = array_map_to_matrix(closure44, array_range(1, m));
+	array_number_t w = array_map(closure48, array_range(1, p));
+	array_array_number_t feat = array_map_to_matrix(closure52, array_range(1, p));
+	array_array_number_t obs = array_map_to_matrix(closure55, array_range(1, p));
+	matrix_print(obs);
+	return linalg_reproj_err(cam, x, w, obs, feat);
+}
+
 void linalg_test1(array_number_t dum) {
 	array_number_t a = (array_number_t)malloc(sizeof(int) * 2);
 	a->length=3;
