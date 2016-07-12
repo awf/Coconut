@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+// extern int closure_mem = 0;
+
 typedef int index_t;
 typedef double number_t;
 typedef struct array_number_t {
@@ -37,7 +39,13 @@ closure_t* make_closure(lambda_t lam, env_t env) {
 	closure_t* c = (closure_t*)malloc(sizeof(closure_t));
 	c->lam = lam;
 	c->env = env;
+	// closure_mem += sizeof(closure_t);
 	return c;
+}
+
+void free_closure(closure_t* closure) {
+	free(closure->env);
+	free(closure);
 }
 
 void array_print(array_number_t arr) {
@@ -57,6 +65,7 @@ array_number_t array_map(closure_t* closure, array_number_t arr) {
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure->lam(closure->env, arr->arr[i]).number_t_value;
 	}
+	free_closure(closure);
 	return res;
 }
 
@@ -67,6 +76,7 @@ array_number_t array_map2(closure_t* closure, array_number_t arr1, array_number_
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure->lam(closure->env, arr1->arr[i], arr2->arr[i]).number_t_value;
 	}
+	free_closure(closure);
 	return res;
 }
 
@@ -111,6 +121,7 @@ array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr)
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure->lam(closure->env, arr->arr[i]).array_number_t_value;
 	}
+	free_closure(closure);
 	return res;
 }
 
