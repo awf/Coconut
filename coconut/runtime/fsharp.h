@@ -138,7 +138,7 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 	res->length = rows;
 	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
 	for(int row_index=0; row_index<rows; row_index++) {
-		char cur;
+		char cur = 0;
 		int length = 0;
 		int elems = 1;
 		while(1) {

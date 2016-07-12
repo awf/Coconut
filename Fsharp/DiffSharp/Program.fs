@@ -2,6 +2,7 @@
 open System.Diagnostics
 open System.IO
 open cruntime
+open utils
 
 #if MODE_AD
 open DiffSharp.AD
@@ -259,6 +260,21 @@ let test_hand model_dir fn_in fn_out nruns_f nruns_J =
   write_times (fn_out + "_times_" + name + ".txt") tf tJ
 #endif
 
+let test_ba_objective fn_in fn_out nruns_f nruns_J = 
+    let cams, x, w, obs, feat = ba.read_ba_instance (fn_in + ".txt")
+    (*printfn "cams: %A\nx: %A\nw: %A\nobs: %A\nfeat: %A" cams x w obs feat*)
+    let obs_double = Array.map (fun v -> Array.map double v) obs
+    let obj_stop_watch = Stopwatch.StartNew()
+    (*let err, werr = ba.ba_objective cams x w obs feat
+    printfn "error: %A\nwerr: %A" err werr*)
+    let err = linalg.reproj_err cams x w obs_double feat
+    obj_stop_watch.Stop()
+
+    printfn "Time: %d ms" obj_stop_watch.ElapsedMilliseconds
+
+open System.Runtime.InteropServices
+open linalg
+
 [<EntryPoint>]
 let main argv = 
     let dir_in = argv.[0]
@@ -276,9 +292,11 @@ let main argv =
     test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
 #if DO_COMPILE
+    let res = run_ba_from_file (dir_in + fn + ".txt")
+    (*matrixPrint res*)
     compiler.compileModule "linalg"
-    linalg.test1 [||]
-
+    (*linalg.test1 [||]*)
+    test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "model/") (dir_in + fn) (dir_out + fn) nruns_f nruns_J

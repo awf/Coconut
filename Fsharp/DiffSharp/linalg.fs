@@ -100,8 +100,8 @@ let run_ba_from_file (fn: string) =
     let w = Array.map (fun x -> one_w)  (arrayRange 1 p)
     let one_feat = vectorRead fn 4
     let feat = arrayMapToMatrix (fun x -> one_feat)  (arrayRange 1 p)
-    let obs = arrayMapToMatrix (fun x -> [| 0.0 ; 1.0 |] )  (arrayRange 1 p)
-    matrixPrint obs
+    let obs = arrayMapToMatrix (fun x -> [| double ((int x) % n); double ((int x) % m) |] )  (arrayRange 0 (p - 1))
+    (*matrixPrint obs*)
     reproj_err cam x w obs feat
 
 let test1 (dum: Vector) =

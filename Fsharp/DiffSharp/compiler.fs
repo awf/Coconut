@@ -11,7 +11,9 @@ let (|OperatorName|_|) methodName =
     | "op_Multiply" -> Some("*")
     | "op_Subtraction" -> Some("-")
     | "op_Division" -> Some("/")
+    | "op_Modulus" -> Some("%")
     | "op_Inequality" -> Some("!=")
+    | "op_Equality" -> Some("==")
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
@@ -86,6 +88,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)
     | ("ToInt", "Operators") -> Some("(int)", argList)
+    | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> 
       Some("array_slice", List.map (fun x -> 
          match x with 
