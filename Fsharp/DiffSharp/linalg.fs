@@ -5,25 +5,25 @@ open utils
 open types
 
 let inline mult_by_scalar (x: Vector) (y: Number): Vector =
-    Array.map (fun a -> a*y) x
+    arrayMap (fun a -> a*y) x
 
 let inline cross (a: Vector) (b: Vector) =
     [| a.[1]*b.[2] - a.[2]*b.[1]; a.[2]*b.[0] - a.[0]*b.[2]; a.[0]*b.[1] - a.[1]*b.[0]; |]
 
 let inline add_vec (x: Vector) (y: Vector) =
-    Array.map2 (+) x y
+    arrayMap2 (+) x y
 
 let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
-  add_vec (add_vec x y) z
+    add_vec (add_vec x y) z
 
 let inline sub_vec (x: Vector) (y: Vector) =
-    Array.map2 (-) x y
+    arrayMap2 (-) x y
 
 let inline sqnorm (x: Vector) =
-    Array.sum (Array.map (fun x -> x*x) x)
+    arraySum (arrayMap (fun x -> x*x) x)
 
 let inline dot_prod (x: Vector) (y: Vector) =
-    Array.sum (Array.map2 (*) x y)
+    arraySum (arrayMap2 (*) x y)
 
 let radial_distort (rad_params: Vector) (proj: Vector) =
     let rsq = sqnorm proj
@@ -71,7 +71,7 @@ let compute_zach_weight_error w =
     1. - w*w
 
 let w_err (w:Vector) = 
-    Array.map compute_zach_weight_error w 
+    arrayMap compute_zach_weight_error w 
 
 let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): Matrix =
     let n = cams.Length
@@ -97,7 +97,7 @@ let run_ba_from_file (fn: string) =
     let one_x = vectorRead fn 2
     let x = arrayMapToMatrix (fun x -> one_x)  (arrayRange 1 m)
     let one_w = numberRead fn 3
-    let w = Array.map (fun x -> one_w)  (arrayRange 1 p)
+    let w = arrayMap (fun x -> one_w)  (arrayRange 1 p)
     let one_feat = vectorRead fn 4
     let feat = arrayMapToMatrix (fun x -> one_feat)  (arrayRange 1 p)
     let obs = arrayMapToMatrix (fun x -> [| double ((int x) % n); double ((int x) % m) |] )  (arrayRange 0 (p - 1))

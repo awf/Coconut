@@ -81,9 +81,8 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
   match e with 
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
-    | ("Map", "ArrayModule") -> Some("array_map", argList)
-    | ("Map2", "ArrayModule") -> Some("array_map2", argList)
-    | ("Sum", "ArrayModule") -> Some("array_sum", argList)
+    | (methodName, "ArrayModule") -> 
+      failwith (sprintf "The generic version of the method Array.%s is not supported!" methodName)
     | ("Sqrt", "Operators") -> Some("sqrt", argList)
     | ("Sin", "Operators") -> Some("sin", argList)
     | ("Cos", "Operators") -> Some("cos", argList)

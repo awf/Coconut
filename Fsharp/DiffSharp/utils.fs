@@ -45,6 +45,16 @@ let arrayRange (s: Index) (e: Index): Vector =
 let arrayMap (f: Number -> Number) (arr: Vector): Vector = 
   Array.map f arr
 
+[<CMirror("array_map2")>]
+let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vector = 
+  Array.map2 f arr1 arr2
+
+(** Consumer Methods **)
+
+[<CMirror("array_sum")>]
+let arraySum (arr: Vector): Number = 
+  Array.sum arr
+
 [<CMirror("array_map_to_matrix")>]
 let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
   Array.map f arr
