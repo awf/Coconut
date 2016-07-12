@@ -250,7 +250,7 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
 (* Performs a simple kind of ANF conversion for specific statements. *)
 let rec anfConversion (letRhs: bool) (e: Expr): Expr = 
   match e with 
-  | Patterns.Let(x, e1, e2) -> Expr.Let(x, anfConversion true e1, anfConversion false e2)
+  | Patterns.Let(x, e1, e2) when not letRhs -> Expr.Let(x, anfConversion true e1, anfConversion false e2)
   | Patterns.Value(v, tp) -> e
   | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion false body)
   | Patterns.NewArray(tp, elems) when not letRhs -> 
@@ -274,8 +274,8 @@ let letLifting (e: Expr): Expr =
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
       let (te2, liftedLets2) = constructTopLevelLets (x :: boundVars) e2
-      if(not (List.exists (fun y -> not(y = x)) (listDiff (List.ofSeq (te1.GetFreeVars())) boundVars))) then
-        (te2, (x, te1) :: (List.append liftedLets1 liftedLets2))
+      if (List.isEmpty (listDiff (List.ofSeq (e1.GetFreeVars())) boundVars)) then
+        (te2, List.append liftedLets1 ((x, te1) :: liftedLets2))
       else 
         (Expr.Let(x, te1, te2), List.append liftedLets1 liftedLets2)
     | Patterns.Call (None, op, elist) -> 
@@ -287,6 +287,11 @@ let letLifting (e: Expr): Expr =
     | _ -> (exp, [])
   let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
   let (te, ll) = constructTopLevelLets inputs body
+  (*
+  printfn "/* Before Let Lifting code:\n%A\n*/\n" (prettyprint e)
+  printfn "/* List of vars:\n%A\n*/\n" (List.map (fun (x, _) -> x) ll)
+  printfn "/* After Let Lifting code:\n%A\n*/\n" (prettyprint (LambdaN(inputs, LetN(ll, te))))
+  *)
   LambdaN(inputs, LetN(ll, te))
   
 
