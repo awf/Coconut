@@ -144,7 +144,7 @@ let inline logsumexp (arr: Vector) =
     let semx = arraySum (arrayMap (fun x -> exp(x-mx)) arr)
     (log semx) + mx
 
-let log_gamma_distrib (a: Number) (p: Number) =
+let inline log_gamma_distrib (a: Number) (p: Number) =
   log (System.Math.Pow(System.Math.PI,(0.25*(p*(p-1.0))))) + 
     arraySum (arrayMap (fun j -> 
         MathNet.Numerics.SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))) 
