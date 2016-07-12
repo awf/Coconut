@@ -2,7 +2,7 @@
 
 open types
 open System
-
+open System.Diagnostics
 open System.IO
 
 (** I/O Methods **)
@@ -58,6 +58,17 @@ let arraySum (arr: Vector): Number =
 [<CMirror("array_map_to_matrix")>]
 let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
   Array.map f arr
+
+(** Timing **)
+
+[<CMirror("tic")>]
+let tic(): Timer = 
+  Stopwatch.StartNew()
+
+[<CMirror("toc")>]
+let toc(t: Timer) = 
+  t.Stop()
+  printfn "Time: %d ms" t.ElapsedMilliseconds
 
 (** Utility Methods (Which are only used in the meta language) **)
 

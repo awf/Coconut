@@ -140,6 +140,7 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<Number>) -> "number_t"
   | _ when (t = typeof<AnyNumeric>) -> "value_t"
   | _ when (t = typeof<Index>) -> "index_t"
+  | _ when (t = typeof<Timer>) -> "timer_t"
   | _ when (t = typeof<string>) -> "string_t"
   | _ when (t = typeof<Environment>) -> "env_t_" + variable_counter.ToString() + "*"
   | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t*"

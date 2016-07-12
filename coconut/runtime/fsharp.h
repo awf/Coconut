@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef int index_t;
 typedef double number_t;
@@ -159,6 +160,24 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 	}
 	fclose(fp);
 	return res;
+}
+
+/** Timing */
+
+typedef struct timer_t {
+	clock_t start;
+} timer_t;
+
+timer_t tic() {
+	timer_t res;
+	res.start = clock();
+	return res;
+}
+
+void toc(timer_t t) {
+	clock_t end = clock();
+	float milliseconds = (float)(end - t.start) * 1000.0 / CLOCKS_PER_SEC;
+	printf("Time: %d ms\n", (int)milliseconds);
 }
 
 #endif

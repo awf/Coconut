@@ -11,6 +11,8 @@ type AnyNumeric =
   | TwoD of Matrix
   | Idx of Index
 
+type Timer = System.Diagnostics.Stopwatch
+
 type CMirror(Method : string) =
     inherit System.Attribute()
     member this.Method = Method

@@ -296,7 +296,7 @@ let main argv =
     (*matrixPrint res*)
     compiler.compileModule "linalg"
     (*linalg.test1 [||]*)
-    test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J
+    (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "model/") (dir_in + fn) (dir_out + fn) nruns_f nruns_J
