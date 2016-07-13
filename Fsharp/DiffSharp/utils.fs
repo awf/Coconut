@@ -41,6 +41,10 @@ let arrayRange (s: Index) (e: Index): Vector =
 
 (** Transformer Methods **)
 
+[<CMirror("matrix_concat")>]
+let matrixConcat (m1: Matrix) (m2: Matrix): Matrix = 
+  Array.append m1 m2
+
 [<CMirror("array_map")>]
 let arrayMap (f: Number -> Number) (arr: Vector): Vector = 
   Array.map f arr

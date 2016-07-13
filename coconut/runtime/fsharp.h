@@ -135,6 +135,20 @@ array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr)
 	return res;
 }
 
+array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number_t mat2) {
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = mat1->length + mat2->length;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		if (i < mat1->length)
+			res->arr[i] = mat1->arr[i];
+		else 
+			res->arr[i] = mat2->arr[i - mat1->length];
+	}
+	return res;
+}
+
+
 void matrix_print(array_array_number_t arr) {
 	printf("[\n   ");
 	for (int i = 0; i < arr->length; i++) {
