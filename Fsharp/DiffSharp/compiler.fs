@@ -146,11 +146,13 @@ let newVar (name: string): string =
   let id = variable_counter
   sprintf "%s%d" name id
 
+let ARRAY_PREFIX = "array_"
+
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
-  | _ when t = typeof<Matrix> -> "array_array_number_t"
-  | _ when t = typeof<Vector> -> "array_number_t"
+  | _ when t = typeof<Matrix> -> ARRAY_PREFIX + ARRAY_PREFIX + "number_t"
+  | _ when t = typeof<Vector> -> ARRAY_PREFIX + "number_t"
   | _ when (t = typeof<Number>) -> "number_t"
   | _ when (t = typeof<AnyNumeric>) -> "value_t"
   | _ when (t = typeof<Index>) -> "index_t"
@@ -270,8 +272,7 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
   | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion false body)
   | Patterns.NewArray(tp, elems) when not letRhs -> 
     let variable = new Var(newVar "array", e.Type)
-    (* TODO perform ANF conversion for the arguments as well *)
-    Expr.Let(variable, e, Expr.Var(variable))
+    Expr.Let(variable, Expr.NewArray(tp, List.map (anfConversion false) elems), Expr.Var(variable))
   | Patterns.IfThenElse(cond, e1, e2) when not letRhs ->
     let variable = new Var(newVar "ite", e.Type)
     Expr.Let(variable, Expr.IfThenElse(cond, anfConversion false e1, anfConversion false e2), Expr.Var(variable))
@@ -299,6 +300,14 @@ let letLifting (e: Expr): Expr =
     | LambdaN (inputs, body) ->
       let (te, ll) = constructTopLevelLets boundVars body
       (LambdaN (inputs, te), ll)
+    | Patterns.IfThenElse(cond, e1, e2) ->
+      let (te1, liftedLets1) = constructTopLevelLets boundVars e1
+      let (te2, liftedLets2) = constructTopLevelLets boundVars e2
+      let (tc, liftedLetsc) = constructTopLevelLets boundVars cond
+      (Expr.IfThenElse(tc, LetN(liftedLets1, te1), LetN(liftedLets2, te2)), liftedLetsc)
+    | ExprShape.ShapeCombination(o, exprs) ->
+      let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) exprs)
+      (ExprShape.RebuildShapeCombination(o, tes), List.concat lls)
     | _ -> (exp, [])
   let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
   let (te, ll) = constructTopLevelLets inputs body
@@ -409,7 +418,7 @@ let optimize (e: Expr): Expr =
 
 (* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
-  anfConversion false (letLifting (closureConversion (optimize e)))
+  letLifting (anfConversion false (closureConversion (optimize e)))
 
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string): string = 
