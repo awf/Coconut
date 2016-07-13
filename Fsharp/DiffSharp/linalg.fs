@@ -149,3 +149,50 @@ let inline log_gamma_distrib (a: Number) (p: Number) =
     arraySum (arrayMap (fun j -> 
         MathNet.Numerics.SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))) 
       (arrayRange 1 (int p)))
+
+let inline new_matrix_test (dum: Vector): Matrix = 
+  let res = [| [| 0.0; 0.0; 0.0 |] |]
+  res
+
+let inline to_pose_params (theta: Vector) (n_bones: Index): Matrix =
+  let row1 = theta.[0..2]
+  let row2 = [| 1.0; 1.0; 1.0|]
+  let row3 = theta.[3..5]
+  let zeroRow = [| 0.0; 0.0; 0.0 |]
+  let pose_params = [| row1; row2; row3; zeroRow; zeroRow |]
+  let i1 = 5
+  let finger1 = 
+    [| [| theta.[i1]; theta.[i1+1]; 0.0 |] ; 
+       [| theta.[i1+2]; 0.0; 0.0 |] ;
+       [| theta.[i1+3]; 0.0; 0.0 |] ;
+       [| 0.0; 0.0; 0.0 |] |]
+  let i2 = i1 + 4
+  let finger2 = 
+    [| [| theta.[i2]; theta.[i2+1]; 0.0 |] ; 
+       [| theta.[i2+2]; 0.0; 0.0 |] ;
+       [| theta.[i2+3]; 0.0; 0.0 |] ;
+       [| 0.0; 0.0; 0.0 |] |]
+  let i3 = i2 + 4
+  let finger3 = 
+    [| [| theta.[i3]; theta.[i3+1]; 0.0 |] ; 
+       [| theta.[i3+2]; 0.0; 0.0 |] ;
+       [| theta.[i3+3]; 0.0; 0.0 |] ;
+       [| 0.0; 0.0; 0.0 |] |]
+  let i4 = i3 + 4
+  let finger4 = 
+    [| [| theta.[i4]; theta.[i4+1]; 0.0 |] ; 
+       [| theta.[i4+2]; 0.0; 0.0 |] ;
+       [| theta.[i4+3]; 0.0; 0.0 |] ;
+       [| 0.0; 0.0; 0.0 |] |]
+  let i5 = i4 + 4
+  let finger5 = 
+    [| [| theta.[i5]; theta.[i5+1]; 0.0 |] ; 
+       [| theta.[i5+2]; 0.0; 0.0 |] ;
+       [| theta.[i5+3]; 0.0; 0.0 |] ;
+       [| 0.0; 0.0; 0.0 |] |]
+
+  matrixConcat pose_params 
+    (matrixConcat finger1 
+      (matrixConcat finger2 
+        (matrixConcat finger3 
+          (matrixConcat finger4 finger5))))
