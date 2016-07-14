@@ -70,11 +70,14 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
   let r1 = m1.Length
   let c2 = m2.[0].Length
   let c1 = m1.[0].Length
+  let r2 = m2.Length
+  if(c1<>r2) then
+    failwith (sprintf "Matrcies have the inconsistent dimensions %dx%d and %dx%d for MMM" r1 c1 r2 c2)
   let m2T = matrixTranspose(m2)
   Array.map (fun r -> 
     Array.map (fun c -> 
       Array.sum 
-        (Array.map2 ( * ) (m1.[int r]) (m2.[int c]))) (arrayRange 0 (c2 - 1)))
+        (Array.map2 ( * ) (m1.[int r]) (m2T.[int c]))) (arrayRange 0 (c2 - 1)))
     (arrayRange 0 (r1 - 1))
 
 (** Consumer Methods **)

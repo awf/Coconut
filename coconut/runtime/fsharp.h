@@ -121,7 +121,7 @@ array_number_t array_range(index_t start, index_t end) {
 	res->length = size;
 	res->arr = (number_t*)malloc(sizeof(number_t) * size);
 	for (int i = 0; i < size; i++) {
-		res->arr[i] = i;
+		res->arr[i] = start + i;
 	}
 	return res;
 }
@@ -183,8 +183,13 @@ array_array_number_t matrix_transpose(array_array_number_t mat) {
 
 array_array_number_t matrix_mult(array_array_number_t mat1, array_array_number_t mat2) {
 	int r1 = mat1->length;
-	int c2 = mat2->length;
+	int c2 = mat2->arr[0]->length;
 	int c1 = mat1->arr[0]->length;
+	int r2 = mat2->length;
+	if(c1 != r2) {
+		printf("Matrcies have the inconsistent dimensions %dx%d and %dx%d for MMM", r1, c1, r2, c2);
+		exit(1);
+	}
 	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
 	res->length = r1;
 	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
