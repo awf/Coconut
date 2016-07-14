@@ -33,6 +33,11 @@ let getMatrix (v: AnyNumeric): Matrix =
   | TwoD n -> n 
   | _ -> failwith (sprintf "Cannot invoke getMatrix for %A" v)
 
+let getMatrix3D (v: AnyNumeric): Matrix3D = 
+  match v with 
+  | ThreeD n -> n 
+  | _ -> failwith (sprintf "Cannot invoke getMatrix3D for %A" v)
+
 let makeIndex (n: Index): AnyNumeric = 
   Idx n
 
@@ -44,6 +49,9 @@ let makeVector (n: Vector): AnyNumeric =
 
 let makeMatrix (n: Matrix): AnyNumeric = 
   TwoD n
+
+let makeMatrix3D (n: Matrix3D): AnyNumeric = 
+  ThreeD n
 
 let makeEnv (bindings: (string * AnyNumeric) List): Environment = 
   Map.ofList bindings

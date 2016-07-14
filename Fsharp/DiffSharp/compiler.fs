@@ -152,6 +152,7 @@ let ARRAY_PREFIX = "array_"
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
+  | _ when t = typeof<Matrix3D> -> ARRAY_PREFIX + ARRAY_PREFIX + ARRAY_PREFIX + "number_t"
   | _ when t = typeof<Matrix> -> ARRAY_PREFIX + ARRAY_PREFIX + "number_t"
   | _ when t = typeof<Vector> -> ARRAY_PREFIX + "number_t"
   | _ when (t = typeof<Number>) -> "number_t"
@@ -349,6 +350,7 @@ let closureConversion (e: Expr): Expr =
             | tp when tp = typeof<Number> -> <@@ getNumber %%envRefValue @@>
             | tp when tp = typeof<Vector> -> <@@ getVector %%envRefValue @@>
             | tp when tp = typeof<Matrix> -> <@@ getMatrix %%envRefValue @@>
+            | tp when tp = typeof<Matrix3D> -> <@@ getMatrix3D %%envRefValue @@>
             | tp -> failwith (sprintf "Not supported type %A" tp)
           Expr.Let(ncur, rhs, acc)) convertedBody freeNewVars
         let closureFun = LambdaN(envVar :: inputs, closuredBody)
@@ -368,6 +370,7 @@ let closureConversion (e: Expr): Expr =
               | tp when tp = typeof<Number> -> <@@ makeNumber %%v @@>
               | tp when tp = typeof<Vector> -> <@@ makeVector %%v @@>
               | tp when tp = typeof<Matrix> -> <@@ makeMatrix %%v @@>
+              | tp when tp = typeof<Matrix3D> -> <@@ makeMatrix3D %%v @@>
               | tp -> failwith (sprintf "Not supported type %A" tp)
             <@@ (((%%vstr: string), (%%vexp: AnyNumeric) ): string * AnyNumeric) :: 
                   (%%acc: (string * AnyNumeric) List) @@> ) <@@ []: (string * AnyNumeric) List @@>  freeVars]

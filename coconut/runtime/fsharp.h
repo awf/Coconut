@@ -17,10 +17,16 @@ typedef struct array_array_number_t {
 	array_number_t* arr;
 	int length;
 }* array_array_number_t;
+typedef struct array_array_array_number_t {
+	array_array_number_t* arr;
+	int length;
+}* array_array_array_number_t;
 
 typedef union value_t {
 	number_t number_t_value;
 	array_number_t array_number_t_value;
+	array_array_number_t array_array_number_t_value;
+	array_array_array_number_t array_array_array_number_t_value;
 } value_t;
 
 typedef char* string_t;
@@ -130,6 +136,17 @@ array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr)
 	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure->lam(closure->env, arr->arr[i]).array_number_t_value;
+	}
+	free_closure(closure);
+	return res;
+}
+
+array_array_array_number_t array_map_to_matrix3d(closure_t* closure, array_number_t arr) {
+	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = arr->length;
+	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, arr->arr[i]).array_array_number_t_value;
 	}
 	free_closure(closure);
 	return res;
