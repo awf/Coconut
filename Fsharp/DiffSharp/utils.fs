@@ -57,6 +57,10 @@ let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vec
 let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
   Array.map f arr
 
+[<CMirror("array_map_to_matrix3d")>]
+let arrayMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix3D = 
+  Array.map f arr
+
 [<CMirror("matrix_transpose")>]
 let matrixTranspose (m: Matrix): Matrix = 
   Array.map (fun c -> Array.map (fun r -> m.[int r - 1].[int c - 1]) (arrayRange 1 (m.Length))) (arrayRange 1 (m.[0].Length))

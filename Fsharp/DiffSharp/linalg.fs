@@ -188,6 +188,13 @@ let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
   matrixPrint T
   matrixMult base_relative T
 
+let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D): Matrix3D =
+  let offset = 3
+  arrayMapToMatrix3D (fun i_bone -> 
+     make_relative pose_params.[(int i_bone)+offset] base_relatives.[int i_bone]
+    ) 
+    (arrayRange 0 (n_bones - 1))
+
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
   let b = [| 5.0; 6.0; 7.0 |]
