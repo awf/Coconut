@@ -148,6 +148,45 @@ array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number
 	return res;
 }
 
+array_array_number_t matrix_transpose(array_array_number_t mat) {
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = mat->arr[0]->length;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		array_number_t row = (array_number_t)malloc(sizeof(int) * 2);
+		row->length = mat->length;
+		row->arr = (number_t*)malloc(sizeof(number_t) * row->length);
+		for (int j = 0; j < row->length; j++) {
+			row->arr[j] = mat->arr[j]->arr[i];
+		}
+		res->arr[i] = row;
+	}
+	return res;
+}
+
+array_array_number_t matrix_mult(array_array_number_t mat1, array_array_number_t mat2) {
+	int r1 = mat1->length;
+	int c2 = mat2->length;
+	int c1 = mat1->arr[0]->length;
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = r1;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	for (int i = 0; i < r1; i++) {
+		array_number_t row = (array_number_t)malloc(sizeof(int) * 2);
+		row->length = c2;
+		row->arr = (number_t*)malloc(sizeof(number_t) * c2);
+		for (int j = 0; j < c2; j++) {
+			row->arr[j] = 0;
+			for(int k = 0; k < c1; k++) {
+				row->arr[j] += mat1->arr[i]->arr[k] * mat2->arr[k]->arr[j];
+			}
+		}
+		res->arr[i] = row;
+	}
+	return res;
+}
+
+
 
 void matrix_print(array_array_number_t arr) {
 	printf("[\n   ");
