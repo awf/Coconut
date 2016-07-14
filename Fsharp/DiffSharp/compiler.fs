@@ -14,6 +14,7 @@ let (|OperatorName|_|) methodName =
     | "op_Modulus" -> Some("%")
     | "op_Inequality" -> Some("!=")
     | "op_Equality" -> Some("==")
+    | "op_UnaryNegation" -> Some("-")
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
@@ -178,9 +179,16 @@ let rec ccodegen (e:Expr): string =
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> sprintf "(%s) %s (%s)" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
+      | OperatorName opname -> 
+        if((List.length elist) = 2) then 
+          sprintf "(%s) %s (%s)" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
+        elif ((List.length elist) = 1) then
+          sprintf "%s(%s)" opname (ccodegen elist.[0])
+        else 
+          failwith (sprintf "The code generator only supports unary and binary operators. The given operator accepts %d operators" 
+                      (List.length elist))
       | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
-      | _ -> sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist))
+      | _ -> failwith (sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist)))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)

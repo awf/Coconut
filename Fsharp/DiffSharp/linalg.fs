@@ -107,47 +107,6 @@ let run_ba_from_file (fn: string) =
     toc(t)
     res
 
-let test1 (dum: Vector) =
-  let a = [| 1.0; 2.0; 3.0 |]
-  let b = [| 5.0; 6.0; 7.0 |]
-  arrayPrint a
-  arrayPrint b
-(*  arrayPrint (foo b) *)
-
-  let c = cross a b
-  arrayPrint c
-  let d = mult_by_scalar c 15.0
-  arrayPrint d
-  let e = add_vec a b
-  arrayPrint e
-  let f = sub_vec a b
-  arrayPrint f
-  let g = add_vec3 a b c
-  arrayPrint g
-  let h = sqnorm a
-  numberPrint h
-  let i = dot_prod a b
-  numberPrint i
-  let j = radial_distort a b
-  arrayPrint j
-  let k = rodrigues_rotate_point a b
-  arrayPrint k
-  let l = k.[1..2]
-  arrayPrint l
-  let cam = [|0.; 2.; 4.; 6.; 8.; 10.; 12.; 14.; 16.; 18.; 20.|]
-  let m = project cam j 
-  arrayPrint m
-
-  let mat1 = 
-    [| [| 1.0; 2.0; 3.0; |];
-       [| 4.0; 5.0; 6.0; |];
-       [| 7.0; 8.0; 9.0; |] |]
-  let n = matrixMult mat1 mat1
-  matrixPrint n
-  let o = matrixTranspose n
-  matrixPrint o
-  ()
-
 let inline logsumexp (arr: Vector) =
     let mx = arrayMax arr
     let semx = arraySum (arrayMap (fun x -> exp(x-mx)) arr)
@@ -205,3 +164,71 @@ let inline to_pose_params (theta: Vector) (n_bones: Index): Matrix =
       (matrixConcat finger2 
         (matrixConcat finger3 
           (matrixConcat finger4 finger5))))
+
+let euler_angles_to_rotation_matrix (xzy: Vector): Matrix =
+  let tx = xzy.[0]
+  let ty = xzy.[2]
+  let tz = xzy.[1]
+  let Rx = [| [|1.; 0.; 0.|]; [|0.; cos(tx); -sin(tx)|]; [|0.; sin(tx); cos(tx)|] |]
+  let Ry = [| [|cos(ty); 0.; sin(ty)|]; [|0.; 1.; 0.|]; [|-sin(ty); 0.; cos(ty)|] |]
+  let Rz = [| [|cos(tz); -sin(tz); 0.|]; [|sin(tz); cos(tz); 0.|]; [|0.; 0.; 1.|] |]
+  matrixMult Rz (matrixMult Ry Rx)
+
+let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
+  let m1t = matrixTranspose m1
+  let m2t = matrixTranspose m2
+  matrixTranspose (matrixConcat m1t m2t)
+
+let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
+  let R = euler_angles_to_rotation_matrix pose_params
+  let T = 
+    matrixConcat (matrixConcatCol R 
+                    ([| [| 0. |]; [| 0. |]; [| 0. |] |])) 
+                 ([| [| 0.; 0.; 0.; 1.0|] |])
+  matrixPrint T
+  matrixMult base_relative T
+
+let test1 (dum: Vector) =
+  let a = [| 1.0; 2.0; 3.0 |]
+  let b = [| 5.0; 6.0; 7.0 |]
+  arrayPrint a
+  arrayPrint b
+(*  arrayPrint (foo b) *)
+
+  let c = cross a b
+  arrayPrint c
+  let d = mult_by_scalar c 15.0
+  arrayPrint d
+  let e = add_vec a b
+  arrayPrint e
+  let f = sub_vec a b
+  arrayPrint f
+  let g = add_vec3 a b c
+  arrayPrint g
+  let h = sqnorm a
+  numberPrint h
+  let i = dot_prod a b
+  numberPrint i
+  let j = radial_distort a b
+  arrayPrint j
+  let k = rodrigues_rotate_point a b
+  arrayPrint k
+  let l = k.[1..2]
+  arrayPrint l
+  let cam = [|0.; 2.; 4.; 6.; 8.; 10.; 12.; 14.; 16.; 18.; 20.|]
+  let m = project cam j 
+  arrayPrint m
+
+  let mat1 = 
+    [| [| 1.0; 2.0; 3.0; |];
+       [| 4.0; 5.0; 6.0; |];
+       [| 7.0; 8.0; 9.0; |] |]
+  let n = matrixMult mat1 mat1
+  matrixPrint n
+  let o = matrixTranspose n
+  matrixPrint o
+  let p = matrixConcatCol mat1 mat1
+  matrixPrint p
+  let q = make_relative a mat1
+  matrixPrint q
+  ()

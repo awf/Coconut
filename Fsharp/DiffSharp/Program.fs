@@ -299,6 +299,6 @@ let main argv =
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
-    test_hand (dir_in + "model/") (dir_in + fn) (dir_out + fn) nruns_f nruns_J
+    test_hand (dir_in + "hand_instances\\simple_big\\model\\") (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
     0
