@@ -15,6 +15,7 @@ let (|OperatorName|_|) methodName =
     | "op_Inequality" -> Some("!=")
     | "op_Equality" -> Some("==")
     | "op_UnaryNegation" -> Some("-")
+    | "op_LessThan" -> Some("<")
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 

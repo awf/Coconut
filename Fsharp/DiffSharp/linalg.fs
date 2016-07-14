@@ -185,7 +185,6 @@ let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
     matrixConcat (matrixConcatCol R 
                     ([| [| 0. |]; [| 0. |]; [| 0. |] |])) 
                  ([| [| 0.; 0.; 0.; 1.0|] |])
-  matrixPrint T
   matrixMult base_relative T
 
 let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D): Matrix3D =
@@ -194,6 +193,24 @@ let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: 
      make_relative pose_params.[(int i_bone)+offset] base_relatives.[int i_bone]
     ) 
     (arrayRange 0 (n_bones - 1))
+
+let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
+  let n = sqrt(sqnorm angle_axis)
+  if n < 0.0001 then
+    [| [| 1.; 0.; 0. |];
+       [| 0.; 1.; 0. |];
+       [| 0.; 0.; 1. |]; |]
+  else
+    let x = angle_axis.[0] / n
+    let y = angle_axis.[1] / n
+    let z = angle_axis.[2] / n
+
+    let s = sin n
+    let c = cos n
+    
+    [| [| x*x + (1. - x*x)*c; x*y*(1. - c) - z*s; x*z*(1. - c) + y*s |]; 
+       [| x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s |];
+       [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
 
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
@@ -236,6 +253,9 @@ let test1 (dum: Vector) =
   matrixPrint o
   let p = matrixConcatCol mat1 mat1
   matrixPrint p
-  let q = make_relative a mat1
+  let base_rel = arrayMapToMatrix (fun r -> arrayRange (int r * 4) (int r * 4 + 3)) (arrayRange 1 4)
+  let q = make_relative a base_rel
   matrixPrint q
+  let r = angle_axis_to_rotation_matrix a
+  matrixPrint r
   ()

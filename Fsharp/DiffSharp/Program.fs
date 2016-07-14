@@ -295,7 +295,7 @@ let main argv =
     let res = run_ba_from_file (dir_in + fn + ".txt")
     (*matrixPrint res*)
     compiler.compileModule "linalg"
-    (*linalg.test1 [||]*)
+    linalg.test1 [||]
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
