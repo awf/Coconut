@@ -299,8 +299,10 @@ let letLifting (e: Expr): Expr =
     match exp with 
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
-      let (te2, liftedLets2) = constructTopLevelLets (x :: boundVars) e2
-      if (List.isEmpty (listDiff (List.ofSeq (e1.GetFreeVars())) boundVars)) then
+      let canBeLifted = List.isEmpty (listDiff (List.ofSeq (e1.GetFreeVars())) boundVars)
+      let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
+      let (te2, liftedLets2) = constructTopLevelLets newBoundVars e2
+      if (canBeLifted) then
         (te2, List.append liftedLets1 ((x, te1) :: liftedLets2))
       else 
         (Expr.Let(x, te1, te2), List.append liftedLets1 liftedLets2)
