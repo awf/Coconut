@@ -57,6 +57,10 @@ let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix =
 let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vector = 
   Array.map2 f arr1 arr2
 
+[<CMirror("matrix3d_map2")>]
+let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix3D) (m2: Matrix3D): Matrix3D = 
+  Array.map2 f m1 m2
+
 [<CMirror("array_map_to_matrix")>]
 let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
   Array.map f arr

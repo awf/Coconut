@@ -97,6 +97,17 @@ array_number_t array_map2(closure_t* closure, array_number_t arr1, array_number_
 	return res;
 }
 
+array_array_array_number_t matrix3d_map2(closure_t* closure, array_array_array_number_t arr1, array_array_array_number_t arr2) {
+	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = arr1->length;
+	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, arr1->arr[i], arr2->arr[i]).array_array_number_t_value;
+	}
+	free_closure(closure);
+	return res;
+}
+
 number_t array_sum(array_number_t arr) {
 	number_t sum = 0;
 	for (int i = 0; i < arr->length; i++) {
