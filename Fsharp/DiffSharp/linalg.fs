@@ -240,7 +240,7 @@ let apply_global_transform (pose_params: Matrix) (positions: Matrix) =
   let positions_homog = matrixConcat positions ([| ones |])
   matrixMult T positions_homog
 
-let get_skinned_vertex_positions (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D) (parents: Vector)
+let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D) (parents: Vector)
      (inverse_base_absolutes: Matrix3D) (base_positions: Matrix) (weights: Matrix) =
   let relatives = get_posed_relatives n_bones pose_params base_relatives
   let absolutes = relatives_to_absolutes relatives parents
@@ -256,22 +256,25 @@ let get_skinned_vertex_positions (n_bones: Index) (pose_params: Matrix) (base_re
     Matrix.replacei2 (fun i j pos curr_pos -> pos + curr_pos * model.weights.[i_transform,j]) positions curr_positions
   *)
 
-  (* TODO matrix elements manipulation *)
-  (*
-  if model.is_mirrored then
-    for i=0 to positions.Cols do
-      positions.[0,i] <- -positions.[0,i]
-  *)
+  let mirrored_positions =
+    if(is_mirrored = 1) then 
+      let mirror_matrix = 
+        [| [| -1.; 0.; 0. |];
+           [| 0.; 1.; 0.  |];
+           [| 0.; 0.; 1.  |] |]
+      matrixMult mirror_matrix positions
+    else 
+      positions
 
-  apply_global_transform pose_params positions
+  apply_global_transform pose_params mirrored_positions
 
-let hand_objective (param: Vector) (correspondences: Vector) (points: Matrix)
+let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector) (points: Matrix)
       (n_bones: Index) (base_relatives: Matrix3D) (parents: Vector)
       (inverse_base_absolutes: Matrix3D) (base_positions: Matrix) (weights: Matrix): Vector =
   let pose_params = to_pose_params param n_bones
   
   let vertex_positions = 
-    get_skinned_vertex_positions n_bones pose_params base_relatives parents
+    get_skinned_vertex_positions is_mirrored n_bones pose_params base_relatives parents
       inverse_base_absolutes base_positions weights
   
   let n_corr = correspondences.Length
