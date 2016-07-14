@@ -13,13 +13,16 @@ let inline cross (a: Vector) (b: Vector) =
 let inline add_vec (x: Vector) (y: Vector) =
     arrayMap2 (+) x y
 
+let inline mult_vec_elementwise (x: Vector) (y: Vector) =
+    arrayMap2 (*) x y
+
 let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
     add_vec (add_vec x y) z
 
 let inline sub_vec (x: Vector) (y: Vector) =
     arrayMap2 (-) x y
 
-[<DontInline>]
+(*[<DontInline>]*)
 let inline sqnorm (x: Vector) =
     arraySum (arrayMap (fun x1 -> x1*x1) x)
 
@@ -211,6 +214,27 @@ let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
     [| [| x*x + (1. - x*x)*c; x*y*(1. - c) - z*s; x*z*(1. - c) + y*s |]; 
        [| x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s |];
        [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
+(*
+(* TODO Requires FOLD! *)
+let relatives_to_absolutes (relatives: Matrix3D) (parents: Vector): Matrix3D =
+  arrayMapToMatrix3D (fun ind -> 
+    let i = int ind
+    if parents.[i] = -1.0 then 
+      relatives.[i] 
+    else 
+      absolutes.[parents.[i]] * relatives.[i] 
+  ) (arrayRange 0 (relatives.Length-1))
+*)
+
+let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
+  let R = angle_axis_to_rotation_matrix pose_params.[0]
+  let scale = pose_params.[1] // 1 row vector
+  let R1 = matrixMap (fun row -> mult_vec_elementwise row scale) R 
+  
+  let T = matrixConcatCol R1 (matrixTranspose ([| pose_params.[2] |]))
+  let ones = arrayMap (fun x -> 1.) (arrayRange 1 (positions.[0].Length))
+  let positions_homog = matrixConcat positions ([| ones |])
+  matrixMult T positions_homog
 
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
@@ -258,4 +282,6 @@ let test1 (dum: Vector) =
   matrixPrint q
   let r = angle_axis_to_rotation_matrix a
   matrixPrint r
+  let s = apply_global_transform mat1 mat1
+  matrixPrint s
   ()
