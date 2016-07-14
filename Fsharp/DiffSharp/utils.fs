@@ -45,6 +45,10 @@ let arrayRange (s: Index) (e: Index): Vector =
 let matrixConcat (m1: Matrix) (m2: Matrix): Matrix = 
   Array.append m1 m2
 
+[<CMirror("matrix3d_concat")>]
+let matrix3DConcat (m1: Matrix3D) (m2: Matrix3D): Matrix3D = 
+  Array.append m1 m2
+
 [<CMirror("array_map")>]
 let arrayMap (f: Number -> Number) (arr: Vector): Vector = 
   Array.map f arr
@@ -97,6 +101,12 @@ let arraySum (arr: Vector): Number =
 [<CMirror("array_max")>]
 let arrayMax (arr: Vector): Number = 
   Array.max arr
+
+(** Fold methods **)
+
+[<CMirror("iterate_matrix3d")>]
+let iterateMatrix3D (f: Matrix3D -> Index -> Matrix3D) (z: Matrix3D) (s: Index) (e: Index): Matrix3D = 
+  Array.fold (fun acc cur -> f acc (int cur)) z (arrayRange s e)
 
 (** Timing **)
 
