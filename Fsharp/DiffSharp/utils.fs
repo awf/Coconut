@@ -57,6 +57,22 @@ let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vec
 let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
   Array.map f arr
 
+[<CMirror("matrix_transpose")>]
+let matrixTranspose (m: Matrix): Matrix = 
+  Array.map (fun c -> Array.map (fun r -> m.[int r - 1].[int c - 1]) (arrayRange 1 (m.Length))) (arrayRange 1 (m.[0].Length))
+
+[<CMirror("matrix_mult")>]
+let matrixMult (m1: Matrix) (m2: Matrix): Matrix = 
+  let r1 = m1.Length
+  let c2 = m2.[0].Length
+  let c1 = m1.[0].Length
+  let m2T = matrixTranspose(m2)
+  Array.map (fun r -> 
+    Array.map (fun c -> 
+      Array.sum 
+        (Array.map2 ( * ) (m1.[int r]) (m2.[int c]))) (arrayRange 0 (c2 - 1)))
+    (arrayRange 0 (r1 - 1))
+
 (** Consumer Methods **)
 
 [<CMirror("array_sum")>]
