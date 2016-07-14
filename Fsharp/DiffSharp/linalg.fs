@@ -29,6 +29,10 @@ let inline sqnorm (x: Vector) =
 let inline dot_prod (x: Vector) (y: Vector) =
     arraySum (arrayMap2 (*) x y)
 
+let inline matrixFill (rows: Index) (cols: Index) (value: Number): Matrix = 
+  let row = arrayMap (fun c -> value) (arrayRange 1 cols)
+  arrayMapToMatrix (fun r -> row) (arrayRange 1 rows)
+
 let radial_distort (rad_params: Vector) (proj: Vector) =
     let rsq = sqnorm proj
     let L = 1. + rad_params.[0] * rsq + rad_params.[1] * rsq * rsq
@@ -214,17 +218,18 @@ let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
     [| [| x*x + (1. - x*x)*c; x*y*(1. - c) - z*s; x*z*(1. - c) + y*s |]; 
        [| x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s |];
        [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
-(*
+
 (* TODO Requires FOLD! *)
 let relatives_to_absolutes (relatives: Matrix3D) (parents: Vector): Matrix3D =
   arrayMapToMatrix3D (fun ind -> 
     let i = int ind
+    (*
     if parents.[i] = -1.0 then 
       relatives.[i] 
     else 
-      absolutes.[parents.[i]] * relatives.[i] 
+      absolutes.[parents.[i]] * relatives.[i]  *)
+    relatives.[i]
   ) (arrayRange 0 (relatives.Length-1))
-*)
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
   let R = angle_axis_to_rotation_matrix pose_params.[0]
@@ -235,6 +240,31 @@ let apply_global_transform (pose_params: Matrix) (positions: Matrix) =
   let ones = arrayMap (fun x -> 1.) (arrayRange 1 (positions.[0].Length))
   let positions_homog = matrixConcat positions ([| ones |])
   matrixMult T positions_homog
+
+let get_skinned_vertex_positions (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D) (parents: Vector)
+     (inverse_base_absolutes: Matrix3D) (base_positions: Matrix) (weights: Matrix) =
+  let relatives = get_posed_relatives n_bones pose_params base_relatives
+  let absolutes = relatives_to_absolutes relatives parents
+  
+  let transforms = matrix3DMap2 (matrixMult) absolutes inverse_base_absolutes
+  
+  let n_verts = base_positions.[0].Length
+  let positions = matrixFill 3 n_verts 0.
+  (* TODO requires fold *)
+  (*
+  for i_transform=0 to transforms.Length-1 do
+    let curr_positions = transforms.[i_transform].[0..2,*] * model.base_positions
+    Matrix.replacei2 (fun i j pos curr_pos -> pos + curr_pos * model.weights.[i_transform,j]) positions curr_positions
+  *)
+
+  (* TODO matrix elements manipulation *)
+  (*
+  if model.is_mirrored then
+    for i=0 to positions.Cols do
+      positions.[0,i] <- -positions.[0,i]
+  *)
+
+  apply_global_transform pose_params positions
 
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
