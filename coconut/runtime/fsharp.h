@@ -75,6 +75,17 @@ array_number_t array_map(closure_t* closure, array_number_t arr) {
 	return res;
 }
 
+array_array_number_t matrix_map(closure_t* closure, array_array_number_t mat) {
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = mat->length;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, mat->arr[i]).array_number_t_value;
+	}
+	free_closure(closure);
+	return res;
+}
+
 array_number_t array_map2(closure_t* closure, array_number_t arr1, array_number_t arr2) {
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
 	res->length = arr1->length;

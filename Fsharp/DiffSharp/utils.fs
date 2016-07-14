@@ -49,6 +49,10 @@ let matrixConcat (m1: Matrix) (m2: Matrix): Matrix =
 let arrayMap (f: Number -> Number) (arr: Vector): Vector = 
   Array.map f arr
 
+[<CMirror("matrix_map")>]
+let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 
+  Array.map f m
+
 [<CMirror("array_map2")>]
 let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vector = 
   Array.map2 f arr1 arr2
