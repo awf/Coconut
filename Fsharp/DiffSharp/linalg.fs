@@ -223,12 +223,11 @@ let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
 let relatives_to_absolutes (relatives: Matrix3D) (parents: Vector): Matrix3D =
   arrayMapToMatrix3D (fun ind -> 
     let i = int ind
-    (*
     if parents.[i] = -1.0 then 
       relatives.[i] 
     else 
-      absolutes.[parents.[i]] * relatives.[i]  *)
-    relatives.[i]
+      (*absolutes.[parents.[i]] * *) relatives.[i]  
+    (*relatives.[i]*)
   ) (arrayRange 0 (relatives.Length-1))
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
@@ -265,6 +264,26 @@ let get_skinned_vertex_positions (n_bones: Index) (pose_params: Matrix) (base_re
   *)
 
   apply_global_transform pose_params positions
+
+let hand_objective (param: Vector) (correspondences: Vector) (points: Matrix)
+      (n_bones: Index) (base_relatives: Matrix3D) (parents: Vector)
+      (inverse_base_absolutes: Matrix3D) (base_positions: Matrix) (weights: Matrix): Vector =
+  let pose_params = to_pose_params param n_bones
+  
+  let vertex_positions = 
+    get_skinned_vertex_positions n_bones pose_params base_relatives parents
+      inverse_base_absolutes base_positions weights
+  
+  let n_corr = correspondences.Length
+  let dims = 3
+  let err = 
+    arrayMap (fun i ->
+      let ind = int i
+      let r = ind / n_corr
+      let c = ind % n_corr
+      points.[r].[c] - vertex_positions.[r].[int correspondences.[c]]
+    ) (arrayRange 0 (dims * n_corr - 1))
+  err
 
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
