@@ -137,6 +137,15 @@ let test1 (dum: Vector) =
   let cam = [|0.; 2.; 4.; 6.; 8.; 10.; 12.; 14.; 16.; 18.; 20.|]
   let m = project cam j 
   arrayPrint m
+
+  let mat1 = 
+    [| [| 1.0; 2.0; 3.0; |];
+       [| 4.0; 5.0; 6.0; |];
+       [| 7.0; 8.0; 9.0; |] |]
+  let n = matrixMult mat1 mat1
+  matrixPrint n
+  let o = matrixTranspose n
+  matrixPrint o
   ()
 
 let inline logsumexp (arr: Vector) =

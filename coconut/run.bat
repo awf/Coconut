@@ -1,6 +1,8 @@
 @echo off
 setLocal EnableDelayedExpansion
 
+test.exe
+
 set argfile="../ba_instances/benchmark_list.txt"
 :: Reset argfile if supplied.
 if "%~1" neq "" set argfile="%~1"
