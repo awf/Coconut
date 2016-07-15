@@ -71,6 +71,10 @@
     <Compile Include="linalg.fs" />
     <Compile Include="cruntime.fs" />
     <Compile Include="programs.fs" />
+    <Compile Include="transformer.fs" />
+    <Compile Include="ctransformer.fs" />
+    <Compile Include="ccodegen.fs" />
+    <Compile Include="optimizer.fs" />
     <Compile Include="compiler.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

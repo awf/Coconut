@@ -20,3 +20,11 @@ let toc(t: Timer) =
 
 let listDiff list1 list2 = 
   List.filter (fun x -> not (List.exists (fun y -> x = y) list2)) list1
+
+let mutable variable_counter = 0
+
+(* Generates a unique variable name *)
+let newVar (name: string): string = 
+  variable_counter <- variable_counter + 1
+  let id = variable_counter
+  sprintf "%s%d" name id
