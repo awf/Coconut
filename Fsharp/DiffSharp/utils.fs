@@ -61,6 +61,10 @@ let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix =
 let arrayMap2 (f: Number -> Number -> Number) (arr1: Vector) (arr2: Vector): Vector = 
   Array.map2 f arr1 arr2
 
+[<CMirror("matrix_map2")>]
+let matrixMap2 (f: Vector -> Vector -> Vector) (m1: Matrix) (m2: Matrix): Matrix = 
+  Array.map2 f m1 m2
+
 [<CMirror("matrix3d_map2")>]
 let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix3D) (m2: Matrix3D): Matrix3D = 
   Array.map2 f m1 m2
@@ -103,6 +107,10 @@ let arrayMax (arr: Vector): Number =
   Array.max arr
 
 (** Fold methods **)
+
+[<CMirror("iterate_matrix")>]
+let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Index) (e: Index): Matrix = 
+  Array.fold (fun acc cur -> f acc (int cur)) z (arrayRange s e)
 
 [<CMirror("iterate_matrix3d")>]
 let iterateMatrix3D (f: Matrix3D -> Index -> Matrix3D) (z: Matrix3D) (s: Index) (e: Index): Matrix3D = 
