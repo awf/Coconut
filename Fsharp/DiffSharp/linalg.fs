@@ -22,6 +22,12 @@ let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
 let inline sub_vec (x: Vector) (y: Vector) =
     arrayMap2 (-) x y
 
+let inline matrixAdd (x: Matrix) (y: Matrix) =
+    matrixMap2 add_vec x y
+
+let inline matrixMultElementwise (x: Matrix) (y: Matrix) =
+    matrixMap2 mult_vec_elementwise x y
+
 (*[<DontInline>]*)
 let inline sqnorm (x: Vector) =
     arraySum (arrayMap (fun x1 -> x1*x1) x)
@@ -29,9 +35,12 @@ let inline sqnorm (x: Vector) =
 let inline dot_prod (x: Vector) (y: Vector) =
     arraySum (arrayMap2 (*) x y)
 
+let inline matrixFillFromVector (rows: Index) (row: Vector): Matrix = 
+  arrayMapToMatrix (fun r -> row) (arrayRange 1 rows)
+
 let inline matrixFill (rows: Index) (cols: Index) (value: Number): Matrix = 
   let row = arrayMap (fun c -> value) (arrayRange 1 cols)
-  arrayMapToMatrix (fun r -> row) (arrayRange 1 rows)
+  matrixFillFromVector rows row
 
 let radial_distort (rad_params: Vector) (proj: Vector) =
     let rsq = sqnorm proj
@@ -219,16 +228,18 @@ let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
        [| x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s |];
        [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
 
-(* TODO Requires FOLD! *)
 let relatives_to_absolutes (relatives: Matrix3D) (parents: Vector): Matrix3D =
-  arrayMapToMatrix3D (fun ind -> 
-    let i = int ind
+  let init = [| [| [| |] |] |]
+  iterateMatrix3D (fun acc i ->
     if parents.[i] = -1.0 then 
-      relatives.[i] 
+      (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
+      let newMatrix = [| relatives.[i] |]
+      matrix3DConcat acc newMatrix
     else 
-      (*absolutes.[parents.[i]] * *) relatives.[i]  
-    (*relatives.[i]*)
-  ) (arrayRange 0 (relatives.Length-1))
+      (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
+      let newMatrix = [| matrixMult acc.[int parents.[i]] relatives.[i] |]
+      matrix3DConcat acc newMatrix
+  ) (init) 0 (relatives.Length-1)
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
   let R = angle_axis_to_rotation_matrix pose_params.[0]
@@ -248,13 +259,14 @@ let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_par
   let transforms = matrix3DMap2 (matrixMult) absolutes inverse_base_absolutes
   
   let n_verts = base_positions.[0].Length
-  let positions = matrixFill 3 n_verts 0.
-  (* TODO requires fold *)
-  (*
-  for i_transform=0 to transforms.Length-1 do
-    let curr_positions = transforms.[i_transform].[0..2,*] * model.base_positions
-    Matrix.replacei2 (fun i j pos curr_pos -> pos + curr_pos * model.weights.[i_transform,j]) positions curr_positions
-  *)
+  let init_positions = matrixFill 3 n_verts 0.
+
+  let positions = 
+    iterateMatrix (fun acc i_transform ->
+      let curr_positions = matrixMult transforms.[i_transform].[0..2] base_positions
+      let w = matrixFillFromVector base_positions.Length weights.[i_transform]
+      matrixAdd acc (matrixMultElementwise curr_positions w)
+    ) init_positions 0 (transforms.Length-1)
 
   let mirrored_positions =
     if(is_mirrored = 1) then 
@@ -336,4 +348,8 @@ let test1 (dum: Vector) =
   matrixPrint r
   let s = apply_global_transform mat1 mat1
   matrixPrint s
+  let t = matrixAdd mat1 mat1
+  matrixPrint t
+  let u = matrixFillFromVector 5 a
+  matrixPrint u
   ()
