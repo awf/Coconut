@@ -187,6 +187,28 @@ array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number
 	return res;
 }
 
+array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, array_array_array_number_t mat2) {
+	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = mat1->length + mat2->length;
+	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
+	for (int i = 0; i < res->length; i++) {
+		if (i < mat1->length)
+			res->arr[i] = mat1->arr[i];
+		else 
+			res->arr[i] = mat2->arr[i - mat1->length];
+	}
+	return res;
+}
+
+array_array_array_number_t iterate_matrix3d(closure_t* closure, array_array_array_number_t zero, index_t start, index_t end) {
+	array_array_array_number_t acc = zero;
+	for (int i = start; i <= end; i++) {
+		acc = closure->lam(closure->env, acc, i).array_array_array_number_t_value;
+	}
+	free_closure(closure);
+	return acc;
+}
+
 array_array_number_t matrix_transpose(array_array_number_t mat) {
 	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
 	res->length = mat->arr[0]->length;
