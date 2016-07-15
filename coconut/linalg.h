@@ -1,7 +1,8 @@
+#ifndef __LINALG_H__ 
+#define __LINALG_H__ 
 #include "runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
-
 typedef struct env_t_5 {
 	number_t y;
 } env_t_5;
@@ -1200,3 +1201,4 @@ void linalg_test1(array_number_t dum) {
 	matrix_print(u);
 	return ;
 }
+#endif

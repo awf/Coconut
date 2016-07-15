@@ -70,6 +70,7 @@
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
     <Compile Include="cruntime.fs" />
+    <Compile Include="programs.fs" />
     <Compile Include="compiler.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

@@ -294,7 +294,8 @@ let main argv =
 #if DO_COMPILE
     let res = run_ba_from_file (dir_in + fn + ".txt")
     (*matrixPrint res*)
-    compiler.compileModule "linalg"
+    compiler.compileModule "linalg" [] false
+    compiler.compileModule "programs" ["linalg"] true
     linalg.test1 [||]
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
