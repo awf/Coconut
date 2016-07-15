@@ -108,10 +108,18 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("ToDouble", "Operators") -> Some("(double)", argList)
     | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> 
-      Some("array_slice", List.map (fun x -> 
-         match x with 
-         | Patterns.NewUnionCase(_, [v]) -> v
-         | _ -> x) argList)
+      let args = 
+        List.map (fun x -> 
+          match x with 
+          | Patterns.NewUnionCase(_, [v]) -> v
+          | _ -> x) argList
+      let prefix = 
+        match (List.head args).Type with 
+        | tp when tp = typeof<Vector> -> "array"
+        | tp when tp = typeof<Matrix> -> "matrix"
+        | tp when tp = typeof<Matrix3D> -> "matrix3d"
+        | tp -> failwith (sprintf "Array slice not supported for the type %s" (tp.Name))
+      Some(prefix + "_slice", args)
     | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
         let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
         Some(attr.Method, argList)
