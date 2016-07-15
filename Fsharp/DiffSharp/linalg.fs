@@ -1,8 +1,11 @@
 ﻿[<ReflectedDefinition>]
 module linalg
 
-open utils
+open corelang
 open types
+open utils
+
+(** Extensions to the core language **)
 
 let inline mult_by_scalar (x: Vector) (y: Number): Vector =
     arrayMap (fun a -> a*y) x
@@ -42,6 +45,21 @@ let inline matrixFill (rows: Index) (cols: Index) (value: Number): Matrix =
   let row = arrayMap (fun c -> value) (arrayRange 1 cols)
   matrixFillFromVector rows row
 
+let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
+  let m1t = matrixTranspose m1
+  let m2t = matrixTranspose m2
+  matrixTranspose (matrixConcat m1t m2t)
+
+let vectorRead (fn: string) (startLine: Index): Vector = 
+    let matrix = matrixRead fn startLine 1
+    matrix.[0]
+
+let numberRead (fn: string) (startLine: Index): Number = 
+    let vector = vectorRead fn startLine
+    vector.[0]
+
+(** Bundle Adjustment **)
+
 let radial_distort (rad_params: Vector) (proj: Vector) =
     let rsq = sqnorm proj
     let L = 1. + rad_params.[0] * rsq + rad_params.[1] * rsq * rsq
@@ -64,7 +82,7 @@ let rodrigues_rotate_point (rot: Vector) (x: Vector) =
       add_vec x (cross rot x)
 
 let project (cam: Vector) (x: Vector) =
-    (* Should be changed to a global constant variable *)
+    (* Should be changed to global constant variables *)
     let N_CAM_PARAMS = 11
     let ROT_IDX = 0
     let CENTER_IDX = 3
@@ -95,14 +113,6 @@ let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): M
     let p = w.Length
     let range = arrayRange 0 (p - 1)
     arrayMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
-
-let vectorRead (fn: string) (startLine: Index): Vector = 
-    let matrix = matrixRead fn startLine 1
-    matrix.[0]
-
-let numberRead (fn: string) (startLine: Index): Number = 
-    let vector = vectorRead fn startLine
-    vector.[0]
 
 let run_ba_from_file (fn: string) = 
     let nmp = vectorRead fn 0
@@ -138,12 +148,15 @@ let inline new_matrix_test (dum: Vector): Matrix =
   let res = [| [| 0.0; 0.0; 0.0 |] |]
   res
 
+(** Hand Tracking **)
+
 let inline to_pose_params (theta: Vector) (n_bones: Index): Matrix =
   let row1 = theta.[0..2]
   let row2 = [| 1.0; 1.0; 1.0|]
   let row3 = theta.[3..5]
   let zeroRow = [| 0.0; 0.0; 0.0 |]
   let pose_params = [| row1; row2; row3; zeroRow; zeroRow |]
+  (* TODO rewrite using fold *) 
   let i1 = 5
   let finger1 = 
     [| [| theta.[i1]; theta.[i1+1]; 0.0 |] ; 
@@ -189,11 +202,6 @@ let euler_angles_to_rotation_matrix (xzy: Vector): Matrix =
   let Ry = [| [|cos(ty); 0.; sin(ty)|]; [|0.; 1.; 0.|]; [|-sin(ty); 0.; cos(ty)|] |]
   let Rz = [| [|cos(tz); -sin(tz); 0.|]; [|sin(tz); cos(tz); 0.|]; [|0.; 0.; 1.|] |]
   matrixMult Rz (matrixMult Ry Rx)
-
-let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
-  let m1t = matrixTranspose m1
-  let m2t = matrixTranspose m2
-  matrixTranspose (matrixConcat m1t m2t)
 
 let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
   let R = euler_angles_to_rotation_matrix pose_params
@@ -299,6 +307,8 @@ let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector
       points.[r].[c] - vertex_positions.[r].[int correspondences.[c]]
     ) (arrayRange 0 (dims * n_corr - 1))
   err
+
+(** Testing **)
 
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]

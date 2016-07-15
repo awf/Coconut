@@ -209,6 +209,22 @@ array_array_number_t linalg_matrixFill(index_t rows, index_t cols, number_t valu
 	return linalg_matrixFillFromVector(rows, row);
 }
 
+array_array_number_t linalg_matrixConcatCol(array_array_number_t m1, array_array_number_t m2) {
+	array_array_number_t m1t = matrix_transpose(m1);
+	array_array_number_t m2t = matrix_transpose(m2);
+	return matrix_transpose(matrix_concat(m1t, m2t));
+}
+
+array_number_t linalg_vectorRead(string_t fn, index_t startLine) {
+	array_array_number_t matrix = matrix_read(fn, startLine, 1);
+	return matrix->arr[0];
+}
+
+number_t linalg_numberRead(string_t fn, index_t startLine) {
+	array_number_t vector = linalg_vectorRead(fn, startLine);
+	return vector->arr[0];
+}
+
 array_number_t linalg_radial_distort(array_number_t rad_params, array_number_t proj) {
 	number_t rsq = linalg_sqnorm(proj);
 	number_t L = ((1) + ((rad_params->arr[0]) * (rsq))) + (((rad_params->arr[1]) * (rsq)) * (rsq));
@@ -309,16 +325,6 @@ array_array_number_t linalg_reproj_err(array_array_number_t cams, array_array_nu
 	array_number_t range = array_range(0, (p) - (1));
 	closure_t* closure57 = make_closure(lambda58, make_env_t_58(x,w,obs,feat,cams));
 	return array_map_to_matrix(closure57, range);
-}
-
-array_number_t linalg_vectorRead(string_t fn, index_t startLine) {
-	array_array_number_t matrix = matrix_read(fn, startLine, 1);
-	return matrix->arr[0];
-}
-
-number_t linalg_numberRead(string_t fn, index_t startLine) {
-	array_number_t vector = linalg_vectorRead(fn, startLine);
-	return vector->arr[0];
 }
 typedef struct env_t_82 {
 	array_number_t one_cam;
@@ -745,12 +751,6 @@ array_array_number_t linalg_euler_angles_to_rotation_matrix(array_number_t xzy) 
 	Rz->arr[1] = array125;
 	Rz->arr[2] = array126;;
 	return matrix_mult(Rz, matrix_mult(Ry, Rx));
-}
-
-array_array_number_t linalg_matrixConcatCol(array_array_number_t m1, array_array_number_t m2) {
-	array_array_number_t m1t = matrix_transpose(m1);
-	array_array_number_t m2t = matrix_transpose(m2);
-	return matrix_transpose(matrix_concat(m1t, m2t));
 }
 
 array_array_number_t linalg_make_relative(array_number_t pose_params, array_array_number_t base_relative) {

@@ -67,6 +67,7 @@
     <Compile Include="hand.fs" />
     <Compile Include="hand_d.fs" />
     <Compile Include="utils.fs" />
+    <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
     <Compile Include="cruntime.fs" />
     <Compile Include="compiler.fs" />
