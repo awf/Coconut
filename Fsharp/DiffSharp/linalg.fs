@@ -211,7 +211,7 @@ let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
                  ([| [| 0.; 0.; 0.; 1.0|] |])
   matrixMult base_relative T
 
-let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D): Matrix3D =
+let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix[]): Matrix[] =
   let offset = 3
   arrayMapToMatrix3D (fun i_bone -> 
      make_relative pose_params.[(int i_bone)+offset] base_relatives.[int i_bone]
@@ -236,7 +236,7 @@ let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
        [| x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s |];
        [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
 
-let relatives_to_absolutes (relatives: Matrix3D) (parents: Vector): Matrix3D =
+let relatives_to_absolutes (relatives: Matrix[]) (parents: Vector): Matrix[] =
   let init = [| [| [| |] |] |]
   iterateMatrix3D (fun acc i ->
     if parents.[i] = -1.0 then 
@@ -259,8 +259,8 @@ let apply_global_transform (pose_params: Matrix) (positions: Matrix) =
   let positions_homog = matrixConcat positions ([| ones |])
   matrixMult T positions_homog
 
-let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix3D) (parents: Vector)
-     (inverse_base_absolutes: Matrix3D) (base_positions: Matrix) (weights: Matrix) =
+let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix[]) (parents: Vector)
+     (inverse_base_absolutes: Matrix[]) (base_positions: Matrix) (weights: Matrix) =
   let relatives = get_posed_relatives n_bones pose_params base_relatives
   let absolutes = relatives_to_absolutes relatives parents
   
@@ -289,8 +289,8 @@ let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_par
   apply_global_transform pose_params mirrored_positions
 
 let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector) (points: Matrix)
-      (n_bones: Index) (base_relatives: Matrix3D) (parents: Vector)
-      (inverse_base_absolutes: Matrix3D) (base_positions: Matrix) (weights: Matrix): Vector =
+      (n_bones: Index) (base_relatives: Matrix[]) (parents: Vector)
+      (inverse_base_absolutes: Matrix[]) (base_positions: Matrix) (weights: Matrix): Vector =
   let pose_params = to_pose_params param n_bones
   
   let vertex_positions = 

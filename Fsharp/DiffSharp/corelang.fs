@@ -18,7 +18,7 @@ let matrixConcat (m1: Matrix) (m2: Matrix): Matrix =
   Array.append m1 m2
 
 [<CMirror("matrix3d_concat")>]
-let matrix3DConcat (m1: Matrix3D) (m2: Matrix3D): Matrix3D = 
+let matrix3DConcat (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
   Array.append m1 m2
 
 [<CMirror("array_map")>]
@@ -38,7 +38,7 @@ let matrixMap2 (f: Vector -> Vector -> Vector) (m1: Matrix) (m2: Matrix): Matrix
   Array.map2 f m1 m2
 
 [<CMirror("matrix3d_map2")>]
-let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix3D) (m2: Matrix3D): Matrix3D = 
+let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
   Array.map2 f m1 m2
 
 [<CMirror("array_map_to_matrix")>]
@@ -46,7 +46,7 @@ let arrayMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix =
   Array.map f arr
 
 [<CMirror("array_map_to_matrix3d")>]
-let arrayMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix3D = 
+let arrayMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
   Array.map f arr
 
 [<CMirror("matrix_transpose")>]
@@ -85,7 +85,7 @@ let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Index) (e: Inde
   Array.fold (fun acc cur -> f acc (int cur)) z (arrayRange s e)
 
 [<CMirror("iterate_matrix3d")>]
-let iterateMatrix3D (f: Matrix3D -> Index -> Matrix3D) (z: Matrix3D) (s: Index) (e: Index): Matrix3D = 
+let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Index) (e: Index): Matrix[] = 
   Array.fold (fun acc cur -> f acc (int cur)) z (arrayRange s e)
 
 
