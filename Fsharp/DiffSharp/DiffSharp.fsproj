@@ -74,6 +74,7 @@
     <Compile Include="transformer.fs" />
     <Compile Include="ctransformer.fs" />
     <Compile Include="ccodegen.fs" />
+    <Compile Include="rules.fs" />
     <Compile Include="optimizer.fs" />
     <Compile Include="compiler.fs" />
     <Compile Include="Program.fs" />

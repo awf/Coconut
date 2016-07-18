@@ -6,13 +6,12 @@
 #include "linalg.h"
 
 number_t programs_test1(number_t x) {
-	number_t a = (1) / (x);
-	return (a) / ((a) + (1));
+	
+	return (1) / ((1) + (x));
 }
 
 void programs_small_tests(number_t dum) {
-	number_t num = 2;
-	number_t a = programs_test1(num);
-	return number_print(a);
+	
+	return number_print(programs_test1(2));
 }
 #endif

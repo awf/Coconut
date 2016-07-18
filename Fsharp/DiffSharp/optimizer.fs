@@ -4,47 +4,12 @@ open Microsoft.FSharp.Quotations
 open utils
 open types
 open transformer
+open rules
 
-module rules = 
-  open Quotations.DerivedPatterns
-  type Rule = Expr -> Expr Option
-
-  let (|ApplicableRule|_|) (rs: Rule List) (e: Expr): (Rule) Option = 
-    List.tryFind (fun r -> not(Option.isNone(r e))) rs
-
-  let letInliner (e: Expr): Expr Option = 
-    match e with 
-    | Patterns.Let(v, e1, e2) -> Some(e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None))
-    | _ -> None
-  
-  let divide2Mult (e: Expr): Expr Option = 
-     match e with 
-     | SpecificCall  <@ (/) @> (None, _, [SpecificCall  <@ (/) @> (None, _, [a; b]) ; c]) -> 
-       Some(<@@ (%%a: Number) / ((%%b: Number) * (%%c: Number)) @@>)
-     | _ -> None
-
-  let distrMult (e: Expr): Expr Option = 
-     match e with 
-     | SpecificCall  <@ (*) @> (None, _, [a; SpecificCall  <@ (+) @> (None, _, [b; c])]) -> 
-       Some(<@@ ((%%a: Number) * (%%b: Number)) + ((%%a: Number) * (%%c: Number)) @@>)
-     | _ -> None
-
-  let constFold1 (e: Expr): Expr Option = 
-     match e with 
-     | SpecificCall  <@ (*) @> (None, _, [a; b]) when b = <@@ 1. @@> -> 
-       Some(a)
-     | _ -> None
-
-  let multDivide (e: Expr): Expr Option = 
-     match e with 
-     | SpecificCall  <@ (*) @> (None, _, [a; SpecificCall  <@ (/) @> (None, _, [b; c])]) when c = a && b = <@@ 1. @@> -> 
-       Some(<@@ 1. @@>)
-     | _ -> None
-
-let recursiveTransformer (e: Expr) (rs: rules.Rule List): Expr = 
+let recursiveTransformer (e: Expr) (rs: Rule List): Expr = 
   let rec rcr(exp: Expr): Expr = 
     match exp with 
-    | rules.ApplicableRule rs rule -> rcr(Option.get (rule(exp)))
+    | ApplicableRule rs rule -> rcr(Option.get (rule(exp)))
     | ExprShape.ShapeLambda(i, e) -> Expr.Lambda(i, rcr e)
     | ExprShape.ShapeVar(v) -> Expr.Var(v)
     | ExprShape.ShapeCombination(o, exprs) ->
@@ -88,4 +53,4 @@ let rec inliner (exp: Expr): Expr =
 
 let optimize (e: Expr): Expr = 
   (* inliner(e) *)
-  recursiveTransformer e [rules.letInliner; rules.divide2Mult; rules.distrMult; rules.constFold1; rules.multDivide]
+  recursiveTransformer e [rules.divide2Mult; rules.letInliner; rules.distrMult; rules.constFold1; rules.multDivide]
