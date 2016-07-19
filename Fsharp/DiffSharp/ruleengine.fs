@@ -73,7 +73,7 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
     let (boundVarsOpt, rhs) = 
       match pat with 
       | SpecificCall <@ (<==>) @> (None, _, [p; rhs]) -> 
-        printfn "pattern is %A and rhs is %A" p rhs
+        (*printfn "pattern is %A and rhs is %A" p rhs*)
         extract(p, exp), rhs
       | _ -> failwith "Rewrite patterns should be of the form `lhs <==> rhs`"
     Option.bind (fun boundVarsInit -> 

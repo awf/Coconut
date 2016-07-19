@@ -13,9 +13,9 @@ let rec prettyprint (e:Expr): string =
   | Patterns.Let(x, e1, e2) -> sprintf "let %s = %s in \n%s" (x.Name) (prettyprint e1) (prettyprint e2)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> sprintf "%s %s %s" (prettyprint elist.[0]) opname (prettyprint elist.[1]) 
+      | OperatorName opname -> sprintf "(%s %s %s)" (prettyprint elist.[0]) opname (prettyprint elist.[1]) 
       | "GetArray" -> sprintf "%s[%s]" (prettyprint elist.[0]) (prettyprint elist.[1])
-      | _ -> sprintf "ERROR CALL ``\n\t%s(%s)\n``" op.Name (String.concat ", " (List.map prettyprint elist))
+      | _ -> sprintf "%s(%s)" op.Name (String.concat ", " (List.map prettyprint elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     sprintf "Array[%s](%s)" (tp.ToString()) (String.concat ", " (List.map prettyprint elems))
