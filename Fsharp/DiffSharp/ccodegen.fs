@@ -20,6 +20,7 @@ let rec prettyprint (e:Expr): string =
   | Patterns.NewArray(tp, elems) -> 
     sprintf "Array[%s](%s)" (tp.ToString()) (String.concat ", " (List.map prettyprint elems))
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
+  | Patterns.Sequential(e1, e2) -> sprintf "%s;\n%s" (prettyprint e1) (prettyprint e2)
   | _ -> sprintf "ERROR[%A]" e
 
 let ARRAY_PREFIX = "array_"

@@ -22,4 +22,5 @@ let rec fopCost(exp: Expr): double =
   | Patterns.Let(x, e1, e2) -> fopCost(e1) + fopCost(e2) + VAR_INIT
   | Patterns.Var(_) -> VAR_ACCESS
   | Patterns.Lambda(x, e) -> VAR_INIT + fopCost(e)
+  | Patterns.Sequential(e1, e2) -> fopCost(e1) + fopCost(e2)
   | _ -> failwith (sprintf "Does not know how to cost the construct `%A`" exp)

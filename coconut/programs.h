@@ -10,8 +10,14 @@ number_t programs_test1(number_t x) {
 	return (1) / ((1) + (x));
 }
 
-void programs_small_tests(number_t dum) {
+number_t programs_test2(number_t x, number_t b) {
 	
-	return number_print(programs_test1(2));
+	return x;
+}
+
+void programs_small_tests(number_t dum) {
+	number_t a = programs_test1(2);
+	number_print(a);
+	return number_print(programs_test2(2, a));
 }
 #endif

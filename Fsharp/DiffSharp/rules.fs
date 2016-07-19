@@ -2,41 +2,73 @@
 
 open Microsoft.FSharp.Quotations
 open ruleengine
+open metaVars
 
 
 let divide2Mult_exp = 
   <@ 
-    (%s_1 / %s_2) / %s_3
+    (%a / %b) / %c
     <==> 
-    %s_1 / (%s_2 * %s_3)
+    %a / (%b * %c)
   @>
 
 let distrMult_exp = 
   <@
-    %s_1 * (%s_2 + %s_3)
+    %a * (%b + %c)
     <==>
-    %s_1 * %s_2 + %s_1 * %s_3
+    %a * %b + %a * %c
+  @>
+
+let constFold0_exp = 
+  <@ 
+    %a + 0.
+    <==>
+    %a
   @>
 
 let constFold1_exp = 
   <@ 
-    (%s_1 * 1.)
+    %a * 1.
     <==>
-    (%s_1)
+    %a
+  @>
+
+let subSame_exp = 
+  <@
+    %a - %a
+    <==>
+    0.0
   @>
 
 let multDivide_exp = 
   <@
-    %s_1 * (1. / %s_2)
+    %a * (1. / %a)
     <==>
     1.
-  @>, 
-  <@ %s_1 = %s_2 @>
+  @>
+
+let assocAddSub_exp = 
+  <@
+    (%a + %b) - %c
+    <==>
+    %a + (%b - %c)
+  @>
+
+let assocAddAdd_exp = 
+  <@
+    (%a + %b) + %c
+    <==>
+    %a + (%b + %c)
+  @>
 
 let divide2Mult: Rule = compilePatternToRule divide2Mult_exp
 let distrMult: Rule = compilePatternToRule distrMult_exp
+let constFold0: Rule = compilePatternToRule constFold0_exp
 let constFold1: Rule = compilePatternToRule constFold1_exp
-let multDivide: Rule = compilePatternWithPreconditionToRule multDivide_exp
+let subSame: Rule = compilePatternToRule subSame_exp
+let multDivide: Rule = compilePatternToRule multDivide_exp
+let assocAddSub: Rule = compilePatternToRule assocAddSub_exp
+let assocAddAdd: Rule = compilePatternToRule assocAddAdd_exp
 
 let letInliner (e: Expr): Expr Option = 
   match e with 

@@ -5,6 +5,21 @@ open Microsoft.FSharp.Quotations
 open Quotations.DerivedPatterns
 open types
 
+module metaVars =
+  let a = Expr.Cast<Number>(Expr.Var(Var.Global("a", typeof<Number>)))
+  let b = Expr.Cast<Number>(Expr.Var(Var.Global("b", typeof<Number>)))
+  let c = Expr.Cast<Number>(Expr.Var(Var.Global("c", typeof<Number>)))
+  let T = Expr.Cast<Vector>(Expr.Var(Var.Global("T", typeof<Vector>)))
+  let U = Expr.Cast<Vector>(Expr.Var(Var.Global("U", typeof<Vector>)))
+  let V = Expr.Cast<Vector>(Expr.Var(Var.Global("V", typeof<Vector>)))
+  let M = Expr.Cast<Matrix>(Expr.Var(Var.Global("M", typeof<Matrix>)))
+  let N = Expr.Cast<Matrix>(Expr.Var(Var.Global("N", typeof<Matrix>)))
+  let O = Expr.Cast<Matrix>(Expr.Var(Var.Global("O", typeof<Matrix>)))
+  let scalarMetaVars = List.map (fun (x: Expr<Number>) -> x.Raw) [a; b; c]
+  let vectorMetaVars = List.map (fun (x: Expr<Vector>) -> x.Raw) [T; U; V]
+  let matrixMetaVars = List.map (fun (x: Expr<Matrix>) -> x.Raw) [M; N; O]
+  let allMetaVars = List.append scalarMetaVars (List.append vectorMetaVars matrixMetaVars)
+
 (*
 // Inspired by: https://github.com/jrh13/hol-light/blob/master/nets.ml
 module termnet = 
@@ -19,16 +34,6 @@ type Rule = Expr -> Expr Option
 let (|ApplicableRule|_|) (rs: Rule List) (e: Expr): (Rule) Option = 
   List.tryFind (fun r -> not(Option.isNone(r e))) rs
 
-let s_1 = Expr.Cast<Number>(Expr.Var(Var.Global("s1", typeof<Number>)))
-let s_2 = Expr.Cast<Number>(Expr.Var(Var.Global("s2", typeof<Number>)))
-let s_3 = Expr.Cast<Number>(Expr.Var(Var.Global("s3", typeof<Number>)))
-(*
-let v_1: Vector = [| s_1 |]
-let v_2: Vector = [| s_1 |]
-let m_1: Matrix = [| v_1 |]
-let m_2: Matrix = [| v_1 |]
-*)
-let scalarMetaVars = List.map (fun (x: Expr<Number>) -> x.Raw) [s_1; s_2; s_3]
 let (<==>) (s1: 'a) (s2: 'a):'a = s1
 
 let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
@@ -40,7 +45,7 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       None
   and extract(p: Expr, e: Expr): (Var * Expr) List Option = 
     match (p, e) with
-    | (Patterns.Var(v), _) when List.exists (fun x -> x = p) scalarMetaVars -> 
+    | (Patterns.Var(v), _) when List.exists (fun x -> x = p) (metaVars.allMetaVars) -> 
       Some([v, e])
     | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
         extractList(pats, exprs)
@@ -53,7 +58,7 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       match pre with 
       | Patterns.Value(v, _) when v.Equals(true) -> []
       | SpecificCall  <@ (=) @> (None, _, [Patterns.Var(v1) as a; Patterns.Var(v2) as b]) when 
-          (List.exists ((=) a) scalarMetaVars) && (List.exists ((=) b) scalarMetaVars) -> [v1, v2]
+          (List.exists ((=) a) (metaVars.allMetaVars)) && (List.exists ((=) b) (metaVars.allMetaVars)) -> [v1, v2]
       | SpecificCall  <@ (&&) @> (None, _, [a; b]) -> List.append (processPrecondition a) (processPrecondition b)
       | _ -> failwith (sprintf "Cannot parse the precondition %A" pre)
     processPrecondition(precondition)
