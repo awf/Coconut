@@ -4,6 +4,7 @@ open Microsoft.FSharp.Quotations
 open utils
 open types
 open transformer
+open ruleengine
 open rules
 
 let recursiveTransformer (e: Expr) (rs: Rule List): Expr = 
@@ -53,4 +54,5 @@ let rec inliner (exp: Expr): Expr =
 
 let optimize (e: Expr): Expr = 
   (* inliner(e) *)
-  recursiveTransformer e [rules.divide2Mult; rules.letInliner; rules.distrMult; rules.constFold1; rules.multDivide]
+  let rs = [divide2Mult; letInliner; distrMult; constFold1; multDivide]
+  recursiveTransformer e rs
