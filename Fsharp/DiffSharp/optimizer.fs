@@ -78,4 +78,6 @@ let optimize (e: Expr): Expr =
   let rs = letInliner :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
   let (best, _) = bfs e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
+  (*let (best, _) = randomWalk e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)*)
+  
   best
