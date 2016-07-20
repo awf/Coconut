@@ -91,5 +91,5 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
     ) boundVarsOpt
       
 
-let compilePatternToRule(pat: Expr): Rule =
+let compilePatternToRule (pat: Expr): Rule =
   compilePatternWithPreconditionToRule(pat, <@ true @>)

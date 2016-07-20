@@ -68,15 +68,9 @@ let assocSubSub_exp =
     %a - (%b + %c)
   @>
 
-let divide2Mult: Rule = compilePatternToRule divide2Mult_exp
-let distrMult: Rule = compilePatternToRule distrMult_exp
-let constFold0: Rule = compilePatternToRule constFold0_exp
-let constFold1: Rule = compilePatternToRule constFold1_exp
-let subSame: Rule = compilePatternToRule subSame_exp
-let multDivide: Rule = compilePatternToRule multDivide_exp
-let assocAddSub: Rule = compilePatternToRule assocAddSub_exp
-let assocAddAdd: Rule = compilePatternToRule assocAddAdd_exp
-let assocSubSub: Rule = compilePatternToRule assocSubSub_exp
+let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
+
+let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp
 
 let letInliner (e: Expr): Expr Option = 
   match e with 
