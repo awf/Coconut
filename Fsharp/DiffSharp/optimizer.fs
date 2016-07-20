@@ -7,6 +7,7 @@ open transformer
 open ruleengine
 open rules
 open cost
+open search
 
 let recursiveTransformer (e: Expr) (rs: Rule List): Expr = 
   let rec rcr(exp: Expr): Expr = 
@@ -18,7 +19,7 @@ let recursiveTransformer (e: Expr) (rs: Rule List): Expr =
         ExprShape.RebuildShapeCombination(o, List.map rcr exprs)
   rcr(e)
 
-let examineAllRules (e: Expr) (rs: Rule List): Expr List = 
+let examineAllRules (rs: Rule List) (e: Expr): Expr List = 
   let rec rcr(exp: Expr): Expr List = 
     let immediatelyConstructedExpressions = List.collect (fun r -> Option.toList (r exp)) rs
     let constructedExpressionsByChildren =
@@ -36,17 +37,6 @@ let examineAllRules (e: Expr) (rs: Rule List): Expr List =
           List.map (fun es -> ExprShape.RebuildShapeCombination(o, es)) (allChildrenExpressions)
     List.append immediatelyConstructedExpressions constructedExpressionsByChildren
   rcr(e)
-
-let rec bfs (e: Expr) (rs: Rule List) (levels: int) (costModel: Expr -> double) (debug: bool): (Expr * double) = 
-  let range = [for i = 1 to levels do yield i]
-  let revertedResult = 
-    List.fold (fun acc cur ->  (List.collect (fun (exp, _) -> List.map (fun x -> x, costModel x) (examineAllRules exp rs)) (List.head acc)) :: acc) [[e, costModel e]] range
-  if debug then
-    let lines = 
-      List.map (fun list ->
-        String.concat "\n-------\n" (List.map (fun (e, c) -> sprintf "exp: %s\ncost: %f\n" (ccodegen.prettyprint(e)) c) list)) (List.rev revertedResult)
-    printfn "all children:\n%s\n*******" (String.concat "\n=======\n" lines)
-  List.minBy snd (List.concat revertedResult)
 
 let rec inliner (exp: Expr): Expr = 
   match exp with 
@@ -87,5 +77,5 @@ let optimize (e: Expr): Expr =
   let debug = true
   let rs = letInliner :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
-  let (best, _) = bfs e rs 7 fopCost debug
+  let (best, _) = bfs e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
   best
