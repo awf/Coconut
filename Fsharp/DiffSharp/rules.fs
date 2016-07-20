@@ -42,9 +42,9 @@ let subSame_exp =
 
 let multDivide_exp = 
   <@
-    %a * (1. / %a)
+    %a * (%b / %a)
     <==>
-    1.
+    %b
   @>
 
 let assocAddSub_exp = 
@@ -61,6 +61,13 @@ let assocAddAdd_exp =
     %a + (%b + %c)
   @>
 
+let assocSubSub_exp = 
+  <@
+    (%a - %b) - %c
+    <==>
+    %a - (%b + %c)
+  @>
+
 let divide2Mult: Rule = compilePatternToRule divide2Mult_exp
 let distrMult: Rule = compilePatternToRule distrMult_exp
 let constFold0: Rule = compilePatternToRule constFold0_exp
@@ -69,6 +76,7 @@ let subSame: Rule = compilePatternToRule subSame_exp
 let multDivide: Rule = compilePatternToRule multDivide_exp
 let assocAddSub: Rule = compilePatternToRule assocAddSub_exp
 let assocAddAdd: Rule = compilePatternToRule assocAddAdd_exp
+let assocSubSub: Rule = compilePatternToRule assocSubSub_exp
 
 let letInliner (e: Expr): Expr Option = 
   match e with 
