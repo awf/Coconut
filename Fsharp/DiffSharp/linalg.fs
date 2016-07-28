@@ -7,8 +7,16 @@ open utils
 
 (** Extensions to the core language **)
 
+[<DontInline>]
+let inline vectorMap (f: Number -> Number) (arr: Vector): Vector = 
+    arrayMap f arr
+
+[<DontInline>]
+let vectorRange (s: Index) (e: Index): Vector = 
+   arrayRange s e
+
 let inline mult_by_scalar (x: Vector) (y: Number): Vector =
-    arrayMap (fun a -> a*y) x
+    vectorMap (fun a -> a*y) x
 
 let inline cross (a: Vector) (b: Vector) =
     [| a.[1]*b.[2] - a.[2]*b.[1]; a.[2]*b.[0] - a.[0]*b.[2]; a.[0]*b.[1] - a.[1]*b.[0]; |]
@@ -37,17 +45,17 @@ let inline matrixMultElementwise (x: Matrix) (y: Matrix) =
 
 (*[<DontInline>]*)
 let inline sqnorm (x: Vector) =
-    arraySum (arrayMap (fun x1 -> x1*x1) x)
+    arraySum (vectorMap (fun x1 -> x1*x1) x)
 
 let inline dot_prod (x: Vector) (y: Vector) =
     arraySum (arrayMap2 (*) x y)
 
 [<DontInline>]
 let inline matrixFillFromVector (rows: Index) (row: Vector): Matrix = 
-  arrayMapToMatrix (fun r -> row) (arrayRange 1 rows)
+  arrayMapToMatrix (fun r -> row) (vectorRange 1 rows)
 
 let inline matrixFill (rows: Index) (cols: Index) (value: Number): Matrix = 
-  let row = arrayMap (fun c -> value) (arrayRange 1 cols)
+  let row = vectorMap (fun c -> value) (vectorRange 1 cols)
   matrixFillFromVector rows row
 
 let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
@@ -111,12 +119,12 @@ let compute_zach_weight_error w =
     1. - w*w
 
 let w_err (w:Vector) = 
-    arrayMap compute_zach_weight_error w 
+    vectorMap compute_zach_weight_error w 
 
 let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): Matrix =
     let n = cams.Length
     let p = w.Length
-    let range = arrayRange 0 (p - 1)
+    let range = vectorRange 0 (p - 1)
     arrayMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
 
 let run_ba_from_file (fn: string) = 
@@ -125,14 +133,14 @@ let run_ba_from_file (fn: string) =
     let m = int nmp.[1]
     let p = int nmp.[2]
     let one_cam = vectorRead fn 1
-    let cam = arrayMapToMatrix (fun x -> one_cam)  (arrayRange 1 n)
+    let cam = arrayMapToMatrix (fun x -> one_cam)  (vectorRange 1 n)
     let one_x = vectorRead fn 2
-    let x = arrayMapToMatrix (fun x -> one_x)  (arrayRange 1 m)
+    let x = arrayMapToMatrix (fun x -> one_x)  (vectorRange 1 m)
     let one_w = numberRead fn 3
-    let w = arrayMap (fun x -> one_w)  (arrayRange 1 p)
+    let w = vectorMap (fun x -> one_w)  (vectorRange 1 p)
     let one_feat = vectorRead fn 4
-    let feat = arrayMapToMatrix (fun x -> one_feat)  (arrayRange 1 p)
-    let obs = arrayMapToMatrix (fun x -> [| double ((int x) % n); double ((int x) % m) |] )  (arrayRange 0 (p - 1))
+    let feat = arrayMapToMatrix (fun x -> one_feat)  (vectorRange 1 p)
+    let obs = arrayMapToMatrix (fun x -> [| double ((int x) % n); double ((int x) % m) |] )  (vectorRange 0 (p - 1))
     let t = tic()
     let res = reproj_err cam x w obs feat
     toc(t)
@@ -140,14 +148,14 @@ let run_ba_from_file (fn: string) =
 
 let inline logsumexp (arr: Vector) =
     let mx = arrayMax arr
-    let semx = arraySum (arrayMap (fun x -> exp(x-mx)) arr)
+    let semx = arraySum (vectorMap (fun x -> exp(x-mx)) arr)
     (log semx) + mx
 
 let inline log_gamma_distrib (a: Number) (p: Number) =
   log (System.Math.Pow(System.Math.PI,(0.25*(p*(p-1.0))))) + 
-    arraySum (arrayMap (fun j -> 
+    arraySum (vectorMap (fun j -> 
         MathNet.Numerics.SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))) 
-      (arrayRange 1 (int p)))
+      (vectorRange 1 (int p)))
 
 let inline new_matrix_test (dum: Vector): Matrix = 
   let res = [| [| 0.0; 0.0; 0.0 |] |]
@@ -224,7 +232,7 @@ let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: 
   arrayMapToMatrix3D (fun i_bone -> 
      make_relative pose_params.[(int i_bone)+offset] base_relatives.[int i_bone]
     ) 
-    (arrayRange 0 (n_bones - 1))
+    (vectorRange 0 (n_bones - 1))
 
 let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
   let n = sqrt(sqnorm angle_axis)
@@ -263,7 +271,7 @@ let apply_global_transform (pose_params: Matrix) (positions: Matrix) =
   let R1 = matrixMap (fun row -> mult_vec_elementwise row scale) R 
   
   let T = matrixConcatCol R1 (matrixTranspose ([| pose_params.[2] |]))
-  let ones = arrayMap (fun x -> 1.) (arrayRange 1 (positions.[0].Length))
+  let ones = vectorMap (fun x -> 1.) (vectorRange 1 (positions.[0].Length))
   let positions_homog = matrixConcat positions ([| ones |])
   matrixMult T positions_homog
 
@@ -308,12 +316,12 @@ let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector
   let n_corr = correspondences.Length
   let dims = 3
   let err = 
-    arrayMap (fun i ->
+    vectorMap (fun i ->
       let ind = int i
       let r = ind / n_corr
       let c = ind % n_corr
       points.[r].[c] - vertex_positions.[r].[int correspondences.[c]]
-    ) (arrayRange 0 (dims * n_corr - 1))
+    ) (vectorRange 0 (dims * n_corr - 1))
   err
 
 (** Testing **)
@@ -359,7 +367,7 @@ let test1 (dum: Vector) =
   matrixPrint o
   let p = matrixConcatCol mat1 mat1
   matrixPrint p
-  let base_rel = arrayMapToMatrix (fun r -> arrayRange (int r * 4) (int r * 4 + 3)) (arrayRange 1 4)
+  let base_rel = arrayMapToMatrix (fun r -> vectorRange (int r * 4) (int r * 4 + 3)) (vectorRange 1 4)
   let q = make_relative a base_rel
   matrixPrint q
   let r = angle_axis_to_rotation_matrix a
