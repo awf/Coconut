@@ -1,0 +1,88 @@
+"Running ba1.txt"
+Time: 134 ms
+Time: 136 ms
+Time: 133 ms
+Time: 131 ms
+Time: 131 ms
+Time: 134 ms
+Time: 130 ms
+Time: 131 ms
+Time: 131 ms
+Time: 134 ms
+"Running ba2.txt"
+Time: 149 ms
+Time: 148 ms
+Time: 149 ms
+Time: 150 ms
+Time: 150 ms
+Time: 150 ms
+Time: 149 ms
+Time: 150 ms
+Time: 149 ms
+Time: 149 ms
+"Running ba3.txt"
+Time: 748 ms
+Time: 753 ms
+Time: 749 ms
+Time: 758 ms
+Time: 750 ms
+Time: 752 ms
+Time: 745 ms
+Time: 746 ms
+Time: 744 ms
+Time: 746 ms
+"Running ba4.txt"
+Time: 840 ms
+Time: 840 ms
+Time: 841 ms
+Time: 854 ms
+Time: 834 ms
+Time: 835 ms
+Time: 835 ms
+Time: 838 ms
+Time: 836 ms
+Time: 844 ms
+"Running ba5.txt"
+Time: 924 ms
+Time: 931 ms
+Time: 926 ms
+Time: 979 ms
+Time: 932 ms
+Time: 927 ms
+Time: 935 ms
+Time: 926 ms
+Time: 925 ms
+Time: 925 ms
+"Running ba6.txt"
+Time: 1135 ms
+Time: 1136 ms
+Time: 1147 ms
+Time: 1136 ms
+Time: 1139 ms
+Time: 1131 ms
+Time: 1133 ms
+Time: 1142 ms
+Time: 1135 ms
+Time: 1143 ms
+"Running ba7.txt"
+Time: 1187 ms
+Time: 1185 ms
+Time: 1223 ms
+Time: 1178 ms
+Time: 1179 ms
+Time: 1180 ms
+Time: 1181 ms
+Time: 1179 ms
+Time: 1192 ms
+Time: 1180 ms
+"Running ba8.txt"
+Time: 1595 ms
+Time: 1571 ms
+Time: 1575 ms
+Time: 1625 ms
+Time: 1590 ms
+Time: 1581 ms
+Time: 1593 ms
+Time: 1572 ms
+Time: 1575 ms
+Time: 1576 ms

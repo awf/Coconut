@@ -756,6 +756,10 @@ array_array_number_t linalg_euler_angles_to_rotation_matrix(array_number_t xzy) 
 
 array_array_number_t linalg_make_relative(array_number_t pose_params, array_array_number_t base_relative) {
 	array_array_number_t R = linalg_euler_angles_to_rotation_matrix(pose_params);
+	array_number_t array127 = (array_number_t)malloc(sizeof(int) * 2);
+	array127->length=1;
+	array127->arr = (number_t*)malloc(sizeof(number_t) * 1);
+	array127->arr[0] = 0;;
 	array_number_t array128 = (array_number_t)malloc(sizeof(int) * 2);
 	array128->length=1;
 	array128->arr = (number_t*)malloc(sizeof(number_t) * 1);
@@ -764,193 +768,189 @@ array_array_number_t linalg_make_relative(array_number_t pose_params, array_arra
 	array129->length=1;
 	array129->arr = (number_t*)malloc(sizeof(number_t) * 1);
 	array129->arr[0] = 0;;
+	array_array_number_t r1 = (array_array_number_t)malloc(sizeof(int) * 2);
+	r1->length=3;
+	r1->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
+	r1->arr[0] = array127;
+	r1->arr[1] = array128;
+	r1->arr[2] = array129;;
 	array_number_t array130 = (array_number_t)malloc(sizeof(int) * 2);
-	array130->length=1;
-	array130->arr = (number_t*)malloc(sizeof(number_t) * 1);
-	array130->arr[0] = 0;;
-	array_array_number_t array127 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array127->length=3;
-	array127->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
-	array127->arr[0] = array128;
-	array127->arr[1] = array129;
-	array127->arr[2] = array130;;
-	array_number_t array132 = (array_number_t)malloc(sizeof(int) * 2);
-	array132->length=4;
-	array132->arr = (number_t*)malloc(sizeof(number_t) * 4);
-	array132->arr[0] = 0;
-	array132->arr[1] = 0;
-	array132->arr[2] = 0;
-	array132->arr[3] = 1;;
-	array_array_number_t array131 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array131->length=1;
-	array131->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
-	array131->arr[0] = array132;;
-	array_array_number_t T = matrix_concat(linalg_matrixConcatCol(R, array127), array131);
+	array130->length=4;
+	array130->arr = (number_t*)malloc(sizeof(number_t) * 4);
+	array130->arr[0] = 0;
+	array130->arr[1] = 0;
+	array130->arr[2] = 0;
+	array130->arr[3] = 1;;
+	array_array_number_t r2 = (array_array_number_t)malloc(sizeof(int) * 2);
+	r2->length=1;
+	r2->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
+	r2->arr[0] = array130;;
+	array_array_number_t T = matrix_concat(linalg_matrixConcatCol(R, r1), r2);
 	return matrix_mult(base_relative, T);
 }
-typedef struct env_t_139 {
+typedef struct env_t_137 {
 	array_array_number_t pose_params;
 	index_t offset;
 	array_array_array_number_t base_relatives;
-} env_t_139;
-env_t_139* make_env_t_139(array_array_number_t pose_params,index_t offset,array_array_array_number_t base_relatives) {
-	env_t_139* env = (env_t_139*)malloc(sizeof(env_t_139));
+} env_t_137;
+env_t_137* make_env_t_137(array_array_number_t pose_params,index_t offset,array_array_array_number_t base_relatives) {
+	env_t_137* env = (env_t_137*)malloc(sizeof(env_t_137));
 	env->pose_params = pose_params;
 	env->offset = offset;
 	env->base_relatives = base_relatives;
 	return env;
 }
 
-value_t lambda139(env_t_139* env136, number_t i_bone) {
-	array_array_number_t pose_params135 = env136->pose_params;
-	index_t offset134 = env136->offset;
-	array_array_array_number_t base_relatives133 = env136->base_relatives;
+value_t lambda137(env_t_137* env134, number_t i_bone) {
+	array_array_number_t pose_params133 = env134->pose_params;
+	index_t offset132 = env134->offset;
+	array_array_array_number_t base_relatives131 = env134->base_relatives;
 	value_t res;
-	res.array_array_number_t_value = linalg_make_relative(pose_params135->arr[((int)(i_bone)) + (offset134)], base_relatives133->arr[(int)(i_bone)]);
+	res.array_array_number_t_value = linalg_make_relative(pose_params133->arr[((int)(i_bone)) + (offset132)], base_relatives131->arr[(int)(i_bone)]);
 	return res;
 }
 array_array_array_number_t linalg_get_posed_relatives(index_t n_bones, array_array_number_t pose_params, array_array_array_number_t base_relatives) {
 	index_t offset = 3;
-	closure_t* closure138 = make_closure(lambda139, make_env_t_139(pose_params,offset,base_relatives));
-	return array_map_to_matrix3d(closure138, array_range(0, (n_bones) - (1)));
+	closure_t* closure136 = make_closure(lambda137, make_env_t_137(pose_params,offset,base_relatives));
+	return array_map_to_matrix3d(closure136, array_range(0, (n_bones) - (1)));
 }
 
 array_array_number_t linalg_angle_axis_to_rotation_matrix(array_number_t angle_axis) {
 	number_t n = sqrt(linalg_sqnorm(angle_axis));
-	array_array_number_t ite140 = NULL;
+	array_array_number_t ite138 = NULL;
 	if((n) < (0.0001)) {
+		array_number_t array140 = (array_number_t)malloc(sizeof(int) * 2);
+	array140->length=3;
+	array140->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array140->arr[0] = 1;
+	array140->arr[1] = 0;
+	array140->arr[2] = 0;;
+		array_number_t array141 = (array_number_t)malloc(sizeof(int) * 2);
+	array141->length=3;
+	array141->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array141->arr[0] = 0;
+	array141->arr[1] = 1;
+	array141->arr[2] = 0;;
 		array_number_t array142 = (array_number_t)malloc(sizeof(int) * 2);
 	array142->length=3;
 	array142->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array142->arr[0] = 1;
+	array142->arr[0] = 0;
 	array142->arr[1] = 0;
-	array142->arr[2] = 0;;
-		array_number_t array143 = (array_number_t)malloc(sizeof(int) * 2);
-	array143->length=3;
-	array143->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array143->arr[0] = 0;
-	array143->arr[1] = 1;
-	array143->arr[2] = 0;;
-		array_number_t array144 = (array_number_t)malloc(sizeof(int) * 2);
-	array144->length=3;
-	array144->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array144->arr[0] = 0;
-	array144->arr[1] = 0;
-	array144->arr[2] = 1;;
-		array_array_number_t array141 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array141->length=3;
-	array141->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
-	array141->arr[0] = array142;
-	array141->arr[1] = array143;
-	array141->arr[2] = array144;;
-		ite140 = array141;
+	array142->arr[2] = 1;;
+		array_array_number_t array139 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array139->length=3;
+	array139->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
+	array139->arr[0] = array140;
+	array139->arr[1] = array141;
+	array139->arr[2] = array142;;
+		ite138 = array139;
 	} else {
 		number_t x = (angle_axis->arr[0]) / (n);
 		number_t y = (angle_axis->arr[1]) / (n);
 		number_t z = (angle_axis->arr[2]) / (n);
 		number_t s = sin(n);
 		number_t c = cos(n);
+		array_number_t array144 = (array_number_t)malloc(sizeof(int) * 2);
+	array144->length=3;
+	array144->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array144->arr[0] = ((x) * (x)) + (((1) - ((x) * (x))) * (c));
+	array144->arr[1] = (((x) * (y)) * ((1) - (c))) - ((z) * (s));
+	array144->arr[2] = (((x) * (z)) * ((1) - (c))) + ((y) * (s));;
+		array_number_t array145 = (array_number_t)malloc(sizeof(int) * 2);
+	array145->length=3;
+	array145->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array145->arr[0] = (((x) * (y)) * ((1) - (c))) + ((z) * (s));
+	array145->arr[1] = ((y) * (y)) + (((1) - ((y) * (y))) * (c));
+	array145->arr[2] = (((y) * (z)) * ((1) - (c))) - ((x) * (s));;
 		array_number_t array146 = (array_number_t)malloc(sizeof(int) * 2);
 	array146->length=3;
 	array146->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array146->arr[0] = ((x) * (x)) + (((1) - ((x) * (x))) * (c));
-	array146->arr[1] = (((x) * (y)) * ((1) - (c))) - ((z) * (s));
-	array146->arr[2] = (((x) * (z)) * ((1) - (c))) + ((y) * (s));;
-		array_number_t array147 = (array_number_t)malloc(sizeof(int) * 2);
-	array147->length=3;
-	array147->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array147->arr[0] = (((x) * (y)) * ((1) - (c))) + ((z) * (s));
-	array147->arr[1] = ((y) * (y)) + (((1) - ((y) * (y))) * (c));
-	array147->arr[2] = (((y) * (z)) * ((1) - (c))) - ((x) * (s));;
-		array_number_t array148 = (array_number_t)malloc(sizeof(int) * 2);
-	array148->length=3;
-	array148->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array148->arr[0] = (((x) * (z)) * ((1) - (c))) - ((y) * (s));
-	array148->arr[1] = (((z) * (y)) * ((1) - (c))) + ((x) * (s));
-	array148->arr[2] = ((z) * (z)) + (((1) - ((z) * (z))) * (c));;
-		array_array_number_t array145 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array145->length=3;
-	array145->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
-	array145->arr[0] = array146;
-	array145->arr[1] = array147;
-	array145->arr[2] = array148;;
-		ite140 = array145;
+	array146->arr[0] = (((x) * (z)) * ((1) - (c))) - ((y) * (s));
+	array146->arr[1] = (((z) * (y)) * ((1) - (c))) + ((x) * (s));
+	array146->arr[2] = ((z) * (z)) + (((1) - ((z) * (z))) * (c));;
+		array_array_number_t array143 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array143->length=3;
+	array143->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
+	array143->arr[0] = array144;
+	array143->arr[1] = array145;
+	array143->arr[2] = array146;;
+		ite138 = array143;
 	}
-	return ite140;
+	return ite138;
 }
-typedef struct env_t_157 {
+typedef struct env_t_155 {
 	array_array_array_number_t relatives;
 	array_number_t parents;
-} env_t_157;
-env_t_157* make_env_t_157(array_array_array_number_t relatives,array_number_t parents) {
-	env_t_157* env = (env_t_157*)malloc(sizeof(env_t_157));
+} env_t_155;
+env_t_155* make_env_t_155(array_array_array_number_t relatives,array_number_t parents) {
+	env_t_155* env = (env_t_155*)malloc(sizeof(env_t_155));
 	env->relatives = relatives;
 	env->parents = parents;
 	return env;
 }
 
-value_t lambda157(env_t_157* env151, array_array_array_number_t acc, index_t i) {
-	array_array_array_number_t relatives150 = env151->relatives;
-	array_number_t parents149 = env151->parents;
-	array_array_array_number_t ite156 = NULL;
-	if((parents149->arr[i]) == (-1)) {
+value_t lambda155(env_t_155* env149, array_array_array_number_t acc, index_t i) {
+	array_array_array_number_t relatives148 = env149->relatives;
+	array_number_t parents147 = env149->parents;
+	array_array_array_number_t ite154 = NULL;
+	if((parents147->arr[i]) == (-1)) {
 		array_array_array_number_t newMatrix = (array_array_array_number_t)malloc(sizeof(int) * 2);
 	newMatrix->length=1;
 	newMatrix->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * 1);
-	newMatrix->arr[0] = relatives150->arr[i];;
-		ite156 = matrix3d_concat(acc, newMatrix);
+	newMatrix->arr[0] = relatives148->arr[i];;
+		ite154 = matrix3d_concat(acc, newMatrix);
 	} else {
 		array_array_array_number_t newMatrix = (array_array_array_number_t)malloc(sizeof(int) * 2);
 	newMatrix->length=1;
 	newMatrix->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * 1);
-	newMatrix->arr[0] = matrix_mult(acc->arr[(int)(parents149->arr[i])], relatives150->arr[i]);;
-		ite156 = matrix3d_concat(acc, newMatrix);
+	newMatrix->arr[0] = matrix_mult(acc->arr[(int)(parents147->arr[i])], relatives148->arr[i]);;
+		ite154 = matrix3d_concat(acc, newMatrix);
 	}
 	value_t res;
-	res.array_array_array_number_t_value = ite156;
+	res.array_array_array_number_t_value = ite154;
 	return res;
 }
 array_array_array_number_t linalg_relatives_to_absolutes(array_array_array_number_t relatives, array_number_t parents) {
-	array_number_t array155 = (array_number_t)malloc(sizeof(int) * 2);
-	array155->length=0;
-	array155->arr = (number_t*)malloc(sizeof(number_t) * 0);
+	array_number_t array153 = (array_number_t)malloc(sizeof(int) * 2);
+	array153->length=0;
+	array153->arr = (number_t*)malloc(sizeof(number_t) * 0);
 	;
-	array_array_number_t array154 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array154->length=1;
-	array154->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
-	array154->arr[0] = array155;;
+	array_array_number_t array152 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array152->length=1;
+	array152->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
+	array152->arr[0] = array153;;
 	array_array_array_number_t init = (array_array_array_number_t)malloc(sizeof(int) * 2);
 	init->length=1;
 	init->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * 1);
-	init->arr[0] = array154;;
-	closure_t* closure153 = make_closure(lambda157, make_env_t_157(relatives,parents));
-	return iterate_matrix3d(closure153, init, 0, (relatives->length) - (1));
+	init->arr[0] = array152;;
+	closure_t* closure151 = make_closure(lambda155, make_env_t_155(relatives,parents));
+	return iterate_matrix3d(closure151, init, 0, (relatives->length) - (1));
 }
-typedef struct env_t_167 {
+typedef struct env_t_165 {
 	array_number_t scale;
-} env_t_167;
-env_t_167* make_env_t_167(array_number_t scale) {
-	env_t_167* env = (env_t_167*)malloc(sizeof(env_t_167));
+} env_t_165;
+env_t_165* make_env_t_165(array_number_t scale) {
+	env_t_165* env = (env_t_165*)malloc(sizeof(env_t_165));
 	env->scale = scale;
 	return env;
 }
 
-value_t lambda167(env_t_167* env159, array_number_t row) {
-	array_number_t scale158 = env159->scale;
+value_t lambda165(env_t_165* env157, array_number_t row) {
+	array_number_t scale156 = env157->scale;
 	value_t res;
-	res.array_number_t_value = linalg_mult_vec_elementwise(row, scale158);
+	res.array_number_t_value = linalg_mult_vec_elementwise(row, scale156);
 	return res;
 }
-typedef struct env_t_168 {
+typedef struct env_t_166 {
 	value_t dummy_variable;
-} env_t_168;
-env_t_168* make_env_t_168() {
-	env_t_168* env = (env_t_168*)malloc(sizeof(env_t_168));
+} env_t_166;
+env_t_166* make_env_t_166() {
+	env_t_166* env = (env_t_166*)malloc(sizeof(env_t_166));
 	
 	return env;
 }
 
-value_t lambda168(env_t_168* env162, number_t x) {
+value_t lambda166(env_t_166* env160, number_t x) {
 	
 	value_t res;
 	res.number_t_value = 1;
@@ -959,56 +959,56 @@ value_t lambda168(env_t_168* env162, number_t x) {
 array_array_number_t linalg_apply_global_transform(array_array_number_t pose_params, array_array_number_t positions) {
 	array_array_number_t R = linalg_angle_axis_to_rotation_matrix(pose_params->arr[0]);
 	array_number_t scale = pose_params->arr[1];
-	closure_t* closure161 = make_closure(lambda167, make_env_t_167(scale));
-	array_array_number_t R1 = matrix_map(closure161, R);
-	array_array_number_t array165 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array165->length=1;
-	array165->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
-	array165->arr[0] = pose_params->arr[2];;
-	array_array_number_t T = linalg_matrixConcatCol(R1, matrix_transpose(array165));
-	closure_t* closure164 = make_closure(lambda168, make_env_t_168());
-	array_number_t ones = array_map(closure164, array_range(1, positions->arr[0]->length));
-	array_array_number_t array166 = (array_array_number_t)malloc(sizeof(int) * 2);
-	array166->length=1;
-	array166->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
-	array166->arr[0] = ones;;
-	array_array_number_t positions_homog = matrix_concat(positions, array166);
+	closure_t* closure159 = make_closure(lambda165, make_env_t_165(scale));
+	array_array_number_t R1 = matrix_map(closure159, R);
+	array_array_number_t array163 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array163->length=1;
+	array163->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
+	array163->arr[0] = pose_params->arr[2];;
+	array_array_number_t T = linalg_matrixConcatCol(R1, matrix_transpose(array163));
+	closure_t* closure162 = make_closure(lambda166, make_env_t_166());
+	array_number_t ones = array_map(closure162, array_range(1, positions->arr[0]->length));
+	array_array_number_t array164 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array164->length=1;
+	array164->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
+	array164->arr[0] = ones;;
+	array_array_number_t positions_homog = matrix_concat(positions, array164);
 	return matrix_mult(T, positions_homog);
 }
-typedef struct env_t_181 {
+typedef struct env_t_179 {
 	value_t dummy_variable;
-} env_t_181;
-env_t_181* make_env_t_181() {
-	env_t_181* env = (env_t_181*)malloc(sizeof(env_t_181));
+} env_t_179;
+env_t_179* make_env_t_179() {
+	env_t_179* env = (env_t_179*)malloc(sizeof(env_t_179));
 	
 	return env;
 }
 
-value_t lambda181(env_t_181* env169, array_array_number_t m1, array_array_number_t m2) {
+value_t lambda179(env_t_179* env167, array_array_number_t m1, array_array_number_t m2) {
 	
 	value_t res;
 	res.array_array_number_t_value = matrix_mult(m1, m2);
 	return res;
 }
-typedef struct env_t_182 {
+typedef struct env_t_180 {
 	array_array_number_t weights;
 	array_array_array_number_t transforms;
 	array_array_number_t base_positions;
-} env_t_182;
-env_t_182* make_env_t_182(array_array_number_t weights,array_array_array_number_t transforms,array_array_number_t base_positions) {
-	env_t_182* env = (env_t_182*)malloc(sizeof(env_t_182));
+} env_t_180;
+env_t_180* make_env_t_180(array_array_number_t weights,array_array_array_number_t transforms,array_array_number_t base_positions) {
+	env_t_180* env = (env_t_180*)malloc(sizeof(env_t_180));
 	env->weights = weights;
 	env->transforms = transforms;
 	env->base_positions = base_positions;
 	return env;
 }
 
-value_t lambda182(env_t_182* env175, array_array_number_t acc, index_t i_transform) {
-	array_array_number_t weights174 = env175->weights;
-	array_array_array_number_t transforms173 = env175->transforms;
-	array_array_number_t base_positions172 = env175->base_positions;
-	array_array_number_t curr_positions = matrix_mult(matrix_slice(transforms173->arr[i_transform], 0, 2), base_positions172);
-	array_array_number_t w = linalg_matrixFillFromVector(base_positions172->length, weights174->arr[i_transform]);
+value_t lambda180(env_t_180* env173, array_array_number_t acc, index_t i_transform) {
+	array_array_number_t weights172 = env173->weights;
+	array_array_array_number_t transforms171 = env173->transforms;
+	array_array_number_t base_positions170 = env173->base_positions;
+	array_array_number_t curr_positions = matrix_mult(matrix_slice(transforms171->arr[i_transform], 0, 2), base_positions170);
+	array_array_number_t w = linalg_matrixFillFromVector(base_positions170->length, weights172->arr[i_transform]);
 	value_t res;
 	res.array_array_number_t_value = linalg_matrixAdd(acc, linalg_matrixMultElementwise(curr_positions, w));
 	return res;
@@ -1016,38 +1016,38 @@ value_t lambda182(env_t_182* env175, array_array_number_t acc, index_t i_transfo
 array_array_number_t linalg_get_skinned_vertex_positions(index_t is_mirrored, index_t n_bones, array_array_number_t pose_params, array_array_array_number_t base_relatives, array_number_t parents, array_array_array_number_t inverse_base_absolutes, array_array_number_t base_positions, array_array_number_t weights) {
 	array_array_array_number_t relatives = linalg_get_posed_relatives(n_bones, pose_params, base_relatives);
 	array_array_array_number_t absolutes = linalg_relatives_to_absolutes(relatives, parents);
-	closure_t* closure171 = make_closure(lambda181, make_env_t_181());
-	array_array_array_number_t transforms = matrix3d_map2(closure171, absolutes, inverse_base_absolutes);
+	closure_t* closure169 = make_closure(lambda179, make_env_t_179());
+	array_array_array_number_t transforms = matrix3d_map2(closure169, absolutes, inverse_base_absolutes);
 	index_t n_verts = base_positions->arr[0]->length;
 	array_array_number_t init_positions = linalg_matrixFill(3, n_verts, 0);
-	closure_t* closure177 = make_closure(lambda182, make_env_t_182(weights,transforms,base_positions));
-	array_array_number_t positions = iterate_matrix(closure177, init_positions, 0, (transforms->length) - (1));
+	closure_t* closure175 = make_closure(lambda180, make_env_t_180(weights,transforms,base_positions));
+	array_array_number_t positions = iterate_matrix(closure175, init_positions, 0, (transforms->length) - (1));
 	array_array_number_t mirrored_positions = NULL;
 	if((is_mirrored) == (1)) {
+		array_number_t array176 = (array_number_t)malloc(sizeof(int) * 2);
+	array176->length=3;
+	array176->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array176->arr[0] = -1;
+	array176->arr[1] = 0;
+	array176->arr[2] = 0;;
+		array_number_t array177 = (array_number_t)malloc(sizeof(int) * 2);
+	array177->length=3;
+	array177->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array177->arr[0] = 0;
+	array177->arr[1] = 1;
+	array177->arr[2] = 0;;
 		array_number_t array178 = (array_number_t)malloc(sizeof(int) * 2);
 	array178->length=3;
 	array178->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array178->arr[0] = -1;
+	array178->arr[0] = 0;
 	array178->arr[1] = 0;
-	array178->arr[2] = 0;;
-		array_number_t array179 = (array_number_t)malloc(sizeof(int) * 2);
-	array179->length=3;
-	array179->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array179->arr[0] = 0;
-	array179->arr[1] = 1;
-	array179->arr[2] = 0;;
-		array_number_t array180 = (array_number_t)malloc(sizeof(int) * 2);
-	array180->length=3;
-	array180->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array180->arr[0] = 0;
-	array180->arr[1] = 0;
-	array180->arr[2] = 1;;
+	array178->arr[2] = 1;;
 		array_array_number_t mirror_matrix = (array_array_number_t)malloc(sizeof(int) * 2);
 	mirror_matrix->length=3;
 	mirror_matrix->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
-	mirror_matrix->arr[0] = array178;
-	mirror_matrix->arr[1] = array179;
-	mirror_matrix->arr[2] = array180;;
+	mirror_matrix->arr[0] = array176;
+	mirror_matrix->arr[1] = array177;
+	mirror_matrix->arr[2] = array178;;
 		mirrored_positions = matrix_mult(mirror_matrix, positions);
 	} else {
 		
@@ -1055,14 +1055,14 @@ array_array_number_t linalg_get_skinned_vertex_positions(index_t is_mirrored, in
 	}
 	return linalg_apply_global_transform(pose_params, mirrored_positions);
 }
-typedef struct env_t_190 {
+typedef struct env_t_188 {
 	array_array_number_t vertex_positions;
 	array_array_number_t points;
 	index_t n_corr;
 	array_number_t correspondences;
-} env_t_190;
-env_t_190* make_env_t_190(array_array_number_t vertex_positions,array_array_number_t points,index_t n_corr,array_number_t correspondences) {
-	env_t_190* env = (env_t_190*)malloc(sizeof(env_t_190));
+} env_t_188;
+env_t_188* make_env_t_188(array_array_number_t vertex_positions,array_array_number_t points,index_t n_corr,array_number_t correspondences) {
+	env_t_188* env = (env_t_188*)malloc(sizeof(env_t_188));
 	env->vertex_positions = vertex_positions;
 	env->points = points;
 	env->n_corr = n_corr;
@@ -1070,16 +1070,16 @@ env_t_190* make_env_t_190(array_array_number_t vertex_positions,array_array_numb
 	return env;
 }
 
-value_t lambda190(env_t_190* env187, number_t i) {
-	array_array_number_t vertex_positions186 = env187->vertex_positions;
-	array_array_number_t points185 = env187->points;
-	index_t n_corr184 = env187->n_corr;
-	array_number_t correspondences183 = env187->correspondences;
+value_t lambda188(env_t_188* env185, number_t i) {
+	array_array_number_t vertex_positions184 = env185->vertex_positions;
+	array_array_number_t points183 = env185->points;
+	index_t n_corr182 = env185->n_corr;
+	array_number_t correspondences181 = env185->correspondences;
 	index_t ind = (int)(i);
-	index_t r = (ind) / (n_corr184);
-	index_t c = (ind) % (n_corr184);
+	index_t r = (ind) / (n_corr182);
+	index_t c = (ind) % (n_corr182);
 	value_t res;
-	res.number_t_value = (points185->arr[r]->arr[c]) - (vertex_positions186->arr[r]->arr[(int)(correspondences183->arr[c])]);
+	res.number_t_value = (points183->arr[r]->arr[c]) - (vertex_positions184->arr[r]->arr[(int)(correspondences181->arr[c])]);
 	return res;
 }
 array_number_t linalg_hand_objective(index_t is_mirrored, array_number_t param, array_number_t correspondences, array_array_number_t points, index_t n_bones, array_array_array_number_t base_relatives, array_number_t parents, array_array_array_number_t inverse_base_absolutes, array_array_number_t base_positions, array_array_number_t weights) {
@@ -1087,20 +1087,20 @@ array_number_t linalg_hand_objective(index_t is_mirrored, array_number_t param, 
 	array_array_number_t vertex_positions = linalg_get_skinned_vertex_positions(is_mirrored, n_bones, pose_params, base_relatives, parents, inverse_base_absolutes, base_positions, weights);
 	index_t n_corr = correspondences->length;
 	index_t dims = 3;
-	closure_t* closure189 = make_closure(lambda190, make_env_t_190(vertex_positions,points,n_corr,correspondences));
-	array_number_t err = array_map(closure189, array_range(0, ((dims) * (n_corr)) - (1)));
+	closure_t* closure187 = make_closure(lambda188, make_env_t_188(vertex_positions,points,n_corr,correspondences));
+	array_number_t err = array_map(closure187, array_range(0, ((dims) * (n_corr)) - (1)));
 	return err;
 }
-typedef struct env_t_218 {
+typedef struct env_t_216 {
 	value_t dummy_variable;
-} env_t_218;
-env_t_218* make_env_t_218() {
-	env_t_218* env = (env_t_218*)malloc(sizeof(env_t_218));
+} env_t_216;
+env_t_216* make_env_t_216() {
+	env_t_216* env = (env_t_216*)malloc(sizeof(env_t_216));
 	
 	return env;
 }
 
-value_t lambda218(env_t_218* env191, number_t r) {
+value_t lambda216(env_t_216* env189, number_t r) {
 	
 	value_t res;
 	res.array_number_t_value = array_range(((int)(r)) * (4), (((int)(r)) * (4)) + (3));
@@ -1157,38 +1157,38 @@ void linalg_test1(array_number_t dum) {
 	cam->arr[10] = 20;;
 	array_number_t m = linalg_project(cam, j);
 	array_print(m);
+	array_number_t array205 = (array_number_t)malloc(sizeof(int) * 2);
+	array205->length=3;
+	array205->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array205->arr[0] = 1;
+	array205->arr[1] = 2;
+	array205->arr[2] = 3;;
+	array_number_t array206 = (array_number_t)malloc(sizeof(int) * 2);
+	array206->length=3;
+	array206->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array206->arr[0] = 4;
+	array206->arr[1] = 5;
+	array206->arr[2] = 6;;
 	array_number_t array207 = (array_number_t)malloc(sizeof(int) * 2);
 	array207->length=3;
 	array207->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array207->arr[0] = 1;
-	array207->arr[1] = 2;
-	array207->arr[2] = 3;;
-	array_number_t array208 = (array_number_t)malloc(sizeof(int) * 2);
-	array208->length=3;
-	array208->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array208->arr[0] = 4;
-	array208->arr[1] = 5;
-	array208->arr[2] = 6;;
-	array_number_t array209 = (array_number_t)malloc(sizeof(int) * 2);
-	array209->length=3;
-	array209->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array209->arr[0] = 7;
-	array209->arr[1] = 8;
-	array209->arr[2] = 9;;
+	array207->arr[0] = 7;
+	array207->arr[1] = 8;
+	array207->arr[2] = 9;;
 	array_array_number_t mat1 = (array_array_number_t)malloc(sizeof(int) * 2);
 	mat1->length=3;
 	mat1->arr = (array_number_t*)malloc(sizeof(array_number_t) * 3);
-	mat1->arr[0] = array207;
-	mat1->arr[1] = array208;
-	mat1->arr[2] = array209;;
+	mat1->arr[0] = array205;
+	mat1->arr[1] = array206;
+	mat1->arr[2] = array207;;
 	array_array_number_t n = matrix_mult(mat1, mat1);
 	matrix_print(n);
 	array_array_number_t o = matrix_transpose(n);
 	matrix_print(o);
 	array_array_number_t p = linalg_matrixConcatCol(mat1, mat1);
 	matrix_print(p);
-	closure_t* closure193 = make_closure(lambda218, make_env_t_218());
-	array_array_number_t base_rel = array_map_to_matrix(closure193, array_range(1, 4));
+	closure_t* closure191 = make_closure(lambda216, make_env_t_216());
+	array_array_number_t base_rel = array_map_to_matrix(closure191, array_range(1, 4));
 	array_array_number_t q = linalg_make_relative(a, base_rel);
 	matrix_print(q);
 	array_array_number_t r = linalg_angle_axis_to_rotation_matrix(a);

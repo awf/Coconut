@@ -51,12 +51,16 @@ let rec inliner (exp: Expr): Expr =
       let paramVar (p: System.Reflection.ParameterInfo) = 
         (Expr.Var(new Var(p.Name, p.ParameterType)), new Var(newVar p.Name, p.ParameterType))
       (*let paramList = List.zip argList (List.map paramVar (List.ofSeq (methodInfo.GetParameters())))*)
-      let paramList = List.zip (List.map inliner argList) (List.map (fun x -> Expr.Var(x), "") inputs)
-      printfn "%s: name: %A" methodName (List.zip argList paramList)
+      let paramList = List.zip (List.map inliner argList) inputs
+      //let inlinedArgs = List.map inliner argList
+      //printfn "%s: name: %A" methodName (List.zip argList paramList)
+      printfn "%s: name: %A" methodName (List.zip argList inputs)
       let inlinedBody = 
         body.Substitute (fun v -> 
           Option.map (fun (e1, _) -> e1) 
-            (List.tryFind (fun (_, (e2, _)) -> e2 = Expr.Var(v)) paramList))
+            (List.tryFind (fun (_, v2) -> v2 = v) paramList))
+        
+        //LetN(List.zip inputs inlinedArgs, body)
       let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr = 
         match e with 
         | Patterns.Let(v, e1, e2) ->

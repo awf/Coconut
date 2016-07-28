@@ -13,9 +13,11 @@ let inline mult_by_scalar (x: Vector) (y: Number): Vector =
 let inline cross (a: Vector) (b: Vector) =
     [| a.[1]*b.[2] - a.[2]*b.[1]; a.[2]*b.[0] - a.[0]*b.[2]; a.[0]*b.[1] - a.[1]*b.[0]; |]
 
+[<DontInline>]
 let inline add_vec (x: Vector) (y: Vector) =
     arrayMap2 (+) x y
 
+[<DontInline>]
 let inline mult_vec_elementwise (x: Vector) (y: Vector) =
     arrayMap2 (*) x y
 
@@ -25,9 +27,11 @@ let inline add_vec3 (x: Vector) (y: Vector) (z: Vector) =
 let inline sub_vec (x: Vector) (y: Vector) =
     arrayMap2 (-) x y
 
+[<DontInline>]
 let inline matrixAdd (x: Matrix) (y: Matrix) =
     matrixMap2 add_vec x y
 
+[<DontInline>]
 let inline matrixMultElementwise (x: Matrix) (y: Matrix) =
     matrixMap2 mult_vec_elementwise x y
 
@@ -38,6 +42,7 @@ let inline sqnorm (x: Vector) =
 let inline dot_prod (x: Vector) (y: Vector) =
     arraySum (arrayMap2 (*) x y)
 
+[<DontInline>]
 let inline matrixFillFromVector (rows: Index) (row: Vector): Matrix = 
   arrayMapToMatrix (fun r -> row) (arrayRange 1 rows)
 
@@ -203,12 +208,15 @@ let euler_angles_to_rotation_matrix (xzy: Vector): Matrix =
   let Rz = [| [|cos(tz); -sin(tz); 0.|]; [|sin(tz); cos(tz); 0.|]; [|0.; 0.; 1.|] |]
   matrixMult Rz (matrixMult Ry Rx)
 
+[<DontInline>]
 let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
   let R = euler_angles_to_rotation_matrix pose_params
+  let r1 = [| [| 0. |]; [| 0. |]; [| 0. |] |]
+  let r2 = [| [| 0.; 0.; 0.; 1.0|] |]
   let T = 
     matrixConcat (matrixConcatCol R 
-                    ([| [| 0. |]; [| 0. |]; [| 0. |] |])) 
-                 ([| [| 0.; 0.; 0.; 1.0|] |])
+                    (r1)) 
+                 (r2)
   matrixMult base_relative T
 
 let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix[]): Matrix[] =
