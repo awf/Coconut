@@ -57,7 +57,23 @@ let rec inliner (exp: Expr): Expr =
         body.Substitute (fun v -> 
           Option.map (fun (e1, _) -> e1) 
             (List.tryFind (fun (_, (e2, _)) -> e2 = Expr.Var(v)) paramList))
-      match inlinedBody with 
+      let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr = 
+        match e with 
+        | Patterns.Let(v, e1, e2) ->
+          let ne1 = variableRenaming e1 renamings
+          let nv = new Var(newVar (v.Name), v.Type)
+          let ne2 = variableRenaming e2 ((v, nv) :: renamings)
+          Expr.Let(nv, ne1, ne2)
+        | ExprShape.ShapeLambda(x, e) ->
+          let nx = new Var(newVar (x.Name), x.Type)
+          let ne = variableRenaming e ((x, nx) :: renamings)
+          Expr.Lambda(nx, ne)
+        | ExprShape.ShapeVar(x) ->
+          let nx = Option.fold (fun s (v, nv) -> nv) x (List.tryFind (fun (v, nv) -> v = x) renamings)
+          Expr.Var(nx)
+        | ExprShape.ShapeCombination(op, args) ->
+          ExprShape.RebuildShapeCombination(op, List.map (fun arg -> variableRenaming arg renamings) args)
+      (*match inlinedBody with 
       | LetN(inputs, letBoundBody) -> 
         let newInputs = List.map (fun (v: Var, e: Expr) -> (v, e), new Var(newVar (v.Name), v.Type)) inputs
         LetN(List.map (fun ((_, e), v2) -> (v2, e)) newInputs, 
@@ -65,7 +81,8 @@ let rec inliner (exp: Expr): Expr =
             Option.map (fun (_, v2) -> Expr.Var(v2))
               (List.tryFind (fun ((v1, _), _) -> v = v1) newInputs)))
       | _ -> inlinedBody
-      
+      *)
+      variableRenaming inlinedBody []
     | _ -> exp
   | ExprShape.ShapeLambda(i, e) -> Expr.Lambda(i, inliner e)
   | ExprShape.ShapeVar(v) -> Expr.Var(v)
@@ -73,11 +90,12 @@ let rec inliner (exp: Expr): Expr =
       ExprShape.RebuildShapeCombination(o, List.map inliner exprs)
 
 let optimize (e: Expr): Expr = 
-  (* inliner(e) *)
+  let best = inliner(e)
+  (*
   let debug = true
   let rs = letInliner :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
   let (best, _) = bfs e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
   (*let (best, _) = randomWalk e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)*)
-  
+  *)
   best
