@@ -326,6 +326,9 @@ let main argv =
           rules.lambdaAppToLet, 0;
           rules.letInliner, 0;
           rules.letInliner, 0;
+          rules.algebraicRulesVector.[0], 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
           ]
     printfn "chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)

@@ -3,6 +3,7 @@
 open Microsoft.FSharp.Quotations
 open ruleengine
 open metaVars
+open corelang
 
 
 let divide2Mult_exp = 
@@ -68,15 +69,30 @@ let assocSubSub_exp =
     %a - (%b + %c)
   @>
 
+let vectorBuildGet_exp = 
+  <@
+    (vectorBuild %k %FIN).[%i]
+    <==>
+    (%FIN) %i
+  @>
+
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
 let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp
+
+let algebraicRulesVector_exp = [vectorBuildGet_exp]
+
+let algebraicRulesVector: Rule List = List.map compilePatternToRule algebraicRulesVector_exp
 
 open transformer
 
 let letInliner (e: Expr): Expr Option = 
   match e with 
-  | Patterns.Let(v, e1, e2) -> Some(variableRenaming (e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None)) [])
+  | Patterns.Let(v, e1, e2) -> 
+    let inlinedBody = e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None)
+    //let renamedBody = variableRenaming inlinedBody []
+    let renamedBody = inlinedBody
+    Some(renamedBody)
   | _ -> None
 
 let methodDefToLambda (e: Expr): Expr Option = 
