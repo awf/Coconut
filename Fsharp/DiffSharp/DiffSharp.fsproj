@@ -71,6 +71,7 @@
     <Compile Include="linalg.fs" />
     <Compile Include="usecases.fs" />
     <Compile Include="programs.fs" />
+    <Compile Include="ccodegentests.fs" />
     <Compile Include="cruntime.fs" />
     <Compile Include="transformer.fs" />
     <Compile Include="ctransformer.fs" />

@@ -15,11 +15,12 @@ let compile (moduleName: string) (methodName: string) (opt: bool): string =
    | None -> failwith (sprintf "%s failed. It seems you forgot to use [<ReflectedDefinition>]." methodName)
    | Some(e) -> 
      let optimized = if(opt) then optimize e else e
-     (* printfn "/* Oringinal code:\n%A\n*/\n" (e) *)
+     //printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
+     //if(opt) then printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
      let preprocessed = cpreprocess optimized
-     (* printfn "/* Preprocessed code:\n%A\n*/\n" (preprocessed) *)
+     //printfn "/* Preprocessed code:\n%A\n*/\n" (prettyprint preprocessed)
      let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName) false
-     (* printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated *)
+     //printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
      generated
 
 let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) =

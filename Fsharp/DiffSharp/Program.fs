@@ -296,7 +296,8 @@ let main argv =
     (*matrixPrint res*)
     compiler.compileModule "linalg" [] false
     compiler.compileModule "usecases" ["linalg"] false
-    // compiler.compileModule "programs" ["linalg"] true
+    compiler.compileModule "programs" ["linalg"] true
+    compiler.compileModule "ccodegentests" [] false
     usecases.test1 [||]
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif

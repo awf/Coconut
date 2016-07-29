@@ -31,7 +31,8 @@ let letLifting (e: Expr): Expr =
     match exp with 
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
-      let canBeLifted = List.isEmpty (listDiff (List.ofSeq (e1.GetFreeVars())) boundVars)
+      let existingFreeVars = List.ofSeq (e1.GetFreeVars())
+      let canBeLifted = List.isEmpty (listDiff existingFreeVars boundVars)
       let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
       let (te2, liftedLets2) = constructTopLevelLets newBoundVars e2
       if (canBeLifted) then
@@ -42,8 +43,9 @@ let letLifting (e: Expr): Expr =
       let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) elist)
       (Expr.Call(op, tes), List.concat lls)
     | LambdaN (inputs, body) ->
-      let (te, ll) = constructTopLevelLets boundVars body
-      (LambdaN (inputs, te), ll)
+      let (te, ll) = constructTopLevelLets (inputs @ boundVars) body
+      //(LambdaN (inputs, te), ll)
+      (LambdaN(inputs, LetN(ll, te)), [])
     | Patterns.IfThenElse(cond, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
       let (te2, liftedLets2) = constructTopLevelLets boundVars e2
