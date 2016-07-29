@@ -178,19 +178,41 @@ array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, arra
 	return res;
 }
 
-array_array_number_t iterate_matrix(closure_t* closure, array_array_number_t zero, index_t start, index_t end) {
-	array_array_number_t acc = zero;
-	for (int i = start; i <= end; i++) {
-		acc = closure->lam(closure->env, acc, i).array_array_number_t_value;
+number_t vector_fold_number(closure_t* closure, number_t zero, array_number_t range) {
+	number_t acc = zero;
+	for (int i = 0; i < range->length; i++) {
+		index_t idx = (index_t)range->arr[i];
+		acc = closure->lam(closure->env, acc, idx).number_t_value;
 	}
 	free_closure(closure);
 	return acc;
 }
 
-array_array_array_number_t iterate_matrix3d(closure_t* closure, array_array_array_number_t zero, index_t start, index_t end) {
+array_number_t vector_fold_vector(closure_t* closure, array_number_t zero, array_number_t range) {
+	array_number_t acc = zero;
+	for (int i = 0; i < range->length; i++) {
+		index_t idx = (index_t)range->arr[i];
+		acc = closure->lam(closure->env, acc, idx).array_number_t_value;
+	}
+	free_closure(closure);
+	return acc;
+}
+
+array_array_number_t vector_fold_matrix(closure_t* closure, array_array_number_t zero, array_number_t range) {
+	array_array_number_t acc = zero;
+	for (int i = 0; i < range->length; i++) {
+		index_t idx = (index_t)range->arr[i];
+		acc = closure->lam(closure->env, acc, idx).array_array_number_t_value;
+	}
+	free_closure(closure);
+	return acc;
+}
+
+array_array_array_number_t vector_fold_matrix3d(closure_t* closure, array_array_array_number_t zero, array_number_t range) {
 	array_array_array_number_t acc = zero;
-	for (int i = start; i <= end; i++) {
-		acc = closure->lam(closure->env, acc, i).array_array_array_number_t_value;
+		for (int i = 0; i < range->length; i++) {
+		index_t idx = (index_t)range->arr[i];
+		acc = closure->lam(closure->env, acc, idx).array_array_array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;

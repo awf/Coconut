@@ -39,6 +39,14 @@ let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix =
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
   matrix3DBuild (arr.Length) (fun i -> f(arr.[i]))
 
+[<DontInline>]
+let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Index) (e: Index): Matrix = 
+  vectorFoldMatrix f z (vectorRange s e)
+
+[<DontInline>]
+let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Index) (e: Index): Matrix[] = 
+  vectorFoldMatrix3D f z (vectorRange s e)
+
 let inline mult_by_scalar (x: Vector) (y: Number): Vector =
     vectorMap (fun a -> a*y) x
 

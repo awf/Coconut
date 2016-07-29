@@ -703,7 +703,7 @@ array_array_array_number_t usecases_relatives_to_absolutes(array_array_array_num
 	init->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * 1);
 	init->arr[0] = array202;;
 	closure_t* closure201 = make_closure(lambda205, make_env_t_205(relatives,parents));
-	return iterate_matrix3d(closure201, init, 0, (relatives->length) - (1));
+	return linalg_iterateMatrix3D(closure201, init, 0, (relatives->length) - (1));
 }
 typedef struct env_t_215 {
 	array_number_t scale;
@@ -800,7 +800,7 @@ array_array_number_t usecases_get_skinned_vertex_positions(index_t is_mirrored, 
 	index_t n_verts = base_positions->arr[0]->length;
 	array_array_number_t init_positions = linalg_matrixFill(3, n_verts, 0);
 	closure_t* closure225 = make_closure(lambda230, make_env_t_230(weights,transforms,base_positions));
-	array_array_number_t positions = iterate_matrix(closure225, init_positions, 0, (transforms->length) - (1));
+	array_array_number_t positions = linalg_iterateMatrix(closure225, init_positions, 0, (transforms->length) - (1));
 	array_array_number_t mirrored_positions = NULL;
 	if((is_mirrored) == (1)) {
 		array_number_t array226 = (array_number_t)malloc(sizeof(int) * 2);

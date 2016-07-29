@@ -185,6 +185,16 @@ array_array_array_number_t linalg_vectorMapToMatrix3D(closure_t* f, array_number
 	closure_t* closure49 = make_closure(lambda50, make_env_t_50(f,arr));
 	return matrix3d_build(arr->length, closure49);
 }
+
+array_array_number_t linalg_iterateMatrix(closure_t* f, array_array_number_t z, index_t s, index_t e) {
+	
+	return vector_fold_matrix(f, z, linalg_vectorRange(s, e));
+}
+
+array_array_array_number_t linalg_iterateMatrix3D(closure_t* f, array_array_array_number_t z, index_t s, index_t e) {
+	
+	return vector_fold_matrix3d(f, z, linalg_vectorRange(s, e));
+}
 typedef struct env_t_55 {
 	number_t y;
 } env_t_55;

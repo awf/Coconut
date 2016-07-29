@@ -51,17 +51,15 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
         (Array.map2 ( * ) (m1.[int r]) (m2T.[int c]))) (arrayRange 0 (c2 - 1)))
     (arrayRange 0 (r1 - 1))
 
-(** Consumer Methods **)
-
-[<CMirror("array_sum")>]
-let arraySum (arr: Vector): Number = 
-  Array.sum arr
-
-[<CMirror("array_max")>]
-let arrayMax (arr: Vector): Number = 
-  Array.max arr
-
 (** Fold methods **)
+
+[<CMirror("vector_fold_number")>]
+let vectorFoldNumber (f: Number -> Index -> Number) (z: Number) (range: Vector): Number = 
+  Array.fold (fun acc cur -> f acc (int cur)) z range
+
+[<CMirror("vector_fold_vector")>]
+let vectorFoldVector (f: Vector -> Index -> Vector) (z: Vector) (range: Vector): Vector = 
+  Array.fold (fun acc cur -> f acc (int cur)) z range
 
 [<CMirror("vector_fold_matrix")>]
 let vectorFoldMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (range: Vector): Matrix = 
@@ -71,16 +69,15 @@ let vectorFoldMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (range: Vector):
 let vectorFoldMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (range: Vector): Matrix[] = 
   Array.fold (fun acc cur -> f acc (int cur)) z range
 
-// TODO remove from core
-[<CMirror("iterate_matrix")>]
-let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Index) (e: Index): Matrix = 
-  vectorFoldMatrix f z (arrayRange s e)
+(** Consumer Methods **)
 
-// TODO remove from core
-[<CMirror("iterate_matrix3d")>]
-let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Index) (e: Index): Matrix[] = 
-  vectorFoldMatrix3D f z (arrayRange s e)
+[<CMirror("array_sum")>]
+let arraySum (arr: Vector): Number = 
+  Array.sum arr
 
+[<CMirror("array_max")>]
+let arrayMax (arr: Vector): Number = 
+  Array.max arr
 
 (** I/O Methods **)
 
