@@ -64,56 +64,34 @@ void array_print(array_number_t arr) {
 	printf("]\n");
 }
 
-array_number_t array_map(closure_t* closure, array_number_t arr) {
+array_number_t vector_build(index_t size, closure_t* closure) {
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = arr->length;
+	res->length = size;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr->arr[i]).number_t_value;
+		res->arr[i] = closure->lam(closure->env, i).number_t_value;
 	}
 	free_closure(closure);
 	return res;
 }
 
-array_array_number_t matrix_map(closure_t* closure, array_array_number_t mat) {
+array_array_number_t matrix_build(index_t size, closure_t* closure) {
 	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = mat->length;
+	res->length = size;
 	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, mat->arr[i]).array_number_t_value;
+		res->arr[i] = closure->lam(closure->env, i).array_number_t_value;
 	}
 	free_closure(closure);
 	return res;
 }
 
-array_number_t array_map2(closure_t* closure, array_number_t arr1, array_number_t arr2) {
-	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = arr1->length;
-	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr1->arr[i], arr2->arr[i]).number_t_value;
-	}
-	free_closure(closure);
-	return res;
-}
-
-array_array_number_t matrix_map2(closure_t* closure, array_array_number_t arr1, array_array_number_t arr2) {
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = arr1->length;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr1->arr[i], arr2->arr[i]).array_number_t_value;
-	}
-	free_closure(closure);
-	return res;
-}
-
-array_array_array_number_t matrix3d_map2(closure_t* closure, array_array_array_number_t arr1, array_array_array_number_t arr2) {
+array_array_array_number_t matrix3d_build(index_t size, closure_t* closure) {
 	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = arr1->length;
+	res->length = size;
 	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr1->arr[i], arr2->arr[i]).array_array_number_t_value;
+		res->arr[i] = closure->lam(closure->env, i).array_array_number_t_value;
 	}
 	free_closure(closure);
 	return res;
@@ -172,28 +150,6 @@ array_number_t array_range(index_t start, index_t end) {
 
 void number_print(number_t num) {
 	printf("%f\n", num);
-}
-
-array_array_number_t array_map_to_matrix(closure_t* closure, array_number_t arr) {
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = arr->length;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr->arr[i]).array_number_t_value;
-	}
-	free_closure(closure);
-	return res;
-}
-
-array_array_array_number_t array_map_to_matrix3d(closure_t* closure, array_number_t arr) {
-	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = arr->length;
-	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, arr->arr[i]).array_array_number_t_value;
-	}
-	free_closure(closure);
-	return res;
 }
 
 array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number_t mat2) {
