@@ -13,14 +13,30 @@ let rec prettyprint (e:Expr): string =
   | Patterns.Let(x, e1, e2) -> sprintf "let %s = %s in \n%s" (x.Name) (prettyprint e1) (prettyprint e2)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> sprintf "(%s %s %s)" (prettyprint elist.[0]) opname (prettyprint elist.[1]) 
+      | OperatorName opname -> 
+        if((List.length elist) = 2) then 
+          sprintf "(%s %s %s)" (prettyprint elist.[0]) opname (prettyprint elist.[1]) 
+        elif ((List.length elist) = 1) then
+          sprintf "%s(%s)" opname (prettyprint elist.[0])
+        else 
+          sprintf "%s(%s)" opname (String.concat ", " (List.map prettyprint elist))
       | "GetArray" -> sprintf "%s[%s]" (prettyprint elist.[0]) (prettyprint elist.[1])
       | _ -> sprintf "%s(%s)" op.Name (String.concat ", " (List.map prettyprint elist))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     sprintf "Array[%s](%s)" (tp.ToString()) (String.concat ", " (List.map prettyprint elems))
+  | Patterns.Value(v, tp) when tp = typeof<Unit> -> "()"
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | Patterns.Sequential(e1, e2) -> sprintf "%s;\n%s" (prettyprint e1) (prettyprint e2)
+  | Patterns.NewUnionCase (uci, args) -> 
+     sprintf "%s(%s)" uci.Name (String.concat ", " (List.map prettyprint args))
+  | Patterns.PropertyGet (Some(var), pi, args) -> 
+     sprintf "%s.%s" (prettyprint var) pi.Name
+  | AppN(f, args) ->
+     sprintf "APP{%s}(%s)" (prettyprint f) (String.concat ", " (List.map prettyprint args))
+  | ExprShape.ShapeCombination(op, args) -> 
+    sprintf "{%A}(%s)" (op) (String.concat ", " (List.map prettyprint args))
+  
   | _ -> sprintf "ERROR[%A]" e
 
 let ARRAY_PREFIX = "array_"
