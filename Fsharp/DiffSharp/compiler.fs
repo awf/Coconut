@@ -6,14 +6,16 @@ open ccodegen
 open ctransformer
 open optimizer
 
-(* The entry point for the compiler which invokes different phases and code generators *)
-let compile (moduleName: string) (methodName: string) (opt: bool): string = 
-  
+let getMethodExpr (moduleName: string) (methodName: string): Expr = 
   let methodInfo = assembly.GetType(moduleName).GetMethod(methodName)
   let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
   match reflDefnOpt with
    | None -> failwith (sprintf "%s failed. It seems you forgot to use [<ReflectedDefinition>]." methodName)
-   | Some(e) -> 
+   | Some(e) -> e
+
+(* The entry point for the compiler which invokes different phases and code generators *)
+let compile (moduleName: string) (methodName: string) (opt: bool): string = 
+     let e = getMethodExpr moduleName methodName
      let optimized = if(opt) then optimize e else e
      //printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
      //if(opt) then printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)

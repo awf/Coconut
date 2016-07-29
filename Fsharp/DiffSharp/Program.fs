@@ -299,6 +299,35 @@ let main argv =
     compiler.compileModule "programs" ["linalg"] true
     compiler.compileModule "ccodegentests" [] false
     usecases.test1 [||]
+    let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
+    let chains = 
+      optimizer.guidedOptimize vecAdd3 
+        [ rules.methodDefToLambda, 0; 
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.methodDefToLambda, 0; 
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.methodDefToLambda, 0; 
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.methodDefToLambda, 0; 
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          ]
+    printfn "chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED

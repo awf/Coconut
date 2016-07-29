@@ -77,11 +77,15 @@ let rec inliner (exp: Expr): Expr =
   | ExprShape.ShapeCombination(o, exprs) ->
       ExprShape.RebuildShapeCombination(o, List.map inliner exprs)
 
+let guidedOptimize (e: Expr) (indexedRules: (Rule*int) list): Expr list = 
+  let reversedResults = List.fold (fun acc (rule, idx) -> (examineAllRules [rule] (List.head acc)).[idx] :: acc) [e] indexedRules
+  List.rev reversedResults
+
 let optimize (e: Expr): Expr = 
   // let best = inliner(e)
   
   let debug = false
-  let rs = letInliner :: methodDefToLambda :: lambdaAppToLet :: algebraicRulesScalar
+  let rs = letInliner (*:: methodDefToLambda :: lambdaAppToLet*) :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
   let t = tic()
   let (best, _) = bfs e 5 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
