@@ -69,8 +69,9 @@
     <Compile Include="utils.fs" />
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
-    <Compile Include="cruntime.fs" />
+    <Compile Include="usecases.fs" />
     <Compile Include="programs.fs" />
+    <Compile Include="cruntime.fs" />
     <Compile Include="transformer.fs" />
     <Compile Include="ctransformer.fs" />
     <Compile Include="ccodegen.fs" />

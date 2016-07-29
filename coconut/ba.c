@@ -1,4 +1,4 @@
-#include "linalg.h"
+#include "usecases.h"
 
 int main(int argc, char** argv)
 {
@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	char* file = argv[1];
-	linalg_run_ba_from_file(file);
+	usecases_run_ba_from_file(file);
 	// printf("memory of closure: %d\n", closure_mem);
 	return 0;
 }

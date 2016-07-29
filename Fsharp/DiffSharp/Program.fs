@@ -267,7 +267,7 @@ let test_ba_objective fn_in fn_out nruns_f nruns_J =
     let obj_stop_watch = Stopwatch.StartNew()
     (*let err, werr = ba.ba_objective cams x w obs feat
     printfn "error: %A\nwerr: %A" err werr*)
-    let err = linalg.reproj_err cams x w obs_double feat
+    let err = usecases.reproj_err cams x w obs_double feat
     obj_stop_watch.Stop()
 
     printfn "Time: %d ms" obj_stop_watch.ElapsedMilliseconds
@@ -292,11 +292,12 @@ let main argv =
     test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
 #endif
 #if DO_COMPILE
-    let res = run_ba_from_file (dir_in + fn + ".txt")
+    let res = usecases.run_ba_from_file (dir_in + fn + ".txt")
     (*matrixPrint res*)
     compiler.compileModule "linalg" [] false
+    compiler.compileModule "usecases" ["linalg"] false
     // compiler.compileModule "programs" ["linalg"] true
-    linalg.test1 [||]
+    usecases.test1 [||]
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
