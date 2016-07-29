@@ -110,7 +110,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let lambdaName = newVar "lambda"
       let id = variable_counter
       let envName = sprintf "env_t_%d" id
-      let fieldsDeclList = List.map (fun (tp, v) -> ccodegenType(tp) + " " + v) fields
+      let fieldsDeclList = List.map (fun (tp, v, _) -> ccodegenType(tp) + " " + v) fields
       let fieldsStructDecl = 
         match fieldsDeclList with 
         | [] -> 
@@ -120,10 +120,10 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
       let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
       let fieldsDecl = String.concat "," fieldsDeclList
-      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v) -> sprintf "env->%s = %s;" v v) fields)
+      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v, _) -> sprintf "env->%s = %s;" v v) fields)
       let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" 
                          envName envName fieldsDecl envName envName envName fieldsInit
-      let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, v) -> v) fields))
+      let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
       (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, 
         [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true], 
         false)

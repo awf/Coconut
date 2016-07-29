@@ -70,10 +70,11 @@ let closureConversion (e: Expr): Expr =
   let rec lambdaLift (exp: Expr): Expr =
     match exp with 
     | LambdaN (inputs, body) -> 
+      let transformedBody = lambdaLift body
       let freeVars = listDiff (List.ofSeq (body.GetFreeVars())) inputs
       let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
       let freeNewVars = List.zip freeVars newVars
-      let convertedBody = (lambdaLift body).Substitute(fun v -> 
+      let convertedBody = transformedBody.Substitute(fun v -> 
           Option.map (fun (x, y) -> Expr.Var(y)) (List.tryFind (fun (x, y) -> x = v) freeNewVars))
       let result = 
         let envVar = new Var(newVar "env", typeof<Environment>)

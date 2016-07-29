@@ -53,7 +53,7 @@ let (|TopLevelFunction|) (e: Expr): (Var List * Expr) =
   | LambdaN(inputs, body) -> (inputs, body) 
   | _ -> ([], e)
 
-let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string) List)) Option = 
+let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string * string) List)) Option = 
   match e with 
   | Patterns.Call (None, op, [Patterns.Lambda(envVar, body); Patterns.Call (None, opEnv, list)]) when 
       op.Name = "makeClosure" && opEnv.Name = "makeEnv" -> 
@@ -65,8 +65,12 @@ let (|MakeClosure|_|) (e: Expr): (Var * Expr * ((System.Type * string) List)) Op
            of a closure. *)
         | [ Patterns.NewUnionCase(_, 
              [ Patterns.NewTuple([Patterns.Value(v, _); 
-                                  Patterns.Call (_, _, [e])]); tl]) ] ->
-          (e.Type, v.ToString()) :: extractElems([tl])
+                                  Patterns.Call (_, _, [e]) as makeAnyNumericCall]); tl]) ] ->
+          let variableName = 
+            match makeAnyNumericCall with
+            | DerivedPatterns.SpecificCall <@ cruntime.makeAnyNumeric @> (_, _, [Patterns.Var(v)]) -> v.Name
+            | _ -> failwithf "Expected makeAnyNumeric but provided %A" e
+          (e.Type, v.ToString(), variableName) :: extractElems([tl])
         | _ -> []
       extractElems list
     Some (envVar, body, envList)
