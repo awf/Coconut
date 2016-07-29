@@ -94,12 +94,12 @@ let rec inliner (exp: Expr): Expr =
       ExprShape.RebuildShapeCombination(o, List.map inliner exprs)
 
 let optimize (e: Expr): Expr = 
-  let best = inliner(e)
-  (*
-  let debug = true
-  let rs = letInliner :: algebraicRulesScalar
+  // let best = inliner(e)
+  
+  let debug = false
+  let rs = letInliner (*:: methodDefToLambda*) :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
-  let (best, _) = bfs e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
+  let (best, _) = bfs e 5 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
   (*let (best, _) = randomWalk e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)*)
-  *)
+  
   best
