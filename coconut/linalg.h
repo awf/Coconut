@@ -194,15 +194,15 @@ env_t_55* make_env_t_55(closure_t* f) {
 	return env;
 }
 
-value_t lambda55(env_t_55* env52, array_array_number_t acc, number_t cur) {
+value_t lambda55(env_t_55* env52, number_t acc, number_t cur) {
 	closure_t* f51 = env52->f;
 	value_t res;
-	res.array_array_number_t_value = f51->lam(f51->env, acc, (int)(cur)).array_array_number_t_value;
+	res.number_t_value = f51->lam(f51->env, acc, (int)(cur)).number_t_value;
 	return res;
 }
-array_array_number_t linalg_iterateMatrix(closure_t* f, array_array_number_t z, index_t s, index_t e) {
+number_t linalg_iterateNumber(closure_t* f, number_t z, index_t s, index_t e) {
 	closure_t* closure54 = make_closure(lambda55, make_env_t_55(f));
-	return vector_fold_matrix(closure54, z, linalg_vectorRange(s, e));
+	return vector_fold_number(closure54, z, linalg_vectorRange(s, e));
 }
 typedef struct env_t_60 {
 	closure_t* f;
@@ -213,89 +213,72 @@ env_t_60* make_env_t_60(closure_t* f) {
 	return env;
 }
 
-value_t lambda60(env_t_60* env57, array_array_array_number_t acc, number_t cur) {
+value_t lambda60(env_t_60* env57, array_number_t acc, number_t cur) {
 	closure_t* f56 = env57->f;
 	value_t res;
-	res.array_array_array_number_t_value = f56->lam(f56->env, acc, (int)(cur)).array_array_array_number_t_value;
+	res.array_number_t_value = f56->lam(f56->env, acc, (int)(cur)).array_number_t_value;
+	return res;
+}
+array_number_t linalg_iterateVector(closure_t* f, array_number_t z, index_t s, index_t e) {
+	closure_t* closure59 = make_closure(lambda60, make_env_t_60(f));
+	return vector_fold_vector(closure59, z, linalg_vectorRange(s, e));
+}
+typedef struct env_t_65 {
+	closure_t* f;
+} env_t_65;
+env_t_65* make_env_t_65(closure_t* f) {
+	env_t_65* env = (env_t_65*)malloc(sizeof(env_t_65));
+	env->f = f;
+	return env;
+}
+
+value_t lambda65(env_t_65* env62, array_array_number_t acc, number_t cur) {
+	closure_t* f61 = env62->f;
+	value_t res;
+	res.array_array_number_t_value = f61->lam(f61->env, acc, (int)(cur)).array_array_number_t_value;
+	return res;
+}
+array_array_number_t linalg_iterateMatrix(closure_t* f, array_array_number_t z, index_t s, index_t e) {
+	closure_t* closure64 = make_closure(lambda65, make_env_t_65(f));
+	return vector_fold_matrix(closure64, z, linalg_vectorRange(s, e));
+}
+typedef struct env_t_70 {
+	closure_t* f;
+} env_t_70;
+env_t_70* make_env_t_70(closure_t* f) {
+	env_t_70* env = (env_t_70*)malloc(sizeof(env_t_70));
+	env->f = f;
+	return env;
+}
+
+value_t lambda70(env_t_70* env67, array_array_array_number_t acc, number_t cur) {
+	closure_t* f66 = env67->f;
+	value_t res;
+	res.array_array_array_number_t_value = f66->lam(f66->env, acc, (int)(cur)).array_array_array_number_t_value;
 	return res;
 }
 array_array_array_number_t linalg_iterateMatrix3D(closure_t* f, array_array_array_number_t z, index_t s, index_t e) {
-	closure_t* closure59 = make_closure(lambda60, make_env_t_60(f));
-	return vector_fold_matrix3d(closure59, z, linalg_vectorRange(s, e));
+	closure_t* closure69 = make_closure(lambda70, make_env_t_70(f));
+	return vector_fold_matrix3d(closure69, z, linalg_vectorRange(s, e));
 }
-typedef struct env_t_64 {
+typedef struct env_t_74 {
 	value_t dummy_variable;
-} env_t_64;
-env_t_64* make_env_t_64() {
-	env_t_64* env = (env_t_64*)malloc(sizeof(env_t_64));
+} env_t_74;
+env_t_74* make_env_t_74() {
+	env_t_74* env = (env_t_74*)malloc(sizeof(env_t_74));
 	
 	return env;
 }
 
-value_t lambda64(env_t_64* env61, number_t acc, number_t cur) {
+value_t lambda74(env_t_74* env71, number_t acc, number_t cur) {
 	
 	value_t res;
 	res.number_t_value = (acc) + (cur);
 	return res;
 }
 number_t linalg_arraySum(array_number_t arr) {
-	closure_t* closure63 = make_closure(lambda64, make_env_t_64());
-	return vector_fold_number(closure63, 0, arr);
-}
-typedef struct env_t_69 {
-	value_t dummy_variable;
-} env_t_69;
-env_t_69* make_env_t_69() {
-	env_t_69* env = (env_t_69*)malloc(sizeof(env_t_69));
-	
-	return env;
-}
-
-value_t lambda69(env_t_69* env65, number_t acc, number_t cur) {
-	number_t ite68 = 0;
-	if((acc) > (cur)) {
-		
-		ite68 = acc;
-	} else {
-		
-		ite68 = cur;
-	}
-	value_t res;
-	res.number_t_value = ite68;
-	return res;
-}
-number_t linalg_arrayMax(array_number_t arr) {
-	closure_t* closure67 = make_closure(lambda69, make_env_t_69());
-	return vector_fold_number(closure67, -1000, arr);
-}
-typedef struct env_t_74 {
-	number_t y;
-} env_t_74;
-env_t_74* make_env_t_74(number_t y) {
-	env_t_74* env = (env_t_74*)malloc(sizeof(env_t_74));
-	env->y = y;
-	return env;
-}
-
-value_t lambda74(env_t_74* env71, number_t a) {
-	number_t y70 = env71->y;
-	value_t res;
-	res.number_t_value = (a) * (y70);
-	return res;
-}
-array_number_t linalg_mult_by_scalar(array_number_t x, number_t y) {
-	closure_t* closure73 = make_closure(lambda74, make_env_t_74(y));
-	return linalg_vectorMap(closure73, x);
-}
-
-array_number_t linalg_cross(array_number_t a, array_number_t b) {
-	array_number_t array75 = (array_number_t)malloc(sizeof(int) * 2);
-	array75->length=3;
-	array75->arr = (number_t*)malloc(sizeof(number_t) * 3);
-	array75->arr[0] = ((a->arr[1]) * (b->arr[2])) - ((a->arr[2]) * (b->arr[1]));
-	array75->arr[1] = ((a->arr[2]) * (b->arr[0])) - ((a->arr[0]) * (b->arr[2]));
-	array75->arr[2] = ((a->arr[0]) * (b->arr[1])) - ((a->arr[1]) * (b->arr[0]));;
-	return array75;
+	closure_t* closure73 = make_closure(lambda74, make_env_t_74());
+	return vector_fold_number(closure73, 0, arr);
 }
 typedef struct env_t_79 {
 	value_t dummy_variable;
@@ -306,172 +289,227 @@ env_t_79* make_env_t_79() {
 	return env;
 }
 
-value_t lambda79(env_t_79* env76, number_t x, number_t y) {
+value_t lambda79(env_t_79* env75, number_t acc, number_t cur) {
+	number_t ite78 = 0;
+	if((acc) > (cur)) {
+		
+		ite78 = acc;
+	} else {
+		
+		ite78 = cur;
+	}
+	value_t res;
+	res.number_t_value = ite78;
+	return res;
+}
+number_t linalg_arrayMax(array_number_t arr) {
+	closure_t* closure77 = make_closure(lambda79, make_env_t_79());
+	return vector_fold_number(closure77, -1000, arr);
+}
+typedef struct env_t_84 {
+	number_t y;
+} env_t_84;
+env_t_84* make_env_t_84(number_t y) {
+	env_t_84* env = (env_t_84*)malloc(sizeof(env_t_84));
+	env->y = y;
+	return env;
+}
+
+value_t lambda84(env_t_84* env81, number_t a) {
+	number_t y80 = env81->y;
+	value_t res;
+	res.number_t_value = (a) * (y80);
+	return res;
+}
+array_number_t linalg_mult_by_scalar(array_number_t x, number_t y) {
+	closure_t* closure83 = make_closure(lambda84, make_env_t_84(y));
+	return linalg_vectorMap(closure83, x);
+}
+
+array_number_t linalg_cross(array_number_t a, array_number_t b) {
+	array_number_t array85 = (array_number_t)malloc(sizeof(int) * 2);
+	array85->length=3;
+	array85->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array85->arr[0] = ((a->arr[1]) * (b->arr[2])) - ((a->arr[2]) * (b->arr[1]));
+	array85->arr[1] = ((a->arr[2]) * (b->arr[0])) - ((a->arr[0]) * (b->arr[2]));
+	array85->arr[2] = ((a->arr[0]) * (b->arr[1])) - ((a->arr[1]) * (b->arr[0]));;
+	return array85;
+}
+typedef struct env_t_89 {
+	value_t dummy_variable;
+} env_t_89;
+env_t_89* make_env_t_89() {
+	env_t_89* env = (env_t_89*)malloc(sizeof(env_t_89));
+	
+	return env;
+}
+
+value_t lambda89(env_t_89* env86, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) + (y);
 	return res;
 }
 array_number_t linalg_add_vec(array_number_t x, array_number_t y) {
-	closure_t* closure78 = make_closure(lambda79, make_env_t_79());
-	return linalg_vectorMap2(closure78, x, y);
+	closure_t* closure88 = make_closure(lambda89, make_env_t_89());
+	return linalg_vectorMap2(closure88, x, y);
 }
-typedef struct env_t_83 {
+typedef struct env_t_93 {
 	value_t dummy_variable;
-} env_t_83;
-env_t_83* make_env_t_83() {
-	env_t_83* env = (env_t_83*)malloc(sizeof(env_t_83));
+} env_t_93;
+env_t_93* make_env_t_93() {
+	env_t_93* env = (env_t_93*)malloc(sizeof(env_t_93));
 	
 	return env;
 }
 
-value_t lambda83(env_t_83* env80, number_t x, number_t y) {
+value_t lambda93(env_t_93* env90, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) * (y);
 	return res;
 }
 array_number_t linalg_mult_vec_elementwise(array_number_t x, array_number_t y) {
-	closure_t* closure82 = make_closure(lambda83, make_env_t_83());
-	return linalg_vectorMap2(closure82, x, y);
+	closure_t* closure92 = make_closure(lambda93, make_env_t_93());
+	return linalg_vectorMap2(closure92, x, y);
 }
 
 array_number_t linalg_add_vec3(array_number_t x, array_number_t y, array_number_t z) {
 	
 	return linalg_add_vec(linalg_add_vec(x, y), z);
 }
-typedef struct env_t_87 {
+typedef struct env_t_97 {
 	value_t dummy_variable;
-} env_t_87;
-env_t_87* make_env_t_87() {
-	env_t_87* env = (env_t_87*)malloc(sizeof(env_t_87));
+} env_t_97;
+env_t_97* make_env_t_97() {
+	env_t_97* env = (env_t_97*)malloc(sizeof(env_t_97));
 	
 	return env;
 }
 
-value_t lambda87(env_t_87* env84, number_t x, number_t y) {
+value_t lambda97(env_t_97* env94, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) - (y);
 	return res;
 }
 array_number_t linalg_sub_vec(array_number_t x, array_number_t y) {
-	closure_t* closure86 = make_closure(lambda87, make_env_t_87());
-	return linalg_vectorMap2(closure86, x, y);
+	closure_t* closure96 = make_closure(lambda97, make_env_t_97());
+	return linalg_vectorMap2(closure96, x, y);
 }
-typedef struct env_t_91 {
+typedef struct env_t_101 {
 	value_t dummy_variable;
-} env_t_91;
-env_t_91* make_env_t_91() {
-	env_t_91* env = (env_t_91*)malloc(sizeof(env_t_91));
+} env_t_101;
+env_t_101* make_env_t_101() {
+	env_t_101* env = (env_t_101*)malloc(sizeof(env_t_101));
 	
 	return env;
 }
 
-value_t lambda91(env_t_91* env88, array_number_t x, array_number_t y) {
+value_t lambda101(env_t_101* env98, array_number_t x, array_number_t y) {
 	
 	value_t res;
 	res.array_number_t_value = linalg_add_vec(x, y);
 	return res;
 }
 array_array_number_t linalg_matrixAdd(array_array_number_t x, array_array_number_t y) {
-	closure_t* closure90 = make_closure(lambda91, make_env_t_91());
-	return linalg_matrixMap2(closure90, x, y);
+	closure_t* closure100 = make_closure(lambda101, make_env_t_101());
+	return linalg_matrixMap2(closure100, x, y);
 }
-typedef struct env_t_95 {
+typedef struct env_t_105 {
 	value_t dummy_variable;
-} env_t_95;
-env_t_95* make_env_t_95() {
-	env_t_95* env = (env_t_95*)malloc(sizeof(env_t_95));
+} env_t_105;
+env_t_105* make_env_t_105() {
+	env_t_105* env = (env_t_105*)malloc(sizeof(env_t_105));
 	
 	return env;
 }
 
-value_t lambda95(env_t_95* env92, array_number_t x, array_number_t y) {
+value_t lambda105(env_t_105* env102, array_number_t x, array_number_t y) {
 	
 	value_t res;
 	res.array_number_t_value = linalg_mult_vec_elementwise(x, y);
 	return res;
 }
 array_array_number_t linalg_matrixMultElementwise(array_array_number_t x, array_array_number_t y) {
-	closure_t* closure94 = make_closure(lambda95, make_env_t_95());
-	return linalg_matrixMap2(closure94, x, y);
+	closure_t* closure104 = make_closure(lambda105, make_env_t_105());
+	return linalg_matrixMap2(closure104, x, y);
 }
-typedef struct env_t_99 {
+typedef struct env_t_109 {
 	value_t dummy_variable;
-} env_t_99;
-env_t_99* make_env_t_99() {
-	env_t_99* env = (env_t_99*)malloc(sizeof(env_t_99));
+} env_t_109;
+env_t_109* make_env_t_109() {
+	env_t_109* env = (env_t_109*)malloc(sizeof(env_t_109));
 	
 	return env;
 }
 
-value_t lambda99(env_t_99* env96, number_t x1) {
+value_t lambda109(env_t_109* env106, number_t x1) {
 	
 	value_t res;
 	res.number_t_value = (x1) * (x1);
 	return res;
 }
 number_t linalg_sqnorm(array_number_t x) {
-	closure_t* closure98 = make_closure(lambda99, make_env_t_99());
-	return linalg_arraySum(linalg_vectorMap(closure98, x));
+	closure_t* closure108 = make_closure(lambda109, make_env_t_109());
+	return linalg_arraySum(linalg_vectorMap(closure108, x));
 }
-typedef struct env_t_103 {
+typedef struct env_t_113 {
 	value_t dummy_variable;
-} env_t_103;
-env_t_103* make_env_t_103() {
-	env_t_103* env = (env_t_103*)malloc(sizeof(env_t_103));
+} env_t_113;
+env_t_113* make_env_t_113() {
+	env_t_113* env = (env_t_113*)malloc(sizeof(env_t_113));
 	
 	return env;
 }
 
-value_t lambda103(env_t_103* env100, number_t x, number_t y) {
+value_t lambda113(env_t_113* env110, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) * (y);
 	return res;
 }
 number_t linalg_dot_prod(array_number_t x, array_number_t y) {
-	closure_t* closure102 = make_closure(lambda103, make_env_t_103());
-	return linalg_arraySum(linalg_vectorMap2(closure102, x, y));
+	closure_t* closure112 = make_closure(lambda113, make_env_t_113());
+	return linalg_arraySum(linalg_vectorMap2(closure112, x, y));
 }
-typedef struct env_t_108 {
+typedef struct env_t_118 {
 	array_number_t row;
-} env_t_108;
-env_t_108* make_env_t_108(array_number_t row) {
-	env_t_108* env = (env_t_108*)malloc(sizeof(env_t_108));
+} env_t_118;
+env_t_118* make_env_t_118(array_number_t row) {
+	env_t_118* env = (env_t_118*)malloc(sizeof(env_t_118));
 	env->row = row;
 	return env;
 }
 
-value_t lambda108(env_t_108* env105, number_t r) {
-	array_number_t row104 = env105->row;
+value_t lambda118(env_t_118* env115, number_t r) {
+	array_number_t row114 = env115->row;
 	value_t res;
-	res.array_number_t_value = row104;
+	res.array_number_t_value = row114;
 	return res;
 }
 array_array_number_t linalg_matrixFillFromVector(index_t rows, array_number_t row) {
-	closure_t* closure107 = make_closure(lambda108, make_env_t_108(row));
-	return linalg_vectorMapToMatrix(closure107, linalg_vectorRange(1, rows));
+	closure_t* closure117 = make_closure(lambda118, make_env_t_118(row));
+	return linalg_vectorMapToMatrix(closure117, linalg_vectorRange(1, rows));
 }
-typedef struct env_t_113 {
+typedef struct env_t_123 {
 	number_t value;
-} env_t_113;
-env_t_113* make_env_t_113(number_t value) {
-	env_t_113* env = (env_t_113*)malloc(sizeof(env_t_113));
+} env_t_123;
+env_t_123* make_env_t_123(number_t value) {
+	env_t_123* env = (env_t_123*)malloc(sizeof(env_t_123));
 	env->value = value;
 	return env;
 }
 
-value_t lambda113(env_t_113* env110, number_t c) {
-	number_t value109 = env110->value;
+value_t lambda123(env_t_123* env120, number_t c) {
+	number_t value119 = env120->value;
 	value_t res;
-	res.number_t_value = value109;
+	res.number_t_value = value119;
 	return res;
 }
 array_array_number_t linalg_matrixFill(index_t rows, index_t cols, number_t value) {
-	closure_t* closure112 = make_closure(lambda113, make_env_t_113(value));
-	array_number_t row = linalg_vectorMap(closure112, linalg_vectorRange(1, cols));
+	closure_t* closure122 = make_closure(lambda123, make_env_t_123(value));
+	array_number_t row = linalg_vectorMap(closure122, linalg_vectorRange(1, cols));
 	return linalg_matrixFillFromVector(rows, row);
 }
 

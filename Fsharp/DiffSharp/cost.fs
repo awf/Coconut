@@ -20,6 +20,7 @@ let rec fopCost(exp: Expr): double =
   let CALL_COST = 5.0
   let LENGTH_ACCESS = SCALAR_OPERATOR
   let ARRAY_ACCESS = 3.0
+  let ARRAY_SLICE = 30.0 // TODO very approximate
   let ARRAY_DEFAULT_SIZE = 1000.0
   let NUMBER_PRINT_COST = UNKNOWN_CALL
   let buildCost (size: Expr, f: Expr): double = 
@@ -37,6 +38,7 @@ let rec fopCost(exp: Expr): double =
     match op.Name with
     | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
     | "GetArray" -> ARRAY_ACCESS
+    | "GetArraySlice" -> ARRAY_ACCESS
     | name -> 
       printfn "**WARNING!** Does not know how to cost the operator `%s`. Assumes %f to make progress." name UNKNOWN_CALL
       List.sum (List.map fopCost elist) + UNKNOWN_CALL

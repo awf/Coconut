@@ -24,3 +24,12 @@ let small_tests(dum: Number) =
   numberPrint a
   numberPrint (test2 num a)
   ()
+
+let hoistingExample (v: Vector) = 
+  let res = 
+    iterateNumber (fun acc idx ->
+        let tmp = v.[idx..(idx+9)]
+        sqnorm(add_vec tmp tmp)
+      ) (0.) 0 9
+  numberPrint res
+  ()
