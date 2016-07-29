@@ -76,3 +76,11 @@ let letInliner (e: Expr): Expr Option =
   match e with 
   | Patterns.Let(v, e1, e2) -> Some(e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None))
   | _ -> None
+
+open transformer
+
+let methodDefToLambda (e: Expr): Expr Option = 
+  match e with
+  | ExistingCompiledMethodWithLambda(methodName, moduleName, args, lam) -> 
+      Some(Expr.Applications(lam, List.map (fun x -> [x]) args))
+  | _ -> None
