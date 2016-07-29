@@ -3,6 +3,8 @@
 open Microsoft.FSharp.Quotations
 open types
 
+let assembly = System.Reflection.Assembly.GetExecutingAssembly()
+
 let (|OperatorName|_|) methodName =
   match methodName with
     | "op_Addition" -> Some("+")
@@ -31,7 +33,7 @@ let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option =
 let (|AppN|_|) (e: Expr): (Expr * Expr list) Option = 
   let rec appNExtract exp args = 
     match exp with 
-    | Patterns.Application(f, e) -> appNExtract f (args @ [e]) 
+    | Patterns.Application(f, e) -> appNExtract f (e :: args) 
     | _ -> (exp, args)
   match appNExtract e [] with 
   | (_, []) -> None
@@ -96,6 +98,19 @@ let (|ExistingCompiledMethod|_|) (e: Expr): (string * string * Expr List) Option
     | _ -> None
   | _ -> None
 
+let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr List * Expr) Option = 
+  match e with
+  | ExistingCompiledMethod(methodName, moduleName, args) -> 
+    let moduleInfo = assembly.GetType(moduleName)
+    let methodInfo = moduleInfo.GetMethod(methodName)
+    let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
+    let attrs = (methodInfo.GetMethodImplementationFlags())
+    match reflDefnOpt with
+    | None -> failwith (sprintf "fatal error! Extracting lambda definition from a non-inlinable method: %s.%s!" moduleName methodName)
+    | Some(lam) ->
+      Some(methodName, moduleName, args, lam)
+  | _ -> None
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->
@@ -138,5 +153,3 @@ let LambdaN (inputs: Var List, body: Expr): Expr =
 
 let LetN (inputs: (Var * Expr) List, body: Expr): Expr =
   List.fold (fun acc (curv, cure) -> Expr.Let(curv,  cure, acc)) body (List.rev inputs)
-
-let assembly = System.Reflection.Assembly.GetExecutingAssembly()

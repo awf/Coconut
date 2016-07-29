@@ -84,7 +84,7 @@ value_t lambda24(env_t_24* env21, index_t i) {
 	array_number_t v119 = env21->v1;
 	closure_t* f18 = env21->f;
 	value_t res;
-	res.number_t_value = f18->lam(f18->env, v220->arr[i], v119->arr[i]).number_t_value;
+	res.number_t_value = f18->lam(f18->env, v119->arr[i], v220->arr[i]).number_t_value;
 	return res;
 }
 array_number_t linalg_vectorMap2(closure_t* f, array_number_t v1, array_number_t v2) {
@@ -109,7 +109,7 @@ value_t lambda31(env_t_31* env28, index_t i) {
 	array_array_number_t m126 = env28->m1;
 	closure_t* f25 = env28->f;
 	value_t res;
-	res.array_number_t_value = f25->lam(f25->env, m227->arr[i], m126->arr[i]).array_number_t_value;
+	res.array_number_t_value = f25->lam(f25->env, m126->arr[i], m227->arr[i]).array_number_t_value;
 	return res;
 }
 array_array_number_t linalg_matrixMap2(closure_t* f, array_array_number_t m1, array_array_number_t m2) {
@@ -134,7 +134,7 @@ value_t lambda38(env_t_38* env35, index_t i) {
 	array_array_array_number_t m133 = env35->m1;
 	closure_t* f32 = env35->f;
 	value_t res;
-	res.array_array_number_t_value = f32->lam(f32->env, m234->arr[i], m133->arr[i]).array_array_number_t_value;
+	res.array_array_number_t_value = f32->lam(f32->env, m133->arr[i], m234->arr[i]).array_array_number_t_value;
 	return res;
 }
 array_array_array_number_t linalg_matrix3DMap2(closure_t* f, array_array_array_number_t m1, array_array_array_number_t m2) {
