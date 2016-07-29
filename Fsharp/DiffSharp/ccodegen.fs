@@ -138,7 +138,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         (sprintf "%s\n\t\t%s = %s;" statementsCode (var.Name) (ccodegen res), List.concat closuresList)
       let (e1code, e1closures) = ccodegenStatements e1
       let (e2code, e2closures) = ccodegenStatements e2
-      (sprintf "%s %s = NULL;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
+      (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
         (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
     | _ -> 
       (ccodegen e, [], false)

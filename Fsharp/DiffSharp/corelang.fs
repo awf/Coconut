@@ -54,30 +54,22 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
 (** Fold methods **)
 
 [<CMirror("vector_fold_number")>]
-let vectorFoldNumber (f: Number -> Index -> Number) (z: Number) (range: Vector): Number = 
-  Array.fold (fun acc cur -> f acc (int cur)) z range
+let vectorFoldNumber (f: Number -> Number -> Number) (z: Number) (range: Vector): Number = 
+  Array.fold (fun acc cur -> f acc cur) z range
 
 [<CMirror("vector_fold_vector")>]
-let vectorFoldVector (f: Vector -> Index -> Vector) (z: Vector) (range: Vector): Vector = 
-  Array.fold (fun acc cur -> f acc (int cur)) z range
+let vectorFoldVector (f: Vector -> Number -> Vector) (z: Vector) (range: Vector): Vector = 
+  Array.fold (fun acc cur -> f acc cur) z range
 
 [<CMirror("vector_fold_matrix")>]
-let vectorFoldMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (range: Vector): Matrix = 
-  Array.fold (fun acc cur -> f acc (int cur)) z range
+let vectorFoldMatrix (f: Matrix -> Number -> Matrix) (z: Matrix) (range: Vector): Matrix = 
+  Array.fold (fun acc cur -> f acc cur) z range
 
 [<CMirror("vector_fold_matrix3d")>]
-let vectorFoldMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (range: Vector): Matrix[] = 
-  Array.fold (fun acc cur -> f acc (int cur)) z range
+let vectorFoldMatrix3D (f: Matrix[] -> Number -> Matrix[]) (z: Matrix[]) (range: Vector): Matrix[] = 
+  Array.fold (fun acc cur -> f acc cur) z range
 
 (** Consumer Methods **)
-
-[<CMirror("array_sum")>]
-let arraySum (arr: Vector): Number = 
-  Array.sum arr
-
-[<CMirror("array_max")>]
-let arrayMax (arr: Vector): Number = 
-  Array.max arr
 
 (** I/O Methods **)
 

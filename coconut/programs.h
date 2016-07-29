@@ -26,9 +26,9 @@ array_array_number_t programs_matrix_add3(array_array_number_t m1, array_array_n
 }
 
 void programs_small_tests(number_t dum) {
-	number_t a267 = programs_test1(2);
-	number_print(a267);
-	number_print(programs_test2(2, a267));
+	number_t a286 = programs_test1(2);
+	number_print(a286);
+	number_print(programs_test2(2, a286));
 	return ;
 }
 #endif

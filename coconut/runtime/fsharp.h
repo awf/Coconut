@@ -97,24 +97,6 @@ array_array_array_number_t matrix3d_build(index_t size, closure_t* closure) {
 	return res;
 }
 
-number_t array_sum(array_number_t arr) {
-	number_t sum = 0;
-	for (int i = 0; i < arr->length; i++) {
-		sum += arr->arr[i];
-	}
-	return sum;
-}
-
-number_t array_max(array_number_t arr) {
-	number_t max = - (1 << 21);
-	for (int i = 0; i < arr->length; i++) {
-		number_t cur = arr->arr[i];
-		if(cur > max)
-			max = cur;
-	}
-	return max;
-}
-
 array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
 	index_t size = end - start + 1;
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
@@ -181,8 +163,7 @@ array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, arra
 number_t vector_fold_number(closure_t* closure, number_t zero, array_number_t range) {
 	number_t acc = zero;
 	for (int i = 0; i < range->length; i++) {
-		index_t idx = (index_t)range->arr[i];
-		acc = closure->lam(closure->env, acc, idx).number_t_value;
+		acc = closure->lam(closure->env, acc, range->arr[i]).number_t_value;
 	}
 	free_closure(closure);
 	return acc;
@@ -191,8 +172,7 @@ number_t vector_fold_number(closure_t* closure, number_t zero, array_number_t ra
 array_number_t vector_fold_vector(closure_t* closure, array_number_t zero, array_number_t range) {
 	array_number_t acc = zero;
 	for (int i = 0; i < range->length; i++) {
-		index_t idx = (index_t)range->arr[i];
-		acc = closure->lam(closure->env, acc, idx).array_number_t_value;
+		acc = closure->lam(closure->env, acc, range->arr[i]).array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;
@@ -201,8 +181,7 @@ array_number_t vector_fold_vector(closure_t* closure, array_number_t zero, array
 array_array_number_t vector_fold_matrix(closure_t* closure, array_array_number_t zero, array_number_t range) {
 	array_array_number_t acc = zero;
 	for (int i = 0; i < range->length; i++) {
-		index_t idx = (index_t)range->arr[i];
-		acc = closure->lam(closure->env, acc, idx).array_array_number_t_value;
+		acc = closure->lam(closure->env, acc, range->arr[i]).array_array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;
@@ -211,8 +190,7 @@ array_array_number_t vector_fold_matrix(closure_t* closure, array_array_number_t
 array_array_array_number_t vector_fold_matrix3d(closure_t* closure, array_array_array_number_t zero, array_number_t range) {
 	array_array_array_number_t acc = zero;
 		for (int i = 0; i < range->length; i++) {
-		index_t idx = (index_t)range->arr[i];
-		acc = closure->lam(closure->env, acc, idx).array_array_array_number_t_value;
+		acc = closure->lam(closure->env, acc, range->arr[i]).array_array_array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;

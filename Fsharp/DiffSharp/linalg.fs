@@ -41,11 +41,19 @@ let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] =
 
 [<DontInline>]
 let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Index) (e: Index): Matrix = 
-  vectorFoldMatrix f z (vectorRange s e)
+  vectorFoldMatrix (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
 let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Index) (e: Index): Matrix[] = 
-  vectorFoldMatrix3D f z (vectorRange s e)
+  vectorFoldMatrix3D (fun acc cur -> f acc (int cur)) z (vectorRange s e)
+
+[<DontInline>]
+let arraySum (arr: Vector): Number = 
+  vectorFoldNumber (fun acc cur -> acc + cur) 0.0 arr
+
+[<DontInline>]
+let arrayMax (arr: Vector): Number = 
+  vectorFoldNumber (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) arr
 
 let inline mult_by_scalar (x: Vector) (y: Number): Vector =
     vectorMap (fun a -> a*y) x
