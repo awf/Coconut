@@ -4,6 +4,12 @@ open Microsoft.FSharp.Quotations
 open Quotations.DerivedPatterns
 open transformer
 
+let exprToDouble(e: Expr): double option = 
+  match e with
+  | Patterns.Value(:? double as v, _) -> Some(v)
+  | Patterns.Value(:? int as v, tp) -> Some(double v)
+  | _ -> None
+
 (* A simple cost model based on the number of floating point operations *)
 let rec fopCost(exp: Expr): double = 
   let VAR_INIT = 0.1
@@ -13,12 +19,24 @@ let rec fopCost(exp: Expr): double =
   let UNKNOWN_CALL = 1000.0
   let CALL_COST = 5.0
   let LENGTH_ACCESS = SCALAR_OPERATOR
+  let ARRAY_ACCESS = 3.0
+  let ARRAY_DEFAULT_SIZE = 1000.0
+  let NUMBER_PRINT_COST = UNKNOWN_CALL
+  let buildCost (size: Expr, f: Expr): double = 
+    (Option.fold (fun _ x -> x) ARRAY_DEFAULT_SIZE (exprToDouble size)) * fopCost(f)
   match exp with 
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
     CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
+  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [size; f]) -> 
+    buildCost(size, f)
+  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
+    buildCost(size, f)
+  | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
+    List.sum (List.map fopCost args) + NUMBER_PRINT_COST
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
     | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
+    | "GetArray" -> ARRAY_ACCESS
     | name -> 
       printfn "**WARNING!** Does not know how to cost the operator `%s`. Assumes %f to make progress." name UNKNOWN_CALL
       List.sum (List.map fopCost elist) + UNKNOWN_CALL

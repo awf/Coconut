@@ -90,8 +90,8 @@ let letInliner (e: Expr): Expr Option =
   match e with 
   | Patterns.Let(v, e1, e2) -> 
     let inlinedBody = e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None)
-    //let renamedBody = variableRenaming inlinedBody []
-    let renamedBody = inlinedBody
+    let renamedBody = variableRenaming inlinedBody []
+    //let renamedBody = inlinedBody
     Some(renamedBody)
   | _ -> None
 

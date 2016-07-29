@@ -1,5 +1,6 @@
 #include "usecases.h"
 #include "programs.h"
+#include "ccodegentests.h"
 
 int main(int argc, char** argv)
 {
