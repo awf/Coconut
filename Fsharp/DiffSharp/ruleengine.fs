@@ -6,19 +6,28 @@ open Quotations.DerivedPatterns
 open types
 
 module metaVars =
-  let a = Expr.Cast<Number>(Expr.Var(Var.Global("a", typeof<Number>)))
-  let b = Expr.Cast<Number>(Expr.Var(Var.Global("b", typeof<Number>)))
-  let c = Expr.Cast<Number>(Expr.Var(Var.Global("c", typeof<Number>)))
-  let T = Expr.Cast<Vector>(Expr.Var(Var.Global("T", typeof<Vector>)))
-  let U = Expr.Cast<Vector>(Expr.Var(Var.Global("U", typeof<Vector>)))
-  let V = Expr.Cast<Vector>(Expr.Var(Var.Global("V", typeof<Vector>)))
-  let M = Expr.Cast<Matrix>(Expr.Var(Var.Global("M", typeof<Matrix>)))
-  let N = Expr.Cast<Matrix>(Expr.Var(Var.Global("N", typeof<Matrix>)))
-  let O = Expr.Cast<Matrix>(Expr.Var(Var.Global("O", typeof<Matrix>)))
-  let scalarMetaVars = List.map (fun (x: Expr<Number>) -> x.Raw) [a; b; c]
-  let vectorMetaVars = List.map (fun (x: Expr<Vector>) -> x.Raw) [T; U; V]
-  let matrixMetaVars = List.map (fun (x: Expr<Matrix>) -> x.Raw) [M; N; O]
-  let allMetaVars = List.append scalarMetaVars (List.append vectorMetaVars matrixMetaVars)
+  let private makeMetaVar<'a> (name: string) = 
+    Expr.Cast<'a>(Expr.Var(Var.Global(name, typeof<'a>)))
+  let private getExprRaw<'a> (exp: Expr<'a>): Expr = exp.Raw
+  let i = makeMetaVar<Index>("i")
+  let j = makeMetaVar<Index>("j")
+  let k = makeMetaVar<Index>("k")
+  let a = makeMetaVar<Number>("a")
+  let b = makeMetaVar<Number>("b")
+  let c = makeMetaVar<Number>("c")
+  let T = makeMetaVar<Vector>("T")
+  let U = makeMetaVar<Vector>("U")
+  let V = makeMetaVar<Vector>("V")
+  let M = makeMetaVar<Matrix>("M")
+  let N = makeMetaVar<Matrix>("N")
+  let O = makeMetaVar<Matrix>("O")
+  let FIN = makeMetaVar<Index -> Number>("FIN")
+  let indexMetaVars = List.map getExprRaw [i; j; k]
+  let scalarMetaVars = List.map getExprRaw [a; b; c]
+  let vectorMetaVars = List.map getExprRaw [T; U; V]
+  let matrixMetaVars = List.map getExprRaw [M; N; O]
+  let functionMetaVars = List.map getExprRaw [FIN]
+  let allMetaVars = indexMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars @ functionMetaVars
 
 (*
 // Inspired by: https://github.com/jrh13/hol-light/blob/master/nets.ml
