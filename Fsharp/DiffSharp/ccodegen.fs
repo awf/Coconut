@@ -52,6 +52,10 @@ let rec ccodegen (e:Expr): string =
   | ApplyClosure (closure) -> sprintf "%s" closure.Name
   | Patterns.Lambda (x, body) -> failwith (sprintf "ERROR lambda should always be in the form of closure creation.\n`%A`" e)
   | EnvRef(env, name) -> sprintf "%s->%s" (ccodegen env) name
+  | AppN(func, args) -> 
+    let closure = ccodegen func
+    let tp = ccodegenType (e.Type)
+    sprintf "%s->lam(%s->env, %s).%s_value" closure closure (String.concat ", " (List.map ccodegen args)) tp
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, elist) -> 

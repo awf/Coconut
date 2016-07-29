@@ -86,7 +86,15 @@ let closureConversion (e: Expr): Expr =
             | tp when tp = typeof<Vector> -> <@@ getVector %%envRefValue @@>
             | tp when tp = typeof<Matrix> -> <@@ getMatrix %%envRefValue @@>
             | tp when tp = typeof<Matrix3D> -> <@@ getMatrix3D %%envRefValue @@>
-            | tp -> failwith (sprintf "Not supported type %A" tp)
+            | tp when tp = typeof<Number -> Number> -> <@@ getFun<Number, Number> %%envRefValue @@>
+            | tp when tp = typeof<Number -> Number -> Number> -> <@@ getFun<Number, Number -> Number> %%envRefValue @@>
+            | tp when tp = typeof<Number -> Vector> -> <@@ getFun<Number, Vector> %%envRefValue @@>
+            | tp when tp = typeof<Number -> Matrix> -> <@@ getFun<Number, Matrix> %%envRefValue @@>
+            | tp when tp = typeof<Vector -> Vector> -> <@@ getFun<Vector, Vector> %%envRefValue @@>
+            | tp when tp = typeof<Vector -> Vector -> Vector> -> <@@ getFun<Vector, Vector -> Vector> %%envRefValue @@>
+            | tp when tp = typeof<Matrix -> Matrix> -> <@@ getFun<Matrix, Matrix> %%envRefValue @@>
+            | tp when tp = typeof<Matrix -> Matrix -> Matrix> -> <@@ getFun<Matrix, Matrix -> Matrix> %%envRefValue @@>
+            | tp -> failwith (sprintf "Not supported type %A for closure conversion of %A" tp exp)
           Expr.Let(ncur, rhs, acc)) convertedBody freeNewVars
         let closureFun = LambdaN(envVar :: inputs, closuredBody)
         let assembly = System.Reflection.Assembly.GetExecutingAssembly()
@@ -106,6 +114,14 @@ let closureConversion (e: Expr): Expr =
               | tp when tp = typeof<Vector> -> <@@ makeVector %%v @@>
               | tp when tp = typeof<Matrix> -> <@@ makeMatrix %%v @@>
               | tp when tp = typeof<Matrix3D> -> <@@ makeMatrix3D %%v @@>
+              | tp when tp = typeof<Number -> Number> -> <@@ makeFun<Number, Number> %%v @@>
+              | tp when tp = typeof<Number -> Number -> Number> -> <@@ makeFun<Number, Number -> Number> %%v @@>
+              | tp when tp = typeof<Number -> Vector> -> <@@ makeFun<Number, Vector> %%v @@>
+              | tp when tp = typeof<Number -> Matrix> -> <@@ makeFun<Number, Matrix> %%v @@>
+              | tp when tp = typeof<Vector -> Vector> -> <@@ makeFun<Vector, Vector> %%v @@>
+              | tp when tp = typeof<Vector -> Vector -> Vector> -> <@@ makeFun<Vector, Vector -> Vector> %%v @@>
+              | tp when tp = typeof<Matrix -> Matrix> -> <@@ makeFun<Matrix, Matrix> %%v @@>
+              | tp when tp = typeof<Matrix -> Matrix -> Matrix> -> <@@ makeFun<Matrix, Matrix -> Matrix> %%v @@>
               | tp -> failwith (sprintf "Not supported type %A" tp)
             <@@ (((%%vstr: string), (%%vexp: AnyNumeric) ): string * AnyNumeric) :: 
                   (%%acc: (string * AnyNumeric) List) @@> ) <@@ []: (string * AnyNumeric) List @@>  freeVars]

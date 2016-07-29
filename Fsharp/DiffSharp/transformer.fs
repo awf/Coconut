@@ -28,6 +28,15 @@ let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option =
   | ([], _) -> None
   | (inputs, body) -> Some(inputs, body)
 
+let (|AppN|_|) (e: Expr): (Expr * Expr list) Option = 
+  let rec appNExtract exp args = 
+    match exp with 
+    | Patterns.Application(f, e) -> appNExtract f (args @ [e]) 
+    | _ -> (exp, args)
+  match appNExtract e [] with 
+  | (_, []) -> None
+  | (func, args) -> Some(func, args)
+
 let (|LetN|_|) (e: Expr): ((Var * Expr) List * Expr) Option = 
   let rec letNExtract exp statements = 
     match exp with 

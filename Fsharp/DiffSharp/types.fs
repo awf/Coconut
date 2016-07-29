@@ -12,6 +12,14 @@ type AnyNumeric =
   | TwoD of Matrix
   | ThreeD of Matrix3D
   | Idx of Index
+  | Fun of (AnyNumeric -> AnyNumeric)
+and
+  Environment = Map<string, AnyNumeric>
+and
+  Closure<'a, 'b> = {
+    lambda: Environment -> ('a -> 'b);
+    env: Environment
+  }
 
 type Timer = System.Diagnostics.Stopwatch
 
