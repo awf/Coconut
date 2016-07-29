@@ -11,7 +11,11 @@ let rec fopCost(exp: Expr): double =
   let VALUE_ACCESS = 0.1
   let SCALAR_OPERATOR = 1.0
   let UNKNOWN_CALL = 1000.0
+  let CALL_COST = 5.0
+  let LENGTH_ACCESS = SCALAR_OPERATOR
   match exp with 
+  | ExistingCompiledMethodWithLambda(_, _, args, f) ->
+    CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
     | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
@@ -21,6 +25,8 @@ let rec fopCost(exp: Expr): double =
   | Patterns.Value(_) -> VALUE_ACCESS
   | Patterns.Let(x, e1, e2) -> fopCost(e1) + fopCost(e2) + VAR_INIT
   | Patterns.Var(_) -> VAR_ACCESS
-  | Patterns.Lambda(x, e) -> VAR_INIT + fopCost(e)
+  | LambdaN(xs, e) -> VAR_INIT * float (List.length xs) + fopCost(e)
+  | AppN(f, args) -> CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
+  | Patterns.PropertyGet(Some(e), op, []) when op.Name = "Length" -> fopCost(e) + LENGTH_ACCESS
   | Patterns.Sequential(e1, e2) -> fopCost(e1) + fopCost(e2)
   | _ -> failwith (sprintf "Does not know how to cost the construct `%A`" exp)
