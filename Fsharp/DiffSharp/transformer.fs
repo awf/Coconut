@@ -157,3 +157,22 @@ let LambdaN (inputs: Var List, body: Expr): Expr =
 
 let LetN (inputs: (Var * Expr) List, body: Expr): Expr =
   List.fold (fun acc (curv, cure) -> Expr.Let(curv,  cure, acc)) body (List.rev inputs)
+
+open utils
+
+let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr = 
+  match e with 
+  | Patterns.Let(v, e1, e2) ->
+    let ne1 = variableRenaming e1 renamings
+    let nv = new Var(newVar (v.Name), v.Type)
+    let ne2 = variableRenaming e2 ((v, nv) :: renamings)
+    Expr.Let(nv, ne1, ne2)
+  | ExprShape.ShapeLambda(x, e) ->
+    let nx = new Var(newVar (x.Name), x.Type)
+    let ne = variableRenaming e ((x, nx) :: renamings)
+    Expr.Lambda(nx, ne)
+  | ExprShape.ShapeVar(x) ->
+    let nx = Option.fold (fun s (v, nv) -> nv) x (List.tryFind (fun (v, nv) -> v = x) renamings)
+    Expr.Var(nx)
+  | ExprShape.ShapeCombination(op, args) ->
+    ExprShape.RebuildShapeCombination(op, List.map (fun arg -> variableRenaming arg renamings) args)

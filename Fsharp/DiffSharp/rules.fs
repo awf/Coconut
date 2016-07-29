@@ -72,15 +72,21 @@ let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; 
 
 let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp
 
+open transformer
+
 let letInliner (e: Expr): Expr Option = 
   match e with 
-  | Patterns.Let(v, e1, e2) -> Some(e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None))
+  | Patterns.Let(v, e1, e2) -> Some(variableRenaming (e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None)) [])
   | _ -> None
-
-open transformer
 
 let methodDefToLambda (e: Expr): Expr Option = 
   match e with
   | ExistingCompiledMethodWithLambda(methodName, moduleName, args, lam) -> 
       Some(Expr.Applications(lam, List.map (fun x -> [x]) args))
+  | _ -> None
+
+let lambdaAppToLet (e: Expr): Expr Option = 
+  match e with
+  | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) -> 
+      Some(LetN(List.zip inputs args, body))
   | _ -> None

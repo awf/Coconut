@@ -13,6 +13,7 @@ let bfs<'a> (e: 'a) (levels: int) (children: 'a -> 'a List) (costModel: 'a -> do
     let lines = 
       List.map (nodesListToString printer) (List.rev revertedResult)
     printfn "all children:\n%s\n*******" (String.concat "\n=======\n" lines)
+  printfn "examined programs: %d" (List.length (List.concat revertedResult))
   List.minBy snd (List.concat revertedResult)
 
 (* Random Walk *)
