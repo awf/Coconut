@@ -6,6 +6,9 @@ type Matrix = Vector array
 type Matrix3D = Matrix array
 type Index = int
 
+type Storage = VS of Vector
+             | MS of Matrix
+
 type AnyNumeric = 
   | ZeroD of Number
   | OneD of Vector
@@ -28,4 +31,7 @@ type CMirror(Method : string) =
     member this.Method = Method
 
 type DontInline() = 
+    inherit System.Attribute()
+
+type DontOptimize() = 
     inherit System.Attribute()

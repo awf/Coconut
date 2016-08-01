@@ -69,8 +69,6 @@ let vectorFoldMatrix (f: Matrix -> Number -> Matrix) (z: Matrix) (range: Vector)
 let vectorFoldMatrix3D (f: Matrix[] -> Number -> Matrix[]) (z: Matrix[]) (range: Vector): Matrix[] = 
   Array.fold (fun acc cur -> f acc cur) z range
 
-(** Consumer Methods **)
-
 (** I/O Methods **)
 
 [<CMirror("number_print")>]
@@ -98,3 +96,23 @@ let matrixRead (fn: string) (startLine: Index) (rows: Index): Matrix =
           System.Double.Parse word) 
         words) 
     intendedLines
+
+(** Memory management methods **)
+
+[<CMirror("vector_alloc")>]
+let vectorAlloc (size: Index): Storage =
+  let v = [|for i = 0 to (size - 1) do yield (0.0)|]
+  VS v
+
+/// Allocates storage needed for a Vector. 
+/// This storage is available only in the `cont` scope.
+[<CMirror("vector_alloc_cps")>]
+let vectorAllocCPS (size: Index) (cont: Storage -> unit): unit =
+  let storage = vectorAlloc(size)
+  cont(storage)
+
+[<CMirror("vector_build_by_storage")>]
+let vectorBuildByStorage (storage: Storage) (f: Index -> Number): Vector =
+  match storage with
+  | VS v -> vectorBuild(v.Length)(f)
+  | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage

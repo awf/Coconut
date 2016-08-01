@@ -29,6 +29,8 @@ typedef union value_t {
 	array_array_array_number_t array_array_array_number_t_value;
 } value_t;
 
+typedef void* storage_t;
+
 typedef char* string_t;
 
 typedef value_t (*lambda_t)();
@@ -292,6 +294,23 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 number_t gamma_ln(number_t x) {
 	// TODO needs to be implemented.
 	return x;
+}
+
+storage_t vector_alloc(index_t size) {
+	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
+	res->length = size;
+	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	return res;
+}
+
+
+array_number_t vector_build_by_storage(storage_t storage, closure_t* closure) {
+	array_number_t res = (array_number_t)storage;
+	for (int i = 0; i < res->length; i++) {
+		res->arr[i] = closure->lam(closure->env, i).number_t_value;
+	}
+	free_closure(closure);
+	return res;
 }
 
 /** Timing */
