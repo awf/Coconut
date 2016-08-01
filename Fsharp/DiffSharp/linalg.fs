@@ -118,3 +118,11 @@ let vectorRead (fn: string) (startLine: Index): Vector =
 let numberRead (fn: string) (startLine: Index): Number = 
     let vector = vectorRead fn startLine
     vector.[0]
+
+[<DontInline>]
+let vectorMap2GivenStorage (storage: Storage) (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
+  vectorBuildGivenStorage storage (fun i -> f(v1.[i])(v2.[i]))
+
+[<DontInline>]
+let inline add_vecGivenStorage (s: Storage) (x: Vector) (y: Vector) =
+    vectorMap2GivenStorage s (+) x y

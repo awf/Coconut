@@ -28,13 +28,25 @@ let hoistingExample (v: Vector) =
   ()
 
 [<DontOptimize>]
-let explicitMallocExample (v: Vector) = 
+let explicitMallocExample1 (v: Vector) = 
   //let storage1 = vectorAlloc 10 
   vectorAllocCPS 10 (fun storage1 ->
     let sum = 
       iterateNumber (fun acc idx ->
-          let tmp = vectorBuildByStorage storage1 (fun i -> v.[i + idx])
+          let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
           sqnorm(add_vec tmp tmp)
+        ) 0. 0 9
+    numberPrint sum
+  )
+  ()
+
+[<DontOptimize>]
+let explicitMallocExample2 (v: Vector) = 
+  vectorAllocCPS 10 (fun storage1 ->
+    let sum = 
+      iterateNumber (fun acc idx ->
+          let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
+          sqnorm(add_vecGivenStorage storage1 tmp tmp)
         ) 0. 0 9
     numberPrint sum
   )
@@ -47,5 +59,6 @@ let small_tests (dum: Number) =
   numberPrint (test2 num a)
   let v2 = vectorRange(0)(99)
   hoistingExample(v2)
-  explicitMallocExample(v2)
+  explicitMallocExample1(v2)
+  explicitMallocExample2(v2)
   ()

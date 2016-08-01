@@ -111,8 +111,8 @@ let vectorAllocCPS (size: Index) (cont: Storage -> unit): unit =
   let storage = vectorAlloc(size)
   cont(storage)
 
-[<CMirror("vector_build_by_storage")>]
-let vectorBuildByStorage (storage: Storage) (f: Index -> Number): Vector =
+[<CMirror("vector_build_given_storage")>]
+let vectorBuildGivenStorage (storage: Storage) (f: Index -> Number): Vector =
   match storage with
   | VS v -> vectorBuild(v.Length)(f)
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage

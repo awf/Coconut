@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <malloc.h>
 
 // extern int closure_mem = 0;
 
@@ -311,7 +312,7 @@ void vector_alloc_cps(index_t size, closure_t* closure) {
 }
 
 
-array_number_t vector_build_by_storage(storage_t storage, closure_t* closure) {
+array_number_t vector_build_given_storage(storage_t storage, closure_t* closure) {
 	array_number_t res = (array_number_t)storage;
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure->lam(closure->env, i).number_t_value;

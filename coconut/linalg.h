@@ -528,4 +528,48 @@ number_t linalg_numberRead(string_t fn, index_t startLine) {
 	array_number_t vector = linalg_vectorRead(fn, startLine);
 	return vector->arr[0];
 }
+typedef struct env_t_130 {
+	array_number_t v2;
+	array_number_t v1;
+	closure_t* f;
+} env_t_130;
+env_t_130* make_env_t_130(array_number_t v2,array_number_t v1,closure_t* f) {
+	env_t_130* env = (env_t_130*)malloc(sizeof(env_t_130));
+	env->v2 = v2;
+	env->v1 = v1;
+	env->f = f;
+	return env;
+}
+
+value_t lambda130(env_t_130* env127, index_t i) {
+	array_number_t v2126 = env127->v2;
+	array_number_t v1125 = env127->v1;
+	closure_t* f124 = env127->f;
+	value_t res;
+	res.number_t_value = f124->lam(f124->env, v1125->arr[i], v2126->arr[i]).number_t_value;
+	return res;
+}
+array_number_t linalg_vectorMap2GivenStorage(storage_t storage, closure_t* f, array_number_t v1, array_number_t v2) {
+	closure_t* closure129 = make_closure(lambda130, make_env_t_130(v2,v1,f));
+	return vector_build_given_storage(storage, closure129);
+}
+typedef struct env_t_134 {
+	value_t dummy_variable;
+} env_t_134;
+env_t_134* make_env_t_134() {
+	env_t_134* env = (env_t_134*)malloc(sizeof(env_t_134));
+	
+	return env;
+}
+
+value_t lambda134(env_t_134* env131, number_t x, number_t y) {
+	
+	value_t res;
+	res.number_t_value = (x) + (y);
+	return res;
+}
+array_number_t linalg_add_vecGivenStorage(storage_t s, array_number_t x, array_number_t y) {
+	closure_t* closure133 = make_closure(lambda134, make_env_t_134());
+	return linalg_vectorMap2GivenStorage(s, closure133, x, y);
+}
 #endif
