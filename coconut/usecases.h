@@ -56,8 +56,8 @@ number_t usecases_compute_zach_weight_error(number_t w) {
 typedef struct env_t_139 {
 	value_t dummy_variable;
 } env_t_139;
-env_t_139* make_env_t_139() {
-	env_t_139* env = (env_t_139*)malloc(sizeof(env_t_139));
+env_t_139 make_env_t_139() {
+	env_t_139 env;
 	
 	return env;
 }
@@ -69,7 +69,7 @@ value_t lambda139(env_t_139* env136, number_t w) {
 	return res;
 }
 array_number_t usecases_w_err(array_number_t w) {
-	closure_t* closure138 = make_closure(lambda139, make_env_t_139());
+	env_t_139 env_t_139_value = make_env_t_139(); closure_t closure138 = make_closure(lambda139, &env_t_139_value);
 	return linalg_vectorMap(closure138, w);
 }
 typedef struct env_t_148 {
@@ -79,13 +79,13 @@ typedef struct env_t_148 {
 	array_array_number_t feat;
 	array_array_number_t cams;
 } env_t_148;
-env_t_148* make_env_t_148(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
-	env_t_148* env = (env_t_148*)malloc(sizeof(env_t_148));
-	env->x = x;
-	env->w = w;
-	env->obs = obs;
-	env->feat = feat;
-	env->cams = cams;
+env_t_148 make_env_t_148(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
+	env_t_148 env;
+	env.x = x;
+	env.w = w;
+	env.obs = obs;
+	env.feat = feat;
+	env.cams = cams;
 	return env;
 }
 
@@ -103,15 +103,15 @@ array_array_number_t usecases_reproj_err(array_array_number_t cams, array_array_
 	index_t n = cams->length;
 	index_t p = w->length;
 	array_number_t range = linalg_vectorRange(0, (p) - (1));
-	closure_t* closure147 = make_closure(lambda148, make_env_t_148(x,w,obs,feat,cams));
+	env_t_148 env_t_148_value = make_env_t_148(x,w,obs,feat,cams); closure_t closure147 = make_closure(lambda148, &env_t_148_value);
 	return linalg_vectorMapToMatrix(closure147, range);
 }
 typedef struct env_t_172 {
 	array_number_t one_cam;
 } env_t_172;
-env_t_172* make_env_t_172(array_number_t one_cam) {
-	env_t_172* env = (env_t_172*)malloc(sizeof(env_t_172));
-	env->one_cam = one_cam;
+env_t_172 make_env_t_172(array_number_t one_cam) {
+	env_t_172 env;
+	env.one_cam = one_cam;
 	return env;
 }
 
@@ -124,9 +124,9 @@ value_t lambda172(env_t_172* env150, number_t x) {
 typedef struct env_t_173 {
 	array_number_t one_x;
 } env_t_173;
-env_t_173* make_env_t_173(array_number_t one_x) {
-	env_t_173* env = (env_t_173*)malloc(sizeof(env_t_173));
-	env->one_x = one_x;
+env_t_173 make_env_t_173(array_number_t one_x) {
+	env_t_173 env;
+	env.one_x = one_x;
 	return env;
 }
 
@@ -139,9 +139,9 @@ value_t lambda173(env_t_173* env154, number_t x) {
 typedef struct env_t_174 {
 	number_t one_w;
 } env_t_174;
-env_t_174* make_env_t_174(number_t one_w) {
-	env_t_174* env = (env_t_174*)malloc(sizeof(env_t_174));
-	env->one_w = one_w;
+env_t_174 make_env_t_174(number_t one_w) {
+	env_t_174 env;
+	env.one_w = one_w;
 	return env;
 }
 
@@ -154,9 +154,9 @@ value_t lambda174(env_t_174* env158, number_t x) {
 typedef struct env_t_175 {
 	array_number_t one_feat;
 } env_t_175;
-env_t_175* make_env_t_175(array_number_t one_feat) {
-	env_t_175* env = (env_t_175*)malloc(sizeof(env_t_175));
-	env->one_feat = one_feat;
+env_t_175 make_env_t_175(array_number_t one_feat) {
+	env_t_175 env;
+	env.one_feat = one_feat;
 	return env;
 }
 
@@ -170,10 +170,10 @@ typedef struct env_t_176 {
 	index_t n;
 	index_t m;
 } env_t_176;
-env_t_176* make_env_t_176(index_t n,index_t m) {
-	env_t_176* env = (env_t_176*)malloc(sizeof(env_t_176));
-	env->n = n;
-	env->m = m;
+env_t_176 make_env_t_176(index_t n,index_t m) {
+	env_t_176 env;
+	env.n = n;
+	env.m = m;
 	return env;
 }
 
@@ -195,18 +195,18 @@ array_array_number_t usecases_run_ba_from_file(string_t fn) {
 	index_t m = (int)(nmp->arr[1]);
 	index_t p = (int)(nmp->arr[2]);
 	array_number_t one_cam = linalg_vectorRead(fn, 1);
-	closure_t* closure152 = make_closure(lambda172, make_env_t_172(one_cam));
+	env_t_172 env_t_172_value = make_env_t_172(one_cam); closure_t closure152 = make_closure(lambda172, &env_t_172_value);
 	array_array_number_t cam = linalg_vectorMapToMatrix(closure152, linalg_vectorRange(1, n));
 	array_number_t one_x = linalg_vectorRead(fn, 2);
-	closure_t* closure156 = make_closure(lambda173, make_env_t_173(one_x));
+	env_t_173 env_t_173_value = make_env_t_173(one_x); closure_t closure156 = make_closure(lambda173, &env_t_173_value);
 	array_array_number_t x = linalg_vectorMapToMatrix(closure156, linalg_vectorRange(1, m));
 	number_t one_w = linalg_numberRead(fn, 3);
-	closure_t* closure160 = make_closure(lambda174, make_env_t_174(one_w));
+	env_t_174 env_t_174_value = make_env_t_174(one_w); closure_t closure160 = make_closure(lambda174, &env_t_174_value);
 	array_number_t w = linalg_vectorMap(closure160, linalg_vectorRange(1, p));
 	array_number_t one_feat = linalg_vectorRead(fn, 4);
-	closure_t* closure164 = make_closure(lambda175, make_env_t_175(one_feat));
+	env_t_175 env_t_175_value = make_env_t_175(one_feat); closure_t closure164 = make_closure(lambda175, &env_t_175_value);
 	array_array_number_t feat = linalg_vectorMapToMatrix(closure164, linalg_vectorRange(1, p));
-	closure_t* closure169 = make_closure(lambda176, make_env_t_176(n,m));
+	env_t_176 env_t_176_value = make_env_t_176(n,m); closure_t closure169 = make_closure(lambda176, &env_t_176_value);
 	array_array_number_t obs = linalg_vectorMapToMatrix(closure169, linalg_vectorRange(0, (p) - (1)));
 	timer_t t = tic();
 	array_array_number_t res = usecases_reproj_err(cam, x, w, obs, feat);
@@ -216,9 +216,9 @@ array_array_number_t usecases_run_ba_from_file(string_t fn) {
 typedef struct env_t_181 {
 	number_t mx;
 } env_t_181;
-env_t_181* make_env_t_181(number_t mx) {
-	env_t_181* env = (env_t_181*)malloc(sizeof(env_t_181));
-	env->mx = mx;
+env_t_181 make_env_t_181(number_t mx) {
+	env_t_181 env;
+	env.mx = mx;
 	return env;
 }
 
@@ -230,16 +230,16 @@ value_t lambda181(env_t_181* env178, number_t x) {
 }
 number_t usecases_logsumexp(array_number_t arr) {
 	number_t mx = linalg_arrayMax(arr);
-	closure_t* closure180 = make_closure(lambda181, make_env_t_181(mx));
+	env_t_181 env_t_181_value = make_env_t_181(mx); closure_t closure180 = make_closure(lambda181, &env_t_181_value);
 	number_t semx = linalg_arraySum(linalg_vectorMap(closure180, arr));
 	return (log(semx)) + (mx);
 }
 typedef struct env_t_186 {
 	number_t a;
 } env_t_186;
-env_t_186* make_env_t_186(number_t a) {
-	env_t_186* env = (env_t_186*)malloc(sizeof(env_t_186));
-	env->a = a;
+env_t_186 make_env_t_186(number_t a) {
+	env_t_186 env;
+	env.a = a;
 	return env;
 }
 
@@ -250,7 +250,7 @@ value_t lambda186(env_t_186* env183, number_t j) {
 	return res;
 }
 number_t usecases_log_gamma_distrib(number_t a, number_t p) {
-	closure_t* closure185 = make_closure(lambda186, make_env_t_186(a));
+	env_t_186 env_t_186_value = make_env_t_186(a); closure_t closure185 = make_closure(lambda186, &env_t_186_value);
 	return (log(pow(3.14159265358979, (0.25) * ((p) * ((p) - (1)))))) + (linalg_arraySum(linalg_vectorMap(closure185, linalg_vectorRange(1, (int)(p)))));
 }
 
@@ -572,11 +572,11 @@ typedef struct env_t_227 {
 	index_t offset;
 	array_array_array_number_t base_relatives;
 } env_t_227;
-env_t_227* make_env_t_227(array_array_number_t pose_params,index_t offset,array_array_array_number_t base_relatives) {
-	env_t_227* env = (env_t_227*)malloc(sizeof(env_t_227));
-	env->pose_params = pose_params;
-	env->offset = offset;
-	env->base_relatives = base_relatives;
+env_t_227 make_env_t_227(array_array_number_t pose_params,index_t offset,array_array_array_number_t base_relatives) {
+	env_t_227 env;
+	env.pose_params = pose_params;
+	env.offset = offset;
+	env.base_relatives = base_relatives;
 	return env;
 }
 
@@ -590,7 +590,7 @@ value_t lambda227(env_t_227* env224, number_t i_bone) {
 }
 array_array_array_number_t usecases_get_posed_relatives(index_t n_bones, array_array_number_t pose_params, array_array_array_number_t base_relatives) {
 	index_t offset = 3;
-	closure_t* closure226 = make_closure(lambda227, make_env_t_227(pose_params,offset,base_relatives));
+	env_t_227 env_t_227_value = make_env_t_227(pose_params,offset,base_relatives); closure_t closure226 = make_closure(lambda227, &env_t_227_value);
 	return linalg_vectorMapToMatrix3D(closure226, linalg_vectorRange(0, (n_bones) - (1)));
 }
 
@@ -661,10 +661,10 @@ typedef struct env_t_245 {
 	array_array_array_number_t relatives;
 	array_number_t parents;
 } env_t_245;
-env_t_245* make_env_t_245(array_array_array_number_t relatives,array_number_t parents) {
-	env_t_245* env = (env_t_245*)malloc(sizeof(env_t_245));
-	env->relatives = relatives;
-	env->parents = parents;
+env_t_245 make_env_t_245(array_array_array_number_t relatives,array_number_t parents) {
+	env_t_245 env;
+	env.relatives = relatives;
+	env.parents = parents;
 	return env;
 }
 
@@ -702,15 +702,15 @@ array_array_array_number_t usecases_relatives_to_absolutes(array_array_array_num
 	init->length=1;
 	init->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * 1);
 	init->arr[0] = array242;;
-	closure_t* closure241 = make_closure(lambda245, make_env_t_245(relatives,parents));
+	env_t_245 env_t_245_value = make_env_t_245(relatives,parents); closure_t closure241 = make_closure(lambda245, &env_t_245_value);
 	return linalg_iterateMatrix3D(closure241, init, 0, (relatives->length) - (1));
 }
 typedef struct env_t_255 {
 	array_number_t scale;
 } env_t_255;
-env_t_255* make_env_t_255(array_number_t scale) {
-	env_t_255* env = (env_t_255*)malloc(sizeof(env_t_255));
-	env->scale = scale;
+env_t_255 make_env_t_255(array_number_t scale) {
+	env_t_255 env;
+	env.scale = scale;
 	return env;
 }
 
@@ -723,8 +723,8 @@ value_t lambda255(env_t_255* env247, array_number_t row) {
 typedef struct env_t_256 {
 	value_t dummy_variable;
 } env_t_256;
-env_t_256* make_env_t_256() {
-	env_t_256* env = (env_t_256*)malloc(sizeof(env_t_256));
+env_t_256 make_env_t_256() {
+	env_t_256 env;
 	
 	return env;
 }
@@ -738,14 +738,14 @@ value_t lambda256(env_t_256* env250, number_t x) {
 array_array_number_t usecases_apply_global_transform(array_array_number_t pose_params, array_array_number_t positions) {
 	array_array_number_t R = usecases_angle_axis_to_rotation_matrix(pose_params->arr[0]);
 	array_number_t scale = pose_params->arr[1];
-	closure_t* closure249 = make_closure(lambda255, make_env_t_255(scale));
+	env_t_255 env_t_255_value = make_env_t_255(scale); closure_t closure249 = make_closure(lambda255, &env_t_255_value);
 	array_array_number_t R1 = linalg_matrixMap(closure249, R);
 	array_array_number_t array253 = (array_array_number_t)malloc(sizeof(int) * 2);
 	array253->length=1;
 	array253->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
 	array253->arr[0] = pose_params->arr[2];;
 	array_array_number_t T = linalg_matrixConcatCol(R1, matrix_transpose(array253));
-	closure_t* closure252 = make_closure(lambda256, make_env_t_256());
+	env_t_256 env_t_256_value = make_env_t_256(); closure_t closure252 = make_closure(lambda256, &env_t_256_value);
 	array_number_t ones = linalg_vectorMap(closure252, linalg_vectorRange(1, positions->arr[0]->length));
 	array_array_number_t array254 = (array_array_number_t)malloc(sizeof(int) * 2);
 	array254->length=1;
@@ -757,8 +757,8 @@ array_array_number_t usecases_apply_global_transform(array_array_number_t pose_p
 typedef struct env_t_269 {
 	value_t dummy_variable;
 } env_t_269;
-env_t_269* make_env_t_269() {
-	env_t_269* env = (env_t_269*)malloc(sizeof(env_t_269));
+env_t_269 make_env_t_269() {
+	env_t_269 env;
 	
 	return env;
 }
@@ -774,11 +774,11 @@ typedef struct env_t_270 {
 	array_array_array_number_t transforms;
 	array_array_number_t base_positions;
 } env_t_270;
-env_t_270* make_env_t_270(array_array_number_t weights,array_array_array_number_t transforms,array_array_number_t base_positions) {
-	env_t_270* env = (env_t_270*)malloc(sizeof(env_t_270));
-	env->weights = weights;
-	env->transforms = transforms;
-	env->base_positions = base_positions;
+env_t_270 make_env_t_270(array_array_number_t weights,array_array_array_number_t transforms,array_array_number_t base_positions) {
+	env_t_270 env;
+	env.weights = weights;
+	env.transforms = transforms;
+	env.base_positions = base_positions;
 	return env;
 }
 
@@ -795,11 +795,11 @@ value_t lambda270(env_t_270* env263, array_array_number_t acc, index_t i_transfo
 array_array_number_t usecases_get_skinned_vertex_positions(index_t is_mirrored, index_t n_bones, array_array_number_t pose_params, array_array_array_number_t base_relatives, array_number_t parents, array_array_array_number_t inverse_base_absolutes, array_array_number_t base_positions, array_array_number_t weights) {
 	array_array_array_number_t relatives = usecases_get_posed_relatives(n_bones, pose_params, base_relatives);
 	array_array_array_number_t absolutes = usecases_relatives_to_absolutes(relatives, parents);
-	closure_t* closure259 = make_closure(lambda269, make_env_t_269());
+	env_t_269 env_t_269_value = make_env_t_269(); closure_t closure259 = make_closure(lambda269, &env_t_269_value);
 	array_array_array_number_t transforms = linalg_matrix3DMap2(closure259, absolutes, inverse_base_absolutes);
 	index_t n_verts = base_positions->arr[0]->length;
 	array_array_number_t init_positions = linalg_matrixFill(3, n_verts, 0);
-	closure_t* closure265 = make_closure(lambda270, make_env_t_270(weights,transforms,base_positions));
+	env_t_270 env_t_270_value = make_env_t_270(weights,transforms,base_positions); closure_t closure265 = make_closure(lambda270, &env_t_270_value);
 	array_array_number_t positions = linalg_iterateMatrix(closure265, init_positions, 0, (transforms->length) - (1));
 	array_array_number_t mirrored_positions = 0;
 	if((is_mirrored) == (1)) {
@@ -840,12 +840,12 @@ typedef struct env_t_278 {
 	index_t n_corr;
 	array_number_t correspondences;
 } env_t_278;
-env_t_278* make_env_t_278(array_array_number_t vertex_positions,array_array_number_t points,index_t n_corr,array_number_t correspondences) {
-	env_t_278* env = (env_t_278*)malloc(sizeof(env_t_278));
-	env->vertex_positions = vertex_positions;
-	env->points = points;
-	env->n_corr = n_corr;
-	env->correspondences = correspondences;
+env_t_278 make_env_t_278(array_array_number_t vertex_positions,array_array_number_t points,index_t n_corr,array_number_t correspondences) {
+	env_t_278 env;
+	env.vertex_positions = vertex_positions;
+	env.points = points;
+	env.n_corr = n_corr;
+	env.correspondences = correspondences;
 	return env;
 }
 
@@ -866,15 +866,15 @@ array_number_t usecases_hand_objective(index_t is_mirrored, array_number_t param
 	array_array_number_t vertex_positions = usecases_get_skinned_vertex_positions(is_mirrored, n_bones, pose_params, base_relatives, parents, inverse_base_absolutes, base_positions, weights);
 	index_t n_corr = correspondences->length;
 	index_t dims = 3;
-	closure_t* closure277 = make_closure(lambda278, make_env_t_278(vertex_positions,points,n_corr,correspondences));
+	env_t_278 env_t_278_value = make_env_t_278(vertex_positions,points,n_corr,correspondences); closure_t closure277 = make_closure(lambda278, &env_t_278_value);
 	array_number_t err = linalg_vectorMap(closure277, linalg_vectorRange(0, ((dims) * (n_corr)) - (1)));
 	return err;
 }
 typedef struct env_t_306 {
 	value_t dummy_variable;
 } env_t_306;
-env_t_306* make_env_t_306() {
-	env_t_306* env = (env_t_306*)malloc(sizeof(env_t_306));
+env_t_306 make_env_t_306() {
+	env_t_306 env;
 	
 	return env;
 }
@@ -966,7 +966,7 @@ void usecases_test1(array_number_t dum) {
 	matrix_print(o);
 	array_array_number_t p = linalg_matrixConcatCol(mat1, mat1);
 	matrix_print(p);
-	closure_t* closure281 = make_closure(lambda306, make_env_t_306());
+	env_t_306 env_t_306_value = make_env_t_306(); closure_t closure281 = make_closure(lambda306, &env_t_306_value);
 	array_array_number_t base_rel = linalg_vectorMapToMatrix(closure281, linalg_vectorRange(1, 4));
 	array_array_number_t q = usecases_make_relative(a, base_rel);
 	matrix_print(q);

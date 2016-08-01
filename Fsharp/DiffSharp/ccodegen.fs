@@ -64,8 +64,8 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<string>) -> "string_t"
   // FIXME buggy
   | _ when (t = typeof<Environment>) -> "env_t_" + current_env_number.ToString() + "*"
-  | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t*"
-  | _ when (t.Name = typeof<_ -> _>.Name) -> "closure_t*"
+  | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t"
+  | _ when (t.Name = typeof<_ -> _>.Name) -> "closure_t"
   | _ when (t = typeof<Unit>) -> "void"
   | _ when (t.IsGenericParameter) ->
     failwith "does not know how to generate code for a generic type"
@@ -82,7 +82,7 @@ let rec ccodegen (e:Expr): string =
   | AppN(func, args) -> 
     let closure = ccodegen func
     let tp = ccodegenType (e.Type)
-    sprintf "%s->lam(%s->env, %s).%s_value" closure closure (String.concat ", " (List.map ccodegen args)) tp
+    sprintf "%s.lam(%s.env, %s).%s_value" closure closure (String.concat ", " (List.map ccodegen args)) tp
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, elist) -> 
@@ -131,14 +131,16 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
       let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
       let fieldsDecl = String.concat "," fieldsDeclList
-      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v, _) -> sprintf "env->%s = %s;" v v) fields)
-      let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" 
-                         envName envName fieldsDecl envName envName envName fieldsInit
+      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v, _) -> sprintf "env.%s = %s;" v v) fields)
+      let makeEnvDef = sprintf "%s make_%s(%s) {\n\t%s env;\n\t%s\n\treturn env;\n}" 
+                         envName envName fieldsDecl envName fieldsInit
       let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
+      let makeEnvVar = sprintf "%s_value" envName
+      let makeEnvStatement = sprintf "%s %s = %s" envName makeEnvVar makeEnvInvoke 
       let lambdaCode = withEnvNumer id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
-      (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, 
+      (sprintf "%s; %s %s = make_closure(%s, &%s);" makeEnvStatement (ccodegenType var.Type) (var.Name)  lambdaName makeEnvVar, 
         [envStruct; makeEnvDef; lambdaCode], 
-        false)
+        true)
     | Patterns.IfThenElse(cond, e1, e2) ->
       let ccodegenStatements exp = 
         let (stmts, res) = 

@@ -44,17 +44,20 @@ typedef struct closure_t {
 	env_t env;
 } closure_t;
 
-closure_t* make_closure(lambda_t lam, env_t env) {
-	closure_t* c = (closure_t*)malloc(sizeof(closure_t));
+closure_t make_closure(lambda_t lam, env_t env) {
+	// closure_t* c = (closure_t*)malloc(sizeof(closure_t));
+	closure_t res;
+	closure_t* c = &res;
 	c->lam = lam;
 	c->env = env;
-	// closure_mem += sizeof(closure_t);
-	return c;
+	// // closure_mem += sizeof(closure_t);
+	// return c;
+	return res;
 }
 
-void free_closure(closure_t* closure) {
-	free(closure->env);
-	free(closure);
+void free_closure(closure_t closure) {
+	// free(closure->env);
+	// free(closure);
 }
 
 void array_print(array_number_t arr) {
@@ -67,34 +70,34 @@ void array_print(array_number_t arr) {
 	printf("]\n");
 }
 
-array_number_t vector_build(index_t size, closure_t* closure) {
+array_number_t vector_build(index_t size, closure_t closure) {
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
 	res->length = size;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, i).number_t_value;
+		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
 	free_closure(closure);
 	return res;
 }
 
-array_array_number_t matrix_build(index_t size, closure_t* closure) {
+array_array_number_t matrix_build(index_t size, closure_t closure) {
 	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
 	res->length = size;
 	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, i).array_number_t_value;
+		res->arr[i] = closure.lam(closure.env, i).array_number_t_value;
 	}
 	free_closure(closure);
 	return res;
 }
 
-array_array_array_number_t matrix3d_build(index_t size, closure_t* closure) {
+array_array_array_number_t matrix3d_build(index_t size, closure_t closure) {
 	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
 	res->length = size;
 	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, i).array_array_number_t_value;
+		res->arr[i] = closure.lam(closure.env, i).array_array_number_t_value;
 	}
 	free_closure(closure);
 	return res;
@@ -163,37 +166,37 @@ array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, arra
 	return res;
 }
 
-number_t vector_fold_number(closure_t* closure, number_t zero, array_number_t range) {
+number_t vector_fold_number(closure_t closure, number_t zero, array_number_t range) {
 	number_t acc = zero;
 	for (int i = 0; i < range->length; i++) {
-		acc = closure->lam(closure->env, acc, range->arr[i]).number_t_value;
+		acc = closure.lam(closure.env, acc, range->arr[i]).number_t_value;
 	}
 	free_closure(closure);
 	return acc;
 }
 
-array_number_t vector_fold_vector(closure_t* closure, array_number_t zero, array_number_t range) {
+array_number_t vector_fold_vector(closure_t closure, array_number_t zero, array_number_t range) {
 	array_number_t acc = zero;
 	for (int i = 0; i < range->length; i++) {
-		acc = closure->lam(closure->env, acc, range->arr[i]).array_number_t_value;
+		acc = closure.lam(closure.env, acc, range->arr[i]).array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;
 }
 
-array_array_number_t vector_fold_matrix(closure_t* closure, array_array_number_t zero, array_number_t range) {
+array_array_number_t vector_fold_matrix(closure_t closure, array_array_number_t zero, array_number_t range) {
 	array_array_number_t acc = zero;
 	for (int i = 0; i < range->length; i++) {
-		acc = closure->lam(closure->env, acc, range->arr[i]).array_array_number_t_value;
+		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;
 }
 
-array_array_array_number_t vector_fold_matrix3d(closure_t* closure, array_array_array_number_t zero, array_number_t range) {
+array_array_array_number_t vector_fold_matrix3d(closure_t closure, array_array_array_number_t zero, array_number_t range) {
 	array_array_array_number_t acc = zero;
 		for (int i = 0; i < range->length; i++) {
-		acc = closure->lam(closure->env, acc, range->arr[i]).array_array_array_number_t_value;
+		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_array_number_t_value;
 	}
 	free_closure(closure);
 	return acc;
@@ -304,18 +307,18 @@ storage_t vector_alloc(index_t size) {
 	return res;
 }
 
-void vector_alloc_cps(index_t size, closure_t* closure) {
+void vector_alloc_cps(index_t size, closure_t closure) {
 	array_number_t res = (array_number_t)vector_alloc(size);
-	closure->lam(closure->env, res);
-	free(closure);
+	closure.lam(closure.env, res);
+	free_closure(closure);
 	free(res);
 }
 
 
-array_number_t vector_build_given_storage(storage_t storage, closure_t* closure) {
+array_number_t vector_build_given_storage(storage_t storage, closure_t closure) {
 	array_number_t res = (array_number_t)storage;
 	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure->lam(closure->env, i).number_t_value;
+		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
 	free_closure(closure);
 	return res;

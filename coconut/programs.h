@@ -27,9 +27,9 @@ array_array_number_t programs_matrix_add3(array_array_number_t m1, array_array_n
 typedef struct env_t_317 {
 	array_number_t v;
 } env_t_317;
-env_t_317* make_env_t_317(array_number_t v) {
-	env_t_317* env = (env_t_317*)malloc(sizeof(env_t_317));
-	env->v = v;
+env_t_317 make_env_t_317(array_number_t v) {
+	env_t_317 env;
+	env.v = v;
 	return env;
 }
 
@@ -41,36 +41,36 @@ value_t lambda317(env_t_317* env313, number_t acc307, index_t idx308) {
 	return res;
 }
 void programs_hoistingExample(array_number_t v) {
-	closure_t* closure315 = make_closure(lambda317, make_env_t_317(v));
+	env_t_317 env_t_317_value = make_env_t_317(v); closure_t closure315 = make_closure(lambda317, &env_t_317_value);
 	number_print(linalg_iterateNumber(closure315, 0, 0, 9));
 	return ;
 }
 typedef struct env_t_333 {
 	array_number_t v;
 } env_t_333;
-env_t_333* make_env_t_333(array_number_t v) {
-	env_t_333* env = (env_t_333*)malloc(sizeof(env_t_333));
-	env->v = v;
+env_t_333 make_env_t_333(array_number_t v) {
+	env_t_333 env;
+	env.v = v;
 	return env;
 }
 typedef struct env_t_334 {
 	array_number_t v;
 	storage_t storage1;
 } env_t_334;
-env_t_334* make_env_t_334(array_number_t v,storage_t storage1) {
-	env_t_334* env = (env_t_334*)malloc(sizeof(env_t_334));
-	env->v = v;
-	env->storage1 = storage1;
+env_t_334 make_env_t_334(array_number_t v,storage_t storage1) {
+	env_t_334 env;
+	env.v = v;
+	env.storage1 = storage1;
 	return env;
 }
 typedef struct env_t_335 {
 	array_number_t v;
 	index_t idx;
 } env_t_335;
-env_t_335* make_env_t_335(array_number_t v,index_t idx) {
-	env_t_335* env = (env_t_335*)malloc(sizeof(env_t_335));
-	env->v = v;
-	env->idx = idx;
+env_t_335 make_env_t_335(array_number_t v,index_t idx) {
+	env_t_335 env;
+	env.v = v;
+	env.idx = idx;
 	return env;
 }
 
@@ -84,7 +84,7 @@ value_t lambda335(env_t_335* env320, index_t i) {
 value_t lambda334(env_t_334* env325, number_t acc, index_t idx) {
 	array_number_t v324 = env325->v;
 	storage_t storage1323 = env325->storage1;
-	closure_t* closure322 = make_closure(lambda335, make_env_t_335(v324,idx));
+	env_t_335 env_t_335_value = make_env_t_335(v324,idx); closure_t closure322 = make_closure(lambda335, &env_t_335_value);
 	array_number_t tmp = vector_build_given_storage(storage1323, closure322);
 	value_t res;
 	res.number_t_value = linalg_sqnorm(linalg_add_vec(tmp, tmp));
@@ -92,43 +92,43 @@ value_t lambda334(env_t_334* env325, number_t acc, index_t idx) {
 }
 value_t lambda333(env_t_333* env329, storage_t storage1) {
 	array_number_t v328 = env329->v;
-	closure_t* closure327 = make_closure(lambda334, make_env_t_334(v328,storage1));
+	env_t_334 env_t_334_value = make_env_t_334(v328,storage1); closure_t closure327 = make_closure(lambda334, &env_t_334_value);
 	number_t sum = linalg_iterateNumber(closure327, 0, 0, 9);
 	value_t res;
 	number_print(sum);
 	return res;
 }
 void programs_explicitMallocExample1(array_number_t v) {
-	closure_t* closure331 = make_closure(lambda333, make_env_t_333(v));
+	env_t_333 env_t_333_value = make_env_t_333(v); closure_t closure331 = make_closure(lambda333, &env_t_333_value);
 	vector_alloc_cps(10, closure331);
 	return ;
 }
 typedef struct env_t_351 {
 	array_number_t v;
 } env_t_351;
-env_t_351* make_env_t_351(array_number_t v) {
-	env_t_351* env = (env_t_351*)malloc(sizeof(env_t_351));
-	env->v = v;
+env_t_351 make_env_t_351(array_number_t v) {
+	env_t_351 env;
+	env.v = v;
 	return env;
 }
 typedef struct env_t_352 {
 	array_number_t v;
 	storage_t storage1;
 } env_t_352;
-env_t_352* make_env_t_352(array_number_t v,storage_t storage1) {
-	env_t_352* env = (env_t_352*)malloc(sizeof(env_t_352));
-	env->v = v;
-	env->storage1 = storage1;
+env_t_352 make_env_t_352(array_number_t v,storage_t storage1) {
+	env_t_352 env;
+	env.v = v;
+	env.storage1 = storage1;
 	return env;
 }
 typedef struct env_t_353 {
 	array_number_t v;
 	index_t idx;
 } env_t_353;
-env_t_353* make_env_t_353(array_number_t v,index_t idx) {
-	env_t_353* env = (env_t_353*)malloc(sizeof(env_t_353));
-	env->v = v;
-	env->idx = idx;
+env_t_353 make_env_t_353(array_number_t v,index_t idx) {
+	env_t_353 env;
+	env.v = v;
+	env.idx = idx;
 	return env;
 }
 
@@ -142,7 +142,7 @@ value_t lambda353(env_t_353* env338, index_t i) {
 value_t lambda352(env_t_352* env343, number_t acc, index_t idx) {
 	array_number_t v342 = env343->v;
 	storage_t storage1341 = env343->storage1;
-	closure_t* closure340 = make_closure(lambda353, make_env_t_353(v342,idx));
+	env_t_353 env_t_353_value = make_env_t_353(v342,idx); closure_t closure340 = make_closure(lambda353, &env_t_353_value);
 	array_number_t tmp = vector_build_given_storage(storage1341, closure340);
 	value_t res;
 	res.number_t_value = linalg_sqnorm(linalg_add_vecGivenStorage(storage1341, tmp, tmp));
@@ -150,14 +150,14 @@ value_t lambda352(env_t_352* env343, number_t acc, index_t idx) {
 }
 value_t lambda351(env_t_351* env347, storage_t storage1) {
 	array_number_t v346 = env347->v;
-	closure_t* closure345 = make_closure(lambda352, make_env_t_352(v346,storage1));
+	env_t_352 env_t_352_value = make_env_t_352(v346,storage1); closure_t closure345 = make_closure(lambda352, &env_t_352_value);
 	number_t sum = linalg_iterateNumber(closure345, 0, 0, 9);
 	value_t res;
 	number_print(sum);
 	return res;
 }
 void programs_explicitMallocExample2(array_number_t v) {
-	closure_t* closure349 = make_closure(lambda351, make_env_t_351(v));
+	env_t_351 env_t_351_value = make_env_t_351(v); closure_t closure349 = make_closure(lambda351, &env_t_351_value);
 	vector_alloc_cps(10, closure349);
 	return ;
 }
