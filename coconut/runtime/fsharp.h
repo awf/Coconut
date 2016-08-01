@@ -51,19 +51,10 @@ typedef struct closure_t {
 } closure_t;
 
 closure_t make_closure(lambda_t lam, env_t env) {
-	// closure_t* c = (closure_t*)malloc(sizeof(closure_t));
-	closure_t res;
-	closure_t* c = &res;
-	c->lam = lam;
-	c->env = env;
-	// // closure_mem += sizeof(closure_t);
-	// return c;
-	return res;
-}
-
-void free_closure(closure_t closure) {
-	// free(closure->env);
-	// free(closure);
+	closure_t c;
+	c.lam = lam;
+	c.env = env;
+	return c;
 }
 
 void array_print(array_number_t arr) {
@@ -83,7 +74,6 @@ array_number_t vector_build(index_t size, closure_t closure) {
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
-	free_closure(closure);
 	return res;
 }
 
@@ -94,7 +84,6 @@ array_array_number_t matrix_build(index_t size, closure_t closure) {
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).array_number_t_value;
 	}
-	free_closure(closure);
 	return res;
 }
 
@@ -105,7 +94,6 @@ array_array_array_number_t matrix3d_build(index_t size, closure_t closure) {
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).array_array_number_t_value;
 	}
-	free_closure(closure);
 	return res;
 }
 
@@ -177,7 +165,6 @@ number_t vector_fold_number(closure_t closure, number_t zero, array_number_t ran
 	for (int i = 0; i < range->length; i++) {
 		acc = closure.lam(closure.env, acc, range->arr[i]).number_t_value;
 	}
-	free_closure(closure);
 	return acc;
 }
 
@@ -186,7 +173,6 @@ array_number_t vector_fold_vector(closure_t closure, array_number_t zero, array_
 	for (int i = 0; i < range->length; i++) {
 		acc = closure.lam(closure.env, acc, range->arr[i]).array_number_t_value;
 	}
-	free_closure(closure);
 	return acc;
 }
 
@@ -195,7 +181,6 @@ array_array_number_t vector_fold_matrix(closure_t closure, array_array_number_t 
 	for (int i = 0; i < range->length; i++) {
 		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_number_t_value;
 	}
-	free_closure(closure);
 	return acc;
 }
 
@@ -204,7 +189,6 @@ array_array_array_number_t vector_fold_matrix3d(closure_t closure, array_array_a
 		for (int i = 0; i < range->length; i++) {
 		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_array_number_t_value;
 	}
-	free_closure(closure);
 	return acc;
 }
 
@@ -316,7 +300,6 @@ storage_t vector_alloc(index_t size) {
 void vector_alloc_cps(index_t size, closure_t closure) {
 	array_number_t res = (array_number_t)vector_alloc(size);
 	closure.lam(closure.env, res);
-	free_closure(closure);
 	free(res);
 }
 
@@ -326,7 +309,6 @@ array_number_t vector_build_given_storage(storage_t storage, closure_t closure) 
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
-	free_closure(closure);
 	return res;
 }
 
