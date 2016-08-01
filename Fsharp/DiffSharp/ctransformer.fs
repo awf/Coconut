@@ -71,7 +71,7 @@ let closureConversion (e: Expr): Expr =
     match exp with 
     | LambdaN (inputs, body) -> 
       let transformedBody = lambdaLift body
-      let freeVars = listDiff (List.ofSeq (body.GetFreeVars())) inputs
+      let freeVars = listDiff (List.ofSeq (transformedBody.GetFreeVars())) inputs
       let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
       let freeNewVars = List.zip freeVars newVars
       let convertedBody = transformedBody.Substitute(fun v -> 

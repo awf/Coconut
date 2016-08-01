@@ -303,6 +303,13 @@ storage_t vector_alloc(index_t size) {
 	return res;
 }
 
+void vector_alloc_cps(index_t size, closure_t* closure) {
+	array_number_t res = (array_number_t)vector_alloc(size);
+	closure->lam(closure->env, res);
+	free(closure);
+	free(res);
+}
+
 
 array_number_t vector_build_by_storage(storage_t storage, closure_t* closure) {
 	array_number_t res = (array_number_t)storage;

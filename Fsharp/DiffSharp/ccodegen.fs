@@ -41,6 +41,15 @@ let rec prettyprint (e:Expr): string =
 
 let ARRAY_PREFIX = "array_"
 
+let mutable private current_env_number: int = 0
+
+let private withEnvNumer<'a> (id: int) (cont: int -> 'a): 'a = 
+  let prev_number = current_env_number
+  current_env_number <- id
+  let res = cont(id)
+  current_env_number <- prev_number
+  res
+
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
@@ -53,7 +62,8 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<Storage>) -> "storage_t"
   | _ when (t = typeof<Timer>) -> "timer_t"
   | _ when (t = typeof<string>) -> "string_t"
-  | _ when (t = typeof<Environment>) -> "env_t_" + variable_counter.ToString() + "*"
+  // FIXME buggy
+  | _ when (t = typeof<Environment>) -> "env_t_" + current_env_number.ToString() + "*"
   | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t*"
   | _ when (t.Name = typeof<_ -> _>.Name) -> "closure_t*"
   | _ when (t = typeof<Unit>) -> "void"
@@ -125,8 +135,9 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let makeEnvDef = sprintf "%s* make_%s(%s) {\n\t%s* env = (%s*)malloc(sizeof(%s));\n\t%s\n\treturn env;\n}" 
                          envName envName fieldsDecl envName envName envName fieldsInit
       let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
+      let lambdaCode = withEnvNumer id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
       (sprintf "make_closure(%s, %s)" lambdaName makeEnvInvoke, 
-        [envStruct; makeEnvDef; ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true], 
+        [envStruct; makeEnvDef; lambdaCode], 
         false)
     | Patterns.IfThenElse(cond, e1, e2) ->
       let ccodegenStatements exp = 
@@ -165,7 +176,10 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
   let parameters = (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs))
   let finalStatement = 
     if(isForClosure) then 
-      sprintf "value_t res;\n\tres.%s_value = %s;\n\treturn res;" (ccodegenType(result.Type)) (ccodegen result) 
+      if(result.Type = typeof<unit>) then
+        sprintf "value_t res;\n\t%s;\n\treturn res;" (ccodegen result) 
+      else 
+        sprintf "value_t res;\n\tres.%s_value = %s;\n\treturn res;" (ccodegenType (result.Type)) (ccodegen result) 
     else 
       sprintf "return %s;" (ccodegen result)
   sprintf "%s\n%s %s(%s) {\n\t%s\n\t%s\n}" closuresCode resultType name parameters statementsCode finalStatement

@@ -19,23 +19,25 @@ let matrix_add3 (m1: Matrix) (m2: Matrix) (m3: Matrix): Matrix =
   matrixAdd m1 (matrixAdd m2 m3)
 
 let hoistingExample (v: Vector) = 
-  let res = 
+  let sum = 
     iterateNumber (fun acc idx ->
         let tmp = v.[idx..(idx+9)]
         sqnorm(add_vec tmp tmp)
       ) (0.) 0 9
-  numberPrint res
+  numberPrint sum
   ()
 
 [<DontOptimize>]
 let explicitMallocExample (v: Vector) = 
-  let storage1 = vectorAlloc(10)
-  let res = 
-    iterateNumber (fun acc idx ->
-        let tmp = vectorBuildByStorage(storage1)(fun i -> v.[i + idx])
-        sqnorm(add_vec tmp tmp)
-      ) (0.) 0 9
-  numberPrint res
+  //let storage1 = vectorAlloc 10 
+  vectorAllocCPS 10 (fun storage1 ->
+    let sum = 
+      iterateNumber (fun acc idx ->
+          let tmp = vectorBuildByStorage storage1 (fun i -> v.[i + idx])
+          sqnorm(add_vec tmp tmp)
+        ) 0. 0 9
+    numberPrint sum
+  )
   ()
 
 let small_tests (dum: Number) = 
