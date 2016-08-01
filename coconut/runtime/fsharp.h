@@ -38,6 +38,12 @@ typedef value_t (*lambda_t)();
 
 typedef void* env_t;
 
+typedef int empty_env_t;
+
+empty_env_t make_empty_env() {
+	return 0;
+}
+
 typedef struct closure_t {
 	enum Tag t;
 	lambda_t lam;

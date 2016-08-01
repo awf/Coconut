@@ -53,14 +53,8 @@ number_t usecases_compute_zach_weight_error(number_t w) {
 	
 	return (1) - ((w) * (w));
 }
-typedef struct env_t_139 {
-	value_t dummy_variable;
-} env_t_139;
-env_t_139 make_env_t_139() {
-	env_t_139 env;
-	
-	return env;
-}
+typedef empty_env_t env_t_139;
+
 
 value_t lambda139(env_t_139* env136, number_t w) {
 	
@@ -69,7 +63,7 @@ value_t lambda139(env_t_139* env136, number_t w) {
 	return res;
 }
 array_number_t usecases_w_err(array_number_t w) {
-	env_t_139 env_t_139_value = make_env_t_139(); closure_t closure138 = make_closure(lambda139, &env_t_139_value);
+	env_t_139 env_t_139_value = make_empty_env(); closure_t closure138 = make_closure(lambda139, &env_t_139_value);
 	return linalg_vectorMap(closure138, w);
 }
 typedef struct env_t_148 {
@@ -720,14 +714,8 @@ value_t lambda255(env_t_255* env247, array_number_t row) {
 	res.array_number_t_value = linalg_mult_vec_elementwise(row, scale246);
 	return res;
 }
-typedef struct env_t_256 {
-	value_t dummy_variable;
-} env_t_256;
-env_t_256 make_env_t_256() {
-	env_t_256 env;
-	
-	return env;
-}
+typedef empty_env_t env_t_256;
+
 
 value_t lambda256(env_t_256* env250, number_t x) {
 	
@@ -745,7 +733,7 @@ array_array_number_t usecases_apply_global_transform(array_array_number_t pose_p
 	array253->arr = (array_number_t*)malloc(sizeof(array_number_t) * 1);
 	array253->arr[0] = pose_params->arr[2];;
 	array_array_number_t T = linalg_matrixConcatCol(R1, matrix_transpose(array253));
-	env_t_256 env_t_256_value = make_env_t_256(); closure_t closure252 = make_closure(lambda256, &env_t_256_value);
+	env_t_256 env_t_256_value = make_empty_env(); closure_t closure252 = make_closure(lambda256, &env_t_256_value);
 	array_number_t ones = linalg_vectorMap(closure252, linalg_vectorRange(1, positions->arr[0]->length));
 	array_array_number_t array254 = (array_array_number_t)malloc(sizeof(int) * 2);
 	array254->length=1;
@@ -754,14 +742,8 @@ array_array_number_t usecases_apply_global_transform(array_array_number_t pose_p
 	array_array_number_t positions_homog = matrix_concat(positions, array254);
 	return matrix_mult(T, positions_homog);
 }
-typedef struct env_t_269 {
-	value_t dummy_variable;
-} env_t_269;
-env_t_269 make_env_t_269() {
-	env_t_269 env;
-	
-	return env;
-}
+typedef empty_env_t env_t_269;
+
 
 value_t lambda269(env_t_269* env257, array_array_number_t m1, array_array_number_t m2) {
 	
@@ -795,7 +777,7 @@ value_t lambda270(env_t_270* env263, array_array_number_t acc, index_t i_transfo
 array_array_number_t usecases_get_skinned_vertex_positions(index_t is_mirrored, index_t n_bones, array_array_number_t pose_params, array_array_array_number_t base_relatives, array_number_t parents, array_array_array_number_t inverse_base_absolutes, array_array_number_t base_positions, array_array_number_t weights) {
 	array_array_array_number_t relatives = usecases_get_posed_relatives(n_bones, pose_params, base_relatives);
 	array_array_array_number_t absolutes = usecases_relatives_to_absolutes(relatives, parents);
-	env_t_269 env_t_269_value = make_env_t_269(); closure_t closure259 = make_closure(lambda269, &env_t_269_value);
+	env_t_269 env_t_269_value = make_empty_env(); closure_t closure259 = make_closure(lambda269, &env_t_269_value);
 	array_array_array_number_t transforms = linalg_matrix3DMap2(closure259, absolutes, inverse_base_absolutes);
 	index_t n_verts = base_positions->arr[0]->length;
 	array_array_number_t init_positions = linalg_matrixFill(3, n_verts, 0);
@@ -870,14 +852,8 @@ array_number_t usecases_hand_objective(index_t is_mirrored, array_number_t param
 	array_number_t err = linalg_vectorMap(closure277, linalg_vectorRange(0, ((dims) * (n_corr)) - (1)));
 	return err;
 }
-typedef struct env_t_306 {
-	value_t dummy_variable;
-} env_t_306;
-env_t_306 make_env_t_306() {
-	env_t_306 env;
-	
-	return env;
-}
+typedef empty_env_t env_t_306;
+
 
 value_t lambda306(env_t_306* env279, number_t r) {
 	
@@ -966,7 +942,7 @@ void usecases_test1(array_number_t dum) {
 	matrix_print(o);
 	array_array_number_t p = linalg_matrixConcatCol(mat1, mat1);
 	matrix_print(p);
-	env_t_306 env_t_306_value = make_env_t_306(); closure_t closure281 = make_closure(lambda306, &env_t_306_value);
+	env_t_306 env_t_306_value = make_empty_env(); closure_t closure281 = make_closure(lambda306, &env_t_306_value);
 	array_array_number_t base_rel = linalg_vectorMapToMatrix(closure281, linalg_vectorRange(1, 4));
 	array_array_number_t q = usecases_make_relative(a, base_rel);
 	matrix_print(q);

@@ -3,22 +3,10 @@
 #include "runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
-typedef struct env_t_371 {
-	value_t dummy_variable;
-} env_t_371;
-env_t_371 make_env_t_371() {
-	env_t_371 env;
-	
-	return env;
-}
-typedef struct env_t_372 {
-	value_t dummy_variable;
-} env_t_372;
-env_t_372 make_env_t_372() {
-	env_t_372 env;
-	
-	return env;
-}
+typedef empty_env_t env_t_371;
+
+typedef empty_env_t env_t_372;
+
 
 value_t lambda372(env_t_372* env365, index_t j) {
 	
@@ -27,23 +15,17 @@ value_t lambda372(env_t_372* env365, index_t j) {
 	return res;
 }
 value_t lambda371(env_t_371* env368, index_t i) {
-	env_t_372 env_t_372_value = make_env_t_372(); closure_t closure367 = make_closure(lambda372, &env_t_372_value);
+	env_t_372 env_t_372_value = make_empty_env(); closure_t closure367 = make_closure(lambda372, &env_t_372_value);
 	value_t res;
 	res.array_number_t_value = vector_build(20, closure367);
 	return res;
 }
 array_array_number_t ccodegentests_closure_bug1(array_array_number_t m1, array_array_number_t m2) {
-	env_t_371 env_t_371_value = make_env_t_371(); closure_t closure370 = make_closure(lambda371, &env_t_371_value);
+	env_t_371 env_t_371_value = make_empty_env(); closure_t closure370 = make_closure(lambda371, &env_t_371_value);
 	return matrix_build(10, closure370);
 }
-typedef struct env_t_380 {
-	value_t dummy_variable;
-} env_t_380;
-env_t_380 make_env_t_380() {
-	env_t_380 env;
-	
-	return env;
-}
+typedef empty_env_t env_t_380;
+
 typedef struct env_t_381 {
 	index_t i;
 } env_t_381;
@@ -66,7 +48,7 @@ value_t lambda380(env_t_380* env377, index_t i) {
 	return res;
 }
 array_array_number_t ccodegentests_closure_bug2(array_array_number_t m1, array_array_number_t m2) {
-	env_t_380 env_t_380_value = make_env_t_380(); closure_t closure379 = make_closure(lambda380, &env_t_380_value);
+	env_t_380 env_t_380_value = make_empty_env(); closure_t closure379 = make_closure(lambda380, &env_t_380_value);
 	return matrix_build(10, closure379);
 }
 typedef struct env_t_391 {

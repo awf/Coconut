@@ -121,20 +121,27 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       let lambdaName = newVar "lambda"
       let id = variable_counter
       let envName = sprintf "env_t_%d" id
-      let fieldsDeclList = List.map (fun (tp, v, _) -> ccodegenType(tp) + " " + v) fields
-      let fieldsStructDecl = 
-        match fieldsDeclList with 
-        | [] -> 
-           (* This is because C does not accept structs without any member *)
-          (ccodegenType (typeof<AnyNumeric>)) + " dummy_variable;"
-        | _ ->
-          String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
-      let envStruct = sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
+      let isEmptyEnvironment = List.isEmpty fields
+      let fieldsDeclList = List.map (fun (tp, v, _) -> (ccodegenType tp) + " " + v) fields 
+      let envStruct = 
+        if isEmptyEnvironment then
+          sprintf "typedef empty_env_t %s;" envName
+        else
+          let fieldsStructDecl = String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
+          sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
       let fieldsDecl = String.concat "," fieldsDeclList
       let fieldsInit = String.concat "\n\t" (List.map (fun (_, v, _) -> sprintf "env.%s = %s;" v v) fields)
-      let makeEnvDef = sprintf "%s make_%s(%s) {\n\t%s env;\n\t%s\n\treturn env;\n}" 
+      let makeEnvDef = 
+        if isEmptyEnvironment then
+          ""
+        else
+          sprintf "%s make_%s(%s) {\n\t%s env;\n\t%s\n\treturn env;\n}" 
                          envName envName fieldsDecl envName fieldsInit
-      let makeEnvInvoke = sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
+      let makeEnvInvoke = 
+        if isEmptyEnvironment then
+          "make_empty_env()"
+        else 
+          sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
       let makeEnvVar = sprintf "%s_value" envName
       let makeEnvStatement = sprintf "%s %s = %s" envName makeEnvVar makeEnvInvoke 
       let lambdaCode = withEnvNumer id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
