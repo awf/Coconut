@@ -3,108 +3,108 @@
 #include "runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
-typedef struct env_t_325 {
+typedef struct env_t_336 {
 	value_t dummy_variable;
-} env_t_325;
-env_t_325* make_env_t_325() {
-	env_t_325* env = (env_t_325*)malloc(sizeof(env_t_325));
+} env_t_336;
+env_t_336* make_env_t_336() {
+	env_t_336* env = (env_t_336*)malloc(sizeof(env_t_336));
 	
 	return env;
 }
-typedef struct env_t_326 {
+typedef struct env_t_337 {
 	value_t dummy_variable;
-} env_t_326;
-env_t_326* make_env_t_326() {
-	env_t_326* env = (env_t_326*)malloc(sizeof(env_t_326));
+} env_t_337;
+env_t_337* make_env_t_337() {
+	env_t_337* env = (env_t_337*)malloc(sizeof(env_t_337));
 	
 	return env;
 }
 
-value_t lambda326(env_t_326* env319, index_t j) {
+value_t lambda337(env_t_337* env330, index_t j) {
 	
 	value_t res;
 	res.number_t_value = (double)(j);
 	return res;
 }
-value_t lambda325(env_t_326* env322, index_t i) {
-	closure_t* closure321 = make_closure(lambda326, make_env_t_326());
+value_t lambda336(env_t_337* env333, index_t i) {
+	closure_t* closure332 = make_closure(lambda337, make_env_t_337());
 	value_t res;
-	res.array_number_t_value = vector_build(20, closure321);
+	res.array_number_t_value = vector_build(20, closure332);
 	return res;
 }
 array_array_number_t ccodegentests_closure_bug1(array_array_number_t m1, array_array_number_t m2) {
-	closure_t* closure324 = make_closure(lambda325, make_env_t_325());
-	return matrix_build(10, closure324);
+	closure_t* closure335 = make_closure(lambda336, make_env_t_336());
+	return matrix_build(10, closure335);
 }
-typedef struct env_t_334 {
+typedef struct env_t_345 {
 	value_t dummy_variable;
-} env_t_334;
-env_t_334* make_env_t_334() {
-	env_t_334* env = (env_t_334*)malloc(sizeof(env_t_334));
+} env_t_345;
+env_t_345* make_env_t_345() {
+	env_t_345* env = (env_t_345*)malloc(sizeof(env_t_345));
 	
 	return env;
 }
-typedef struct env_t_335 {
-	index_t i;
-} env_t_335;
-env_t_335* make_env_t_335(index_t i) {
-	env_t_335* env = (env_t_335*)malloc(sizeof(env_t_335));
-	env->i = i;
-	return env;
-}
-
-value_t lambda335(env_t_335* env328, index_t j) {
-	index_t i327 = env328->i;
-	value_t res;
-	res.number_t_value = (double)((i327) + (j));
-	return res;
-}
-value_t lambda334(env_t_335* env331, index_t i) {
-	closure_t* closure330 = make_closure(lambda335, make_env_t_335(i));
-	value_t res;
-	res.array_number_t_value = vector_build(20, closure330);
-	return res;
-}
-array_array_number_t ccodegentests_closure_bug2(array_array_number_t m1, array_array_number_t m2) {
-	closure_t* closure333 = make_closure(lambda334, make_env_t_334());
-	return matrix_build(10, closure333);
-}
-typedef struct env_t_345 {
-	number_t n;
-} env_t_345;
-env_t_345* make_env_t_345(number_t n) {
-	env_t_345* env = (env_t_345*)malloc(sizeof(env_t_345));
-	env->n = n;
-	return env;
-}
 typedef struct env_t_346 {
-	number_t n;
 	index_t i;
 } env_t_346;
-env_t_346* make_env_t_346(number_t n,index_t i) {
+env_t_346* make_env_t_346(index_t i) {
 	env_t_346* env = (env_t_346*)malloc(sizeof(env_t_346));
-	env->n = n;
 	env->i = i;
 	return env;
 }
 
-value_t lambda346(env_t_346* env338, index_t j) {
-	number_t n337 = env338->n;
-	index_t i336 = env338->i;
+value_t lambda346(env_t_346* env339, index_t j) {
+	index_t i338 = env339->i;
 	value_t res;
-	res.number_t_value = ((double)((i336) + (j))) * (n337);
+	res.number_t_value = (double)((i338) + (j));
 	return res;
 }
 value_t lambda345(env_t_346* env342, index_t i) {
-	number_t n341 = env342->n;
-	closure_t* closure340 = make_closure(lambda346, make_env_t_346(n341,i));
+	closure_t* closure341 = make_closure(lambda346, make_env_t_346(i));
 	value_t res;
-	res.array_number_t_value = vector_build(20, closure340);
+	res.array_number_t_value = vector_build(20, closure341);
+	return res;
+}
+array_array_number_t ccodegentests_closure_bug2(array_array_number_t m1, array_array_number_t m2) {
+	closure_t* closure344 = make_closure(lambda345, make_env_t_345());
+	return matrix_build(10, closure344);
+}
+typedef struct env_t_356 {
+	number_t n;
+} env_t_356;
+env_t_356* make_env_t_356(number_t n) {
+	env_t_356* env = (env_t_356*)malloc(sizeof(env_t_356));
+	env->n = n;
+	return env;
+}
+typedef struct env_t_357 {
+	number_t n;
+	index_t i;
+} env_t_357;
+env_t_357* make_env_t_357(number_t n,index_t i) {
+	env_t_357* env = (env_t_357*)malloc(sizeof(env_t_357));
+	env->n = n;
+	env->i = i;
+	return env;
+}
+
+value_t lambda357(env_t_357* env349, index_t j) {
+	number_t n348 = env349->n;
+	index_t i347 = env349->i;
+	value_t res;
+	res.number_t_value = ((double)((i347) + (j))) * (n348);
+	return res;
+}
+value_t lambda356(env_t_357* env353, index_t i) {
+	number_t n352 = env353->n;
+	closure_t* closure351 = make_closure(lambda357, make_env_t_357(n352,i));
+	value_t res;
+	res.array_number_t_value = vector_build(20, closure351);
 	return res;
 }
 array_array_number_t ccodegentests_closure_bug3(array_array_number_t m1, array_array_number_t m2) {
 	number_t n = 3;
-	closure_t* closure344 = make_closure(lambda345, make_env_t_345(n));
-	return matrix_build(10, closure344);
+	closure_t* closure355 = make_closure(lambda356, make_env_t_356(n));
+	return matrix_build(10, closure355);
 }
 #endif

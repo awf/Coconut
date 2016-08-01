@@ -16,7 +16,15 @@ let getMethodExpr (moduleName: string) (methodName: string): Expr =
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string) (opt: bool): string = 
      let e = getMethodExpr moduleName methodName
-     let optimized = if(opt) then optimize e else e
+     let optimized = 
+       if(opt) then 
+         let optimized = Seq.isEmpty (assembly.GetType(moduleName).GetMethod(methodName).GetCustomAttributes(typeof<types.DontOptimize>, true))
+         if(optimized) then
+           optimize e 
+         else 
+           e
+       else 
+         e
      //printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
      //if(opt) then printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
      let preprocessed = cpreprocess optimized
