@@ -25,13 +25,12 @@ let compile (moduleName: string) (methodName: string) (opt: bool): string =
            e
        else 
          e
-     //printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
-     //if(opt) then printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
-     let preprocessed = cpreprocess optimized
-     //printfn "/* Preprocessed code:\n%A\n*/\n" (prettyprint preprocessed)
-     let generated = ccodegenFunction preprocessed (moduleName + "_" + methodName) false
-     //printfn "// Generated C code for %s.%s:\n\n%s" moduleName methodName generated
-     generated
+     let debug = false
+     if(debug) then 
+       printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
+       if(opt) then 
+         printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
+     ccodegenTopLevel optimized (moduleName + "_" + methodName) debug
 
 let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) =
   List.map (fun m -> 

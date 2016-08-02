@@ -192,3 +192,10 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
     else 
       sprintf "return %s;" (ccodegen result)
   sprintf "%s\n%s %s(%s) {\n\t%s\n\t%s\n}" closuresCode resultType name parameters statementsCode finalStatement
+
+let ccodegenTopLevel (e: Expr) (name: string) (debug: bool): string = 
+  let preprocessed = (ctransformer.cpreprocess) e
+  if debug then printfn "/* Preprocessed code:\n%A\n*/\n" (prettyprint preprocessed)
+  let generated = ccodegenFunction preprocessed name false
+  if debug then printfn "// Generated C code for %s:\n\n%s" name generated
+  generated
