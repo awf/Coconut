@@ -65,12 +65,14 @@ let letLifting (e: Expr): Expr =
   LambdaN(inputs, LetN(ll, te))
   
 
+type ClosureContext = { isMacro: bool }
 (* Performs closure conversion to make the program closer to C code *)
 let closureConversion (e: Expr): Expr = 
-  let rec lambdaLift (exp: Expr): Expr =
+  let rec lambdaLift (ctx: ClosureContext) (exp: Expr): Expr =
+    let rcr (exp2: Expr) = lambdaLift { isMacro = false } exp2
     match exp with 
-    | LambdaN (inputs, body) -> 
-      let transformedBody = lambdaLift body
+    | LambdaN (inputs, body) when not (ctx.isMacro) -> 
+      let transformedBody = rcr body
       let freeVars = listDiff (List.ofSeq (transformedBody.GetFreeVars())) inputs
       let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
       let freeNewVars = List.zip freeVars newVars
@@ -112,20 +114,23 @@ let closureConversion (e: Expr): Expr =
         let call = Expr.Lambda(argVar, Expr.Call(applyClosureInfo, [Expr.Var(closureVar); Expr.Var(argVar)]))
         Expr.Let(closureVar, createdClosure, call)
       result
-    | Patterns.Let(x, e1, e2) -> Expr.Let(x, lambdaLift e1, lambdaLift e2)
+    | LambdaN (inputs, body) -> 
+      LambdaN (inputs, rcr body)
+    | Patterns.Let(x, e1, e2) -> Expr.Let(x, rcr e1, rcr e2)
     | Patterns.Value(v, tp) -> exp
     | Patterns.NewArray(tp, elems) -> 
-      Expr.NewArray(tp, List.map lambdaLift elems)
+      Expr.NewArray(tp, List.map rcr elems)
     | Patterns.Call (None, op, elist) -> 
-      let telist = List.map lambdaLift elist
+      let isCMacro = not (Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true)))
+      let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
       Expr.Call(op, telist)
-    | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map lambdaLift elist)
+    | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map rcr elist)
     | Patterns.Var (x) -> Expr.Var(x)
     | ExprShape.ShapeCombination(o, exprs) ->
-        ExprShape.RebuildShapeCombination(o, List.map lambdaLift exprs)
+        ExprShape.RebuildShapeCombination(o, List.map rcr exprs)
     | _ -> failwith (sprintf "%A not handled yet!" exp)
   let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
-  let te = lambdaLift(body)
+  let te = lambdaLift {isMacro = false} body
   LambdaN(inputs, te)
 
 (* Prepares the given program for C code generation *)

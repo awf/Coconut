@@ -107,7 +107,20 @@ let rec ccodegen (e:Expr): string =
   | _ -> sprintf "ERROR[%A]" e
 
 (* C code generation for a statement in the form of `let var = e` *)
-let rec ccodegenStatement (var: Var, e: Expr): string * string List = 
+let rec ccodegenStatement (var: Var, e: Expr): string * string List =
+  let ccodegenStatements (tabs: string) (exp: Expr) = 
+    let (stmts, res) = 
+      match exp with 
+      | LetN(stmts, res) -> stmts, res
+      | _ -> [], exp
+    let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement stmts)
+    let statementsCode = (String.concat (sprintf "\n%s" tabs) statementsCodeList)
+    let lastStatement = 
+      if(res.Type = typeof<unit>) then
+        ccodegen res
+      else
+        sprintf "%s = %s" (var.Name) (ccodegen res)
+    (sprintf "%s\n%s%s;" statementsCode tabs lastStatement, List.concat closuresList) 
   let (rhs, funs, includesLhs) = 
     match e with 
     | Patterns.NewArray(tp, elems) -> 
@@ -149,18 +162,22 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         [envStruct; makeEnvDef; lambdaCode], 
         true)
     | Patterns.IfThenElse(cond, e1, e2) ->
-      let ccodegenStatements exp = 
-        let (stmts, res) = 
-          match exp with 
-          | LetN(stmts, res) -> stmts, res
-          | _ -> [], exp
-        let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement stmts)
-        let statementsCode = (String.concat "\n\t\t" statementsCodeList)
-        (sprintf "%s\n\t\t%s = %s;" statementsCode (var.Name) (ccodegen res), List.concat closuresList)
-      let (e1code, e1closures) = ccodegenStatements e1
-      let (e2code, e2closures) = ccodegenStatements e2
+      let (e1code, e1closures) = ccodegenStatements "\t\t" e1
+      let (e2code, e2closures) = ccodegenStatements "\t\t" e2
       (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
         (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
+    | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
+      match op.Name with
+      | "vectorAllocCPS" -> 
+        let size = ccodegen (elist.[0])
+        let (Patterns.Lambda(i, body)) = elist.[1]
+        let tp = ccodegenType typeof<Vector>
+        let storageVar = i.Name 
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t" body
+        (sprintf "%s %s = malloc(2);\n\t%s\n\tfree(%s);" tp storageVar bodyCode storageVar,
+          bodyClosures, true)
+      | name ->
+        failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 
       (ccodegen e, [], false)
   if(includesLhs) then 
