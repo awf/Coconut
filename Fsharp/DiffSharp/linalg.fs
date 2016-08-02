@@ -40,6 +40,10 @@ let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] =
   matrix3DBuild (arr.Length) (fun i -> f(arr.[i]))
 
 [<DontInline>]
+let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): unit = 
+  ignore (vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e))
+
+[<DontInline>]
 let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): Number = 
   vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
@@ -72,6 +76,10 @@ let inline cross (a: Vector) (b: Vector) =
 [<DontInline>]
 let inline add_vec (x: Vector) (y: Vector) =
     vectorMap2 (+) x y
+
+// Just-to-compile version 
+let add_vec_s (s : Storage) (v1 : Vector) (v2 : Vector) = 
+  vectorBuildGivenStorage s (fun i-> v1.[i] + v2.[i])
 
 [<DontInline>]
 let inline mult_vec_elementwise (x: Vector) (y: Vector) =
