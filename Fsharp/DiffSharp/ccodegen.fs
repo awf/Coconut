@@ -175,7 +175,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let tp = ccodegenType typeof<Vector>
         let storageVar = i.Name 
         let (bodyCode, bodyClosures) = ccodegenStatements "\t" body
-        (sprintf "%s %s = malloc(2);\n\t%s\n\tfree(%s);" tp storageVar bodyCode storageVar,
+        (sprintf "%s %s = vector_alloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyCode storageVar,
           bodyClosures, true)
       | name ->
         failwithf "Does not know how to generate C macro code for the method `%s`" name

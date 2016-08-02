@@ -82,7 +82,7 @@ let explicitMallocExample1(v: Vector) =
     let sum = 
       iterateNumber (fun acc idx ->
           let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
-          sqnorm (add_vec tmp tmp)
+          acc + sqnorm (add_vec tmp tmp)
         ) 0. 0 9
     numberPrint sum
   )
@@ -96,7 +96,7 @@ let explicitMallocExample2 (v: Vector) =
         iterateNumber (fun acc idx ->
             let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
             let tmp2 = add_vecGivenStorage storage2 tmp tmp
-            sqnorm tmp2
+            acc + sqnorm tmp2
           ) 0. 0 9
       numberPrint sum
     )
