@@ -119,6 +119,13 @@ let vectorBuildToStorage_exp =
     (let s = vectorAlloc (%k) in vectorBuildGivenStorage s (%FIN))
   @>
 
+let vectorAddToStorage_exp = 
+  <@
+    linalg.add_vec %U %V
+    <==>
+    (let s2 = vectorAlloc ((%U).Length) in linalg.add_vecGivenStorage s2 %U %V)
+  @>
+
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
 let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp
@@ -194,10 +201,12 @@ let letCommutingConversion (e: Expr): Expr Option =
     Some(Expr.Let(v2, e1, Expr.Let(v, e2, e3)))
   | _ -> None
 
+// c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
+//  specially section 3.2 (full laziness)
 let foldInvariantCodeMotion (e: Expr): Expr option = 
   match e with
   // TODO generalize
-  | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; s; e]) ->
+  | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; st; en]) ->
     match f with
     | LambdaN(inputs, body) ->
       (*
@@ -222,10 +231,49 @@ let foldInvariantCodeMotion (e: Expr): Expr option =
       match body with
       | Patterns.Let(x, e1, e2) ->
         if(not (List.exists (fun e -> List.exists (fun y -> e = y) inputs) (List.ofSeq (e1.GetFreeVars())))) then
-          let mi = assembly.GetType("linalg").GetMethod("iterateNumber")
-          Some(Expr.Let(x, e1, Expr.Call(mi, [LambdaN(inputs, e2); z; s; e])))
+          let (Patterns.Call(_, mi, _)) = e
+          Some(Expr.Let(x, e1, Expr.Call(mi, [LambdaN(inputs, e2); z; st; en])))
         else
           None
       | _ -> None
     | _ -> failwithf "The first argument of a fold function should be a lambda expression, but is `%A` instead." f
+  | _ -> None
+
+// TODO this one and the previous can be merged
+// c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
+//  specially section 3.2 (full laziness)
+let letFloatOutwards (e: Expr): Expr option = 
+  match e with
+  | ExprShape.ShapeCombination(op, args) ->
+    let transformedArg = 
+      args 
+      |>  List.mapi (fun idx a -> 
+            match a with
+            | Patterns.Let(x, e1, e2) ->
+              Some(idx, x, e1, e2)
+            | _ ->
+              None
+          )
+      |>  List.tryPick id
+    transformedArg
+      |>  Option.map (fun (idx, x, e1, e2) ->
+            let transformedArgs = 
+              args
+              |>  List.mapi (fun idx2 arg ->
+                    if idx = idx2 then
+                      e2
+                    else
+                      arg
+                  )
+            Expr.Let(x, e1, ExprShape.RebuildShapeCombination(op, transformedArgs))
+          )
+  | _ -> None
+
+              
+let allocToCPS (e: Expr): Expr option = 
+  match e with
+  | Patterns.Let(x, (DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [s]) as e1), e2) when (e2.Type = typeof<unit>) ->
+    let cpsCall = <@ corelang.vectorAllocCPS @>
+    let (LambdaN(_, Patterns.Call(None, op, _))) = cpsCall
+    Some(Expr.Call(op, [s; Expr.Lambda(x, e2)]))
   | _ -> None
