@@ -349,6 +349,7 @@ let main argv =
           rules.foldInvariantCodeMotion, 0;
           rules.letCommutingConversion, 0;
           rules.allocToCPS, 0;
+          rules.letFloatOutwards, 0;
           rules.letReorder, 0;
           rules.foldInvariantCodeMotion, 0;
           rules.letCommutingConversion, 0;

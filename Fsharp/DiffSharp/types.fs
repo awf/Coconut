@@ -35,3 +35,6 @@ type DontInline() =
 
 type DontOptimize() = 
     inherit System.Attribute()
+
+type CMacro() =
+    inherit System.Attribute()

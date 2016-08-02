@@ -17,10 +17,11 @@ let vector_add3 (v1: Vector) (v2: Vector) (v3: Vector): Vector =
 
 let matrix_add3 (m1: Matrix) (m2: Matrix) (m3: Matrix): Matrix = 
   matrixAdd m1 (matrixAdd m2 m3)
-
+(*
 let array_slice (v: 'a array) i j = v.[i..j]
 let array_slice_s (storage: Storage) (v: Vector) i j = vectorBuildGivenStorage storage (fun k -> v.[i+k])
-
+*)
+[<DontOptimize>]
 let hoistingExample (v: Vector) = 
   let sum = 
     iterateNumber (fun acc idx ->
@@ -29,7 +30,8 @@ let hoistingExample (v: Vector) =
     ) 0. 0 9
   numberPrint sum
   ()
-                                                                          
+
+(*                                                                            
 let hoistingExample_pass1 (v: Vector) =                                   
   let sum =                                                               
     iterateNumber (fun acc idx ->                                         
@@ -48,7 +50,7 @@ let hoistingExample_pass1 (v: Vector) =
 //   vectorAllocCPS (sizeof (%f %%args))  /* sizeof to be optimized separately using various sizeof rules */  
 //                  (fun storage -> let v = %f_s storage %%args in %e)      
 //                
-                                                                   
+                                                                 
 let hoistingExample_pass2 (v: Vector) =                                
   let sum =                                                        
     iterateNumber (fun acc idx ->                                  
@@ -71,13 +73,7 @@ let hoistingExample_pass3 (v: Vector) =
   numberPrint sum
   ()
 
-
-
-
-
-
-
-
+*)
 
 [<DontOptimize>]
 let explicitMallocExample1(v: Vector) = 
@@ -95,15 +91,15 @@ let explicitMallocExample1(v: Vector) =
 [<DontOptimize>]
 let explicitMallocExample2 (v: Vector) = 
   vectorAllocCPS 10 (fun storage1 ->
-    let sum = 
-      iterateNumber (fun acc idx ->
-          let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
-          vectorAllocCPS 10 (fun storage2 -> 
-              let tmp2 = add_vec_s storage2 tmp tmp
-              sqnorm tmp2
-          )
-        ) 0. 0 9
-    numberPrint sum
+    vectorAllocCPS 10 (fun storage2 -> 
+      let sum = 
+        iterateNumber (fun acc idx ->
+            let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
+            let tmp2 = add_vecGivenStorage storage2 tmp tmp
+            sqnorm tmp2
+          ) 0. 0 9
+      numberPrint sum
+    )
   )
   ()
 
