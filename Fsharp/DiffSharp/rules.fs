@@ -186,6 +186,49 @@ let vectorSliceToBuild (e: Expr): Expr option =
       let vec = Expr.Cast<Vector>(args.[0])
       let s = Expr.Cast<Index>(args.[1])
       let e = Expr.Cast<Index>(args.[2])
-      Some(<@ vectorBuild (%e - %s + 1) (fun i -> (%vec).[i]) @>.Raw)
+      Some(<@ vectorBuild (%e - %s + 1) (fun i -> (%vec).[i + %s]) @>.Raw)
     | _ -> None
+  | _ -> None
+
+// c.f. "Compiling with Continuations, Continued", Andrew Kennedy, ICFP'07
+let letCommutingConversion (e: Expr): Expr Option = 
+  match e with 
+  | Patterns.Let(v, Patterns.Let(v2, e1, e2), e3) -> 
+    Some(Expr.Let(v2, e1, Expr.Let(v, e2, e3)))
+  | _ -> None
+
+let foldInvariantCodeMotion (e: Expr): Expr option = 
+  match e with
+  // TODO generalize
+  | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; s; e]) ->
+    match f with
+    | LambdaN(inputs, body) ->
+      (*
+      let rec findInvariant (exp: Expr) (boundVars: Var list): (Var * Expr) option = 
+        match exp with
+        | Patterns.Let(x, e1, e2) ->
+          if(not (List.exists (fun e -> List.exists (fun e2 -> e = e2) boundVars) (List.ofSeq (e1.GetFreeVars())))) then
+            Some(x, e1)
+          else
+            match findInvariant e1 boundVars with
+            | Some(v) -> Some(v)
+            | None    -> findInvariant e2 (x::boundVars)
+        | LambdaN(inputs, body) ->
+          findInvariant body (inputs @ boundVars)
+        | ExprShape.ShapeVar(v) -> None
+        | ExprShape.ShapeCombination(_, args) ->
+          match List.choose(fun x -> findInvariant x boundVars) args with
+          | hd :: tl -> Some(hd)
+          | _        -> None
+      Option.map (snd) (findInvariant body inputs)
+      *)
+      match body with
+      | Patterns.Let(x, e1, e2) ->
+        if(not (List.exists (fun e -> List.exists (fun y -> e = y) inputs) (List.ofSeq (e1.GetFreeVars())))) then
+          let mi = assembly.GetType("linalg").GetMethod("iterateNumber")
+          Some(Expr.Let(x, e1, Expr.Call(mi, [LambdaN(inputs, e2); z; s; e])))
+        else
+          None
+      | _ -> None
+    | _ -> failwithf "The first argument of a fold function should be a lambda expression, but is `%A` instead." f
   | _ -> None

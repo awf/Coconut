@@ -342,6 +342,9 @@ let main argv =
           comp (rules.constFold0Index_exp), 0;
           //rules.constantFold, 0;
           comp (rules.vectorBuildToStorage_exp), 0;
+          rules.letCommutingConversion, 0;
+          rules.foldInvariantCodeMotion, 0;
+          rules.letCommutingConversion, 0;
         ]
     printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
 
