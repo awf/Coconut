@@ -340,7 +340,7 @@ let main argv =
           comp (rules.assocAddSubIndex_exp), 0;
           comp (rules.subSameIndex_exp), 0;
           comp (rules.constFold0Index_exp), 0;
-          //rules.constantFold, 0;
+          rules.constantFold, 0;
           comp (rules.vectorBuildToStorage_exp), 0;
           rules.letCommutingConversion, 0;
           rules.foldInvariantCodeMotion, 0;

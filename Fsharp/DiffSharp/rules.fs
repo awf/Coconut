@@ -150,8 +150,6 @@ let lambdaAppToLet (e: Expr): Expr Option =
       Some(LetN(List.zip inputs args, body))
   | _ -> None
 
-(*
-// FIXME doesn't work
 let constantFold (e: Expr): Expr Option =
   match e with
   | Patterns.Call(None, op, args) ->
@@ -163,13 +161,12 @@ let constantFold (e: Expr): Expr Option =
       ) args
     
     if (List.length staticArgs) = (List.length args) then
-      let obj = op.Invoke(null, List.toArray staticArgs)
-      op.
-      Some(Expr.Value(obj))
+      let resultObject = op.Invoke(null, List.toArray staticArgs)
+      let resultExpression = Expr.Value(resultObject, e.Type)
+      Some(resultExpression)
     else
       None
   | _ -> None
-*)
 
 open types
 
