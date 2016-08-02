@@ -26,76 +26,50 @@ array_array_number_t programs_matrix_add3(array_array_number_t m1, array_array_n
 }
 
 void programs_hoistingExample(array_number_t v) {
-	number_t macroDef780 = 0;
+	number_t macroDef773 = 0;
 	for(int idx = 0; idx <= 9; idx++){
 		array_number_t tmp = array_slice(v, idx, (idx) + (9));
-		macroDef780 = (macroDef780) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
+		macroDef773 = (macroDef773) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
 	}
-	number_t sum = macroDef780;
+	number_t sum = macroDef773;
 	number_print(sum);
 	return ;
 }
-typedef struct env_t_798 {
-	array_number_t v;
-	index_t idx;
-} env_t_798;
-env_t_798 make_env_t_798(array_number_t v,index_t idx) {
-	env_t_798 env;
-	env.v = v;
-	env.idx = idx;
-	return env;
-}
 
-value_t lambda798(env_t_798* env787, index_t i) {
-	array_number_t v786 = env787->v;
-	index_t idx785 = env787->idx;
-	value_t res;
-	res.number_t_value = v786->arr[(i) + (idx785)];
-	return res;
-}
 void programs_explicitMallocExample1(array_number_t v) {
 	array_number_t storage1 = vector_alloc(10);
-	number_t macroDef794 = 0;
+	number_t macroDef782 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		env_t_798 env_t_798_value = make_env_t_798(v,idx); closure_t closure789 = make_closure(lambda798, &env_t_798_value);
-		array_number_t tmp = vector_build_given_storage(storage1, closure789);
-		macroDef794 = (macroDef794) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
+		array_number_t macroDef778 = (array_number_t)storage1;
+		for(int i = 0; i < macroDef778->length; i++){
+			
+			macroDef778->arr[i] = v->arr[(i) + (idx)];
+		}
+		array_number_t tmp = macroDef778;
+		macroDef782 = (macroDef782) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
 	}
-	number_t sum = macroDef794;
+	number_t sum = macroDef782;
 	number_print(sum);
 	free(storage1);
 	;
 	return ;
 }
-typedef struct env_t_815 {
-	array_number_t v;
-	index_t idx;
-} env_t_815;
-env_t_815 make_env_t_815(array_number_t v,index_t idx) {
-	env_t_815 env;
-	env.v = v;
-	env.idx = idx;
-	return env;
-}
 
-value_t lambda815(env_t_815* env803, index_t i) {
-	array_number_t v802 = env803->v;
-	index_t idx801 = env803->idx;
-	value_t res;
-	res.number_t_value = v802->arr[(i) + (idx801)];
-	return res;
-}
 void programs_explicitMallocExample2(array_number_t v) {
 	array_number_t storage1 = vector_alloc(10);
 	array_number_t storage2 = vector_alloc(10);
-	number_t macroDef810 = 0;
+	number_t macroDef792 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		env_t_815 env_t_815_value = make_env_t_815(v,idx); closure_t closure805 = make_closure(lambda815, &env_t_815_value);
-		array_number_t tmp = vector_build_given_storage(storage1, closure805);
+		array_number_t macroDef788 = (array_number_t)storage1;
+		for(int i = 0; i < macroDef788->length; i++){
+			
+			macroDef788->arr[i] = v->arr[(i) + (idx)];
+		}
+		array_number_t tmp = macroDef788;
 		array_number_t tmp2 = linalg_add_vecGivenStorage(storage2, tmp, tmp);
-		macroDef810 = (macroDef810) + (linalg_sqnorm(tmp2));
+		macroDef792 = (macroDef792) + (linalg_sqnorm(tmp2));
 	}
-	number_t sum = macroDef810;
+	number_t sum = macroDef792;
 	number_print(sum);
 	free(storage2);
 	;
@@ -105,13 +79,13 @@ void programs_explicitMallocExample2(array_number_t v) {
 }
 
 void programs_small_tests(number_t dum) {
-	number_t a816 = programs_test1(2);
-	number_print(a816);
-	number_print(programs_test2(2, a816));
-	array_number_t v2817 = linalg_vectorRange(0, 99);
-	programs_hoistingExample(v2817);
-	programs_explicitMallocExample1(v2817);
-	programs_explicitMallocExample2(v2817);
+	number_t a797 = programs_test1(2);
+	number_print(a797);
+	number_print(programs_test2(2, a797));
+	array_number_t v2798 = linalg_vectorRange(0, 99);
+	programs_hoistingExample(v2798);
+	programs_explicitMallocExample1(v2798);
+	programs_explicitMallocExample2(v2798);
 	return ;
 }
 #endif

@@ -108,7 +108,7 @@ let rec ccodegen (e:Expr): string =
 
 (* C code generation for a statement in the form of `let var = e` *)
 let rec ccodegenStatement (var: Var, e: Expr): string * string List =
-  let ccodegenStatements (tabs: string) (exp: Expr) = 
+  let ccodegenStatements (tabs: string) (exp: Expr) (resultVar: string option) = 
     let (stmts, res) = 
       match exp with 
       | LetN(stmts, res) -> stmts, res
@@ -119,7 +119,8 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       if(res.Type = typeof<unit>) then
         ccodegen res
       else
-        sprintf "%s = %s" (var.Name) (ccodegen res)
+        let leftVar = Option.fold (fun _ x -> x) (var.Name) resultVar
+        sprintf "%s = %s" leftVar (ccodegen res)
     (sprintf "%s\n%s%s;" statementsCode tabs lastStatement, List.concat closuresList) 
     
   let (rhs, funs, includesLhs) = 
@@ -163,8 +164,8 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         [envStruct; makeEnvDef; lambdaCode], 
         true)
     | Patterns.IfThenElse(cond, e1, e2) ->
-      let (e1code, e1closures) = ccodegenStatements "\t\t" e1
-      let (e2code, e2closures) = ccodegenStatements "\t\t" e2
+      let (e1code, e1closures) = ccodegenStatements "\t\t" e1 None
+      let (e2code, e2closures) = ccodegenStatements "\t\t" e2 None
       (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
         (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
     | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
@@ -174,7 +175,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let (Patterns.Lambda(i, body)) = elist.[1]
         let tp = ccodegenType typeof<Vector>
         let storageVar = i.Name 
-        let (bodyCode, bodyClosures) = ccodegenStatements "\t" body
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t" body None
         (sprintf "%s %s = vector_alloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyCode storageVar,
           bodyClosures, true)
       | "iterateNumber" ->
@@ -185,10 +186,22 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let initCode = ccodegen (elist.[1])
         let startCode = ccodegen (elist.[2])
         let endCode = ccodegen (elist.[3])
-        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None))
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
         (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
            resultType resultName initCode 
            idxCode startCode idxCode endCode idxCode
+           bodyCode
+           , bodyClosures, true)
+      | "vectorBuildGivenStorage" ->
+        let storage = ccodegen (elist.[0])
+        let resultType = ccodegenType (var.Type)
+        let resultName = var.Name 
+        let (Patterns.Lambda(idx, body)) = elist.[1]
+        let idxCode = idx.Name
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
+        (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
+           resultType resultName resultType storage 
+           idxCode idxCode resultName idxCode
            bodyCode
            , bodyClosures, true)
       | name ->

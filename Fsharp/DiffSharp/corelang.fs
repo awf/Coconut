@@ -113,6 +113,7 @@ let vectorAllocCPS (size: Index) (cont: Storage -> unit): unit =
   cont(storage)
 
 [<CMirror("vector_build_given_storage")>]
+[<CMacro()>]
 let vectorBuildGivenStorage (storage: Storage) (f: Index -> Number): Vector =
   match storage with
   | VS v -> vectorBuild(v.Length)(f)

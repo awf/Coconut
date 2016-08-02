@@ -474,42 +474,26 @@ number_t linalg_numberRead(string_t fn, index_t startLine) {
 	array_number_t vector = linalg_vectorRead(fn, startLine);
 	return vector->arr[0];
 }
-typedef struct env_t_225 {
-	array_number_t v2;
-	array_number_t v1;
-	closure_t f;
-} env_t_225;
-env_t_225 make_env_t_225(array_number_t v2,array_number_t v1,closure_t f) {
-	env_t_225 env;
-	env.v2 = v2;
-	env.v1 = v1;
-	env.f = f;
-	return env;
-}
 
-value_t lambda225(env_t_225* env221, index_t i) {
-	array_number_t v2220 = env221->v2;
-	array_number_t v1219 = env221->v1;
-	closure_t f218 = env221->f;
-	value_t res;
-	res.number_t_value = f218.lam(f218.env, v1219->arr[i], v2220->arr[i]).number_t_value;
-	return res;
-}
 array_number_t linalg_vectorMap2GivenStorage(storage_t storage, closure_t f, array_number_t v1, array_number_t v2) {
-	env_t_225 env_t_225_value = make_env_t_225(v2,v1,f); closure_t closure223 = make_closure(lambda225, &env_t_225_value);
-	return vector_build_given_storage(storage, closure223);
+	array_number_t macroDef218 = (array_number_t)storage;
+		for(int i = 0; i < macroDef218->length; i++){
+			
+			macroDef218->arr[i] = f.lam(f.env, v1->arr[i], v2->arr[i]).number_t_value;
+		}
+	return macroDef218;
 }
-typedef empty_env_t env_t_231;
+typedef empty_env_t env_t_224;
 
 
-value_t lambda231(env_t_231* env227, number_t x, number_t y) {
+value_t lambda224(env_t_224* env220, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) + (y);
 	return res;
 }
 array_number_t linalg_add_vecGivenStorage(storage_t s, array_number_t x, array_number_t y) {
-	env_t_231 env_t_231_value = make_empty_env(); closure_t closure229 = make_closure(lambda231, &env_t_231_value);
-	return linalg_vectorMap2GivenStorage(s, closure229, x, y);
+	env_t_224 env_t_224_value = make_empty_env(); closure_t closure222 = make_closure(lambda224, &env_t_224_value);
+	return linalg_vectorMap2GivenStorage(s, closure222, x, y);
 }
 #endif
