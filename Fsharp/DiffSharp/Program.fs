@@ -342,6 +342,7 @@ let main argv =
           comp (rules.constFold0Index_exp), 0;
           rules.constantFold, 0;
           comp (rules.vectorAddToStorage_exp), 0;
+          rules.letVectorBuildLength, 0;
           rules.letFloatOutwards, 0;
           comp (rules.vectorBuildToStorage_exp), 0;
           rules.letCommutingConversion, 0;

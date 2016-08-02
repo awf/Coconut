@@ -194,6 +194,45 @@ let vectorSliceToBuild (e: Expr): Expr option =
     | _ -> None
   | _ -> None
 
+let letVectorBuildLength (e: Expr): Expr option =
+  match e with
+  | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ vectorBuild @> (_, _, [size; f]) as buildExpr), e2) -> 
+    let rec findLength(exp: Expr): (Expr * (Expr -> Expr)) option = 
+      match exp with
+      | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" && arr = Expr.Var(x) -> 
+        Some(size, fun i -> i)
+      | ExprShape.ShapeLambda(input, body) ->
+        findLength body
+        |> Option.map (fun (l, f) -> l, fun i -> Expr.Lambda(input, f(i)))
+      | ExprShape.ShapeVar(v) -> None
+      | ExprShape.ShapeCombination(op, args) ->
+        let transformedArg = 
+          args 
+          |> List.mapi (fun idx arg ->
+               findLength(arg)
+               |> Option.map (fun (e, f) -> idx, e, f)
+             )
+          |> List.tryPick id
+        transformedArg 
+        |> Option.map (fun (idx, e, f) ->         
+             e, (fun i -> 
+                  let transformedArgs = 
+                    args
+                    |> List.mapi (fun idx2 arg ->
+                         if(idx2 = idx) then
+                           f(i)
+                         else
+                           arg
+                       )
+                  ExprShape.RebuildShapeCombination(op, transformedArgs)
+                )
+           )
+    findLength(e2)
+    |> Option.map (fun (te, tf) ->
+         Expr.Let (x, buildExpr, tf(te))
+       )
+  | _ -> None
+
 // c.f. "Compiling with Continuations, Continued", Andrew Kennedy, ICFP'07
 let letCommutingConversion (e: Expr): Expr Option = 
   match e with 
@@ -268,7 +307,6 @@ let letFloatOutwards (e: Expr): Expr option =
             Expr.Let(x, e1, ExprShape.RebuildShapeCombination(op, transformedArgs))
           )
   | _ -> None
-
               
 let allocToCPS (e: Expr): Expr option = 
   match e with
