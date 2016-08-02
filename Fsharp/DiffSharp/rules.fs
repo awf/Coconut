@@ -240,6 +240,12 @@ let letCommutingConversion (e: Expr): Expr Option =
     Some(Expr.Let(v2, e1, Expr.Let(v, e2, e3)))
   | _ -> None
 
+let letReorder (e: Expr): Expr Option = 
+  match e with 
+  | Patterns.Let(v, e1, Patterns.Let(v2, e2, e3)) when not (Seq.exists (fun x -> x = v) (e2.GetFreeVars())) -> 
+    Some(Expr.Let(v2, e2, Expr.Let(v, e1, e3)))
+  | _ -> None
+
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)
 let foldInvariantCodeMotion (e: Expr): Expr option = 
