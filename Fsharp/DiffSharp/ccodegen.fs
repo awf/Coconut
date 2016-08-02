@@ -121,6 +121,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       else
         sprintf "%s = %s" (var.Name) (ccodegen res)
     (sprintf "%s\n%s%s;" statementsCode tabs lastStatement, List.concat closuresList) 
+    
   let (rhs, funs, includesLhs) = 
     match e with 
     | Patterns.NewArray(tp, elems) -> 

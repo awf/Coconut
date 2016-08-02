@@ -294,7 +294,7 @@ let main argv =
 #if DO_COMPILE
     let res = usecases.run_ba_from_file (dir_in + fn + ".txt")
     (*matrixPrint res*)
-    (*
+    
     compiler.compileModule "linalg" [] false
     compiler.compileModule "usecases" ["linalg"] false
     compiler.compileModule "programs" ["linalg"] true
@@ -357,9 +357,9 @@ let main argv =
           rules.allocToCPS, 0;
         ]
     printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
-    *)
-    printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature" false)
+    //printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
+    
+    printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED

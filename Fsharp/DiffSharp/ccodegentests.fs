@@ -14,9 +14,18 @@ let closure_bug3 (m1: Matrix) (m2: Matrix): Matrix =
   let n = 3.0
   matrixBuild (10) (fun i -> vectorBuild 20 (fun j -> double(i + j) * n))
 
-let valloc_cps_feature (dum: Vector): unit =
+let valloc_cps_feature1 (dum: Vector): unit =
   vectorAllocCPS 10 (fun s -> 
     arrayPrint dum
     arrayPrint dum
+  )
+  ()
+
+let valloc_cps_feature2 (dum: Vector): unit =
+  vectorAllocCPS 10 (fun s -> 
+    vectorAllocCPS 10 (fun s2 -> 
+      arrayPrint dum
+      arrayPrint dum
+    )
   )
   ()

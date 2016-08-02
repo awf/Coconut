@@ -123,7 +123,12 @@ let closureConversion (e: Expr): Expr =
     | Patterns.Call (None, op, elist) -> 
       let isCMacro = not (Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true)))
       let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
-      Expr.Call(op, telist)
+      let callExpr = Expr.Call(op, telist)
+      let macroVar = new Var(newVar "macroDef", exp.Type)
+      if isCMacro then
+        Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
+      else
+        callExpr
     | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map rcr elist)
     | Patterns.Var (x) -> Expr.Var(x)
     | ExprShape.ShapeCombination(o, exprs) ->
