@@ -46,6 +46,7 @@ let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): un
 *)
 
 [<DontInline>]
+[<CMacro()>]
 let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): Number = 
   vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 

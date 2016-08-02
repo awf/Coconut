@@ -177,6 +177,20 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let (bodyCode, bodyClosures) = ccodegenStatements "\t" body
         (sprintf "%s %s = vector_alloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyCode storageVar,
           bodyClosures, true)
+      | "iterateNumber" ->
+        let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[0]
+        let idxCode = idx.Name
+        let resultType = ccodegenType (var.Type)
+        let resultName = var.Name
+        let initCode = ccodegen (elist.[1])
+        let startCode = ccodegen (elist.[2])
+        let endCode = ccodegen (elist.[3])
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None))
+        (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+           resultType resultName initCode 
+           idxCode startCode idxCode endCode idxCode
+           bodyCode
+           , bodyClosures, true)
       | name ->
         failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 
