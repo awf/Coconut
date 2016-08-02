@@ -356,9 +356,41 @@ let main argv =
           rules.letCommutingConversion, 0;
           rules.allocToCPS, 0;
         ]
-    printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
-    
+    //printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
+    let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
+    let chains = 
+      optimizer.guidedOptimize bundleAdjustmentProject 
+        [ rules.vectorSliceToBuild, 0;
+          comp (rules.comAddIndex_exp), 1;
+          comp (rules.assocAddSubIndex_exp), 0;
+          comp (rules.subSameIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.constantFold, 0;
+          rules.vectorSliceToBuild, 0;
+          comp (rules.comAddIndex_exp), 2;
+          comp (rules.assocAddSubIndex_exp), 0;
+          comp (rules.subSameIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.constantFold, 0;
+          rules.vectorSliceToBuild, 0;
+          comp (rules.comAddIndex_exp), 3;
+          comp (rules.assocAddSubIndex_exp), 0;
+          comp (rules.subSameIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.constantFold, 0;
+          rules.vectorSliceToBuild, 0;
+          rules.constantFold, 0;
+          rules.constantFold, 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.vectorSliceToBuild, 0;
+          comp (rules.comAddIndex_exp), 4;
+          comp (rules.assocAddSubIndex_exp), 0;
+          comp (rules.subSameIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.constantFold, 0;
+        ]
+    printfn "ba_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
