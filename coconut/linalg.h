@@ -336,126 +336,148 @@ array_number_t linalg_add_vec(array_number_t x, array_number_t y) {
 	env_t_89 env_t_89_value = make_empty_env(); closure_t closure88 = make_closure(lambda89, &env_t_89_value);
 	return linalg_vectorMap2(closure88, x, y);
 }
-typedef empty_env_t env_t_93;
+typedef struct env_t_95 {
+	array_number_t v2;
+	array_number_t v1;
+} env_t_95;
+env_t_95 make_env_t_95(array_number_t v2,array_number_t v1) {
+	env_t_95 env;
+	env.v2 = v2;
+	env.v1 = v1;
+	return env;
+}
+
+value_t lambda95(env_t_95* env92, index_t i) {
+	array_number_t v291 = env92->v2;
+	array_number_t v190 = env92->v1;
+	value_t res;
+	res.number_t_value = (v190->arr[i]) + (v291->arr[i]);
+	return res;
+}
+array_number_t linalg_add_vec_s(storage_t s, array_number_t v1, array_number_t v2) {
+	env_t_95 env_t_95_value = make_env_t_95(v2,v1); closure_t closure94 = make_closure(lambda95, &env_t_95_value);
+	return vector_build_given_storage(s, closure94);
+}
+typedef empty_env_t env_t_99;
 
 
-value_t lambda93(env_t_93* env90, number_t x, number_t y) {
+value_t lambda99(env_t_99* env96, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) * (y);
 	return res;
 }
 array_number_t linalg_mult_vec_elementwise(array_number_t x, array_number_t y) {
-	env_t_93 env_t_93_value = make_empty_env(); closure_t closure92 = make_closure(lambda93, &env_t_93_value);
-	return linalg_vectorMap2(closure92, x, y);
+	env_t_99 env_t_99_value = make_empty_env(); closure_t closure98 = make_closure(lambda99, &env_t_99_value);
+	return linalg_vectorMap2(closure98, x, y);
 }
 
 array_number_t linalg_add_vec3(array_number_t x, array_number_t y, array_number_t z) {
 	
 	return linalg_add_vec(linalg_add_vec(x, y), z);
 }
-typedef empty_env_t env_t_97;
+typedef empty_env_t env_t_103;
 
 
-value_t lambda97(env_t_97* env94, number_t x, number_t y) {
+value_t lambda103(env_t_103* env100, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) - (y);
 	return res;
 }
 array_number_t linalg_sub_vec(array_number_t x, array_number_t y) {
-	env_t_97 env_t_97_value = make_empty_env(); closure_t closure96 = make_closure(lambda97, &env_t_97_value);
-	return linalg_vectorMap2(closure96, x, y);
+	env_t_103 env_t_103_value = make_empty_env(); closure_t closure102 = make_closure(lambda103, &env_t_103_value);
+	return linalg_vectorMap2(closure102, x, y);
 }
-typedef empty_env_t env_t_101;
+typedef empty_env_t env_t_107;
 
 
-value_t lambda101(env_t_101* env98, array_number_t x, array_number_t y) {
+value_t lambda107(env_t_107* env104, array_number_t x, array_number_t y) {
 	
 	value_t res;
 	res.array_number_t_value = linalg_add_vec(x, y);
 	return res;
 }
 array_array_number_t linalg_matrixAdd(array_array_number_t x, array_array_number_t y) {
-	env_t_101 env_t_101_value = make_empty_env(); closure_t closure100 = make_closure(lambda101, &env_t_101_value);
-	return linalg_matrixMap2(closure100, x, y);
+	env_t_107 env_t_107_value = make_empty_env(); closure_t closure106 = make_closure(lambda107, &env_t_107_value);
+	return linalg_matrixMap2(closure106, x, y);
 }
-typedef empty_env_t env_t_105;
+typedef empty_env_t env_t_111;
 
 
-value_t lambda105(env_t_105* env102, array_number_t x, array_number_t y) {
+value_t lambda111(env_t_111* env108, array_number_t x, array_number_t y) {
 	
 	value_t res;
 	res.array_number_t_value = linalg_mult_vec_elementwise(x, y);
 	return res;
 }
 array_array_number_t linalg_matrixMultElementwise(array_array_number_t x, array_array_number_t y) {
-	env_t_105 env_t_105_value = make_empty_env(); closure_t closure104 = make_closure(lambda105, &env_t_105_value);
-	return linalg_matrixMap2(closure104, x, y);
+	env_t_111 env_t_111_value = make_empty_env(); closure_t closure110 = make_closure(lambda111, &env_t_111_value);
+	return linalg_matrixMap2(closure110, x, y);
 }
-typedef empty_env_t env_t_109;
+typedef empty_env_t env_t_115;
 
 
-value_t lambda109(env_t_109* env106, number_t x1) {
+value_t lambda115(env_t_115* env112, number_t x1) {
 	
 	value_t res;
 	res.number_t_value = (x1) * (x1);
 	return res;
 }
 number_t linalg_sqnorm(array_number_t x) {
-	env_t_109 env_t_109_value = make_empty_env(); closure_t closure108 = make_closure(lambda109, &env_t_109_value);
-	return linalg_arraySum(linalg_vectorMap(closure108, x));
+	env_t_115 env_t_115_value = make_empty_env(); closure_t closure114 = make_closure(lambda115, &env_t_115_value);
+	return linalg_arraySum(linalg_vectorMap(closure114, x));
 }
-typedef empty_env_t env_t_113;
+typedef empty_env_t env_t_119;
 
 
-value_t lambda113(env_t_113* env110, number_t x, number_t y) {
+value_t lambda119(env_t_119* env116, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) * (y);
 	return res;
 }
 number_t linalg_dot_prod(array_number_t x, array_number_t y) {
-	env_t_113 env_t_113_value = make_empty_env(); closure_t closure112 = make_closure(lambda113, &env_t_113_value);
-	return linalg_arraySum(linalg_vectorMap2(closure112, x, y));
+	env_t_119 env_t_119_value = make_empty_env(); closure_t closure118 = make_closure(lambda119, &env_t_119_value);
+	return linalg_arraySum(linalg_vectorMap2(closure118, x, y));
 }
-typedef struct env_t_118 {
+typedef struct env_t_124 {
 	array_number_t row;
-} env_t_118;
-env_t_118 make_env_t_118(array_number_t row) {
-	env_t_118 env;
+} env_t_124;
+env_t_124 make_env_t_124(array_number_t row) {
+	env_t_124 env;
 	env.row = row;
 	return env;
 }
 
-value_t lambda118(env_t_118* env115, number_t r) {
-	array_number_t row114 = env115->row;
+value_t lambda124(env_t_124* env121, number_t r) {
+	array_number_t row120 = env121->row;
 	value_t res;
-	res.array_number_t_value = row114;
+	res.array_number_t_value = row120;
 	return res;
 }
 array_array_number_t linalg_matrixFillFromVector(index_t rows, array_number_t row) {
-	env_t_118 env_t_118_value = make_env_t_118(row); closure_t closure117 = make_closure(lambda118, &env_t_118_value);
-	return linalg_vectorMapToMatrix(closure117, linalg_vectorRange(1, rows));
+	env_t_124 env_t_124_value = make_env_t_124(row); closure_t closure123 = make_closure(lambda124, &env_t_124_value);
+	return linalg_vectorMapToMatrix(closure123, linalg_vectorRange(1, rows));
 }
-typedef struct env_t_123 {
+typedef struct env_t_129 {
 	number_t value;
-} env_t_123;
-env_t_123 make_env_t_123(number_t value) {
-	env_t_123 env;
+} env_t_129;
+env_t_129 make_env_t_129(number_t value) {
+	env_t_129 env;
 	env.value = value;
 	return env;
 }
 
-value_t lambda123(env_t_123* env120, number_t c) {
-	number_t value119 = env120->value;
+value_t lambda129(env_t_129* env126, number_t c) {
+	number_t value125 = env126->value;
 	value_t res;
-	res.number_t_value = value119;
+	res.number_t_value = value125;
 	return res;
 }
 array_array_number_t linalg_matrixFill(index_t rows, index_t cols, number_t value) {
-	env_t_123 env_t_123_value = make_env_t_123(value); closure_t closure122 = make_closure(lambda123, &env_t_123_value);
-	array_number_t row = linalg_vectorMap(closure122, linalg_vectorRange(1, cols));
+	env_t_129 env_t_129_value = make_env_t_129(value); closure_t closure128 = make_closure(lambda129, &env_t_129_value);
+	array_number_t row = linalg_vectorMap(closure128, linalg_vectorRange(1, cols));
 	return linalg_matrixFillFromVector(rows, row);
 }
 
@@ -474,42 +496,42 @@ number_t linalg_numberRead(string_t fn, index_t startLine) {
 	array_number_t vector = linalg_vectorRead(fn, startLine);
 	return vector->arr[0];
 }
-typedef struct env_t_130 {
+typedef struct env_t_136 {
 	array_number_t v2;
 	array_number_t v1;
 	closure_t f;
-} env_t_130;
-env_t_130 make_env_t_130(array_number_t v2,array_number_t v1,closure_t f) {
-	env_t_130 env;
+} env_t_136;
+env_t_136 make_env_t_136(array_number_t v2,array_number_t v1,closure_t f) {
+	env_t_136 env;
 	env.v2 = v2;
 	env.v1 = v1;
 	env.f = f;
 	return env;
 }
 
-value_t lambda130(env_t_130* env127, index_t i) {
-	array_number_t v2126 = env127->v2;
-	array_number_t v1125 = env127->v1;
-	closure_t f124 = env127->f;
+value_t lambda136(env_t_136* env133, index_t i) {
+	array_number_t v2132 = env133->v2;
+	array_number_t v1131 = env133->v1;
+	closure_t f130 = env133->f;
 	value_t res;
-	res.number_t_value = f124.lam(f124.env, v1125->arr[i], v2126->arr[i]).number_t_value;
+	res.number_t_value = f130.lam(f130.env, v1131->arr[i], v2132->arr[i]).number_t_value;
 	return res;
 }
 array_number_t linalg_vectorMap2GivenStorage(storage_t storage, closure_t f, array_number_t v1, array_number_t v2) {
-	env_t_130 env_t_130_value = make_env_t_130(v2,v1,f); closure_t closure129 = make_closure(lambda130, &env_t_130_value);
-	return vector_build_given_storage(storage, closure129);
+	env_t_136 env_t_136_value = make_env_t_136(v2,v1,f); closure_t closure135 = make_closure(lambda136, &env_t_136_value);
+	return vector_build_given_storage(storage, closure135);
 }
-typedef empty_env_t env_t_134;
+typedef empty_env_t env_t_140;
 
 
-value_t lambda134(env_t_134* env131, number_t x, number_t y) {
+value_t lambda140(env_t_140* env137, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) + (y);
 	return res;
 }
 array_number_t linalg_add_vecGivenStorage(storage_t s, array_number_t x, array_number_t y) {
-	env_t_134 env_t_134_value = make_empty_env(); closure_t closure133 = make_closure(lambda134, &env_t_134_value);
-	return linalg_vectorMap2GivenStorage(s, closure133, x, y);
+	env_t_140 env_t_140_value = make_empty_env(); closure_t closure139 = make_closure(lambda140, &env_t_140_value);
+	return linalg_vectorMap2GivenStorage(s, closure139, x, y);
 }
 #endif

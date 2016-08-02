@@ -53,6 +53,13 @@ let private withEnvNumer<'a> (id: int) (cont: int -> 'a): 'a =
 (* C code generation for a type *)
 let rec ccodegenType (t: System.Type): string = 
   match t with 
+  | _ when t.ContainsGenericParameters ->
+        let generic = t.GetGenericArguments()
+        let et = t.GetElementType()
+        let args = [| typeof<Number> |]
+        let gt = et.GetGenericTypeDefinition()
+        let closed = gt.MakeGenericType(args)
+        ccodegenType (closed)
   | _ when t = typeof<Matrix3D> -> ARRAY_PREFIX + ARRAY_PREFIX + ARRAY_PREFIX + "number_t"
   | _ when t = typeof<Matrix> -> ARRAY_PREFIX + ARRAY_PREFIX + "number_t"
   | _ when t = typeof<Vector> -> ARRAY_PREFIX + "number_t"

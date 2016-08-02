@@ -284,7 +284,6 @@ let main argv =
     let nruns_J = (Int32.Parse argv.[4])
     let replicate_point = 
         (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
-
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif

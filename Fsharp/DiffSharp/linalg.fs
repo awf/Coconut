@@ -39,9 +39,9 @@ let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix =
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
   matrix3DBuild (arr.Length) (fun i -> f(arr.[i]))
 
-[<DontInline>]
-let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): unit = 
-  ignore (vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e))
+//[<DontInline>]
+//let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): unit = 
+//  ignore (vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e))
 
 [<DontInline>]
 let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): Number = 

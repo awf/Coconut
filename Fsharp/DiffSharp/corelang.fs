@@ -106,8 +106,8 @@ let vectorAlloc (size: Index): Storage =
 
 /// Allocates storage needed for a Vector. 
 /// This storage is available only in the `cont` scope.
-[<CMirror("vector_alloc_cps")>]
-let vectorAllocCPS (size: Index) (cont: Storage -> unit): unit =
+[<CMirror("vector_alloc_cps_'a")>]
+let vectorAllocCPS (size: Index) (cont: Storage -> 'a): 'a =
   let storage = vectorAlloc(size)
   cont(storage)
 
