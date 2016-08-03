@@ -203,6 +203,20 @@ let methodDefInliner (e: Expr): Expr Option =
     Some(renamedBody)
   | _ -> None
 
+let letIntroduction (e: Expr): Expr option =
+  match e with
+  | Patterns.Let(x, e1, e2) -> None
+  (*| Patterns.PropertyGet(Some(exp), op, args) ->
+    let nv = new Var(utils.newVar "xi_", exp.Type)
+    Some(Expr.Let(nv, exp, Expr.PropertyGet(Expr.Var(nv), op, args)))
+  *)
+  | Patterns.Lambda(_, _) -> None
+  | Patterns.Var(_) -> None
+  | Patterns.Value(_, _) -> None
+  | _ -> 
+    let nv = new Var(utils.newVar "xi_", e.Type)
+    Some(Expr.Let(nv, e, Expr.Var(nv)))
+
 open FSharp.Quotations.Evaluator
 
 let constantFold (e: Expr): Expr Option =
@@ -361,6 +375,8 @@ let letFloatOutwards (e: Expr): Expr option =
                   )
             Expr.Let(x, e1, ExprShape.RebuildShapeCombination(op, transformedArgs))
           )
+  | ExprShape.ShapeLambda(x, Patterns.Let(y, e1, e2)) when e1.GetFreeVars() |> Seq.exists (fun fv -> fv = x) |> not ->
+    Some(Expr.Let(y, e1, Expr.Lambda(x, e2)))
   | _ -> None
               
 let allocToCPS (e: Expr): Expr option = 
