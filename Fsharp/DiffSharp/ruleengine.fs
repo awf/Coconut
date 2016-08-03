@@ -58,6 +58,8 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       Some([v, e])
     | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
         extractList(pats, exprs)
+    | (Patterns.PropertyGet(objp, op, []), Patterns.PropertyGet(obje, oe, [])) when (Option.count objp) = (Option.count obje) && op = oe ->
+        extractList(Option.toList objp, Option.toList obje)
     | (ExprShape.ShapeCombination(op, pats), ExprShape.ShapeCombination(oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
         extractList(pats, exprs)
     | (Patterns.Value(v1), Patterns.Value(v2)) when v1 = v2 -> Some([])
