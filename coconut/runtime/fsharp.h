@@ -67,10 +67,29 @@ void array_print(array_number_t arr) {
 	printf("]\n");
 }
 
-array_number_t vector_build(index_t size, closure_t closure) {
+storage_t vector_alloc(index_t size) {
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
 	res->length = size;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	return res;
+}
+
+storage_t matrix_alloc(index_t size) {
+	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = size;
+	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	return res;
+}
+
+storage_t matrix3d_alloc(index_t size) {
+	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	res->length = size;
+	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
+	return res;
+}
+
+array_number_t vector_build(index_t size, closure_t closure) {
+	array_number_t res = (array_number_t)vector_alloc(size);
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
@@ -78,9 +97,7 @@ array_number_t vector_build(index_t size, closure_t closure) {
 }
 
 array_array_number_t matrix_build(index_t size, closure_t closure) {
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	array_array_number_t res = (array_array_number_t)matrix_alloc(size);
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).array_number_t_value;
 	}
@@ -88,9 +105,7 @@ array_array_number_t matrix_build(index_t size, closure_t closure) {
 }
 
 array_array_array_number_t matrix3d_build(index_t size, closure_t closure) {
-	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
+	array_array_array_number_t res = (array_array_array_number_t)matrix3d_alloc(size);
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).array_array_number_t_value;
 	}
@@ -99,9 +114,7 @@ array_array_array_number_t matrix3d_build(index_t size, closure_t closure) {
 
 array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
 	index_t size = end - start + 1;
-	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (number_t*)malloc(sizeof(number_t) * size);
+	array_number_t res = (array_number_t)vector_alloc(size);
 	for (int i = 0; i < size; i++) {
 		res->arr[i] = arr->arr[start + i];
 	}
@@ -110,9 +123,7 @@ array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
 
 array_array_number_t matrix_slice(array_array_number_t arr, index_t start, index_t end) {
 	index_t size = end - start + 1;
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * size);
+	array_array_number_t res = (array_array_number_t) matrix_alloc(size);
 	for (int i = 0; i < size; i++) {
 		res->arr[i] = arr->arr[start + i];
 	}
@@ -121,9 +132,7 @@ array_array_number_t matrix_slice(array_array_number_t arr, index_t start, index
 
 array_number_t array_range(index_t start, index_t end) {
 	index_t size = end - start + 1;
-	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (number_t*)malloc(sizeof(number_t) * size);
+	array_number_t res = (array_number_t)vector_alloc(size);
 	for (int i = 0; i < size; i++) {
 		res->arr[i] = start + i;
 	}
@@ -135,9 +144,7 @@ void number_print(number_t num) {
 }
 
 array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number_t mat2) {
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = mat1->length + mat2->length;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	array_array_number_t res = (array_array_number_t)matrix_alloc(mat1->length + mat2->length);
 	for (int i = 0; i < res->length; i++) {
 		if (i < mat1->length)
 			res->arr[i] = mat1->arr[i];
@@ -148,9 +155,7 @@ array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number
 }
 
 array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, array_array_array_number_t mat2) {
-	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = mat1->length + mat2->length;
-	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
+	array_array_array_number_t res = (array_array_array_number_t)matrix3d_alloc(mat1->length + mat2->length);
 	for (int i = 0; i < res->length; i++) {
 		if (i < mat1->length)
 			res->arr[i] = mat1->arr[i];
@@ -193,13 +198,9 @@ array_array_array_number_t vector_fold_matrix3d(closure_t closure, array_array_a
 }
 
 array_array_number_t matrix_transpose(array_array_number_t mat) {
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = mat->arr[0]->length;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	array_array_number_t res = (array_array_number_t)matrix_alloc(mat->arr[0]->length);
 	for (int i = 0; i < res->length; i++) {
-		array_number_t row = (array_number_t)malloc(sizeof(int) * 2);
-		row->length = mat->length;
-		row->arr = (number_t*)malloc(sizeof(number_t) * row->length);
+		array_number_t row = (array_number_t)vector_alloc(mat->length);
 		for (int j = 0; j < row->length; j++) {
 			row->arr[j] = mat->arr[j]->arr[i];
 		}
@@ -217,13 +218,9 @@ array_array_number_t matrix_mult(array_array_number_t mat1, array_array_number_t
 		printf("Matrcies have the inconsistent dimensions %dx%d and %dx%d for MMM", r1, c1, r2, c2);
 		exit(1);
 	}
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = r1;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	array_array_number_t res = (array_array_number_t)matrix_alloc(r1);
 	for (int i = 0; i < r1; i++) {
-		array_number_t row = (array_number_t)malloc(sizeof(int) * 2);
-		row->length = c2;
-		row->arr = (number_t*)malloc(sizeof(number_t) * c2);
+		array_number_t row = (array_number_t)vector_alloc(c2);
 		for (int j = 0; j < c2; j++) {
 			row->arr[j] = 0;
 			for(int k = 0; k < c1; k++) {
@@ -258,9 +255,7 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
     for(int i = 0; i < start_line; i++) {
     	while(getc(fp) != '\n') {}
     }
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = rows;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+	array_array_number_t res = (array_array_number_t)matrix_alloc(rows);
 	for(int row_index=0; row_index<rows; row_index++) {
 		char cur = 0;
 		int length = 0;
@@ -288,13 +283,6 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 number_t gamma_ln(number_t x) {
 	// TODO needs to be implemented.
 	return x;
-}
-
-storage_t vector_alloc(index_t size) {
-	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
-	return res;
 }
 
 void vector_alloc_cps(index_t size, closure_t closure) {
