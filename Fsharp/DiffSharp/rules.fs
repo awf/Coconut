@@ -69,11 +69,25 @@ let assocSubSub_exp =
     %a - (%b + %c)
   @>
 
+let indexToDoubleToInt_exp = 
+  <@ 
+    int (double %k)
+    <==>
+    %k
+  @>
+
 let vectorBuildGet_exp = 
   <@
     (vectorBuild %k %FIN).[%i]
     <==>
     (%FIN) %i
+  @>
+
+let vectorBuildLength_exp = 
+  <@
+    (vectorBuild %k %FIN).Length
+    <==>
+    %k
   @>
 
 let comAddIndex_exp = 
@@ -90,6 +104,20 @@ let assocAddSubIndex_exp =
     %i + (%j - %k)
   @>
 
+let assocSubAddIndex_exp = 
+  <@
+    (%i - %j) + %k
+    <==>
+    %i - (%j - %k)
+  @>
+
+let assocSubSubIndex_exp = 
+  <@
+    (%i - %j) - %k
+    <==>
+    %i - (%j + %k)
+  @>
+
 let subSameIndex_exp = 
   <@
     %i - %i
@@ -100,6 +128,13 @@ let subSameIndex_exp =
 let constFold0Index_exp = 
   <@ 
     %i + 0
+    <==>
+    %i
+  @>
+
+let constFoldN0Index_exp = 
+  <@ 
+    %i - 0
     <==>
     %i
   @>
@@ -140,8 +175,8 @@ let letInliner (e: Expr): Expr Option =
   match e with 
   | Patterns.Let(v, e1, e2) -> 
     let inlinedBody = e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None)
-    let renamedBody = variableRenaming inlinedBody []
-    //let renamedBody = inlinedBody
+    //let renamedBody = variableRenaming inlinedBody []
+    let renamedBody = inlinedBody
     Some(renamedBody)
   | _ -> None
 
@@ -155,6 +190,17 @@ let lambdaAppToLet (e: Expr): Expr Option =
   match e with
   | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) -> 
       Some(LetN(List.zip inputs args, body))
+  | _ -> None
+
+/// This rule is composition of letInliner, methodDefToLambda, and lambdaAppToLet
+let methodDefInliner (e: Expr): Expr Option = 
+  match e with
+  | ExistingCompiledMethodWithLambda(methodName, moduleName, args, LambdaN(inputs, body)) when (List.length inputs) = (List.length args) -> 
+    let inputsAndArgs = List.zip inputs args
+    let inlinedBody = body.Substitute(fun v2 -> inputsAndArgs |> List.tryFind (fun (v, a) -> v = v2) |> Option.map snd)
+    let renamedBody = variableRenaming inlinedBody []
+    //let renamedBody = inlinedBody
+    Some(renamedBody)
   | _ -> None
 
 open FSharp.Quotations.Evaluator
