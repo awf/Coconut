@@ -390,7 +390,122 @@ let main argv =
           comp (rules.constFold0Index_exp), 0;
           rules.constantFold, 0;
         ]
-    printfn "ba_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "ba_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "ba_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "ba_project" false)
+    let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
+    let chains = 
+      optimizer.guidedOptimize bundleAdjustmentReproj_err 
+        [ 
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.methodDefInliner, 1;
+          rules.methodDefInliner, 0;
+          rules.methodDefInliner, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.methodDefInliner, 3;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          comp (rules.indexToDoubleToInt_exp), 0;
+          comp (rules.comAddIndex_exp), 1;
+          comp (rules.constFold0Index_exp), 0;
+          comp (rules.assocSubSubIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          comp (rules.assocSubAddIndex_exp), 0;
+          rules.constantFold, 0;
+          comp (rules.constFoldN0Index_exp), 0;
+          rules.methodDefInliner, 3;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          comp (rules.indexToDoubleToInt_exp), 0;
+          comp (rules.comAddIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.methodDefInliner, 3;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          comp (rules.indexToDoubleToInt_exp), 0;
+          comp (rules.comAddIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.methodDefInliner, 3;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          comp (rules.indexToDoubleToInt_exp), 0;
+          comp (rules.comAddIndex_exp), 0;
+          comp (rules.constFold0Index_exp), 0;
+          rules.methodDefInliner, 0;
+          rules.methodDefInliner, 1;
+          rules.methodDefInliner, 1;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          rules.letInliner, 0;
+          rules.methodDefInliner, 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          rules.letIntroduction, 4;
+          rules.letFloatOutwards, 0;
+          rules.letFloatOutwards, 0;
+          rules.letIntroduction, 16;
+          rules.letFloatOutwards, 0;
+          rules.letFloatOutwards, 0;
+          rules.letFloatOutwards, 0;
+          rules.letFloatOutwards, 0;
+          rules.letFloatOutwards, 0;
+          rules.letMerging, 0;
+        ]
+    //printfn "ba_reproj_err chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "ba_reproj_err code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_reproj_err" false)
+    let bundleAdjustmentRodrigues_rotate_point = compiler.getMethodExpr "usecases" "rodrigues_rotate_point"
+    let chains = 
+      optimizer.guidedOptimize bundleAdjustmentRodrigues_rotate_point 
+        [ 
+          rules.methodDefInliner, 1;
+          rules.methodDefInliner, 1;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          rules.letInliner, 5;
+          rules.methodDefInliner, 1;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 6;
+          rules.methodDefInliner, 1;
+          rules.methodDefInliner, 2;
+          comp (rules.vectorBuildLength_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 7;
+          rules.letInliner, 7;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 7;
+          rules.methodDefInliner, 1;
+          //rules.letInliner, 7;
+        ]
+    printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif

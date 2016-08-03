@@ -34,6 +34,7 @@ let rec prettyprint (e:Expr): string =
      sprintf "%s.%s" (prettyprint var) pi.Name
   | AppN(f, args) ->
      sprintf "APP{%s}(%s)" (prettyprint f) (String.concat ", " (List.map prettyprint args))
+  | Patterns.IfThenElse(cond, e1, e2) -> sprintf "if(%s) {%s} else {%s}" (prettyprint cond) (prettyprint e1) (prettyprint e2)
   | ExprShape.ShapeCombination(op, args) -> 
     sprintf "{%A}(%s)" (op) (String.concat ", " (List.map prettyprint args))
   
