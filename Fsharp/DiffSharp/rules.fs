@@ -78,14 +78,14 @@ let indexToDoubleToInt_exp =
 
 let vectorBuildGet_exp = 
   <@
-    (vectorBuild %k %FIN).[%i]
+    (vectorBuild %k %F).[%i]
     <==>
-    (%FIN) %i
+    (%F) %i
   @>
 
 let vectorBuildLength_exp = 
   <@
-    (vectorBuild %k %FIN).Length
+    (vectorBuild %k %F).Length
     <==>
     %k
   @>
@@ -149,9 +149,9 @@ let vectorSliceToBuild_exp =
 
 let vectorBuildToStorage_exp = 
   <@
-    vectorBuild (%k) (%FIN)
+    vectorBuild (%k) (%F)
     <==>
-    (let s = vectorAlloc (%k) in vectorBuildGivenStorage s (%FIN))
+    (let s = vectorAlloc (%k) in vectorBuildGivenStorage s (%F))
   @>
 
 let vectorAddToStorage_exp = 

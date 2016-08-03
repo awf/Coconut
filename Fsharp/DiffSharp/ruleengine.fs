@@ -9,6 +9,7 @@ module metaVars =
   let private makeMetaVar<'a> (name: string) = 
     Expr.Cast<'a>(Expr.Var(Var.Global(name, typeof<'a>)))
   let private getExprRaw<'a> (exp: Expr<'a>): Expr = exp.Raw
+  let private getExprVar (exp: Expr): Var = match exp with | Patterns.Var(v) -> v | _ -> failwithf "Expected a variable expression, instead given %A" exp
   let i = makeMetaVar<Index>("i")
   let j = makeMetaVar<Index>("j")
   let k = makeMetaVar<Index>("k")
@@ -21,13 +22,17 @@ module metaVars =
   let M = makeMetaVar<Matrix>("M")
   let N = makeMetaVar<Matrix>("N")
   let O = makeMetaVar<Matrix>("O")
-  let FIN = makeMetaVar<Index -> Number>("FIN")
+  let F<'a, 'b> = makeMetaVar<'a -> 'b>("F_metavar")
+  let G<'a, 'b> = makeMetaVar<'a -> 'b>("G_metavar")
   let indexMetaVars = List.map getExprRaw [i; j; k]
   let scalarMetaVars = List.map getExprRaw [a; b; c]
   let vectorMetaVars = List.map getExprRaw [T; U; V]
   let matrixMetaVars = List.map getExprRaw [M; N; O]
-  let functionMetaVars = List.map getExprRaw [FIN]
-  let allMetaVars = indexMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars @ functionMetaVars
+  let allMetaVars = indexMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars
+  let genericFunctionMetaVars = List.map getExprRaw [F; G]
+  let isAMetaVar(var: Var): bool = 
+    (allMetaVars |> List.map getExprVar |> List.exists (fun x -> x = var)) ||
+      (genericFunctionMetaVars |> List.map getExprVar |> List.exists (fun x -> x.Name = var.Name))
 
 (*
 // Inspired by: https://github.com/jrh13/hol-light/blob/master/nets.ml
@@ -54,7 +59,7 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       None
   and extract(p: Expr, e: Expr): (Var * Expr) List Option = 
     match (p, e) with
-    | (Patterns.Var(v), _) when List.exists (fun x -> x = p) (metaVars.allMetaVars) -> 
+    | (Patterns.Var(v), _) when metaVars.isAMetaVar(v) -> 
       Some([v, e])
     | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
         extractList(pats, exprs)
@@ -69,7 +74,7 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       match pre with 
       | Patterns.Value(v, _) when v.Equals(true) -> []
       | SpecificCall  <@ (=) @> (None, _, [Patterns.Var(v1) as a; Patterns.Var(v2) as b]) when 
-          (List.exists ((=) a) (metaVars.allMetaVars)) && (List.exists ((=) b) (metaVars.allMetaVars)) -> [v1, v2]
+          (metaVars.isAMetaVar v1) && (metaVars.isAMetaVar v2) -> [v1, v2]
       | SpecificCall  <@ (&&) @> (None, _, [a; b]) -> List.append (processPrecondition a) (processPrecondition b)
       | _ -> failwith (sprintf "Cannot parse the precondition %A" pre)
     processPrecondition(precondition)
