@@ -50,27 +50,8 @@ let rec inliner (exp: Expr): Expr =
     | Some(LambdaN(inputs, body)) when isInlined -> 
       let paramVar (p: System.Reflection.ParameterInfo) = 
         (Expr.Var(new Var(p.Name, p.ParameterType)), new Var(newVar p.Name, p.ParameterType))
-      (*let paramList = List.zip argList (List.map paramVar (List.ofSeq (methodInfo.GetParameters())))*)
-      let paramList = List.zip (List.map inliner argList) inputs
-      //let inlinedArgs = List.map inliner argList
-      //printfn "%s: name: %A" methodName (List.zip argList paramList)
-      printfn "%s: name: %A" methodName (List.zip argList inputs)
-      let inlinedBody = 
-        body.Substitute (fun v -> 
-          Option.map (fun (e1, _) -> e1) 
-            (List.tryFind (fun (_, v2) -> v2 = v) paramList))
-        
-        //LetN(List.zip inputs inlinedArgs, body)
-      (*match inlinedBody with 
-      | LetN(inputs, letBoundBody) -> 
-        let newInputs = List.map (fun (v: Var, e: Expr) -> (v, e), new Var(newVar (v.Name), v.Type)) inputs
-        LetN(List.map (fun ((_, e), v2) -> (v2, e)) newInputs, 
-          letBoundBody.Substitute (fun v -> 
-            Option.map (fun (_, v2) -> Expr.Var(v2))
-              (List.tryFind (fun ((v1, _), _) -> v = v1) newInputs)))
-      | _ -> inlinedBody
-      *)
-      variableRenaming inlinedBody []
+      let paramList = List.zip inputs (List.map inliner argList)
+      captureAvoidingSubstitution body paramList
     | _ -> exp
   | ExprShape.ShapeLambda(i, e) -> Expr.Lambda(i, inliner e)
   | ExprShape.ShapeVar(v) -> Expr.Var(v)

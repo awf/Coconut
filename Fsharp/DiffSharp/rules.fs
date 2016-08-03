@@ -174,9 +174,7 @@ open transformer
 let letInliner (e: Expr): Expr Option = 
   match e with 
   | Patterns.Let(v, e1, e2) -> 
-    let inlinedBody = e2.Substitute(fun v2 -> if v = v2 then Some(e1) else None)
-    //let renamedBody = variableRenaming inlinedBody []
-    let renamedBody = inlinedBody
+    let renamedBody = captureAvoidingSubstitution e2 [v, e1]
     Some(renamedBody)
   | _ -> None
 
@@ -197,9 +195,7 @@ let methodDefInliner (e: Expr): Expr Option =
   match e with
   | ExistingCompiledMethodWithLambda(methodName, moduleName, args, LambdaN(inputs, body)) when (List.length inputs) = (List.length args) -> 
     let inputsAndArgs = List.zip inputs args
-    let inlinedBody = body.Substitute(fun v2 -> inputsAndArgs |> List.tryFind (fun (v, a) -> v = v2) |> Option.map snd)
-    let renamedBody = variableRenaming inlinedBody []
-    //let renamedBody = inlinedBody
+    let renamedBody = captureAvoidingSubstitution body inputsAndArgs
     Some(renamedBody)
   | _ -> None
 

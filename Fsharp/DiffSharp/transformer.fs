@@ -177,3 +177,7 @@ let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
     Expr.Var(nx)
   | ExprShape.ShapeCombination(op, args) ->
     ExprShape.RebuildShapeCombination(op, List.map (fun arg -> variableRenaming arg renamings) args)
+
+let captureAvoidingSubstitution (e: Expr) (mapping: (Var * Expr) list): Expr = 
+  let substitutedE = e.Substitute(fun v2 -> mapping |> List.tryFind (fun (v, a) -> v = v2) |> Option.map snd)
+  variableRenaming substitutedE []
