@@ -28,11 +28,18 @@ module metaVars =
   let scalarMetaVars = List.map getExprRaw [a; b; c]
   let vectorMetaVars = List.map getExprRaw [T; U; V]
   let matrixMetaVars = List.map getExprRaw [M; N; O]
-  let allMetaVars = indexMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars
-  let genericFunctionMetaVars = List.map getExprRaw [F; G]
-  let isAMetaVar(var: Var): bool = 
-    (allMetaVars |> List.map getExprVar |> List.exists (fun x -> x = var)) ||
-      (genericFunctionMetaVars |> List.map getExprVar |> List.exists (fun x -> x.Name = var.Name))
+  let private allMetaVars = indexMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars
+  let private genericFunctionMetaVars = List.map getExprRaw [F; G]
+  let getMetaVarAmongGivenVarBindings<'a> (var: Var) (givenVarBindings: (Var * 'a) list): (Var * 'a) option = 
+    let filterVars(vars: Var list): Var list = vars |> List.filter (fun v -> givenVarBindings |> List.exists (fun gv -> (fst gv).Name = v.Name))
+    let allMetaVar = allMetaVars |> List.map getExprVar |> filterVars |> List.tryFind (fun x -> x = var)
+    let genericFunctionMetaVar = genericFunctionMetaVars |> List.map getExprVar |> filterVars |> List.tryFind (fun x -> x.Name = var.Name)
+    let resultVar = match allMetaVar with
+    | None -> genericFunctionMetaVar
+    | _ -> allMetaVar
+    resultVar |> Option.map (fun v -> givenVarBindings |> List.find(fun (v2, _) -> v2.Name = v.Name))
+  let isAMetaVar (var: Var): bool = 
+    getMetaVarAmongGivenVarBindings var (allMetaVars @ genericFunctionMetaVars |> List.map (fun v -> getExprVar(v), 1)) |> Option.isSome
 
 (*
 // Inspired by: https://github.com/jrh13/hol-light/blob/master/nets.ml
@@ -101,8 +108,11 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       let unifiedBoundVars = unification(boundVarsInit, unifiedVars)
       Option.map (fun boundVars ->
         rhs.Substitute(fun v -> 
-          Option.map (fun (_, e) -> e) 
-            (List.tryFind (fun (v1, _) -> v = v1) boundVars))
+          (*Option.map (fun (_, e) -> e) 
+            (List.tryFind (fun (v1, _) -> v = v1) boundVars)
+          *)
+          metaVars.getMetaVarAmongGivenVarBindings v boundVars |> Option.map snd
+        )
       ) unifiedBoundVars
     ) boundVarsOpt
       
