@@ -217,6 +217,15 @@ let letIntroduction (e: Expr): Expr option =
     let nv = new Var(utils.newVar "xi_", e.Type)
     Some(Expr.Let(nv, e, Expr.Var(nv)))
 
+/// The composition of this rule, let introduction, and letFloatOutwards results in 
+/// common-subexpression elimination (CSE).
+let letMerging (e: Expr): Expr option =
+  match e with
+  | Patterns.Let(x, e1, Patterns.Let(y, e2, e3)) when e1 = e2 -> 
+    Some(Expr.Let(x, e1, e3.Substitute(fun v -> if v = y then Some(Expr.Var(x)) else None)))
+  | _ -> None
+    
+
 open FSharp.Quotations.Evaluator
 
 let constantFold (e: Expr): Expr Option =
