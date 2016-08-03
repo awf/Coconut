@@ -108,9 +108,6 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       let unifiedBoundVars = unification(boundVarsInit, unifiedVars)
       Option.map (fun boundVars ->
         rhs.Substitute(fun v -> 
-          (*Option.map (fun (_, e) -> e) 
-            (List.tryFind (fun (v1, _) -> v = v1) boundVars)
-          *)
           metaVars.getMetaVarAmongGivenVarBindings v boundVars |> Option.map snd
         )
       ) unifiedBoundVars

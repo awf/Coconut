@@ -502,10 +502,15 @@ let main argv =
           rules.lambdaAppToLet, 0;
           rules.letInliner, 7;
           rules.methodDefInliner, 1;
-          //rules.letInliner, 7;
+          comp (rules.vectorFoldBuildToFoldOnRange_exp), 0;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 7;
+          rules.lambdaAppToLet, 0;
+          rules.letInliner, 7;
+          rules.letInliner, 7;
         ]
     printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    //printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
+    printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif

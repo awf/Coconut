@@ -147,6 +147,13 @@ let vectorSliceToBuild_exp =
     vectorBuild (%j - %i + 1) (fun i -> (%V).[i])
   @>
 
+let vectorFoldBuildToFoldOnRange_exp = 
+  <@
+    vectorFoldNumber %F %a (vectorBuild %k %G)
+    <==>
+    linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a 0 (%k - 1)
+  @>
+
 let vectorBuildToStorage_exp = 
   <@
     vectorBuild (%k) (%F)
