@@ -31,7 +31,7 @@ let rec fopCost(exp: Expr): double =
   let VAR_ACCESS = 0.1
   let VALUE_ACCESS = 0.1
   let SCALAR_OPERATOR = 1.0
-  let UNKNOWN_CALL = 1000.0
+  let UNKNOWN_CALL = 10000.0
   let CALL_COST = 5.0
   let LENGTH_ACCESS = SCALAR_OPERATOR
   let ARRAY_ACCESS = 3.0
@@ -55,18 +55,19 @@ let rec fopCost(exp: Expr): double =
     fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (cardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST
-  | Patterns.Call (None, op, elist) -> 
+  | Patterns.Call (None, op, elist) ->
+    let argsCost() =  List.sum (List.map fopCost elist)
     if elist |> List.forall (fun a -> a.Type = typeof<Index> || a.Type = typeof<Number>) then
       // Is a scalar operator
-      List.sum (List.map fopCost elist) + SCALAR_OPERATOR
+      argsCost() + SCALAR_OPERATOR
     else 
       match op.Name with
       | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
-      | "GetArray" -> ARRAY_ACCESS
-      | "GetArraySlice" -> ARRAY_SLICE + MALLOC_COST
+      | "GetArray" -> ARRAY_ACCESS + argsCost()
+      | "GetArraySlice" -> ARRAY_SLICE + MALLOC_COST // FIXME
       | name -> 
         printfn "**WARNING!** Does not know how to cost the operator `%s`. Assumes %f to make progress." name UNKNOWN_CALL
-        List.sum (List.map fopCost elist) + UNKNOWN_CALL
+        argsCost() + UNKNOWN_CALL
   | Patterns.NewArray(_, args) ->
     MALLOC_COST + List.sum (List.map fopCost args)
   | Patterns.Value(_) -> VALUE_ACCESS
