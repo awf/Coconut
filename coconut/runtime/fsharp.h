@@ -67,17 +67,53 @@ void array_print(array_number_t arr) {
 	printf("]\n");
 }
 
+
+/** Timing */
+
+typedef struct timer_t {
+	clock_t start;
+} timer_t;
+
+timer_t tic() {
+	timer_t res;
+	res.start = clock();
+	return res;
+}
+
+void toc(timer_t t) {
+	clock_t end = clock();
+	float milliseconds = (float)(end - t.start) * 1000.0 / CLOCKS_PER_SEC;
+	printf("Time: %d ms\n", (int)milliseconds);
+}
+
+clock_t benchmarked_time = 0;
+clock_t start_time = 0;
+
+void start_timing() {
+	start_time = clock();
+}
+
+void pause_timing() {
+	benchmarked_time += clock() - start_time;
+}
+
+/* Memory allocation constructs */
+
 storage_t vector_alloc(index_t size) {
+	// start_timing();
 	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
 	res->length = size;
 	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	// pause_timing();
 	return res;
 }
 
 storage_t matrix_alloc(index_t size) {
+	// start_timing();
 	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
 	res->length = size;
 	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	// pause_timing();
 	return res;
 }
 
@@ -90,17 +126,21 @@ storage_t matrix3d_alloc(index_t size) {
 
 array_number_t vector_build(index_t size, closure_t closure) {
 	array_number_t res = (array_number_t)vector_alloc(size);
+	// start_timing();
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
+	// pause_timing();
 	return res;
 }
 
 array_array_number_t matrix_build(index_t size, closure_t closure) {
 	array_array_number_t res = (array_array_number_t)matrix_alloc(size);
+	// start_timing();
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).array_number_t_value;
 	}
+	// pause_timing();
 	return res;
 }
 
@@ -298,24 +338,6 @@ array_number_t vector_build_given_storage(storage_t storage, closure_t closure) 
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
 	return res;
-}
-
-/** Timing */
-
-typedef struct timer_t {
-	clock_t start;
-} timer_t;
-
-timer_t tic() {
-	timer_t res;
-	res.start = clock();
-	return res;
-}
-
-void toc(timer_t t) {
-	clock_t end = clock();
-	float milliseconds = (float)(end - t.start) * 1000.0 / CLOCKS_PER_SEC;
-	printf("Time: %d ms\n", (int)milliseconds);
 }
 
 #endif

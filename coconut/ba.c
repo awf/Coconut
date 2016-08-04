@@ -8,6 +8,8 @@ int main(int argc, char** argv)
 	}
 	char* file = argv[1];
 	usecases_run_ba_from_file(file);
+	float milliseconds = (float)(benchmarked_time) * 1000.0 / CLOCKS_PER_SEC;
+	printf("Profiled Time: %d ms\n", (int)milliseconds);
 	// printf("memory of closure: %d\n", closure_mem);
 	return 0;
 }
