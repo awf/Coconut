@@ -10,6 +10,17 @@ let exprToDouble(e: Expr): double option =
   | Patterns.Value(:? int as v, tp) -> Some(double v)
   | _ -> None
 
+let rec cardinality (exp: Expr): double option = 
+  match exp with
+  | DerivedPatterns.SpecificCall <@ linalg.vectorRange @> (_, _, [s; e]) -> 
+    Option.bind (fun e -> Option.bind(fun s -> Some(e - s + 1.0)) (exprToDouble(s))) (exprToDouble(e))
+  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [size; f]) -> 
+    exprToDouble(size)
+  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
+    exprToDouble(size)
+  | _ -> 
+      (printfn "**WARNING!** Does not know how to estimate the cardinality for the operator `%A`." exp); None
+
 (* A simple cost model based on the number of floating point operations *)
 let rec fopCost(exp: Expr): double = 
   let VAR_INIT = 0.1
@@ -32,6 +43,8 @@ let rec fopCost(exp: Expr): double =
     buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
     buildCost(size, f)
+  | DerivedPatterns.SpecificCall <@ corelang.vectorFoldNumber @> (_, _, [f; z; range]) -> 
+    fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (cardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST
   | Patterns.Call (None, op, elist) -> 
