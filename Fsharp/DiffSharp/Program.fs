@@ -508,6 +508,37 @@ let main argv =
           rules.lambdaAppToLet, 0;
           rules.letInliner, 7;
           rules.letInliner, 7;
+          rules.methodDefInliner, 2;
+          rules.methodDefInliner, 2;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 2;
+          rules.methodDefInliner, 2;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 3;
+          rules.methodDefInliner, 3;
+          rules.betaReduction, 0;
+          rules.letInliner, 7;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          //rules.betaReduction, 0;
+          rules.letInliner, 7;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 3;
+          rules.methodDefInliner, 3;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          rules.methodDefInliner, 2;
+          rules.methodDefInliner, 2;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
         ]
     printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)

@@ -197,7 +197,17 @@ let lambdaAppToLet (e: Expr): Expr Option =
       Some(LetN(List.zip inputs args, body))
   | _ -> None
 
-/// This rule is composition of letInliner, methodDefToLambda, and lambdaAppToLet
+/// This rule is composition of one application of lambdaAppToLet and several applications of letInliner
+let betaReduction (e: Expr): Expr Option = 
+  match e with
+  | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) -> 
+      let inputsAndArgs = List.zip inputs args
+      let renamedBody = captureAvoidingSubstitution body inputsAndArgs
+      Some(renamedBody)
+  | _ -> None
+
+/// This rule is composition of one application of methodDefToLambda and lambdaAppToLet followed
+/// by several applications of letInliner.
 let methodDefInliner (e: Expr): Expr Option = 
   match e with
   | ExistingCompiledMethodWithLambda(methodName, moduleName, args, LambdaN(inputs, body)) when (List.length inputs) = (List.length args) -> 
