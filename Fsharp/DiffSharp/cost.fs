@@ -37,9 +37,12 @@ let rec fopCost(exp: Expr): double =
   let ARRAY_ACCESS = 3.0
   let ARRAY_SLICE = 30.0
   let ARRAY_DEFAULT_SIZE = 1000.0
+  let BUILD_PER_ELEM_COST = CALL_COST + ARRAY_ACCESS
   let NUMBER_PRINT_COST = UNKNOWN_CALL
   let buildCost (size: Expr, f: Expr): double = 
-    (Option.fold (fun _ x -> x) ARRAY_DEFAULT_SIZE (exprToDouble size)) * fopCost(f)
+    // (Option.fold (fun _ x -> x) ARRAY_DEFAULT_SIZE (exprToDouble size)) * fopCost(f)
+    let card = (Option.fold (fun _ x -> x) ARRAY_DEFAULT_SIZE (exprToDouble size))
+    fopCost(f) + fopCost(size) + card * BUILD_PER_ELEM_COST
   match exp with 
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
     CALL_COST + fopCost(f) + List.sum (List.map fopCost args)

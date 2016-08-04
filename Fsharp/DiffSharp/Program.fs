@@ -441,8 +441,8 @@ let main argv =
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
         ]
-    printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
+    //printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "usecases_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
     let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
     let chains = 
@@ -573,7 +573,6 @@ let main argv =
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
           comp (rules.vectorBuildLength_exp), 0;
-          //rules.betaReduction, 0;
           rules.letInliner, 7;
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
@@ -593,6 +592,7 @@ let main argv =
           comp (rules.vectorBuildLength_exp), 0;
         ]
     //printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "usecases_rodrigues_rotate_point costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
