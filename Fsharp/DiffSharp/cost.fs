@@ -35,7 +35,7 @@ let rec fopCost(exp: Expr): double =
   let CALL_COST = 5.0
   let LENGTH_ACCESS = SCALAR_OPERATOR
   let ARRAY_ACCESS = 3.0
-  let ARRAY_SLICE = 30.0 // TODO very approximate
+  let ARRAY_SLICE = 30.0
   let ARRAY_DEFAULT_SIZE = 1000.0
   let NUMBER_PRINT_COST = UNKNOWN_CALL
   let buildCost (size: Expr, f: Expr): double = 
@@ -55,19 +55,21 @@ let rec fopCost(exp: Expr): double =
     fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (cardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST
+  | ArraySlice(arr, s, e) ->
+    let estimatedCardinality = cardinality(s) |> Option.bind (fun scard -> cardinality(e) |> Option.map (fun ecard -> ecard - scard + 1.0))
+    ARRAY_SLICE + MALLOC_COST + fopCost(arr) + fopCost(s) + fopCost(e) + ARRAY_ACCESS * (estimatedCardinality |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)
   | Patterns.Call (None, op, elist) ->
-    let argsCost() =  List.sum (List.map fopCost elist)
+    let argsCost =  List.sum (List.map fopCost elist)
     if elist |> List.forall (fun a -> a.Type = typeof<Index> || a.Type = typeof<Number>) then
       // Is a scalar operator
-      argsCost() + SCALAR_OPERATOR
+      argsCost + SCALAR_OPERATOR
     else 
       match op.Name with
-      | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
-      | "GetArray" -> ARRAY_ACCESS + argsCost()
-      | "GetArraySlice" -> ARRAY_SLICE + MALLOC_COST // FIXME
+      | OperatorName opname -> argsCost + SCALAR_OPERATOR
+      | "GetArray" -> ARRAY_ACCESS + argsCost
       | name -> 
         printfn "**WARNING!** Does not know how to cost the operator `%s`. Assumes %f to make progress." name UNKNOWN_CALL
-        argsCost() + UNKNOWN_CALL
+        argsCost + UNKNOWN_CALL
   | Patterns.NewArray(_, args) ->
     MALLOC_COST + List.sum (List.map fopCost args)
   | Patterns.Value(_) -> VALUE_ACCESS

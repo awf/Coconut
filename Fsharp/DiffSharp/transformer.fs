@@ -116,6 +116,20 @@ let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr Li
       Some(methodName, moduleName, args, lam)
   | _ -> None
 
+let (|ArraySlice|_|) (e: Expr): (Expr * Expr * Expr) option = 
+  match e with 
+  | Patterns.Call (None, op, argList) -> 
+    match (op.Name, op.DeclaringType.Name) with
+    | ("GetArraySlice", "OperatorIntrinsics") -> 
+      let args = 
+        List.map (fun x -> 
+          match x with 
+          | Patterns.NewUnionCase(_, [v]) -> v
+          | _ -> x) argList
+      Some(args.[0], args.[1], args.[2])
+    | _ -> None
+  | _ -> None
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->
@@ -134,7 +148,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     | ("ToInt", "Operators") -> Some("(int)", argList)
     | ("ToDouble", "Operators") -> Some("(double)", argList)
     | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
-    | ("GetArraySlice", "OperatorIntrinsics") -> 
+    | ("GetArraySlice", "OperatorIntrinsics") -> // TODO rewrite using the `ArraySlice` active pattern
       let args = 
         List.map (fun x -> 
           match x with 
