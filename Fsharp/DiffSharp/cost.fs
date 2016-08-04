@@ -3,6 +3,7 @@
 open Microsoft.FSharp.Quotations
 open Quotations.DerivedPatterns
 open transformer
+open types
 
 let exprToDouble(e: Expr): double option = 
   match e with
@@ -19,10 +20,13 @@ let rec cardinality (exp: Expr): double option =
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
     exprToDouble(size)
   | _ -> 
-      (printfn "**WARNING!** Does not know how to estimate the cardinality for the operator `%A`." exp); None
+      (printfn "**WARNING!** Does not know how to estimate the cardinality for the operator `%A`." exp)
+      None
 
 (* A simple cost model based on the number of floating point operations *)
 let rec fopCost(exp: Expr): double = 
+  let MALLOC_COST = 1000.0
+  let FREE_COST = 10.0
   let VAR_INIT = 0.1
   let VAR_ACCESS = 0.1
   let VALUE_ACCESS = 0.1
@@ -40,21 +44,31 @@ let rec fopCost(exp: Expr): double =
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
     CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [size; f]) -> 
-    buildCost(size, f)
+    MALLOC_COST + buildCost(size, f)
+  | DerivedPatterns.SpecificCall <@ corelang.vectorBuildGivenStorage @> (_, _, [s; f]) -> 
+    fopCost(f)
+  | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, _, [size; cont]) -> 
+    MALLOC_COST + fopCost(size) + fopCost(cont) + FREE_COST
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
-    buildCost(size, f)
+    MALLOC_COST + buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.vectorFoldNumber @> (_, _, [f; z; range]) -> 
     fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (cardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST
   | Patterns.Call (None, op, elist) -> 
-    match op.Name with
-    | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
-    | "GetArray" -> ARRAY_ACCESS
-    | "GetArraySlice" -> ARRAY_ACCESS
-    | name -> 
-      printfn "**WARNING!** Does not know how to cost the operator `%s`. Assumes %f to make progress." name UNKNOWN_CALL
-      List.sum (List.map fopCost elist) + UNKNOWN_CALL
+    if elist |> List.forall (fun a -> a.Type = typeof<Index> || a.Type = typeof<Number>) then
+      // Is a scalar operator
+      List.sum (List.map fopCost elist) + SCALAR_OPERATOR
+    else 
+      match op.Name with
+      | OperatorName opname -> List.sum (List.map fopCost elist) + SCALAR_OPERATOR
+      | "GetArray" -> ARRAY_ACCESS
+      | "GetArraySlice" -> ARRAY_SLICE + MALLOC_COST
+      | name -> 
+        printfn "**WARNING!** Does not know how to cost the operator `%s`. Assumes %f to make progress." name UNKNOWN_CALL
+        List.sum (List.map fopCost elist) + UNKNOWN_CALL
+  | Patterns.NewArray(_, args) ->
+    MALLOC_COST + List.sum (List.map fopCost args)
   | Patterns.Value(_) -> VALUE_ACCESS
   | Patterns.Let(x, e1, e2) -> fopCost(e1) + fopCost(e2) + VAR_INIT
   | Patterns.Var(_) -> VAR_ACCESS
@@ -62,4 +76,6 @@ let rec fopCost(exp: Expr): double =
   | AppN(f, args) -> CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
   | Patterns.PropertyGet(Some(e), op, []) when op.Name = "Length" -> fopCost(e) + LENGTH_ACCESS
   | Patterns.Sequential(e1, e2) -> fopCost(e1) + fopCost(e2)
+  | Patterns.IfThenElse(cond, e1, e2) ->
+    fopCost(cond) + (max (fopCost e1) (fopCost e2))
   | _ -> failwith (sprintf "Does not know how to cost the construct `%A`" exp)
