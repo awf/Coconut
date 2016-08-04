@@ -389,9 +389,61 @@ let main argv =
           comp (rules.subSameIndex_exp), 0;
           comp (rules.constFold0Index_exp), 0;
           rules.constantFold, 0;
+          rules.methodDefInliner, 2;
+          rules.methodDefInliner, 3;
+          rules.methodDefInliner, 3;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 2;
+          rules.methodDefInliner, 2;
+          rules.methodDefInliner, 2;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          comp (rules.vectorFoldBuildToFoldOnRange_exp), 0;
+          rules.betaReduction, 0;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 4;
+          rules.methodDefInliner, 4;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 3;
+          rules.methodDefInliner, 3;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 3;
+          rules.methodDefInliner, 3;
+          rules.betaReduction, 0;
+          comp (rules.vectorBuildLength_exp), 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          rules.methodDefInliner, 3;
+          rules.methodDefInliner, 3;
+          rules.betaReduction, 0;
+          //comp (rules.vectorBuildLength_exp), 0;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
+          rules.letCommutingConversion, 0;
+          rules.letCommutingConversion, 0;
+          rules.letInliner, 9;
+          comp (rules.vectorBuildGet_exp), 0;
+          rules.betaReduction, 0;
         ]
     //printfn "ba_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    //printfn "ba_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "ba_project" false)
+    //printfn "ba_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
     let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentReproj_err 
@@ -540,8 +592,8 @@ let main argv =
           rules.betaReduction, 0;
           comp (rules.vectorBuildLength_exp), 0;
         ]
-    printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
+    //printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
