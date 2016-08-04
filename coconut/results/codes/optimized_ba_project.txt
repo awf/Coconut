@@ -1,0 +1,83 @@
+typedef struct env_t_1566 {
+        array_number_t cam;
+        index_t ROT_IDX;
+} env_t_1566;
+env_t_1566 make_env_t_1566(array_number_t cam,index_t ROT_IDX) {
+        env_t_1566 env;
+        env.cam = cam;
+        env.ROT_IDX = ROT_IDX;
+        return env;
+}
+
+value_t lambda1566(env_t_1566* env1512, index_t i) {
+        array_number_t cam1511 = env1512->cam;
+        index_t ROT_IDX1510 = env1512->ROT_IDX;
+        value_t res;
+        res.number_t_value = cam1511->arr[(i) + (ROT_IDX1510)];
+        return res;
+}
+typedef struct env_t_1567 {
+        array_number_t cam;
+        index_t CENTER_IDX;
+} env_t_1567;
+env_t_1567 make_env_t_1567(array_number_t cam,index_t CENTER_IDX) {
+        env_t_1567 env;
+        env.cam = cam;
+        env.CENTER_IDX = CENTER_IDX;
+        return env;
+}
+
+value_t lambda1567(env_t_1567* env1520, index_t i) {
+        array_number_t cam1519 = env1520->cam;
+        index_t CENTER_IDX1518 = env1520->CENTER_IDX;
+        value_t res;
+        res.number_t_value = cam1519->arr[(i) + (CENTER_IDX1518)];
+        return res;
+}
+typedef struct env_t_1568 {
+        array_number_t cam;
+        array_number_t Xcam;
+        index_t X0_IDX;
+        number_t L968;
+        index_t FOCAL_IDX;
+} env_t_1568;
+env_t_1568 make_env_t_1568(array_number_t cam,array_number_t Xcam,index_t X0_IDX,number_t L968,index_t FOCAL_IDX) {
+        env_t_1568 env;
+        env.cam = cam;
+        env.Xcam = Xcam;
+        env.X0_IDX = X0_IDX;
+        env.L968 = L968;
+        env.FOCAL_IDX = FOCAL_IDX;
+        return env;
+}
+
+value_t lambda1568(env_t_1568* env1562, index_t i13401506) {
+        array_number_t cam1561 = env1562->cam;
+        array_number_t Xcam1560 = env1562->Xcam;
+        index_t X0_IDX1559 = env1562->X0_IDX;
+        number_t L9681558 = env1562->L968;
+        index_t FOCAL_IDX1557 = env1562->FOCAL_IDX;
+        value_t res;
+        res.number_t_value = (cam1561->arr[(i13401506) + (X0_IDX1559)]) + ((((Xcam1560->arr[i13401506]) * ((1) / (Xcam1560->arr[2]))) * (L9681558)) * (cam1561->arr[FOCAL_IDX1557]));
+        return res;
+}
+array_number_t usecases_project(array_number_t cam, array_number_t x) {
+        index_t N_CAM_PARAMS = 11;
+        index_t ROT_IDX = 0;
+        index_t CENTER_IDX = 3;
+        index_t FOCAL_IDX = 6;
+        index_t X0_IDX = 7;
+        index_t RAD_IDX = 9;
+        env_t_1566 env_t_1566_value = make_env_t_1566(cam,ROT_IDX); closure_t closure1514 = make_closure(lambda1566, &env_t_1566_value);
+        env_t_1567 env_t_1567_value = make_env_t_1567(cam,CENTER_IDX); closure_t closure1522 = make_closure(lambda1567, &env_t_1567_value);
+        array_number_t Xcam = usecases_rodrigues_rotate_point(vector_build(3, closure1514), linalg_sub_vec(x, vector_build(3, closure1522)));
+        number_t macroDef1537 = 0;
+        for(int idx = 0; idx <= (2) - (1); idx++){
+
+                macroDef1537 = (macroDef1537) + (((Xcam->arr[idx]) * ((1) / (Xcam->arr[2]))) * ((Xcam->arr[idx]) * ((1) / (Xcam->arr[2]))));
+        }
+        number_t rsq965 = macroDef1537;
+        number_t L968 = ((1) + ((cam->arr[(0) + (RAD_IDX)]) * (rsq965))) + (((cam->arr[(1) + (RAD_IDX)]) * (rsq965)) * (rsq965));
+        env_t_1568 env_t_1568_value = make_env_t_1568(cam,Xcam,X0_IDX,L968,FOCAL_IDX); closure_t closure1564 = make_closure(lambda1568, &env_t_1568_value);
+        return vector_build(2, closure1564);
+}
