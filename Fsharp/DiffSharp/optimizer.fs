@@ -64,13 +64,14 @@ let guidedOptimize (e: Expr) (indexedRules: (Rule*int) list): Expr list =
 
 let optimize (e: Expr): Expr = 
   // let best = inliner(e)
-  
   let debug = false
   let rs = letInliner (*:: methodDefToLambda :: lambdaAppToLet*) :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
+  let debugger = consoleLogger debug
+  let reporter = completeReporter (ccodegen.prettyprint) debugger
   let t = tic()
-  let (best, _) = bfs e 5 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)
-  (*let (best, _) = randomWalk e 7 (examineAllRules rs) fopCost debug (ccodegen.prettyprint)*)
+  let (best, _) = bfs 5 reporter e (examineAllRules rs) fopCost 
+  (*let (best, _) = randomWalk 5 reporter e (examineAllRules rs) fopCost *)
   toc(t)
   
   best

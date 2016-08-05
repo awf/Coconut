@@ -297,8 +297,8 @@ let main argv =
     
     compiler.compileModule "linalg" [] false
     compiler.compileModule "usecases" ["linalg"] false
-    compiler.compileModule "programs" ["linalg"] true
-    compiler.compileModule "ccodegentests" [] false
+    //compiler.compileModule "programs" ["linalg"] true
+    //compiler.compileModule "ccodegentests" [] false
     usecases.test1 [||]
     let comp = ruleengine.compilePatternToRule
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
@@ -356,11 +356,11 @@ let main argv =
           rules.letCommutingConversion, 0;
           rules.allocToCPS, 0;
         ]
-    //printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    printfn "hoistingExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
-    let chains = 
-      optimizer.guidedOptimize bundleAdjustmentProject 
+    let baProjectRules = 
         [ rules.vectorSliceToBuild, 0;
           comp (rules.comAddIndex_exp), 1;
           comp (rules.assocAddSubIndex_exp), 0;
@@ -441,9 +441,29 @@ let main argv =
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
         ]
+    let chains = 
+      optimizer.guidedOptimize bundleAdjustmentProject baProjectRules
+    let baProjectUniqueRules = 
+        [
+          rules.vectorSliceToBuild;
+          comp (rules.comAddIndex_exp);
+          comp (rules.assocAddSubIndex_exp);
+          comp (rules.subSameIndex_exp);
+          comp (rules.constFold0Index_exp);
+          rules.constantFold;
+          rules.methodDefInliner;
+          rules.betaReduction;
+          comp (rules.vectorBuildLength_exp);
+          comp (rules.vectorBuildGet_exp);
+          comp (rules.vectorFoldBuildToFoldOnRange_exp);
+          rules.letCommutingConversion;
+          rules.letInliner;
+        ]
+    let best = search.randomWalk 500 (search.completeReporter (ccodegen.prettyprint) (search.consoleLogger true)) bundleAdjustmentProject (optimizer.examineAllRules baProjectUniqueRules) (cost.fopCost)
     //printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "usecases_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
+    //printfn "best by random walk %A" best
     let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentReproj_err 
