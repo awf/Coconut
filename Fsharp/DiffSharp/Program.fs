@@ -459,7 +459,12 @@ let main argv =
           rules.letCommutingConversion;
           rules.letInliner;
         ]
-    let best = search.randomWalk 500 (search.completeReporter (ccodegen.prettyprint) (search.consoleLogger true)) bundleAdjustmentProject (optimizer.examineAllRules baProjectUniqueRules) (cost.fopCost)
+    //let logger = (search.consoleLogger true)
+    let logger = 
+      let fileName = sprintf "LogFile_%s.txt" (currentTimeString())
+      printf "%s" fileName
+      (search.Logging.fileLogger true fileName)
+    let best = search.randomWalk 5000 (search.Logging.completeReporter (ccodegen.prettyprint) logger) bundleAdjustmentProject (optimizer.examineAllRules baProjectUniqueRules) (cost.fopCost)
     //printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "usecases_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
