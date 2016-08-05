@@ -11,6 +11,9 @@ let exprToDouble(e: Expr): double option =
   | Patterns.Value(:? int as v, tp) -> Some(double v)
   | _ -> None
 
+let rangeExprToDouble (s: Expr) (e: Expr): double option = 
+  exprToDouble(s) |> Option.bind (fun scard -> exprToDouble(e) |> Option.map (fun ecard -> ecard - scard + 1.0))
+
 let rec cardinality (exp: Expr): double option = 
   match exp with
   | DerivedPatterns.SpecificCall <@ linalg.vectorRange @> (_, _, [s; e]) -> 
@@ -44,6 +47,8 @@ let rec fopCost(exp: Expr): double =
     let card = (Option.fold (fun _ x -> x) ARRAY_DEFAULT_SIZE (exprToDouble size))
     fopCost(f) + fopCost(size) + card * BUILD_PER_ELEM_COST
   match exp with 
+  | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; s; e]) -> 
+    fopCost(z) + fopCost(s) + fopCost(e) + fopCost(f) * (rangeExprToDouble s e |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
     CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [size; f]) -> 
@@ -59,7 +64,7 @@ let rec fopCost(exp: Expr): double =
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST
   | ArraySlice(arr, s, e) ->
-    let estimatedCardinality = cardinality(s) |> Option.bind (fun scard -> cardinality(e) |> Option.map (fun ecard -> ecard - scard + 1.0))
+    let estimatedCardinality = rangeExprToDouble s e
     ARRAY_SLICE + MALLOC_COST + fopCost(arr) + fopCost(s) + fopCost(e) + ARRAY_ACCESS * (estimatedCardinality |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)
   | Patterns.Call (None, op, elist) ->
     let argsCost =  List.sum (List.map fopCost elist)
