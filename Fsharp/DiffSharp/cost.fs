@@ -5,14 +5,24 @@ open Quotations.DerivedPatterns
 open transformer
 open types
 
-let exprToDouble(e: Expr): double option = 
+let rec exprBinOpDouble (e1: Expr) (e2: Expr) (bop: double -> double -> double): double option = 
+  exprToDouble(e1) |> Option.bind (fun e1val -> exprToDouble(e2) |> Option.map (fun e2val -> bop e1val e2val))
+and exprToDouble(e: Expr): double option = 
   match e with
   | Patterns.Value(:? double as v, _) -> Some(v)
   | Patterns.Value(:? int as v, tp) -> Some(double v)
+  | DerivedPatterns.SpecificCall <@ (-) @> (_, _, [s; e]) -> 
+    exprBinOpDouble s e (-)
+  | DerivedPatterns.SpecificCall <@ (+) @> (_, _, [s; e]) -> 
+    exprBinOpDouble s e (+)
+  | DerivedPatterns.SpecificCall <@ (*) @> (_, _, [s; e]) -> 
+    exprBinOpDouble s e (*)
+  | DerivedPatterns.SpecificCall <@ (/) @> (_, _, [s; e]) -> 
+    exprBinOpDouble s e (/)
   | _ -> None
 
 let rangeExprToDouble (s: Expr) (e: Expr): double option = 
-  exprToDouble(s) |> Option.bind (fun scard -> exprToDouble(e) |> Option.map (fun ecard -> ecard - scard + 1.0))
+  exprBinOpDouble s e (fun sv ev -> ev - sv + 1.0)
 
 let rec cardinality (exp: Expr): double option = 
   match exp with
