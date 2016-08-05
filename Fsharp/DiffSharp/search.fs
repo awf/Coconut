@@ -7,24 +7,33 @@ let nodeCostToString<'a> (printer: 'a -> string) (node: 'a) (cost: double) =
 let nodesListToString<'a> (printer: 'a -> string) (list: ('a * double) List) : string = 
   String.concat "\n-------\n" (List.map (fun (e, c) -> nodeCostToString printer e c) list)
 
-type Reporter<'a> = 
-  { 
-    init: unit -> unit; 
-    step: int -> int -> ('a * double) -> unit;  // Step#, Rule#, NodeCost
-    finish: ('a * double) list -> ('a * double) -> unit // All NodeCosts, Best NodeCost
-  }
+module Logging =
+  type Reporter<'a> = 
+    { 
+      init: unit -> unit; 
+      step: int -> int -> ('a * double) -> unit;  // Step#, Rule#, NodeCost
+      finish: ('a * double) list -> ('a * double) -> unit // All NodeCosts, Best NodeCost
+    }
+  
+  type Logger = string -> unit
+  
+  let consoleLogger (enabled: bool) = fun (msg: string) ->
+    if enabled then
+      printfn "%s" msg
 
-type Logger = string -> unit
+  let currentProcess() = System.Diagnostics.Process.GetCurrentProcess()
+  
+  let fileLogger (enabled: bool) (filename: string) = fun (msg: string) ->
+    if enabled then
+      System.IO.File.AppendText(filename).WriteLine(sprintf "Time: %s, Memory: %d, Log Content\n: %s" (utils.currentTimeString()) (currentProcess().WorkingSet64) msg)
+  
+  let completeReporter<'a> (printer: 'a -> string) (logger: Logger) =
+    { init = fun () -> ();
+      step = fun stp ruleIdx (node, cost) -> logger (sprintf "Step %d, rule %d: %s" stp ruleIdx (nodeCostToString printer node cost))
+      finish = fun allPrograms (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" (List.length allPrograms) (nodeCostToString printer node cost))
+    }
 
-let consoleLogger (enabled: bool) = fun (msg: string) ->
-  if enabled then
-    printfn "%s" msg
-
-let completeReporter<'a> (printer: 'a -> string) (logger: Logger) =
-  { init = fun () -> ();
-    step = fun stp ruleIdx (node, cost) -> logger (sprintf "Step %d, rule %d: %s" stp ruleIdx (nodeCostToString printer node cost))
-    finish = fun allPrograms (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" (List.length allPrograms) (nodeCostToString printer node cost))
-  }
+open Logging
 
 type SearchAlgorithm<'a> = Reporter<'a> -> 'a -> ('a -> 'a List) -> ('a -> double) -> ('a * double)
 

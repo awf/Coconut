@@ -67,8 +67,8 @@ let optimize (e: Expr): Expr =
   let debug = false
   let rs = letInliner (*:: methodDefToLambda :: lambdaAppToLet*) :: algebraicRulesScalar
   (*recursiveTransformer e rs*)
-  let debugger = consoleLogger debug
-  let reporter = completeReporter (ccodegen.prettyprint) debugger
+  let debugger = Logging.consoleLogger debug
+  let reporter = Logging.completeReporter (ccodegen.prettyprint) debugger
   let t = tic()
   let (best, _) = bfs 5 reporter e (examineAllRules rs) fopCost 
   (*let (best, _) = randomWalk 5 reporter e (examineAllRules rs) fopCost *)
