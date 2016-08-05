@@ -33,13 +33,14 @@ let rec cardinality (exp: Expr): double option =
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
     exprToDouble(size)
   | _ -> 
-      (printfn "**WARNING!** Does not know how to estimate the cardinality for the operator `%A`." exp)
+      //(printfn "**WARNING!** Does not know how to estimate the cardinality for the operator `%A`." exp)
       None
 
 (* A simple cost model based on the number of floating point operations *)
 let rec fopCost(exp: Expr): double = 
-  let MALLOC_COST = 1000.0
+  let MALLOC_COST = 10000.0
   let FREE_COST = 10.0
+  let MALLOC_FREE_COST = MALLOC_COST / 10.0 + FREE_COST
   let VAR_INIT = 0.1
   let VAR_ACCESS = 0.1
   let VALUE_ACCESS = 0.1
@@ -65,8 +66,10 @@ let rec fopCost(exp: Expr): double =
     MALLOC_COST + buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuildGivenStorage @> (_, _, [s; f]) -> 
     fopCost(f)
+  | DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [size]) -> 
+    MALLOC_COST + fopCost(size)
   | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, _, [size; cont]) -> 
-    MALLOC_COST + fopCost(size) + fopCost(cont) + FREE_COST
+    MALLOC_FREE_COST + fopCost(size) + fopCost(cont)
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
     MALLOC_COST + buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.vectorFoldNumber @> (_, _, [f; z; range]) -> 
