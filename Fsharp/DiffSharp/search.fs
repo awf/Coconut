@@ -25,7 +25,10 @@ module Logging =
   
   let fileLogger (enabled: bool) (filename: string) = fun (msg: string) ->
     if enabled then
-      System.IO.File.AppendText(filename).WriteLine(sprintf "Time: %s, Memory: %d, Log Content\n: %s" (utils.currentTimeString()) (currentProcess().WorkingSet64) msg)
+      //System.IO.File.AppendText(filename).WriteLine(sprintf "Time: %s, Memory: %d, Log Content\n: %s" (utils.currentTimeString()) (currentProcess().WorkingSet64) msg)
+      let file = new System.IO.StreamWriter(filename,true)
+      file.WriteLine(sprintf "Time: %s, Memory: %d, Log Content\n: %s" (utils.currentTimeString()) (currentProcess().WorkingSet64) msg)
+      file.Close()
   
   let completeReporter<'a> (printer: 'a -> string) (logger: Logger) =
     { init = fun () -> ();
@@ -73,5 +76,35 @@ let randomWalk<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<
   //if debug then
   //  printfn "random expressions:\n%s\n" (nodesListToString printer (List.rev revertedResult))
   let best = List.minBy snd revertedResult
+  reporter.finish revertedResult best
+  best
+
+exception CurrentListReturn of (double) list
+
+(* Hill Climbing *)
+let hillClimbing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>)  (e: 'a)  (children: 'a -> 'a List) (costModel: 'a -> double) -> 
+  let range = [for i = 1 to levels do yield i]
+  let mutable currentBest = e
+  let mutable currentBestCost = costModel e
+  
+  let revertedResult = 
+    try
+      List.fold (fun acc cur -> 
+        let curNode = fst (List.head acc)
+        let childNodes = children(curNode)
+        if(childNodes.Length = 0) then 
+          raise (CurrentListReturn (acc |> List.map snd))
+        else 
+          let (index, bestChild, bestChildCost) = childNodes |> List.mapi (fun idx n -> idx, n, costModel n) |> List.minBy (fun (_,_,c) -> c)
+          reporter.step cur index (bestChild, bestChildCost)
+          if(bestChildCost < currentBestCost) then
+            currentBestCost <- bestChildCost
+            currentBest <- bestChild
+          else
+            raise (CurrentListReturn (acc |> List.map snd))
+          (bestChild, bestChildCost) :: acc) [e, costModel e] range
+    with
+       | CurrentListReturn costs -> costs |> List.map (fun x -> e, x)
+  let best = (currentBest, currentBestCost)
   reporter.finish revertedResult best
   best
