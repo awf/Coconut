@@ -10,7 +10,7 @@ let nodesListToString<'a> (printer: 'a -> string) (list: ('a * double) List) : s
 module Logging =
   type Reporter<'a> = 
     { 
-      init: unit -> unit; 
+      init: string -> unit; 
       step: int -> int -> ('a * double) -> unit;  // Step#, Rule#, NodeCost
       finish: ('a * double) list -> ('a * double) -> unit // All NodeCosts, Best NodeCost
     }
@@ -31,7 +31,7 @@ module Logging =
       file.Close()
   
   let completeReporter<'a> (printer: 'a -> string) (logger: Logger) =
-    { init = fun () -> ();
+    { init = fun msg -> logger msg;
       step = fun stp ruleIdx (node, cost) -> logger (sprintf "Step %d, rule %d: %s" stp ruleIdx (nodeCostToString printer node cost))
       finish = fun allPrograms (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" (List.length allPrograms) (nodeCostToString printer node cost))
     }
@@ -56,6 +56,7 @@ let bfs<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e
 
 (* Random Walk *)
 let randomWalk<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>)  (e: 'a)  (children: 'a -> 'a List) (costModel: 'a -> double) -> 
+  reporter.init (sprintf "Random Walk started with %d levels" levels)
   let range = [for i = 1 to levels do yield i]
   let rand = new System.Random()
   let revertedResult = 
@@ -83,6 +84,7 @@ exception CurrentListReturn of (double) list
 
 (* Hill Climbing *)
 let hillClimbing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>)  (e: 'a)  (children: 'a -> 'a List) (costModel: 'a -> double) -> 
+  reporter.init (sprintf "Hill Climbing started with %d levels" levels)
   let range = [for i = 1 to levels do yield i]
   let mutable currentBest = e
   let mutable currentBestCost = costModel e
@@ -105,6 +107,46 @@ let hillClimbing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporte
           (bestChild, bestChildCost) :: acc) [e, costModel e] range
     with
        | CurrentListReturn costs -> costs |> List.map (fun x -> e, x)
+  let best = (currentBest, currentBestCost)
+  reporter.finish revertedResult best
+  best
+
+
+(* Simulated Annealing *)
+let simulatedAnnealing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>)  (e: 'a)  (children: 'a -> 'a List) (costModel: 'a -> double) -> 
+  reporter.init (sprintf "Simulated Annealing started with %d levels" levels)
+  let range = [for i = 1 to levels do yield i]
+  let mutable currentBest = e
+  let mutable currentBestCost = costModel e
+  let mutable temprature = 2.0 * currentBestCost
+
+  let rand = new System.Random()
+  
+  let revertedResult = 
+      List.fold (fun acc cur -> 
+        let (curNode, curCost) = (List.head acc)
+        let childNodes = children(curNode)
+        if(childNodes.Length = 0) then 
+          failwithf "No more children for %A" curNode
+        else 
+          let index = rand.Next(childNodes.Length)
+        
+          let randomChild = childNodes.[index]
+          let randomChildCost = costModel randomChild
+          reporter.step cur index (randomChild, randomChildCost)
+          let (nextChild, nextChildCost) = 
+            if(randomChildCost < curCost) then
+              if(randomChildCost < currentBestCost) then
+                currentBestCost <- randomChildCost
+                currentBest <- randomChild
+              (randomChild, randomChildCost)
+            else
+              if (rand.NextDouble() < System.Math.Pow(System.Math.E, (randomChildCost - curCost) / temprature)) then
+                (randomChild, randomChildCost)
+              else
+                (curNode, curCost)
+          temprature <- temprature * 0.95
+          (nextChild, nextChildCost) :: acc) [e, costModel e] range
   let best = (currentBest, currentBestCost)
   reporter.finish revertedResult best
   best
