@@ -11,7 +11,7 @@ module Logging =
   type Reporter<'a> = 
     { 
       init: string -> unit; 
-      step: int -> int -> ('a * double) -> unit;  // Step#, Rule#, NodeCost
+      step: int -> int -> int -> ('a * double) -> unit;  // Step#, Rule index, Rules#, NodeCost
       finish: ('a * double) list -> ('a * double) -> unit // All NodeCosts, Best NodeCost
     }
   
@@ -32,7 +32,7 @@ module Logging =
   
   let completeReporter<'a> (printer: 'a -> string) (logger: Logger) =
     { init = fun msg -> logger msg;
-      step = fun stp ruleIdx (node, cost) -> logger (sprintf "Step %d, rule %d: %s" stp ruleIdx (nodeCostToString printer node cost))
+      step = fun stp ruleIdx rulesSize (node, cost) -> logger (sprintf "Step %d, rule %d out of %d: %s" stp ruleIdx rulesSize (nodeCostToString printer node cost))
       finish = fun allPrograms (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" (List.length allPrograms) (nodeCostToString printer node cost))
     }
 
@@ -72,7 +72,7 @@ let randomWalk<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<
         
         let randomChild = childNodes.[index]
         let randomChildCost = costModel randomChild
-        reporter.step cur index (randomChild, randomChildCost)
+        reporter.step cur index (childNodes.Length) (randomChild, randomChildCost)
         (randomChild, randomChildCost) :: acc) [e, costModel e] range
   //if debug then
   //  printfn "random expressions:\n%s\n" (nodesListToString printer (List.rev revertedResult))
@@ -98,7 +98,7 @@ let hillClimbing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporte
           raise (CurrentListReturn (acc |> List.map snd))
         else 
           let (index, bestChild, bestChildCost) = childNodes |> List.mapi (fun idx n -> idx, n, costModel n) |> List.minBy (fun (_,_,c) -> c)
-          reporter.step cur index (bestChild, bestChildCost)
+          reporter.step cur index (childNodes.Length) (bestChild, bestChildCost)
           if(bestChildCost < currentBestCost) then
             currentBestCost <- bestChildCost
             currentBest <- bestChild
@@ -133,15 +133,16 @@ let simulatedAnnealing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: R
         
           let randomChild = childNodes.[index]
           let randomChildCost = costModel randomChild
-          reporter.step cur index (randomChild, randomChildCost)
+          let delta = randomChildCost - curCost
+          reporter.step cur index (childNodes.Length) (randomChild, randomChildCost)
           let (nextChild, nextChildCost) = 
-            if(randomChildCost < curCost) then
+            if(delta < 0.0) then
               if(randomChildCost < currentBestCost) then
                 currentBestCost <- randomChildCost
                 currentBest <- randomChild
               (randomChild, randomChildCost)
             else
-              if (rand.NextDouble() < System.Math.Pow(System.Math.E, (randomChildCost - curCost) / temprature)) then
+              if (rand.NextDouble() < System.Math.Pow(System.Math.E, (-delta) / temprature)) then
                 (randomChild, randomChildCost)
               else
                 (curNode, curCost)
