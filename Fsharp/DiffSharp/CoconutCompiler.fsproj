@@ -82,6 +82,7 @@
     <Compile Include="search.fs" />
     <Compile Include="optimizer.fs" />
     <Compile Include="compiler.fs" />
+    <Compile Include="benchmark.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

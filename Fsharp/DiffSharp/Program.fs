@@ -443,32 +443,10 @@ let main argv =
         ]
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentProject baProjectRules
-    let baProjectUniqueRules = 
-        [
-          rules.vectorSliceToBuild;
-          comp (rules.comAddIndex_exp);
-          comp (rules.assocAddSubIndex_exp);
-          comp (rules.subSameIndex_exp);
-          comp (rules.constFold0Index_exp);
-          rules.constantFold;
-          rules.methodDefInliner;
-          rules.betaReduction;
-          comp (rules.vectorBuildLength_exp);
-          comp (rules.vectorBuildGet_exp);
-          comp (rules.vectorFoldBuildToFoldOnRange_exp);
-          rules.letCommutingConversion;
-          rules.letInliner;
-        ]
-    //let logger = (search.consoleLogger true)
-    let logger = 
-      let fileName = sprintf "LogFile_%s.txt" (currentTimeString())
-      printf "%s" fileName
-      (search.Logging.fileLogger true fileName)
-    let best = search.randomWalk 5000 (search.Logging.completeReporter (ccodegen.prettyprint) logger) bundleAdjustmentProject (optimizer.examineAllRules baProjectUniqueRules) (cost.fopCost)
     //printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "usecases_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
-    //printfn "best by random walk %A" best
+    benchmark.benchmark_test_algorithms bundleAdjustmentProject
     let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentReproj_err 
