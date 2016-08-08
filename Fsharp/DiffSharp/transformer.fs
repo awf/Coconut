@@ -175,16 +175,28 @@ let LetN (inputs: (Var * Expr) List, body: Expr): Expr =
 
 open utils
 
-let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr = 
+let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
+  let alreadyExistingVariable(v: Var) = 
+    renamings |> List.exists (fun (v1, v2) -> v1.Name = v.Name || v2.Name = v.Name)
   match e with 
   | Patterns.Let(v, e1, e2) ->
     let ne1 = variableRenaming e1 renamings
-    let nv = new Var(newVar (v.Name), v.Type)
-    let ne2 = variableRenaming e2 ((v, nv) :: renamings)
+    let (nv, newRenamings) = 
+      if alreadyExistingVariable v then
+        let nv = new Var(newVar (v.Name), v.Type)
+        nv, (v, nv) :: renamings
+      else
+        v, renamings
+    let ne2 = variableRenaming e2 newRenamings
     Expr.Let(nv, ne1, ne2)
   | ExprShape.ShapeLambda(x, e) ->
-    let nx = new Var(newVar (x.Name), x.Type)
-    let ne = variableRenaming e ((x, nx) :: renamings)
+    let (nx, newRenamings) = 
+      if alreadyExistingVariable x then
+        let nx = new Var(newVar (x.Name), x.Type)
+        nx, (x, nx) :: renamings
+      else
+        x, renamings
+    let ne = variableRenaming e newRenamings
     Expr.Lambda(nx, ne)
   | ExprShape.ShapeVar(x) ->
     let nx = Option.fold (fun s (v, nv) -> nv) x (List.tryFind (fun (v, nv) -> v = x) renamings)
