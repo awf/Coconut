@@ -8,7 +8,7 @@
     <ProjectGuid>b50bae60-b142-4e9a-a23b-d29fac2bfd4f</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>DiffSharp</RootNamespace>
-    <AssemblyName>DiffSharpTests</AssemblyName>
+    <AssemblyName>CoconutCompiler</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
@@ -20,11 +20,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>..\..\Debug\DiffSharp\</OutputPath>
+    <OutputPath>..\..\Debug\CoconutCompiler\</OutputPath>
     <DefineConstants>TRACE;DEBUG;MODE_AD;DO_COMPILE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\DiffSharp.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\CoconutCompiler.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <StartArguments>..\..\ ..\..\ ba 1 1</StartArguments>
     <OtherFlags>
@@ -34,11 +34,11 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>..\..\Release\DiffSharp\</OutputPath>
+    <OutputPath>..\..\Release\CoconutCompiler\</OutputPath>
     <DefineConstants>TRACE;MODE_AD;DO_COMPILE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\DiffSharp.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\CoconutCompiler.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <StartArguments>..\..\ ..\..\ ba 1 1</StartArguments>
   </PropertyGroup>
@@ -62,10 +62,6 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="types.fs" />
-    <Compile Include="gmm.fs" />
-    <Compile Include="ba.fs" />
-    <Compile Include="hand.fs" />
-    <Compile Include="hand_d.fs" />
     <Compile Include="utils.fs" />
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
@@ -83,35 +79,15 @@
     <Compile Include="optimizer.fs" />
     <Compile Include="compiler.fs" />
     <Compile Include="benchmark.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Argu">
-      <HintPath>..\..\packages\Argu.2.1\lib\net40\Argu.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="DiffSharp">
-      <HintPath>..\..\packages\DiffSharp.0.6.3\lib\DiffSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FsAlg">
-      <HintPath>..\..\packages\FsAlg.0.5.13\lib\FsAlg.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Quotations.Evaluator">
       <HintPath>..\..\packages\FSharp.Quotations.Evaluator.1.0.6\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>..\..\packages\MathNet.Numerics.3.7.0\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MathNet.Numerics.FSharp">
-      <HintPath>..\..\packages\MathNet.Numerics.FSharp.3.7.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />

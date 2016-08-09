@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CoconutCompiler", "Fsharp\DiffSharp\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OutputFiles", "OutputFiles", "{ED40DAFD-D3E8-4DEF-A1E7-A3EBE9EF630A}"
 	ProjectSection(SolutionItems) = preProject
 		coconut\ccodegentests.h = coconut\ccodegentests.h
@@ -13,28 +11,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OutputFiles", "OutputFiles"
 		coconut\programs.h = coconut\programs.h
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CoconutCompiler", "Fsharp\CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DiffSharp", "Fsharp\DiffSharp\DiffSharp.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|x64.Build.0 = Debug|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|x86.Build.0 = Debug|Any CPU
 		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|x64.ActiveCfg = Release|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|x64.Build.0 = Release|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|x86.ActiveCfg = Release|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|x86.Build.0 = Release|Any CPU
+		{389E169C-620A-4883-B42C-018A62278277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{389E169C-620A-4883-B42C-018A62278277}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
