@@ -128,7 +128,7 @@ let rec substAndReduce (slns: Map<Var,Term>) (betaVars: Set<Var>) (x:Term) =
     | App ((Var v), args) when betaVars.Contains v ->
         match slns.[v] with
         | Lam(vs,b) -> substVars (Map.ofList(List.zip vs args)) b
-        | t ->  App(t,args)
+        | t ->  App(t, List.map (substAndReduce slns betaVars) args)
     | _ -> 
     match x with 
     | Const _ -> x
