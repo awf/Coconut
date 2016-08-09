@@ -4,10 +4,10 @@ open System.IO
 open cruntime
 open utils
 open linalg
+open corelang
 open FSharp.Quotations
 
-[<EntryPoint>]
-let main argv = 
+let test_ba (argv: string[]) = 
     let dir_in = argv.[0]
     let dir_out = argv.[1]
     let fn = argv.[2]
@@ -17,16 +17,20 @@ let main argv =
         (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
 
     let res = usecases.run_ba_from_file (dir_in + fn + ".txt")
+    matrixPrint res
+ 
+let test_ruleengine () = 
     let prog = <@ let x = 1 * 3 in x * 3 @>
     let prog' = rules.letInliner2 prog
     printfn "%A" prog'
-    (*matrixPrint res*)
-    (*
+
+let compile_modules () = 
     compiler.compileModule "linalg" [] false
     compiler.compileModule "usecases" ["linalg"] false
-    //compiler.compileModule "programs" ["linalg"] true
-    //compiler.compileModule "ccodegentests" [] false
-    usecases.test1 [||]
+    compiler.compileModule "programs" ["linalg"] true
+    compiler.compileModule "ccodegentests" [] false
+
+let test_guided_optimizer () = 
     let comp = ruleengine.compilePatternToRule
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
     let chains = 
@@ -325,5 +329,13 @@ let main argv =
     //printfn "usecases_rodrigues_rotate_point costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
-    *)
+    ()
+
+[<EntryPoint>]
+let main argv = 
+    // test_ba argv
+    // compile_modules ()
+    // usecases.test1 [||]
+    // test_guided_optimizer ()
+    test_ruleengine ()
     0
