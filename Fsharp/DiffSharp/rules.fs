@@ -168,6 +168,15 @@ let vectorAddToStorage_exp =
     (let s2 = vectorAlloc ((%U).Length) in linalg.add_vecGivenStorage s2 %U %V)
   @>
 
+let letInliner_exp () = 
+  <@
+    LET (%E1) (fun x -> (%B1) x)
+    <==>
+    (%B1) %E1
+  @>
+
+let letInliner2: Rule = compilePatternToRule2 (letInliner_exp ())
+
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
 let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp

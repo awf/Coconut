@@ -274,6 +274,7 @@ let test_ba_objective fn_in fn_out nruns_f nruns_J =
 
 open System.Runtime.InteropServices
 open linalg
+open FSharp.Quotations
 
 [<EntryPoint>]
 let main argv = 
@@ -293,8 +294,11 @@ let main argv =
 #endif
 #if DO_COMPILE
     let res = usecases.run_ba_from_file (dir_in + fn + ".txt")
+    let prog = <@ let x = 1 * 3 in x * 3 @>
+    let prog' = rules.letInliner2 prog
+    printfn "%A" prog'
     (*matrixPrint res*)
-    
+    (*
     compiler.compileModule "linalg" [] false
     compiler.compileModule "usecases" ["linalg"] false
     //compiler.compileModule "programs" ["linalg"] true
@@ -598,6 +602,7 @@ let main argv =
     //printfn "usecases_rodrigues_rotate_point costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "ba_rodrigues_rotate_point code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_rodrigues_rotate_point" false)
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
+    *)
     (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
