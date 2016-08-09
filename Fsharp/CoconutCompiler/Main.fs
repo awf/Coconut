@@ -24,7 +24,7 @@ let test_ruleengine () =
     //let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
     //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
     //let prog' = prog
-    let prog = <@ ruleengine.LET (1 * 3) (fun y -> y * 3) @>
+    let prog = <@ let y = 1 * 3 in y * 3 @>
     let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
     printfn "%A" prog'
 
@@ -48,7 +48,7 @@ let test_guided_optimizer () =
         [ rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
           rules.letInliner, 0;
-          rules.letInliner, 0;
+          (*rules.letInliner, 0;
           rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
           rules.letInliner, 0;
@@ -71,7 +71,7 @@ let test_guided_optimizer () =
           rules.letInliner, 0;
           rules.algebraicRulesVector.[0], 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
+          rules.letInliner, 0;*)
           ]
     // printfn "vecAdd3 chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     let hoistingExample = compiler.getMethodExpr "programs" "hoistingExample"
@@ -345,7 +345,7 @@ let main argv =
     test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    // test_guided_optimizer ()
+    test_guided_optimizer ()
     // benchmark_search ()
-    test_ruleengine ()
+    // test_ruleengine ()
     0

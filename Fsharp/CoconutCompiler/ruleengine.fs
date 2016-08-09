@@ -141,7 +141,7 @@ type QExpr (expr: Expr) =
     | :? QExpr as qy -> 
       let y = qy.expr
       let x = qx.expr
-      alphaEquals x y
+      alphaEquals x y & x.Type = y.Type
     | _ -> false
   override x.GetHashCode() = 
     (x.expr.GetHashCode())
@@ -149,7 +149,19 @@ type QExpr (expr: Expr) =
   interface System.IComparable with
         member x.CompareTo yobj =
             match yobj with
-            | :? QExpr as qy -> if x.Equals(yobj) then 0 else x.expr.ToString().CompareTo(qy.expr.ToString())
+            | :? QExpr as y -> 
+              if x.Equals(y) then 
+                0 
+              else 
+                let strCmp = x.expr.ToString().CompareTo(y.expr.ToString())
+                if strCmp = 0 then
+                  let hashCmp = x.expr.GetHashCode() - y.expr.GetHashCode()
+                  if (hashCmp = 0) then
+                    failwithf "Find a better comparison method for expressions %A %A" (x.expr) (y.expr)
+                  else
+                    hashCmp
+                else 
+                  strCmp
             | _ -> invalidArg "yobj" "cannot compare value of different types"
 
 type private HoMatch = HoMatch of env: Map<QVar, QVar> * term: Expr * hoVar: QVar * args: Expr list
@@ -300,8 +312,10 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
   | AppN(lv, rv), StripedAppN(lc, rc) ->
     let newSolutions = termPartialMatch env acc lv lc
     (newSolutions,rv,rc) |||> List.fold2 (termPartialMatch env) 
-  | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) ->
-    failwith "hello"
+  | (DerivedPatterns.SpecificCall <@ LET @> (_, _, [pe1; Patterns.Lambda(px, pe2)]), Patterns.Let(ex, ee1, ee2)) ->
+    let (solutions', hoMatches') = termPartialMatch env (solutions, hoMatches) pe1 ee1
+    let env' = env.Add(QVar px, QVar ex)
+    termPartialMatch env' (solutions', hoMatches') pe2 ee2
   | _ -> 
     raise ( NotMatched("No matched", [pat; term]))
 
