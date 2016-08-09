@@ -175,7 +175,7 @@ let letInliner_exp () =
     (%B1) %E1
   @>
 
-let letInliner2: Rule = compilePatternToRule2 (letInliner_exp ())
+//let letInliner2: Rule = compilePatternToRule2 constFoldN0Index_exp // (letInliner_exp ())
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 

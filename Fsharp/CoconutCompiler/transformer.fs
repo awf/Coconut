@@ -40,6 +40,11 @@ let (|AppN|_|) (e: Expr): (Expr * Expr list) Option =
   | (_, []) -> None
   | (func, args) -> Some(func, args)
 
+let (|StripedAppN|) (e: Expr): Expr * Expr list = 
+  match e with
+  | AppN(e1, args) -> e1, args
+  | _              -> e, [] 
+
 let (|LetN|_|) (e: Expr): ((Var * Expr) List * Expr) Option = 
   let rec letNExtract exp statements = 
     match exp with 

@@ -20,8 +20,10 @@ let test_ba (argv: string[]) =
     matrixPrint res
  
 let test_ruleengine () = 
-    let prog = <@ let x = 1 * 3 in x * 3 @>
-    let prog' = rules.letInliner2 prog
+    //let prog = <@ let x = 1 * 3 in x * 3 @>
+    let prog = <@ (3 * 9) - 0 @>
+    //let prog' = rules.letInliner2 prog
+    let prog' = prog
     printfn "%A" prog'
 
 let compile_modules () = 
@@ -30,7 +32,13 @@ let compile_modules () =
     compiler.compileModule "programs" ["linalg"] true
     compiler.compileModule "ccodegentests" [] false
 
+let benchmark_search () =
+    let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
+    benchmark.benchmark_test_algorithms bundleAdjustmentProject
+
 let test_guided_optimizer () = 
+    compiler.compileModule "linalg" [] false
+    compiler.compileModule "usecases" ["linalg"] false
     let comp = ruleengine.compilePatternToRule
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
     let chains = 
@@ -63,7 +71,7 @@ let test_guided_optimizer () =
           rules.lambdaAppToLet, 0;
           rules.letInliner, 0;
           ]
-    //printfn "vecAdd3 chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    // printfn "vecAdd3 chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     let hoistingExample = compiler.getMethodExpr "programs" "hoistingExample"
     let chains = 
       optimizer.guidedOptimize hoistingExample 
@@ -87,9 +95,9 @@ let test_guided_optimizer () =
           rules.letCommutingConversion, 0;
           rules.allocToCPS, 0;
         ]
-    printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    printfn "hoistingExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
-    //printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
+    // printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    // printfn "hoistingExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
+    // printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
     let baProjectRules = 
         [ rules.vectorSliceToBuild, 0;
@@ -140,7 +148,7 @@ let test_guided_optimizer () =
           rules.betaReduction, 0;
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
-          comp (rules.vectorFoldBuildToFoldOnRange_exp), 0;
+          (*comp (rules.vectorFoldBuildToFoldOnRange_exp), 0;
           rules.betaReduction, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 4;
@@ -171,13 +179,13 @@ let test_guided_optimizer () =
           rules.letInliner, 9;
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
+          *)
         ]
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentProject baProjectRules
     //printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "usecases_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
-    benchmark.benchmark_test_algorithms bundleAdjustmentProject
     let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentReproj_err 
@@ -336,6 +344,7 @@ let main argv =
     test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    // test_guided_optimizer ()
-    test_ruleengine ()
+    test_guided_optimizer ()
+    // benchmark_search ()
+    // test_ruleengine ()
     0

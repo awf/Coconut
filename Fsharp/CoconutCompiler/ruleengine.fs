@@ -131,64 +131,90 @@ type SecondOrderContext = SecondOrderInfo list
 type Binding = FirstOrder of Var * Expr
              | SecondOrder of SecondOrderInfo
 
-let compilePatternToRule2 (pat: Expr): Rule =
-  let (|MetaVar|_|) (expr: Expr): Var option = 
-    match expr with
-    | Patterns.Var(v) when metaVars.isAMetaVar(v) -> 
-      Some(v)
-    | _ -> None
-  let rec extractList(pats: Expr List, exprs: Expr List) (ctx: SecondOrderContext): Binding List Option = 
-    let vars = List.map2 (fun vp ve -> extract(vp, ve)(ctx)) pats exprs
-    if(List.forall (Option.isSome) vars) then
-      Some(List.concat (List.map (Option.get) vars))
+type private HoMatch = HoMatch of env: Map<Var, Var> * term: Expr * hoVar: Var * args: Expr list
+type private Solution = Map<Var, Expr>
+exception NotMatched of string * Expr list
+
+let private alphaEquals (e1: Expr) (e2: Expr) = e1 = e2
+
+let rec private substVars (solutions: Solution) (e: Expr): Expr =
+  e.Substitute(fun v -> if solutions.ContainsKey v then Some solutions.[v] else None)
+
+let rec private substAndReduce (solutions: Solution) (betaVars: Set<Var>) (e: Expr) = 
+  match e with
+  | AppN(Patterns.Var(v), args) when betaVars.Contains v ->
+    match solutions.[v] with
+    | LambdaN(inputs, body) -> substVars (Map.ofList(List.zip inputs args)) body
+    | e2                   -> Expr.Applications(e2, List.map (fun x -> [x]) args)
+  | _ ->
+    match e with
+    | Patterns.Var(v) -> if solutions.ContainsKey v then solutions.[v] else e
+    | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars body)
+    | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (substAndReduce solutions betaVars))
+    | _ -> failwithf "substAndReduce doesn't handle %A" e
+
+let private recordSolution (key: Var, value: Expr) (solutions: Solution): Solution = 
+  match solutions.TryFind key with
+  | Some value2 ->
+    if alphaEquals value value2 then 
+      solutions
     else
-      None
-  and extract(p: Expr, e: Expr) (ctx: SecondOrderContext): Binding List Option = 
-    match (p, e) with
-    | (MetaVar(v), _) -> 
-      Some([FirstOrder(v, e)])
-    | (DerivedPatterns.SpecificCall <@ LET @> (_, _, [pe1; Patterns.Lambda(px, pbody)]), Patterns.Let(ex, ee1, ee2)) -> 
-      let re1 = extract (pe1, ee1) ctx
-      re1 |>
-        Option.bind (fun bindings ->
-          extract (pbody, ee2) ((px, ex) :: ctx)
-        )
-    | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
-        extractList(pats, exprs)(ctx)
-    | (Patterns.PropertyGet(objp, op, []), Patterns.PropertyGet(obje, oe, [])) when (Option.count objp) = (Option.count obje) && op = oe ->
-        extractList(Option.toList objp, Option.toList obje)(ctx)
-    | (ExprShape.ShapeCombination(op, pats), ExprShape.ShapeCombination(oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
-        extractList(pats, exprs)(ctx)
-    | (Patterns.Value(v1), Patterns.Value(v2)) when v1 = v2 -> Some([])
-    | _ -> None
-  let unification(values: Binding List, unifiedVars: (Var * Var) List): (Var * Expr) List Option = 
-    List.fold (fun accOpt (FirstOrder(curv, cure)) -> 
-        Option.bind (fun acc -> 
-            let sameVariables = curv :: List.collect (fun (v1, v2) -> if(v1 = curv) then [v2] elif (v2 = curv) then [v1] else []) unifiedVars
-            let expressions = List.collect (fun (v, e) -> List.collect (fun v1 -> if(v1 = v) then [e] else []) sameVariables) acc
-            let allAreTheSame = List.forall (fun e -> e = cure) expressions
-            if(allAreTheSame) then
-              Some(List.append acc [curv, cure])
-            else 
-              None
-        ) accOpt
-    ) (Some([])) values
-  fun (exp: Expr) ->
-    let (boundVarsOpt, rhs) = 
-      match pat with 
+      raise ( NotMatched("recordSolution: different value (not alpha-equivalent) already present", [value; value2]) )
+  | None ->
+    solutions.Add(key, value)
+
+let private resolveHoMatch ((solutions: Solution, hoVars:Set<Var>) as acc) (HoMatch(env, term, hoVar, argPats)): Solution * Set<Var> =  
+  // TODO
+  acc
+
+let rec private termPartialMatch (env: Map<Var,Var>) ((solutions: Solution, hoMatches: HoMatch list) as acc) (pat: Expr) (term: Expr): Solution * HoMatch list =  
+  match (pat, term) with
+  | Patterns.Var patv, _ ->
+    match env.TryFind patv with
+    | Some v2 ->
+      if term = Expr.Var(v2) then
+        acc
+      else 
+        raise ( NotMatched("Unification problem", [pat; term; Expr.Var(v2)]) )
+    | None ->
+      let newSolutions = recordSolution (patv, term) solutions
+      newSolutions, hoMatches
+  | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
+    (acc,pats,exprs) |||> List.fold2 (termPartialMatch env)
+  | (Patterns.PropertyGet(objp, op, []), Patterns.PropertyGet(obje, oe, [])) when (Option.count objp) = (Option.count obje) && op = oe ->
+    (acc,Option.toList objp,Option.toList obje) |||> List.fold2 (termPartialMatch env)
+  | (ExprShape.ShapeCombination(op, pats), ExprShape.ShapeCombination(oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
+    (acc,pats,exprs) |||> List.fold2 (termPartialMatch env)
+  | (Patterns.Value(v1), Patterns.Value(v2)) when v1 = v2 -> 
+    acc
+  | AppN(Patterns.Var(hoVar), args), _ when not (env.ContainsKey hoVar) ->
+    failwith "TODO hoMatches"
+  | AppN(lv, rv), StripedAppN(lc, rc) ->
+    let newSolutions = termPartialMatch env acc lv lc
+    (newSolutions,rv,rc) |||> List.fold2 (termPartialMatch env) 
+  | _ -> 
+    raise ( NotMatched("No matched", [pat; term]))
+
+let private termMatch (pat: Expr) (term: Expr): Solution * Set<Var> = 
+  let solutions, hoMatches = termPartialMatch Map.empty (Map.empty, []) pat term
+  let solutions, hoVars = ((solutions, Set.empty), hoMatches) ||> List.fold resolveHoMatch
+  // TODO capture
+  solutions, hoVars
+
+let compilePatternToRule (ruleExpr: Expr): Rule =
+  fun (term: Expr) ->
+    let (pat, rhs) =
+      match ruleExpr with 
       | SpecificCall <@ (<==>) @> (None, _, [p; rhs]) -> 
         (*printfn "pattern is %A and rhs is %A" p rhs*)
-        extract (p, exp) [], rhs
+        p, rhs
       | _ -> failwith "Rewrite patterns should be of the form `lhs <==> rhs`"
-    Option.bind (fun boundVarsInit -> 
-      let unifiedBoundVars = unification(boundVarsInit, [])
-      Option.map (fun boundVars ->
-        rhs.Substitute(fun v -> 
-          metaVars.getMetaVarAmongGivenVarBindings v boundVars |> Option.map snd
-        )
-      ) unifiedBoundVars
-    ) boundVarsOpt
+    try
+      let solutions, hoVars = termMatch pat term
+      Some(substAndReduce solutions hoVars rhs)
+    with
+      | NotMatched _ -> None
       
 
-let compilePatternToRule (pat: Expr): Rule =
+let compilePatternToRule2 (pat: Expr): Rule =
   compilePatternWithPreconditionToRule(pat, <@ true @>)

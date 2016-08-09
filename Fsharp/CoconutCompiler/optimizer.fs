@@ -59,7 +59,13 @@ let rec inliner (exp: Expr): Expr =
       ExprShape.RebuildShapeCombination(o, List.map inliner exprs)
 
 let guidedOptimize (e: Expr) (indexedRules: (Rule*int) list): Expr list = 
-  let reversedResults = List.fold (fun acc (rule, idx) -> (examineAllRules [rule] (List.head acc)).[idx] :: acc) [e] indexedRules
+  let reversedResults = 
+    ([e], List.mapi (fun i x -> i, x) indexedRules) ||> List.fold (fun acc (ruleIdx, (rule, idx)) -> 
+        let allApplicableSubterms = (examineAllRules [rule] (List.head acc))
+        if(idx >= allApplicableSubterms.Length) then 
+          failwithf "Error in Rule#%d: There are only %d applicable subterms, however the subterm with index %d was chosen" ruleIdx (allApplicableSubterms.Length) idx
+        allApplicableSubterms.[idx] :: acc
+      )
   List.rev reversedResults
 
 let optimize (e: Expr): Expr = 
