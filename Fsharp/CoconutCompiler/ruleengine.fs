@@ -40,6 +40,7 @@ module metaVars =
   let private genericFunctionMetaVars = List.map getExprRaw [F; G]
   let private genericExpressionMetaVars = List.map getExprRaw [E1; E2; E3; B1; B2; B3]
   let private allGenericMetaVars = genericFunctionMetaVars @ genericExpressionMetaVars
+  // TODO should be rewritten based on TypedVars and UntypedVars
   let getMetaVarAmongGivenVarBindings<'a> (var: Var) (givenVarBindings: (Var * 'a) list): (Var * 'a) option = 
     let filterVars(vars: Var list): Var list = vars |> List.filter (fun v -> givenVarBindings |> List.exists (fun gv -> (fst gv).Name = v.Name))
     let allMetaVar = allMetaVars |> List.map getExprVar |> filterVars |> List.tryFind (fun x -> x = var)
@@ -127,6 +128,10 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
 
 let private alphaEquals (e1: Expr) (e2: Expr) = e1 = e2
 
+// TODO 
+// type QVar = 
+//   | TypedVar of Var
+//   | UntypedVar of Var
 type QVar = 
   | QVar of Var
 
