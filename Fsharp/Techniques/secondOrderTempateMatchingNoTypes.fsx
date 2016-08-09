@@ -1,4 +1,27 @@
-﻿
+﻿// Examples showing an implementation of the HOL-lite 2nd order matching.  
+//
+// The specification is roughly 
+//   - Just like first order matching
+//   - In addition, ``f e1 ... eN`` (where ``f`` is a match variable)
+//     matches any term ``e`` with substitution ``f = \v1 ...vN. e[v1/e1]...[vN/eN]``. 
+//     That is, occurrences of subterm ``e1`` are replaced by ``v1``, then ``e2`` by ``v2`` 
+//     and so on.  This happens left-to-right (unless I've made a mistake on this)
+//
+// So ``f (x+1) x`` will first abstract syntactic occurrences of ``x+1``, then occurrences of ``x``.
+// 
+// A final check is made to check that the substitutions have not captured free variables, which allows 
+// "independence" checks, giving rewrite rules like
+// 
+//    FORALL (fun x -> f x OR g)  ==> FORALL (fun x -> f x) OR g
+//
+// The first example code file has no types but is useful to get the basic idea of the 
+// technique. The second example file is where type information is added to terms, and 
+// type variables are allowed in the patterns/rules. (Tracking types in the terms is a 
+// PITA, and forces you to allow type variables in the patterns/rules.  This creates a 
+// lot of incidental complication, but finds bugs earlier)
+//
+// There may be bugs
+
 /// Variables.  Note these use structural equality/comparison.
 type Var = string
 
