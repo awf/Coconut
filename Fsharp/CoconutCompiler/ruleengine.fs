@@ -5,6 +5,7 @@ open Microsoft.FSharp.Quotations
 open Quotations.DerivedPatterns
 open types
 open transformer
+open utils
 
 module metaVars =
   let private makeMetaVar<'a> (name: string) = 
@@ -124,34 +125,54 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
       ) unifiedBoundVars
     ) boundVarsOpt
 
-type SecondOrderInfo = Var * Var
-// In a general case should be `(Var * Expr) list`
-type SecondOrderContext = SecondOrderInfo list 
-
-type Binding = FirstOrder of Var * Expr
-             | SecondOrder of SecondOrderInfo
-
-type private HoMatch = HoMatch of env: Map<Var, Var> * term: Expr * hoVar: Var * args: Expr list
-type private Solution = Map<Var, Expr>
-exception NotMatched of string * Expr list
-
 let private alphaEquals (e1: Expr) (e2: Expr) = e1 = e2
 
-let solutionsGet (key: Var) (solutions: Solution): Expr option = 
-  metaVars.getMetaVarAmongGivenVarBindings key (Map.toList solutions)
+type QVar = QVar of Var
+
+type QExpr (expr: Expr) = 
+
+  member v.expr = expr
+
+  override qx.Equals(yobj) = 
+    match yobj with
+    | :? QExpr as qy -> 
+      let y = qy.expr
+      let x = qx.expr
+      alphaEquals x y
+    | _ -> false
+  override x.GetHashCode() = 
+    (x.expr.GetHashCode())
+
+  interface System.IComparable with
+        member x.CompareTo yobj =
+            match yobj with
+            | :? QExpr as qy -> if x.Equals(yobj) then 0 else x.ToString().CompareTo(yobj.ToString())
+            | _ -> invalidArg "yobj" "cannot compare value of different types"
+
+type private HoMatch = HoMatch of env: Map<QVar, QVar> * term: Expr * hoVar: QVar * args: Expr list
+type private Solution = Map<QVar, Expr>
+exception NotMatched of string * Expr list
+
+let private findVariableInList<'a> (key: Var) (col: 'a list) (conv: 'a -> Var): 'a option =
+  metaVars.getMetaVarAmongGivenVarBindings key (col |> List.map (fun x -> conv x, x))
     |> Option.map snd
+
+let private variableMapGet<'a> (key: Var) (map: Map<QVar, 'a>): 'a option = 
+  findVariableInList key (Map.toList map) (fun (QVar(v), _) -> v) |> Option.map snd
+
+let private solutionsGet (key: Var) (solutions: Solution): Expr option = 
+  variableMapGet key solutions
 
 let rec private substVars (solutions: Solution) (e: Expr): Expr =
   e.Substitute(fun v -> solutions |> solutionsGet v)
 
-let rec private substAndReduce (solutions: Solution) (betaVars: Set<Var>) (e: Expr) = 
+let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (e: Expr) = 
   match e with
-  | AppN(Patterns.Var(v), args) when betaVars.Contains v -> // TODO be careful about equality of variables
-    failwith "TODO"
-    (*match solutions.[v] with
-    | LambdaN(inputs, body) -> substVars (Map.ofList(List.zip inputs args)) body
-    | e2                   -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
-    *)
+  | AppN(Patterns.Var(v), args) when findVariableInList v (Set.toList betaVars) (fun (QVar(x)) -> x) |> Option.isSome ->
+    match solutionsGet v solutions with
+    | Some(LambdaN(inputs, body)) -> substVars (List.zip (inputs |> List.map QVar) args |> Map.ofList) body
+    | Some(e2) -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
+    | None -> failwithf "There is no corresponding value in the solutions %A for the hoVar %A" solutions v
   | _ ->
     match e with
     | Patterns.Var(v) -> solutions |> solutionsGet v |> Option.fold (fun _ x -> x) e
@@ -167,11 +188,77 @@ let private recordSolution (key: Var, value: Expr) (solutions: Solution): Soluti
     else
       raise ( NotMatched("recordSolution: different value (not alpha-equivalent) already present", [value; value2]) )
   | None ->
-    solutions.Add(key, value)
+    solutions.Add(QVar key, value)
 
-let private resolveHoMatch ((solutions: Solution, hoVars:Set<Var>) as acc) (HoMatch(env, term, hoVar, argPats)): Solution * Set<Var> =  
-  // TODO
-  acc
+let private addVariableSet (vs: Set<QVar>) (v: Var): Set<QVar> = 
+  let alreadyContains = 
+    metaVars.getMetaVarAmongGivenVarBindings v (Set.toList vs |> List.map(fun (QVar(k)) -> k, k))
+    |> Option.isSome
+  if alreadyContains then
+    vs
+  else
+    vs.Add(QVar v)
+
+let private accFreeVars (fvs: Set<QVar>) (exp: Expr): Set<QVar> = 
+  let newFvs = exp.GetFreeVars()
+  (fvs, newFvs) ||> Seq.fold addVariableSet
+
+let private freeVars (exp: Expr) = (Set.empty, exp) ||> accFreeVars
+
+let private freeVarsList (exps: Expr list) = (Set.empty, exps) ||> List.fold accFreeVars
+
+/// Replace the given expressions by the given variables (generalize the expressions)  
+let rec generalize (abstractions: Map<QExpr,Var>) (x:Expr): Expr =   
+    match abstractions.TryFind (QExpr x) with   
+    | Some r -> Expr.Var r  
+    | None ->   
+      match x with   
+      | ExprShape.ShapeVar(v) -> x
+      | ExprShape.ShapeLambda(input, body) -> Expr.Lambda(input, generalize abstractions body)
+      | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (generalize abstractions))
+
+
+let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoMatch(env, term, (QVar(hoVar) as qhoVar), argPats)): Solution * Set<QVar> =  
+  // Collect the known alpha-equivalences and solutions 
+  let termInstantiations =   
+    freeVarsList argPats   
+    |> Set.toList  
+    |> List.map (fun (QVar a as qa)  ->  
+        match variableMapGet a env with  
+        | Some (QVar x) -> qa, Expr.Var x  
+        | None ->  
+            match solutionsGet a solutions with  
+            | Some x ->  qa, x  
+            | None -> failwith "second order pattern has spillover variable?")  
+    |> Map.ofList  
+
+  // Apply the known solutions  
+  let argPats = List.map (substVars termInstantiations) argPats  
+  
+  // Generalize  
+  let (StripedAppN(hop, args)) = term
+
+  // If patterns are syntactically identical then don't record the solution, or just record "hoVar = hop"  
+  if args = argPats then   
+      if hop = Expr.Var hoVar then   
+          solutions, hoVars  
+      else   
+          recordSolution (hoVar, hop) solutions, hoVars  
+  else   
+      // Generate variables for the lambdas  
+      let ginsts = argPats |> List.map (fun p -> match p with Patterns.Var v -> QExpr p, v | _ -> QExpr p, new Var(newVar "foo", p.Type))   
+                
+      // Abstract the term, replacing the patterns by variables  
+      let term' = generalize (Map.ofList ginsts) term  
+  
+      // Make the lambda  
+      let gvs = List.map snd ginsts  
+      let lambdaTerm = LambdaN(gvs, term')  
+  
+      // Record the solution of hoVar  
+      let vinsts = recordSolution (hoVar, lambdaTerm) solutions  
+  
+      vinsts, hoVars.Add qhoVar  
 
 let rec private termPartialMatch (env: Map<Var,Var>) ((solutions: Solution, hoMatches: HoMatch list) as acc) (pat: Expr) (term: Expr): Solution * HoMatch list =  
   match (pat, term) with
@@ -201,7 +288,7 @@ let rec private termPartialMatch (env: Map<Var,Var>) ((solutions: Solution, hoMa
   | _ -> 
     raise ( NotMatched("No matched", [pat; term]))
 
-let private termMatch (pat: Expr) (term: Expr): Solution * Set<Var> = 
+let private termMatch (pat: Expr) (term: Expr): Solution * Set<QVar> = 
   let solutions, hoMatches = termPartialMatch Map.empty (Map.empty, []) pat term
   let solutions, hoVars = ((solutions, Set.empty), hoMatches) ||> List.fold resolveHoMatch
   // TODO capture

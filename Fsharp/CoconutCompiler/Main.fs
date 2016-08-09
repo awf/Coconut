@@ -21,9 +21,11 @@ let test_ba (argv: string[]) =
  
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
-    let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
-    let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
+    //let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
+    //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
     //let prog' = prog
+    let prog = <@ ruleengine.LET (1 * 3) (fun x -> x * 3) @>
+    let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
     printfn "%A" prog'
 
 let compile_modules () = 
@@ -343,7 +345,7 @@ let main argv =
     test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    test_guided_optimizer ()
+    // test_guided_optimizer ()
     // benchmark_search ()
-    // test_ruleengine ()
+    test_ruleengine ()
     0
