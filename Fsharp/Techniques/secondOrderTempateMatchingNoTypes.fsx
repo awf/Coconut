@@ -32,6 +32,10 @@ type Term =
    | App of Term * Term list
    | Lam of Var list * Term 
 
+//-------------------------------------------------------------------------------
+// Operations on terms
+
+
 /// Strip off zero or more arguments
 let stripApps x =
    match x with 
@@ -41,65 +45,6 @@ let stripApps x =
 /// Check alpha-convertibility (For now just equality, TBD)
 let areAlphaEquiv (x:Term) (y:Term) = (x = y)
  
-/// Record the solution to a variable up to alpha-equivalence
-let recordSolution (key : Var, value : Term) (slns : Map<Var,Term>) = 
-    match slns.TryFind(key) with
-    | Some value2 ->
-        if areAlphaEquiv value value2 then slns
-        else failwith "recordSolution: different value (not alpha-equivalent) already present"
-    | None ->
-        slns.Add(key,value)
-
-/// Generate a variable
-let genVar =
-    let mutable nameGen = 0 
-    fun () ->
-        nameGen <- nameGen + 1
-        "v" + string nameGen
-
-/// Represents a residue of the first round of matching
-type HoMatch = HoMatch of env:Map<Var,Var> * tm:Term * hoVar: Var * args:Term list
-
-/// Match a term against a pattern, leaving a residue of high-order matches.
-//
-// env: the alpha-equivalence of variables when procesing this term
-// pat: the pattern
-// tm: the term being matched
-// slns: the solutions to variables so far
-// hoMatches: the second order matches accumulated so far
-let rec termPartialMatch (env: Map<Var,Var>) ((slns, hoMatches) as acc) pat tm  = 
-    match (pat, tm) with
-    | Var patv, _ ->
-        match env.TryFind patv with
-        | Some v2 ->
-            if tm = Var v2 then // note, exact term equality needed here
-                acc
-            else 
-                failwith "no match"
-        | None ->
-            let newSlns = recordSolution (patv, tm) slns
-            newSlns, hoMatches
-
-    | Const(vname), Const(cname) ->  if vname = cname then acc else failwith "no match"
-
-    | Lam(vv, vbod), Lam(cv, cbod) -> 
-        let env = (env,vv,cv) |||> List.fold2 (fun env vv cv -> env.Add(vv, cv))
-        termPartialMatch env (slns, hoMatches) vbod cbod 
-
-    // Is this a higher-order variable
-    | App((Var hoVar),args), _ when not (env.ContainsKey hoVar)  -> 
-        let newHoMatches = HoMatch (env, tm, hoVar, args) :: hoMatches
-        slns, newHoMatches
-
-    | App(lv,rv), _ -> 
-        let lc,rc = stripApps tm
-        // match the functions
-        let newSlns = termPartialMatch env acc lv lc 
-        // match the arguments
-        (newSlns,rv,rc) |||> List.fold2 (termPartialMatch env)
-
-    | _ -> failwith "no match"
-
 
 /// Accumulate the free variables in an expression
 let rec accFrees fvs (arg: Term) = 
@@ -150,6 +95,69 @@ let rec generalize (abstractions: Map<Term,Var>) (x:Term) =
     | App (f,xs) -> App (generalize abstractions f, List.map (generalize abstractions) xs)
     | Lam (vs,x) -> Lam(vs, generalize abstractions x)
 
+/// Generate a variable
+let genVar =
+    let mutable nameGen = 0 
+    fun () ->
+        nameGen <- nameGen + 1
+        "v" + string nameGen
+
+/// Record the solution to a variable up to alpha-equivalence
+let recordSolution (key : Var, value : Term) (slns : Map<Var,Term>) = 
+    match slns.TryFind(key) with
+    | Some value2 ->
+        if areAlphaEquiv value value2 then slns
+        else failwith "recordSolution: different value (not alpha-equivalent) already present"
+    | None ->
+        slns.Add(key,value)
+
+//--------------------------------------------------------------
+// Second-order "template" matching
+
+
+/// Represents a residue of the first round of matching
+type HoMatch = HoMatch of env:Map<Var,Var> * tm:Term * hoVar: Var * args:Term list
+
+/// Match a term against a pattern, leaving a residue of high-order matches.
+//
+// env: the alpha-equivalence of variables when procesing this term
+// pat: the pattern
+// tm: the term being matched
+// slns: the solutions to variables so far
+// hoMatches: the second order matches accumulated so far
+let rec termPartialMatch (env: Map<Var,Var>) ((slns, hoMatches) as acc) pat tm  = 
+    match (pat, tm) with
+    | Var patv, _ ->
+        match env.TryFind patv with
+        | Some v2 ->
+            if tm = Var v2 then // note, exact term equality needed here
+                acc
+            else 
+                failwith "no match"
+        | None ->
+            let newSlns = recordSolution (patv, tm) slns
+            newSlns, hoMatches
+
+    | Const(vname), Const(cname) ->  if vname = cname then acc else failwith "no match"
+
+    | Lam(vv, vbod), Lam(cv, cbod) -> 
+        let env = (env,vv,cv) |||> List.fold2 (fun env vv cv -> env.Add(vv, cv))
+        termPartialMatch env (slns, hoMatches) vbod cbod 
+
+    // Is this a higher-order variable
+    | App((Var hoVar),args), _ when not (env.ContainsKey hoVar)  -> 
+        let newHoMatches = HoMatch (env, tm, hoVar, args) :: hoMatches
+        slns, newHoMatches
+
+    | App(lv,rv), _ -> 
+        let lc,rc = stripApps tm
+        // match the functions
+        let newSlns = termPartialMatch env acc lv lc 
+        // match the arguments
+        (newSlns,rv,rc) |||> List.fold2 (termPartialMatch env)
+
+    | _ -> failwith "no match"
+
 
 /// Resolve the residue second-order matches, adding to the set of solutions
 let resolveHoMatch (slns:Map<Var,Term>, hoVars:Set<Var>) (HoMatch(env, tm, hoVar, argPats)) = 
@@ -195,8 +203,6 @@ let resolveHoMatch (slns:Map<Var,Term>, hoVars:Set<Var>) (HoMatch(env, tm, hoVar
 
         vinsts, hoVars.Add hoVar
 
-
-
 /// Match one term against another.
 let termMatch pat tm =
     // Collect the basic matches, with a set of residue 2nd-order match problems
@@ -206,13 +212,13 @@ let termMatch pat tm =
     slns,hoVars
 
 
-/// Match one term against another.
+/// Match one term against another and apply the generated substitution to another term (normally the r.h.s. of an equation)
 let eqnMatch pat res tm =
     let slns,hoVars = termMatch pat tm
     substAndReduce slns hoVars  res
 
 
-//---------------------------------------------
+//--------------------------------------------------------------
 // Convert from F# quotations
 
 open FSharp.Quotations
@@ -236,7 +242,7 @@ let eqnMatch2 q1 q2 q3 = eqnMatch (q q1) (q q2) (q q3)
 let termMatch2 q1 q2 = termMatch (q q1) (q q2)
 let termPartialMatch2 q1 q2 = termPartialMatch Map.empty (Map.empty, []) (q q1) (q q2)
 
-//---------------------------------------------
+//--------------------------------------------------------------
 // Test it out
 
 

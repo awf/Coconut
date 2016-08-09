@@ -29,6 +29,40 @@ type Type =
    | FunTy of Type list * Type 
    | SimpleTy of string
 
+/// Instantiate type variables in an expression (not yet used)
+let rec substTyvarsInType (tyslns: Map<string,Type>) ty = 
+    match ty with 
+    | VarTy v -> if tyslns.ContainsKey v then tyslns.[v] else ty
+    | FunTy (dtys,rty) -> FunTy (List.map (substTyvarsInType tyslns) dtys,substTyvarsInType tyslns rty)
+    | SimpleTy _ -> ty
+
+/// Record the solution to a type variable 
+let recordTypeSolution (key : string, value : Type) (tyslns : Map<string,Type>) = 
+    match tyslns.TryFind(key) with
+    | Some value2 ->
+        if value = value2 then tyslns
+        else failwith "recordTypeSolution: different value already present"
+    | None ->
+        tyslns.Add(key,value)
+ 
+
+/// Match a term against a pattern, leaving a residue of high-order matches.
+//
+// env: the alpha-equivalence of variables when procesing this term
+// pat: the pattern
+// tm: the term being matched
+// slns: the solutions to variables so far
+// hoMatches: the second order matches accumulated so far
+let rec typeMatch (tyslns: Map<string,Type>) pat tm  = 
+    match (pat, tm) with
+    | VarTy patv, _ -> recordTypeSolution (patv, tm) tyslns
+    | FunTy(dtys1,rty1),FunTy(dtys2,rty2) -> (typeMatch tyslns rty1 rty2, dtys1, dtys2) |||> List.fold2 typeMatch
+    | SimpleTy nm1, SimpleTy nm2 when nm1 = nm2-> tyslns
+    | _ -> failwith "typeMatch: no match"
+
+//--------------------------------------------------
+// Variables and Terms
+
 /// Variables.  Note these use structural equality/comparison.
 type Var = 
    | V of string * Type
@@ -49,6 +83,72 @@ type Term =
        | App (tm,args) -> match tm.Type with FunTy(_,rty) -> rty | _ -> failwith "expected fun type"
        | Lam (vs,b) -> FunTy(vs |> List.map (fun v -> v.Type), b.Type)
 
+//--------------------------------------------------
+// Operations on terms
+
+/// Accumulate the free variables in an expression
+let rec accFrees fvs (arg: Term) = 
+    match arg with 
+    | Const _ -> fvs
+    | Var v -> Set.add v fvs
+    | App (f,xs) -> (accFrees fvs f,xs) ||> List.fold accFrees 
+    | Lam (vs,x) -> 
+        let bvfs = (frees x,vs) ||> List.fold (fun fvs v -> Set.remove v fvs)
+        Set.union bvfs fvs
+    
+/// Get the free variables in an expression
+and frees x = (Set.empty,x) ||> accFrees
+
+/// Free variables in a list of terms
+let freesl (xs: Term list) = (Set.empty,xs) ||> List.fold accFrees
+
+
+let substTyvarsInVar tyslns (V(nm,ty)) = V(nm,substTyvarsInType tyslns ty)
+
+/// Instantiate type variables in an expression (not yet used)
+let rec substTyvars tyslns x = 
+    match x with 
+    | Const (nm,ty) -> Const(nm, substTyvarsInType tyslns ty)
+    | Var v -> Var (substTyvarsInVar tyslns v)
+    | App (f,xs) -> App (substTyvars tyslns f, List.map (substTyvars tyslns) xs)
+    | Lam (vs,x) -> Lam(vs, substTyvars tyslns x)
+
+
+/// Substitute variables for terms in an expression
+let rec substVars (slns: Map<Var,Term>) (x:Term) = 
+    match x with 
+    | Const _ -> x
+    | Var v -> if slns.ContainsKey v then slns.[v] else x
+    | App (f,xs) -> App (substVars slns f, List.map (substVars slns) xs)
+    | Lam (vs,x) -> Lam(vs, substVars slns x)
+
+/// Substitute variables for terms in an expression and beta reduce the indicated variables
+let rec substAndReduce (slns: Map<Var,Term>) (betaVars: Set<Var>) (x:Term) = 
+    match x with 
+    | App ((Var v), args) when betaVars.Contains v ->
+        match slns.[v] with
+        | Lam(vs,b) -> substVars (Map.ofList(List.zip vs args)) b
+        | t ->  App(t,args)
+    | _ -> 
+    match x with 
+    | Const _ -> x
+    | Var v -> if slns.ContainsKey v then slns.[v] else x
+    | App (f,xs) -> App (substAndReduce slns betaVars f, List.map (substAndReduce slns betaVars ) xs)
+    | Lam (vs,x) -> Lam(vs, substAndReduce slns betaVars x)
+
+/// Replace the given expressions by the given variables (generalize the expressions)
+let rec generalize (abstractions: Map<Term,Var>) (x:Term) = 
+    match abstractions.TryFind x with 
+    | Some r -> Var r
+    | None -> 
+    match x with 
+    | Const _ -> x
+    | Var _ -> x
+    | App (f,xs) -> App (generalize abstractions f, List.map (generalize abstractions) xs)
+    | Lam (vs,x) -> Lam(vs, generalize abstractions x)
+
+
+
 /// Strip off zero or more arguments
 let stripApps x =
    match x with 
@@ -58,15 +158,6 @@ let stripApps x =
 /// Check alpha-convertibility (For now just equality, TBD)
 let areAlphaEquiv (x:Term) (y:Term) = (x = y)
 
-/// Record the solution to a variable up to alpha-equivalence
-let recordTypeSolution (key : string, value : Type) (tyslns : Map<string,Type>) = 
-    match tyslns.TryFind(key) with
-    | Some value2 ->
-        if value = value2 then tyslns
-        else failwith "recordTypeSolution: different value already present"
-    | None ->
-        tyslns.Add(key,value)
- 
 /// Record the solution to a variable up to alpha-equivalence
 let recordSolution (key : Var, value : Term) (slns : Map<Var,Term>) = 
     match slns.TryFind(key) with
@@ -87,6 +178,9 @@ let genVar =
 let recordDummySolution (key1 : Type,key2: Type) (slns : Map<Var,Term>) =  
      //recordSolution (genVar vty, Var (genVar cty)) slns
      slns
+
+//--------------------------------------------------------------
+// Second-order "template" matching
 
 
 /// Represents a residue of the first round of matching
@@ -148,87 +242,6 @@ let rec termPartialMatch (env: Map<Var,Var>) ((slns, hoMatches) as acc) pat tm  
     | _ -> failwith "no match"
 
 
-/// Accumulate the free variables in an expression
-let rec accFrees fvs (arg: Term) = 
-    match arg with 
-    | Const _ -> fvs
-    | Var v -> Set.add v fvs
-    | App (f,xs) -> (accFrees fvs f,xs) ||> List.fold accFrees 
-    | Lam (vs,x) -> 
-        let bvfs = (frees x,vs) ||> List.fold (fun fvs v -> Set.remove v fvs)
-        Set.union bvfs fvs
-    
-/// Get the free variables in an expression
-and frees x = (Set.empty,x) ||> accFrees
-
-/// Free variables in a list of terms
-let freesl (xs: Term list) = (Set.empty,xs) ||> List.fold accFrees
-
-/// Instantiate type variables in an expression (not yet used)
-let rec substTyvarsInType (tyslns: Map<string,Type>) ty = 
-    match ty with 
-    | VarTy v -> if tyslns.ContainsKey v then tyslns.[v] else ty
-    | FunTy (dtys,rty) -> FunTy (List.map (substTyvarsInType tyslns) dtys,substTyvarsInType tyslns rty)
-    | SimpleTy _ -> ty
-
-/// Match a term against a pattern, leaving a residue of high-order matches.
-//
-// env: the alpha-equivalence of variables when procesing this term
-// pat: the pattern
-// tm: the term being matched
-// slns: the solutions to variables so far
-// hoMatches: the second order matches accumulated so far
-let rec typeMatch (tyslns: Map<string,Type>) pat tm  = 
-    match (pat, tm) with
-    | VarTy patv, _ -> recordTypeSolution (patv, tm) tyslns
-    | FunTy(dtys1,rty1),FunTy(dtys2,rty2) -> (typeMatch tyslns rty1 rty2, dtys1, dtys2) |||> List.fold2 typeMatch
-    | SimpleTy nm1, SimpleTy nm2 when nm1 = nm2-> tyslns
-    | _ -> failwith "typeMatch: no match"
-
-let substTyvarsInVar tyslns (V(nm,ty)) = V(nm,substTyvarsInType tyslns ty)
-
-/// Instantiate type variables in an expression (not yet used)
-let rec substTyvars tyslns x = 
-    match x with 
-    | Const (nm,ty) -> Const(nm, substTyvarsInType tyslns ty)
-    | Var v -> Var (substTyvarsInVar tyslns v)
-    | App (f,xs) -> App (substTyvars tyslns f, List.map (substTyvars tyslns) xs)
-    | Lam (vs,x) -> Lam(vs, substTyvars tyslns x)
-
-
-/// Substitute variables for terms in an expression
-let rec substVars (slns: Map<Var,Term>) (x:Term) = 
-    match x with 
-    | Const _ -> x
-    | Var v -> if slns.ContainsKey v then slns.[v] else x
-    | App (f,xs) -> App (substVars slns f, List.map (substVars slns) xs)
-    | Lam (vs,x) -> Lam(vs, substVars slns x)
-
-/// Substitute variables for terms in an expression and beta reduce the indicated variables
-let rec substAndReduce (slns: Map<Var,Term>) (betaVars: Set<Var>) (x:Term) = 
-    match x with 
-    | App ((Var v), args) when betaVars.Contains v ->
-        match slns.[v] with
-        | Lam(vs,b) -> substVars (Map.ofList(List.zip vs args)) b
-        | t ->  App(t,args)
-    | _ -> 
-    match x with 
-    | Const _ -> x
-    | Var v -> if slns.ContainsKey v then slns.[v] else x
-    | App (f,xs) -> App (substAndReduce slns betaVars f, List.map (substAndReduce slns betaVars ) xs)
-    | Lam (vs,x) -> Lam(vs, substAndReduce slns betaVars x)
-
-/// Replace the given expressions by the given variables (generalize the expressions)
-let rec generalize (abstractions: Map<Term,Var>) (x:Term) = 
-    match abstractions.TryFind x with 
-    | Some r -> Var r
-    | None -> 
-    match x with 
-    | Const _ -> x
-    | Var _ -> x
-    | App (f,xs) -> App (generalize abstractions f, List.map (generalize abstractions) xs)
-    | Lam (vs,x) -> Lam(vs, generalize abstractions x)
-
 
 /// Resolve the residue second-order matches, adding to the set of solutions
 let resolveHoMatch tyslns (slns:Map<Var,Term>, hoVars:Set<Var>) (HoMatch(env, tm, hoVar, argPats)) = 
@@ -276,7 +289,8 @@ let resolveHoMatch tyslns (slns:Map<Var,Term>, hoVars:Set<Var>) (HoMatch(env, tm
         vinsts, hoVars.Add hoVar
 
 
-let getTypeSolutions (slns: (Var * Term) list) = (Map.empty, slns) ||> List.fold (fun acc (x, t) -> typeMatch acc x.Type t.Type)
+let getTypeSolutions (slns: (Var * Term) list) = 
+    (Map.empty, slns) ||> List.fold (fun acc (x, t) -> typeMatch acc x.Type t.Type)
 
 /// Match one term against another.
 let termMatch pat tm =
