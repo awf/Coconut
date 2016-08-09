@@ -202,9 +202,9 @@ let rec conv env (x: Expr) =
    | Applications(v,bs) -> Term.App (conv env v, List.map (conv env) (List.concat bs))
    | Call(objOpt,m,bs) -> Term.App (Term.Const(m.Name), List.map (conv env) (Option.toList objOpt @ bs))
    | PropertyGet(objOpt,m,bs) -> Term.App (Term.Const(m.Name), List.map (conv env) (Option.toList objOpt @ bs))
-   | Int32(n) -> Term.Const(string n)
-   | Bool(n) -> Term.Const(string n)
-   | String(n) -> Term.Const("\"" + string n + "\"")
+   | Int32 n -> Term.Const(string n)
+   | Bool n -> Term.Const(string n)
+   | String n -> Term.Const("\"" + string n + "\"")
    | _ -> failwith (sprintf "couldn't convert %A" x)
 
 let q x = conv Map.empty x
@@ -236,7 +236,7 @@ q <@ (%F) 1 @>
 
 termMatch2 <@ %x @>  <@ 1 @>
 termMatch2 <@ %x + %y @>  <@ 1  + 2 @>
-// termMatch2 <@ %x + %x @>  <@ 1  + 2 @> // expect error
+//termMatch2 <@ %x + %x @>  <@ 1  + 2 @> // expect error
 //termMatch2 <@ %x + %y @>  <@ 1  * 2 @> // expect error
 
 termMatch2 <@ (%F) 1 @>  <@ 1 + 2 @>
@@ -252,51 +252,11 @@ termMatch2 <@ FORALL (fun x -> AND ((%P) x) (%Q)) @>  <@ FORALL (fun x -> AND (A
 
 eqnMatch2 <@ FORALL (fun x -> OR ((%P) x) (%Q)) @>  <@ OR (FORALL (fun x -> (%P) x)) (%Q) @>   <@ FORALL (fun x -> OR (AND (ISEVEN x) (ISODD x) ) false) @>
 
-let slns,hoVars = termMatch2 <@ FORALL (fun x -> OR ((%P) x) (%Q)) @>  <@ FORALL (fun x -> OR (AND (ISEVEN x) (ISODD x) ) false) @>
 
-substAndReduce slns hoVars (q <@ OR (FORALL (fun x -> (%P) x)) (%Q) @>   )
-substAndReduce slns hoVars (q <@ (%P) 1 @>   )
-
-let orRewrite t = eqnMatch2 <@ FORALL (fun x -> OR ((%P) x) (%Q)) @>  <@ OR (FORALL (fun x -> (%P) x)) (%Q) @>  t
-
-orRewrite <@ FORALL (fun x -> OR (AND (ISEVEN x) (ISODD x) ) true) @>
-orRewrite <@ FORALL (fun x -> OR (AND (ISODD x) (ISEVEN x) ) false) @>
-
-let orRewrite2 t = eqnMatch2 <@ FORALL (fun x -> OR ((%P) x) (%Q)) @>  <@ OR (FORALL (%P)) (%Q) @>  t
-
-orRewrite2 <@ FORALL (fun x -> OR (AND (ISEVEN x) (ISODD x) ) true) @>
-orRewrite2 <@ FORALL (fun x -> OR (AND (ISODD x) (ISEVEN x) ) false) @>
-
-//termMatch2 <@ FORALL (fun x -> AND ((%P) x) (%Q)) @>  <@ FORALL (fun x -> AND (ISEVEN x) false) @>
 
 // termMatch2 <@ FORALL (fun x -> AND ((%P) x) (%Q)) @>  <@ FORALL (fun x -> AND false (ISEVEN x)) @> // expect failure due to capture
 
 
-
-(*
-let get_type_insts slns acc =
-    (slns, acc)
-    ||> List.foldBack (fun (t, x) acc ->
-        let dest_var_x = dest_var x
-        let type_of_t = type_of t
-        type_match (snd dest_var_x) type_of_t acc)
-*)
-
-(*
-let separate_insts (slns : Map<Var, Term>, hoVars: (Term * Term) list) = 
-        let tyslns = get_type_insts slns []
-        // CLEAN : Rename this value to something sensible.
-        let foo1 =
-            slns |> List.choose (fun (t, x) -> 
-                let x' =
-                    let xn, xty = dest_var x
-                    mk_var(xn, type_subst tyslns xty)
-                if compare t x' = 0 then 
-                    return None
-                else 
-                    return Some(t, x'))
-        betacounts, foo1, tyslns
-*)
 //  This was a fallback in the original code. Not sure if it's needed.
 (*
             | Failure _ -> 
@@ -305,6 +265,6 @@ let separate_insts (slns : Map<Var, Term>, hoVars: (Term * Term) list) =
                     let homs' = 
                         termPartialMatch env rv rc 
                             (slns, (env, lc, lv) :: (tl hoMatches))
-                    let tyslns' = get_type_insts (fst homs') []
+                    let tyslns' = getTypeSolutions (fst homs') []
                     resolveHoMatch tyslns' homs'
 *)

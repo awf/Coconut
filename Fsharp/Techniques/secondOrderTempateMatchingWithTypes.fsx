@@ -385,28 +385,8 @@ let orRewrite2 t = eqnMatch2 <@ FORALL (fun x -> OR ((%P) x) (%Q)) @>  <@ OR (FO
 orRewrite2 <@ FORALL (fun x -> OR (AND (ISEVEN x) (ISODD x) ) true) @>
 orRewrite2 <@ FORALL (fun x -> OR (AND (ISODD x) (ISEVEN x) ) false) @>
 
-//termMatch2 <@ FORALL (fun x -> AND ((%P) x) (%Q)) @>  <@ FORALL (fun x -> AND (ISEVEN x) false) @>
-
 // termMatch2 <@ FORALL (fun x -> AND ((%P) x) (%Q)) @>  <@ FORALL (fun x -> AND false (ISEVEN x)) @> // expect failure due to capture
 
-
-
-
-(*
-let separate_insts (slns : Map<Var, Term>, hoVars: (Term * Term) list) = 
-        let tyslns = getTypeSolutions slns []
-        // CLEAN : Rename this value to something sensible.
-        let foo1 =
-            slns |> List.choose (fun (t, x) -> 
-                let x' =
-                    let xn, xty = dest_var x
-                    mk_var(xn, type_subst tyslns xty)
-                if compare t x' = 0 then 
-                    return None
-                else 
-                    return Some(t, x'))
-        betacounts, foo1, tyslns
-*)
 //  This was a fallback in the original code. Not sure if it's needed.
 (*
             | Failure _ -> 
