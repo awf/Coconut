@@ -167,6 +167,11 @@ let recordSolution (key : Var, value : Term) (slns : Map<Var,Term>) =
     | None ->
         slns.Add(key,value)
 
+/// Record a dummy solution between dummy variables for two types, to help generate type instaniations
+let recordDummySolution (key1 : Type,key2: Type) (slns : Map<Var,Term>) =  
+     //recordSolution (genVar vty, Var (genVar cty)) slns
+     slns
+
 /// Generate a variable
 let genVar =
     let mutable nameGen = 0 
@@ -174,10 +179,6 @@ let genVar =
         nameGen <- nameGen + 1
         V("v" + string nameGen, ty)
 
-/// Record a dummy solution between dummy variables for two types, to help generate type instaniations
-let recordDummySolution (key1 : Type,key2: Type) (slns : Map<Var,Term>) =  
-     //recordSolution (genVar vty, Var (genVar cty)) slns
-     slns
 
 //--------------------------------------------------------------
 // Second-order "template" matching
