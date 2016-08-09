@@ -24,7 +24,7 @@ let test_ruleengine () =
     //let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
     //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
     //let prog' = prog
-    let prog = <@ ruleengine.LET (1 * 3) (fun x -> x * 3) @>
+    let prog = <@ ruleengine.LET (1 * 3) (fun y -> y * 3) @>
     let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
     printfn "%A" prog'
 

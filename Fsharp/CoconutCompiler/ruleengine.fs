@@ -127,7 +127,10 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
 
 let private alphaEquals (e1: Expr) (e2: Expr) = e1 = e2
 
-type QVar = QVar of Var
+type QVar = 
+  | QVar of Var
+
+  member v.var = let (QVar(v)) = v in v
 
 type QExpr (expr: Expr) = 
 
@@ -146,7 +149,7 @@ type QExpr (expr: Expr) =
   interface System.IComparable with
         member x.CompareTo yobj =
             match yobj with
-            | :? QExpr as qy -> if x.Equals(yobj) then 0 else x.ToString().CompareTo(yobj.ToString())
+            | :? QExpr as qy -> if x.Equals(yobj) then 0 else x.expr.ToString().CompareTo(qy.expr.ToString())
             | _ -> invalidArg "yobj" "cannot compare value of different types"
 
 type private HoMatch = HoMatch of env: Map<QVar, QVar> * term: Expr * hoVar: QVar * args: Expr list
@@ -158,7 +161,10 @@ let private findVariableInList<'a> (key: Var) (col: 'a list) (conv: 'a -> Var): 
     |> Option.map snd
 
 let private variableMapGet<'a> (key: Var) (map: Map<QVar, 'a>): 'a option = 
-  findVariableInList key (Map.toList map) (fun (QVar(v), _) -> v) |> Option.map snd
+  let res = findVariableInList key (Map.toList map) (fun (QVar(v), _) -> v) |> Option.map snd
+  match res with
+  | Some v -> res
+  | None   -> map.TryFind (QVar key)
 
 let private solutionsGet (key: Var) (solutions: Solution): Expr option = 
   variableMapGet key solutions
@@ -168,9 +174,11 @@ let rec private substVars (solutions: Solution) (e: Expr): Expr =
 
 let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (e: Expr) = 
   match e with
-  | AppN(Patterns.Var(v), args) when findVariableInList v (Set.toList betaVars) (fun (QVar(x)) -> x) |> Option.isSome ->
+  | AppN(Patterns.Var(v), args) when findVariableInList v (Set.toList betaVars) (fun x -> x.var) |> Option.isSome ->
     match solutionsGet v solutions with
-    | Some(LambdaN(inputs, body)) -> substVars (List.zip (inputs |> List.map QVar) args |> Map.ofList) body
+    | Some(LambdaN(inputs, body)) -> 
+      let inlinedBody = substVars (List.zip (inputs |> List.map QVar) args |> Map.ofList) body
+      substAndReduce solutions betaVars inlinedBody
     | Some(e2) -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
     | None -> failwithf "There is no corresponding value in the solutions %A for the hoVar %A" solutions v
   | _ ->
@@ -223,8 +231,10 @@ let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoM
   let termInstantiations =   
     freeVarsList argPats   
     |> Set.toList  
-    |> List.map (fun (QVar a as qa)  ->  
-        match variableMapGet a env with  
+    //|> List.map (fun x -> printf "%A" x; x)
+    |> List.map (fun qa  -> 
+        let a = qa.var 
+        match env.TryFind qa with  
         | Some (QVar x) -> qa, Expr.Var x  
         | None ->  
             match solutionsGet a solutions with  
@@ -260,19 +270,19 @@ let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoM
   
       vinsts, hoVars.Add qhoVar  
 
-let rec private termPartialMatch (env: Map<Var,Var>) ((solutions: Solution, hoMatches: HoMatch list) as acc) (pat: Expr) (term: Expr): Solution * HoMatch list =  
+let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, hoMatches: HoMatch list) as acc) (pat: Expr) (term: Expr): Solution * HoMatch list =  
   match (pat, term) with
   | Patterns.Var patv, _ ->
-    match env.TryFind patv with
+    match variableMapGet patv env with
     | Some v2 ->
-      if term = Expr.Var(v2) then
+      if term = Expr.Var(v2.var) then
         acc
       else 
-        raise ( NotMatched("Unification problem", [pat; term; Expr.Var(v2)]) )
+        raise ( NotMatched("Unification problem", [pat; term; Expr.Var(v2.var)]) )
     | None ->
       let newSolutions = recordSolution (patv, term) solutions
       newSolutions, hoMatches
-  | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op = oe ->
+  | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op.Name = oe.Name && op.Module.Name = oe.Module.Name ->
     (acc,pats,exprs) |||> List.fold2 (termPartialMatch env)
   | (Patterns.PropertyGet(objp, op, []), Patterns.PropertyGet(obje, oe, [])) when (Option.count objp) = (Option.count obje) && op = oe ->
     (acc,Option.toList objp,Option.toList obje) |||> List.fold2 (termPartialMatch env)
@@ -280,11 +290,18 @@ let rec private termPartialMatch (env: Map<Var,Var>) ((solutions: Solution, hoMa
     (acc,pats,exprs) |||> List.fold2 (termPartialMatch env)
   | (Patterns.Value(v1), Patterns.Value(v2)) when v1 = v2 -> 
     acc
-  | AppN(Patterns.Var(hoVar), args), _ when not (env.ContainsKey hoVar) ->
-    failwith "TODO hoMatches"
+  | (Patterns.Lambda(pv, pbody), Patterns.Lambda(ev, ebody)) ->
+    let env' = env.Add(QVar pv, QVar ev)
+    termPartialMatch env' (solutions, hoMatches) pbody ebody
+  | AppN(Patterns.Var(hoVar), args), _ when variableMapGet hoVar env |> Option.isNone ->
+    let newHoMatches = HoMatch (env, term, QVar hoVar, args) :: hoMatches 
+    solutions, newHoMatches 
+
   | AppN(lv, rv), StripedAppN(lc, rc) ->
     let newSolutions = termPartialMatch env acc lv lc
     (newSolutions,rv,rc) |||> List.fold2 (termPartialMatch env) 
+  | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) ->
+    failwith "hello"
   | _ -> 
     raise ( NotMatched("No matched", [pat; term]))
 
@@ -304,7 +321,8 @@ let compilePatternToRule (ruleExpr: Expr): Rule =
       | _ -> failwith "Rewrite patterns should be of the form `lhs <==> rhs`"
     try
       let solutions, hoVars = termMatch pat term
-      Some(substAndReduce solutions hoVars rhs)
+      let unifiedRhs = substAndReduce solutions hoVars rhs
+      Some(unifiedRhs)
     with
       | NotMatched _ -> None
       
