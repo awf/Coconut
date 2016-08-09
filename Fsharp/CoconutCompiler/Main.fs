@@ -21,9 +21,9 @@ let test_ba (argv: string[]) =
  
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
-    let prog = <@ (3 * 9) - 0 @>
-    //let prog' = rules.letInliner2 prog
-    let prog' = prog
+    let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
+    let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
+    //let prog' = prog
     printfn "%A" prog'
 
 let compile_modules () = 
@@ -148,7 +148,7 @@ let test_guided_optimizer () =
           rules.betaReduction, 0;
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
-          (*comp (rules.vectorFoldBuildToFoldOnRange_exp), 0;
+          comp (rules.vectorFoldBuildToFoldOnRange_exp), 0;
           rules.betaReduction, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 4;
@@ -179,7 +179,6 @@ let test_guided_optimizer () =
           rules.letInliner, 9;
           comp (rules.vectorBuildGet_exp), 0;
           rules.betaReduction, 0;
-          *)
         ]
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentProject baProjectRules

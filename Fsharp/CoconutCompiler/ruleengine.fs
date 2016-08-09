@@ -137,24 +137,30 @@ exception NotMatched of string * Expr list
 
 let private alphaEquals (e1: Expr) (e2: Expr) = e1 = e2
 
+let solutionsGet (key: Var) (solutions: Solution): Expr option = 
+  metaVars.getMetaVarAmongGivenVarBindings key (Map.toList solutions)
+    |> Option.map snd
+
 let rec private substVars (solutions: Solution) (e: Expr): Expr =
-  e.Substitute(fun v -> if solutions.ContainsKey v then Some solutions.[v] else None)
+  e.Substitute(fun v -> solutions |> solutionsGet v)
 
 let rec private substAndReduce (solutions: Solution) (betaVars: Set<Var>) (e: Expr) = 
   match e with
-  | AppN(Patterns.Var(v), args) when betaVars.Contains v ->
-    match solutions.[v] with
+  | AppN(Patterns.Var(v), args) when betaVars.Contains v -> // TODO be careful about equality of variables
+    failwith "TODO"
+    (*match solutions.[v] with
     | LambdaN(inputs, body) -> substVars (Map.ofList(List.zip inputs args)) body
-    | e2                   -> Expr.Applications(e2, List.map (fun x -> [x]) args)
+    | e2                   -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
+    *)
   | _ ->
     match e with
-    | Patterns.Var(v) -> if solutions.ContainsKey v then solutions.[v] else e
+    | Patterns.Var(v) -> solutions |> solutionsGet v |> Option.fold (fun _ x -> x) e
     | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars body)
     | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (substAndReduce solutions betaVars))
     | _ -> failwithf "substAndReduce doesn't handle %A" e
 
 let private recordSolution (key: Var, value: Expr) (solutions: Solution): Solution = 
-  match solutions.TryFind key with
+  match solutionsGet key solutions with
   | Some value2 ->
     if alphaEquals value value2 then 
       solutions
