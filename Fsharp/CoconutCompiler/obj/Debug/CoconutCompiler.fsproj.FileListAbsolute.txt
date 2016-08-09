@@ -1,6 +1,0 @@
-C:\Users\t-amshai\Desktop\GitHub\Coconut\Debug\CoconutCompiler\CoconutCompiler.exe.config
-C:\Users\t-amshai\Desktop\GitHub\Coconut\Debug\CoconutCompiler\CoconutCompiler.exe
-C:\Users\t-amshai\Desktop\GitHub\Coconut\Debug\CoconutCompiler\CoconutCompiler.pdb
-C:\Users\t-amshai\Desktop\GitHub\Coconut\Debug\CoconutCompiler\CoconutCompiler.XML
-C:\Users\t-amshai\Desktop\GitHub\Coconut\Fsharp\CoconutCompiler\obj\Debug\CoconutCompiler.exe
-C:\Users\t-amshai\Desktop\GitHub\Coconut\Fsharp\CoconutCompiler\obj\Debug\CoconutCompiler.pdb
