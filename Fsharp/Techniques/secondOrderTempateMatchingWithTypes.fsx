@@ -114,7 +114,7 @@ let rec substTyvars tyslns x =
     | Lam (vs,x) -> Lam(vs, substTyvars tyslns x)
 
 
-/// Substitute variables for terms in an expression
+/// Substitute variables for terms in an expression. TODO: shoud check capture
 let rec substVars (slns: Map<Var,Term>) (x:Term) = 
     match x with 
     | Const _ -> x

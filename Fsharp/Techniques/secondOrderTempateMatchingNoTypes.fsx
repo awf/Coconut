@@ -62,20 +62,20 @@ and frees x = (Set.empty,x) ||> accFrees
 /// Free variables in a list of terms
 let freesl (xs: Term list) = (Set.empty,xs) ||> List.fold accFrees
 
-/// Substitute variables for terms in an expression
-let rec vsubst (slns: Map<Var,Term>) (x:Term) = 
+/// Substitute variables for terms in an expression.  TODO: shoud check capture
+let rec substVars (slns: Map<Var,Term>) (x:Term) = 
     match x with 
     | Const _ -> x
     | Var v -> if slns.ContainsKey v then slns.[v] else x
-    | App (f,xs) -> App (vsubst slns f, List.map (vsubst slns) xs)
-    | Lam (vs,x) -> Lam(vs, vsubst slns x)
+    | App (f,xs) -> App (substVars slns f, List.map (substVars slns) xs)
+    | Lam (vs,x) -> Lam(vs, substVars slns x)
 
 /// Substitute variables for terms in an expression and beta reduce the indicated variables
 let rec substAndReduce (slns: Map<Var,Term>) (betaVars: Set<Var>) (x:Term) = 
     match x with 
     | App ((Var v), args) when betaVars.Contains v ->
         match slns.[v] with
-        | Lam(vs,b) -> vsubst (Map.ofList(List.zip vs args)) b
+        | Lam(vs,b) -> substVars (Map.ofList(List.zip vs args)) b
         | t ->  App(t,args)
     | _ -> 
     match x with 
@@ -176,7 +176,7 @@ let resolveHoMatch (slns:Map<Var,Term>, hoVars:Set<Var>) (HoMatch(env, tm, hoVar
         |> Map.ofList
 
     // Apply the known solutions
-    let argPats = List.map (vsubst tmins) argPats
+    let argPats = List.map (substVars tmins) argPats
 
     // Generalize 
     let (hop, args) = stripApps tm 
