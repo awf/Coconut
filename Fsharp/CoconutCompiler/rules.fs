@@ -214,6 +214,19 @@ let letCommutingConversion_exp =
       (%B2) x
   @>
 
+let letReorder_exp = 
+  <@
+    (
+      let x: T1 = %E1
+      let y: T2 = %E2
+      ((%B1) x y): T3
+    )
+    <==>
+      let y: T2 = %E2
+      let x: T1 = %E1
+      ((%B1) x y): T3
+  @>
+
 
 // TODO does not work because of type inference reasons
 let allocToCPS_exp =
@@ -236,6 +249,8 @@ let letInliner2: Rule = compilePatternToRule (letInliner_exp)
 let letMerging2: Rule = compilePatternToRule (letMerging_exp)
 
 let letCommutingConversion2: Rule = compilePatternToRule (letCommutingConversion_exp)
+
+let letReorder2: Rule = compilePatternToRule (letReorder_exp)
 
 let allocToCPS2: Rule = compilePatternToRule (allocToCPS_exp)
 
@@ -417,12 +432,15 @@ let letCommutingConversion =
   // letCommutingConversion_old
   letCommutingConversion2
 
-// TODO requires supporting conditional rewrite rules.
-let letReorder (e: Expr): Expr Option = 
+let letReorder_old (e: Expr): Expr Option = 
   match e with 
   | Patterns.Let(v, e1, Patterns.Let(v2, e2, e3)) when not (Seq.exists (fun x -> x = v) (e2.GetFreeVars())) -> 
     Some(Expr.Let(v2, e2, Expr.Let(v, e1, e3)))
   | _ -> None
+
+let letReorder = 
+  //letReorder_old
+  letReorder2
 
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)

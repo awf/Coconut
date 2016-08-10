@@ -391,7 +391,7 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
 let private termMatch (pat: Expr) (term: Expr): Solution * Set<QVar> = 
   let solutions, hoMatches = termPartialMatch Map.empty (Map.empty, []) pat term
   let solutions, hoVars = ((solutions, Set.empty), hoMatches) ||> List.fold resolveHoMatch
-  // TODO capture
+  if not (freeVarsList (List.map snd (Map.toList solutions))  - freeVars term).IsEmpty then raise ( NotMatched("Captured variables", [pat; term]))
   solutions, hoVars
 
 let compilePatternToRule (ruleExpr: Expr): Rule =
