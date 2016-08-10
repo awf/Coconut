@@ -191,7 +191,7 @@ let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
         let nv = new Var(newVar (v.Name), v.Type)
         nv, (v, nv) :: renamings
       else
-        v, renamings
+        v, (v, v) :: renamings
     let ne2 = variableRenaming e2 newRenamings
     Expr.Let(nv, ne1, ne2)
   | ExprShape.ShapeLambda(x, e) ->
@@ -200,7 +200,7 @@ let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
         let nx = new Var(newVar (x.Name), x.Type)
         nx, (x, nx) :: renamings
       else
-        x, renamings
+        x, (x, x) :: renamings
     let ne = variableRenaming e newRenamings
     Expr.Lambda(nx, ne)
   | ExprShape.ShapeVar(x) ->
@@ -212,3 +212,5 @@ let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
 let captureAvoidingSubstitution (e: Expr) (mapping: (Var * Expr) list): Expr = 
   let substitutedE = e.Substitute(fun v2 -> mapping |> List.tryFind (fun (v, a) -> v = v2) |> Option.map snd)
   variableRenaming substitutedE []
+  // let renamedE = mapping |> List.map (fun (v, _) -> v, v) |> variableRenaming e
+  // renamedE.Substitute(fun v2 -> mapping |> List.tryFind (fun (v, a) -> v = v2) |> Option.map snd)
