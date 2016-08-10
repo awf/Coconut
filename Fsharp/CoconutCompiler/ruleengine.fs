@@ -373,7 +373,7 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
   | AppN(lv, rv), StripedAppN(lc, rc) ->
     let newSolutions = termPartialMatch env acc lv lc
     (newSolutions,rv,rc) |||> List.fold2 (termPartialMatch env) 
-  | (DerivedPatterns.SpecificCall <@ LET @> (_, _, [pe1; Patterns.Lambda(px, pe2)]), Patterns.Let(ex, ee1, ee2)) ->
+  | (Patterns.Let(px, pe1, pe2), Patterns.Let(ex, ee1, ee2)) ->
     let (solutions', hoMatches') = termPartialMatch env (solutions, hoMatches) pe1 ee1
     let env' = env.Add(UntypedVar px, UntypedVar ex)
     termPartialMatch env' (solutions', hoMatches') pe2 ee2

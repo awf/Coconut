@@ -170,7 +170,7 @@ let vectorAddToStorage_exp =
 
 let letInliner_exp () = 
   <@
-    LET (%E1) (fun x_1234 -> (%B1) x_1234)
+    (let x = %E1 in (%B1) x)
     <==>
     (%B1) %E1
   @>
