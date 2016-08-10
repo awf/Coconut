@@ -19,7 +19,7 @@ type QVar(var: Var, isTyped: bool) =
       let v1 = qx.var
       let v2 = qy.var
       if qx.isTyped && qy.isTyped then
-        v1.Name = v2.Name && v1.Type = v2.Type
+        v1 = v2
       else
         v1.Name = v2.Name
     | _ -> false
@@ -39,7 +39,11 @@ type QVar(var: Var, isTyped: bool) =
           if scmp = 0 then
             let tcmp = qx.var.Type.ToString().CompareTo(qy.var.Type.ToString())
             if tcmp = 0 then
-              failwithf "comparison of two vars %A, %A failed" (qx.isTyped) (qy.isTyped)
+              let hcmp = qx.var.GetHashCode() - qy.var.GetHashCode()
+              if hcmp  = 0 then
+                failwithf "Two variables are assumed to be equal, when they are not: %A, %A" qx qy
+              else
+                hcmp
             else
               tcmp
           else
