@@ -168,6 +168,19 @@ let vectorAddToStorage_exp =
     (let s2 = vectorAlloc ((%U).Length) in linalg.add_vecGivenStorage s2 %U %V)
   @>
 
+let letVectorBuildLength_exp () =
+  <@
+    (
+      let x = (vectorBuild %k %F)
+      (%B1) x.Length x
+    )
+    <==>
+    (
+      let x = (vectorBuild %k %F)
+      (%B1) %k x
+    )
+  @>
+
 let letInliner_exp () = 
   <@
     (let x = %E1 in (%B1) x)
@@ -189,6 +202,7 @@ let letCommutingConversion_exp () =
     let y = %E1 in let x = (%B1) y in (%B2) x
   @>
 
+let letVectorBuildLength2: Rule = compilePatternToRule (letVectorBuildLength_exp ())
 
 let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
 
@@ -318,7 +332,7 @@ let vectorSliceToBuild: Rule =
   vectorSliceToBuild_old
   // compilePatternToRule vectorSliceToBuild_exp
 
-let letVectorBuildLength (e: Expr): Expr option =
+let letVectorBuildLength_old (e: Expr): Expr option =
   match e with
   | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ vectorBuild @> (_, _, [size; f]) as buildExpr), e2) -> 
     let rec findLength(exp: Expr): (Expr * (Expr -> Expr)) option = 
@@ -356,6 +370,10 @@ let letVectorBuildLength (e: Expr): Expr option =
          Expr.Let (x, buildExpr, tf(te))
        )
   | _ -> None
+
+let letVectorBuildLength: Rule =
+  // letVectorBuildLength_old
+  letVectorBuildLength2
 
 // c.f. "Compiling with Continuations, Continued", Andrew Kennedy, ICFP'07
 let letCommutingConversion_old (e: Expr): Expr Option = 
