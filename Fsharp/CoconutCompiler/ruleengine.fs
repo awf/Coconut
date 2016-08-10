@@ -58,6 +58,9 @@ module metaVars =
     Expr.Cast<'a>(Expr.Var(Var.Global(name, typeof<'a>)))
   let private getExprRaw<'a> (exp: Expr<'a>): Expr = exp.Raw
   let private getExprVar (exp: Expr): Var = match exp with | Patterns.Var(v) -> v | _ -> failwithf "Expected a variable expression, instead given %A" exp
+  type T1 = T
+  type T2 = T
+  type T3 = T
   let i = makeMetaVar<Index>("i")
   let j = makeMetaVar<Index>("j")
   let k = makeMetaVar<Index>("k")

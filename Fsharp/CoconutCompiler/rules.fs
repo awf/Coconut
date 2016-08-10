@@ -168,11 +168,11 @@ let vectorAddToStorage_exp =
     (let s2 = vectorAlloc ((%U).Length) in linalg.add_vecGivenStorage s2 %U %V)
   @>
 
-let letVectorBuildLength_exp () =
+let letVectorBuildLength_exp =
   <@
     (
       let x = (vectorBuild %k %F)
-      (%B1) x.Length x
+      ((%B1) x.Length x): T1
     )
     <==>
     (
@@ -181,34 +181,46 @@ let letVectorBuildLength_exp () =
     )
   @>
 
-let letInliner_exp () = 
+let letInliner_exp = 
   <@
-    (let x = %E1 in (%B1) x)
+    ((let x = %E1 in (%B1) x): T1)
     <==>
     (%B1) %E1
   @>
 
-let letMerging_exp () = 
+let letMerging_exp = 
   <@
-    (let x = %E1 in let y = %E1 in (%B1) x y)
+    (
+      let x: T1 = %E1
+      let y: T1 = %E1
+      ((%B1) x y): T2
+    )
     <==>
-    let x = %E1 in (%B1) x x
+      let x: T1 = %E1
+      (%B1) x x
   @>
 
-let letCommutingConversion_exp () = 
+let letCommutingConversion_exp = 
   <@
-    (let x = let y = %E1 in (%B1) y in (%B2) x)
+    (
+      let x: T1 = 
+        let y: T2 = %E1
+        (%B1) y
+      ((%B2) x): T3
+    )
     <==>
-    let y = %E1 in let x = (%B1) y in (%B2) x
+      let y: T2 = %E1
+      let x: T1 = (%B1) y
+      (%B2) x
   @>
 
 
 // TODO does not work because of type inference reasons
-let allocToCPS_exp () =
+let allocToCPS_exp =
   <@
     (
       let s = vectorAlloc %k
-      (%B1) s
+      ((%B1) s): T1
     )
     <==>
     (
@@ -217,15 +229,15 @@ let allocToCPS_exp () =
 
   @>
 
-let letVectorBuildLength2: Rule = compilePatternToRule (letVectorBuildLength_exp ())
+let letVectorBuildLength2: Rule = compilePatternToRule (letVectorBuildLength_exp)
 
-let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
+let letInliner2: Rule = compilePatternToRule (letInliner_exp)
 
-let letMerging2: Rule = compilePatternToRule (letMerging_exp ())
+let letMerging2: Rule = compilePatternToRule (letMerging_exp)
 
-let letCommutingConversion2: Rule = compilePatternToRule (letCommutingConversion_exp ())
+let letCommutingConversion2: Rule = compilePatternToRule (letCommutingConversion_exp)
 
-let allocToCPS2: Rule = compilePatternToRule (allocToCPS_exp ())
+let allocToCPS2: Rule = compilePatternToRule (allocToCPS_exp)
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
