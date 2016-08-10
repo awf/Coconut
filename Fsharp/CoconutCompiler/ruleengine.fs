@@ -7,6 +7,48 @@ open types
 open transformer
 open utils
 
+type QVar(var: Var, isTyped: bool) = 
+
+  member v.var = var
+
+  member v.isTyped = isTyped
+  
+  override qx.Equals(yobj) = 
+    match yobj with
+    | :? QVar as qy -> 
+      let v1 = qx.var
+      let v2 = qy.var
+      if qx.isTyped && qy.isTyped then
+        v1.Name = v2.Name && v1.Type = v2.Type
+      else
+        v1.Name = v2.Name
+    | _ -> false
+
+  override x.GetHashCode() = 
+    (x.var.Name.GetHashCode())
+
+  interface System.IComparable with
+    member qx.CompareTo(yobj: obj) = 
+      match yobj with
+      | :? QVar as qy -> 
+        let eq = qx.Equals(yobj)
+        if eq then
+          0
+        else
+          let scmp = qx.var.Name.CompareTo(qy.var.Name)
+          if scmp = 0 then
+            let tcmp = qx.var.Type.ToString().CompareTo(qy.var.Type.ToString())
+            if tcmp = 0 then
+              failwithf "comparison of two vars %A, %A failed" (qx.isTyped) (qy.isTyped)
+            else
+              tcmp
+          else
+            scmp
+      | _ -> -1
+
+let TypedVar var = new QVar(var, true)
+let UntypedVar var = new QVar(var, false)
+
 module metaVars =
   let private makeMetaVar<'a> (name: string) = 
     Expr.Cast<'a>(Expr.Var(Var.Global(name, typeof<'a>)))
@@ -51,6 +93,18 @@ module metaVars =
     resultVar |> Option.map (fun v -> givenVarBindings |> List.find(fun (v2, _) -> v2.Name = v.Name))
   let isAMetaVar (var: Var): bool = 
     getMetaVarAmongGivenVarBindings var (allMetaVars @ allGenericMetaVars |> List.map (fun v -> getExprVar(v), 1)) |> Option.isSome
+  let getQMetaVar (var: Var): QVar option =
+    let untypedVar = 
+      allGenericMetaVars 
+      |> List.tryFind (fun e -> (getExprVar e).Name = var.Name)
+      |> Option.map (fun e -> UntypedVar (getExprVar e))
+    match untypedVar with
+    | Some v -> untypedVar
+    | None   ->
+      allMetaVars 
+      |> List.map getExprVar
+      |> List.tryFind (fun v -> v = var)
+      |> Option.map (fun v -> TypedVar v)
 
 (*
 // Inspired by: https://github.com/jrh13/hol-light/blob/master/nets.ml
@@ -128,15 +182,6 @@ let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
 
 let private alphaEquals (e1: Expr) (e2: Expr) = e1 = e2
 
-// TODO 
-// type QVar = 
-//   | TypedVar of Var
-//   | UntypedVar of Var
-type QVar = 
-  | QVar of Var
-
-  member v.var = let (QVar(v)) = v in v
-
 type QExpr (expr: Expr) = 
 
   member v.expr = expr
@@ -146,7 +191,7 @@ type QExpr (expr: Expr) =
     | :? QExpr as qy -> 
       let y = qy.expr
       let x = qx.expr
-      alphaEquals x y & x.Type = y.Type
+      alphaEquals x y && x.Type = y.Type
     | _ -> false
   override x.GetHashCode() = 
     (x.expr.GetHashCode())
@@ -173,39 +218,39 @@ type private HoMatch = HoMatch of env: Map<QVar, QVar> * term: Expr * hoVar: QVa
 type private Solution = Map<QVar, Expr>
 exception NotMatched of string * Expr list
 
-let private findVariableInList<'a> (key: Var) (col: 'a list) (conv: 'a -> Var): 'a option =
-  metaVars.getMetaVarAmongGivenVarBindings key (col |> List.map (fun x -> conv x, x))
+let private findVariableInList<'a> (key: QVar) (col: 'a list) (conv: 'a -> Var): 'a option =
+  metaVars.getMetaVarAmongGivenVarBindings (key.var) (col |> List.map (fun x -> conv x, x))
     |> Option.map snd
 
-let private variableMapGet<'a> (key: Var) (map: Map<QVar, 'a>): 'a option = 
-  let res = findVariableInList key (Map.toList map) (fun (QVar(v), _) -> v) |> Option.map snd
+let private variableMapGet<'a> (key: QVar) (map: Map<QVar, 'a>): 'a option = 
+  let res = findVariableInList key (Map.toList map) (fun (qv, _) -> qv.var) |> Option.map snd
   match res with
   | Some v -> res
-  | None   -> map.TryFind (QVar key)
+  | None   -> map.TryFind (key) 
 
-let private solutionsGet (key: Var) (solutions: Solution): Expr option = 
+let private solutionsGet (key: QVar) (solutions: Solution): Expr option = 
   variableMapGet key solutions
 
 let rec private substVars (solutions: Solution) (e: Expr): Expr =
-  e.Substitute(fun v -> solutions |> solutionsGet v)
+  e.Substitute(fun v -> solutions |> solutionsGet (TypedVar v)) // TODO
 
 let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (e: Expr) = 
   match e with
-  | AppN(Patterns.Var(v), args) when findVariableInList v (Set.toList betaVars) (fun x -> x.var) |> Option.isSome ->
-    match solutionsGet v solutions with
+  | AppN(Patterns.Var(v), args) when findVariableInList (UntypedVar v) (Set.toList betaVars) (fun x -> x.var) |> Option.isSome -> // TODO
+    match solutionsGet (UntypedVar v) solutions with // TODO
     | Some(LambdaN(inputs, body)) -> 
-      let inlinedBody = substVars (List.zip (inputs |> List.map QVar) args |> Map.ofList) body
+      let inlinedBody = substVars (List.zip (inputs |> List.map TypedVar) args |> Map.ofList) body // TODO
       substAndReduce solutions betaVars inlinedBody
     | Some(e2) -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
     | None -> failwithf "There is no corresponding value in the solutions %A for the hoVar %A" solutions v
   | _ ->
     match e with
-    | Patterns.Var(v) -> solutions |> solutionsGet v |> Option.fold (fun _ x -> x) e
+    | Patterns.Var(v) -> solutions |> solutionsGet (TypedVar v) |> Option.fold (fun _ x -> x) e // TODO
     | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars body)
     | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (substAndReduce solutions betaVars))
     | _ -> failwithf "substAndReduce doesn't handle %A" e
 
-let private recordSolution (key: Var, value: Expr) (solutions: Solution): Solution = 
+let private recordSolution (key: QVar, value: Expr) (solutions: Solution): Solution = 
   match solutionsGet key solutions with
   | Some value2 ->
     if alphaEquals value value2 then 
@@ -213,16 +258,18 @@ let private recordSolution (key: Var, value: Expr) (solutions: Solution): Soluti
     else
       raise ( NotMatched("recordSolution: different value (not alpha-equivalent) already present", [value; value2]) )
   | None ->
-    solutions.Add(QVar key, value)
+    solutions.Add(key, value)
 
 let private addVariableSet (vs: Set<QVar>) (v: Var): Set<QVar> = 
-  let alreadyContains = 
-    metaVars.getMetaVarAmongGivenVarBindings v (Set.toList vs |> List.map(fun (QVar(k)) -> k, k))
+  (*let alreadyContains = 
+    metaVars.getMetaVarAmongGivenVarBindings v (Set.toList vs |> List.map(fun qk -> qk.var, qk))
     |> Option.isSome
   if alreadyContains then
     vs
   else
-    vs.Add(QVar v)
+    vs.Add(TypedVar v) // TODO
+  *)
+  vs.Add(TypedVar v)
 
 let private accFreeVars (fvs: Set<QVar>) (exp: Expr): Set<QVar> = 
   let newFvs = exp.GetFreeVars()
@@ -243,7 +290,7 @@ let rec generalize (abstractions: Map<QExpr,Var>) (x:Expr): Expr =
       | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (generalize abstractions))
 
 
-let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoMatch(env, term, (QVar(hoVar) as qhoVar), argPats)): Solution * Set<QVar> =  
+let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoMatch(env, term, hoVar, argPats)): Solution * Set<QVar> =  
   // Collect the known alpha-equivalences and solutions 
   let termInstantiations =   
     freeVarsList argPats   
@@ -252,9 +299,9 @@ let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoM
     |> List.map (fun qa  -> 
         let a = qa.var 
         match env.TryFind qa with  
-        | Some (QVar x) -> qa, Expr.Var x  
+        | Some x -> qa, Expr.Var (x.var)
         | None ->  
-            match solutionsGet a solutions with  
+            match solutionsGet (TypedVar a) solutions with  
             | Some x ->  qa, x  
             | None -> failwith "second order pattern has spillover variable?")  
     |> Map.ofList  
@@ -267,7 +314,7 @@ let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoM
 
   // If patterns are syntactically identical then don't record the solution, or just record "hoVar = hop"  
   if args = argPats then   
-      if hop = Expr.Var hoVar then   
+      if hop = Expr.Var (hoVar.var) then   
           solutions, hoVars  
       else   
           recordSolution (hoVar, hop) solutions, hoVars  
@@ -285,19 +332,25 @@ let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoM
       // Record the solution of hoVar  
       let vinsts = recordSolution (hoVar, lambdaTerm) solutions  
   
-      vinsts, hoVars.Add qhoVar  
+      vinsts, hoVars.Add hoVar  
 
 let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, hoMatches: HoMatch list) as acc) (pat: Expr) (term: Expr): Solution * HoMatch list =  
   match (pat, term) with
   | Patterns.Var patv, _ ->
-    match variableMapGet patv env with
+    let qpatv = 
+      match metaVars.getQMetaVar patv with
+      | Some v -> v
+      | None   -> raise ( NotMatched("The variable is not a meta variable", [pat]))
+    if qpatv.isTyped && qpatv.var.Type <> term.Type then
+      raise ( NotMatched("The meta variable is typed, but the term has a different type", [pat; term]))
+    match variableMapGet qpatv env with
     | Some v2 ->
       if term = Expr.Var(v2.var) then
         acc
       else 
         raise ( NotMatched("Unification problem", [pat; term; Expr.Var(v2.var)]) )
     | None ->
-      let newSolutions = recordSolution (patv, term) solutions
+      let newSolutions = recordSolution (qpatv, term) solutions
       newSolutions, hoMatches
   | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op.Name = oe.Name && op.Module.Name = oe.Module.Name ->
     (acc,pats,exprs) |||> List.fold2 (termPartialMatch env)
@@ -308,18 +361,17 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
   | (Patterns.Value(v1), Patterns.Value(v2)) when v1 = v2 -> 
     acc
   | (Patterns.Lambda(pv, pbody), Patterns.Lambda(ev, ebody)) ->
-    let env' = env.Add(QVar pv, QVar ev)
+    let env' = env.Add(UntypedVar pv, UntypedVar ev)
     termPartialMatch env' (solutions, hoMatches) pbody ebody
-  | AppN(Patterns.Var(hoVar), args), _ when variableMapGet hoVar env |> Option.isNone ->
-    let newHoMatches = HoMatch (env, term, QVar hoVar, args) :: hoMatches 
+  | AppN(Patterns.Var(hoVar), args), _ when variableMapGet (UntypedVar hoVar) env |> Option.isNone ->
+    let newHoMatches = HoMatch (env, term, UntypedVar hoVar, args) :: hoMatches
     solutions, newHoMatches 
-
   | AppN(lv, rv), StripedAppN(lc, rc) ->
     let newSolutions = termPartialMatch env acc lv lc
     (newSolutions,rv,rc) |||> List.fold2 (termPartialMatch env) 
   | (DerivedPatterns.SpecificCall <@ LET @> (_, _, [pe1; Patterns.Lambda(px, pe2)]), Patterns.Let(ex, ee1, ee2)) ->
     let (solutions', hoMatches') = termPartialMatch env (solutions, hoMatches) pe1 ee1
-    let env' = env.Add(QVar px, QVar ex)
+    let env' = env.Add(UntypedVar px, UntypedVar ex)
     termPartialMatch env' (solutions', hoMatches') pe2 ee2
   | _ -> 
     raise ( NotMatched("No matched", [pat; term]))
