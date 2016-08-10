@@ -202,6 +202,21 @@ let letCommutingConversion_exp () =
     let y = %E1 in let x = (%B1) y in (%B2) x
   @>
 
+
+// TODO does not work because of type inference reasons
+let allocToCPS_exp () =
+  <@
+    (
+      let s = vectorAlloc %k
+      (%B1) s
+    )
+    <==>
+    (
+      vectorAllocCPS %k (fun s -> (%B1) s)
+    )
+
+  @>
+
 let letVectorBuildLength2: Rule = compilePatternToRule (letVectorBuildLength_exp ())
 
 let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
@@ -209,6 +224,8 @@ let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
 let letMerging2: Rule = compilePatternToRule (letMerging_exp ())
 
 let letCommutingConversion2: Rule = compilePatternToRule (letCommutingConversion_exp ())
+
+let allocToCPS2: Rule = compilePatternToRule (allocToCPS_exp ())
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
@@ -262,6 +279,7 @@ let methodDefInliner (e: Expr): Expr Option =
     Some(renamedBody)
   | _ -> None
 
+// TODO requires support for unacceptable cases
 let letIntroduction (e: Expr): Expr option =
   match e with
   | Patterns.Let(x, e1, e2) -> None
@@ -290,6 +308,7 @@ let letMerging: Rule =
 
 open FSharp.Quotations.Evaluator
 
+// TODO requires meta programming facilities to be expressible in the rewrite engine.
 let constantFold (e: Expr): Expr Option =
   match e with
   | Patterns.Call(None, op, args) ->
@@ -386,6 +405,7 @@ let letCommutingConversion =
   // letCommutingConversion_old
   letCommutingConversion2
 
+// TODO requires supporting conditional rewrite rules.
 let letReorder (e: Expr): Expr Option = 
   match e with 
   | Patterns.Let(v, e1, Patterns.Let(v2, e2, e3)) when not (Seq.exists (fun x -> x = v) (e2.GetFreeVars())) -> 
@@ -461,11 +481,11 @@ let letFloatOutwards (e: Expr): Expr option =
   | ExprShape.ShapeLambda(x, Patterns.Let(y, e1, e2)) when e1.GetFreeVars() |> Seq.exists (fun fv -> fv = x) |> not ->
     Some(Expr.Let(y, e1, Expr.Lambda(x, e2)))
   | _ -> None
-              
+
+// TODO requires conditional rewrite rule to be ported. Or alternatively, removing the rewrite condition!
 let allocToCPS (e: Expr): Expr option = 
   match e with
   | Patterns.Let(x, (DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [s]) as e1), e2) when (e2.Type = typeof<unit>) ->
-    let cpsCall = <@ corelang.vectorAllocCPS @>
-    let (LambdaN(_, Patterns.Call(None, op, _))) = cpsCall
+    let op = assembly.GetType("corelang").GetMethod("vectorAllocCPS").MakeGenericMethod(e2.Type)
     Some(Expr.Call(op, [s; Expr.Lambda(x, e2)]))
   | _ -> None
