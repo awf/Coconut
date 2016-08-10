@@ -352,6 +352,9 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
     | None ->
       let newSolutions = recordSolution (qpatv, term) solutions
       newSolutions, hoMatches
+  | AppN(Patterns.Var(hoVar), args), _ when variableMapGet (UntypedVar hoVar) env |> Option.isNone ->
+    let newHoMatches = HoMatch (env, term, UntypedVar hoVar, args) :: hoMatches
+    solutions, newHoMatches 
   | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op.Name = oe.Name && op.Module.Name = oe.Module.Name ->
     (acc,pats,exprs) |||> List.fold2 (termPartialMatch env)
   | (Patterns.PropertyGet(objp, op, []), Patterns.PropertyGet(obje, oe, [])) when (Option.count objp) = (Option.count obje) && op = oe ->
@@ -363,9 +366,6 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
   | (Patterns.Lambda(pv, pbody), Patterns.Lambda(ev, ebody)) ->
     let env' = env.Add(UntypedVar pv, UntypedVar ev)
     termPartialMatch env' (solutions, hoMatches) pbody ebody
-  | AppN(Patterns.Var(hoVar), args), _ when variableMapGet (UntypedVar hoVar) env |> Option.isNone ->
-    let newHoMatches = HoMatch (env, term, UntypedVar hoVar, args) :: hoMatches
-    solutions, newHoMatches 
   | AppN(lv, rv), StripedAppN(lc, rc) ->
     let newSolutions = termPartialMatch env acc lv lc
     (newSolutions,rv,rc) |||> List.fold2 (termPartialMatch env) 
