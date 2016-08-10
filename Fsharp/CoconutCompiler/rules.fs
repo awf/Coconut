@@ -170,12 +170,12 @@ let vectorAddToStorage_exp =
 
 let letInliner_exp () = 
   <@
-    LET (%E1) (fun x -> (%B1) x)
+    LET (%E1) (fun x_1234 -> (%B1) x_1234)
     <==>
     (%B1) %E1
   @>
 
-//let letInliner2: Rule = compilePatternToRule2 constFoldN0Index_exp // (letInliner_exp ())
+let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
@@ -187,12 +187,16 @@ let algebraicRulesVector: Rule List = List.map compilePatternToRule algebraicRul
 
 open transformer
 
-let letInliner (e: Expr): Expr Option = 
+let letInliner_old (e: Expr): Expr Option = 
   match e with 
   | Patterns.Let(v, e1, e2) -> 
     let renamedBody = captureAvoidingSubstitution e2 [v, e1]
     Some(renamedBody)
   | _ -> None
+
+let letInliner: Rule = 
+  letInliner2
+  // letInliner_old
 
 let methodDefToLambda (e: Expr): Expr Option = 
   match e with

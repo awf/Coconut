@@ -21,11 +21,15 @@ let test_ba (argv: string[]) =
  
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
-    //let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
-    //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
+    let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
+    let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
     //let prog' = prog
-    let prog = <@ let y = 1 * 3 in y * 3 @>
-    let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
+    //let prog = <@ let y = 1 * 3 in y * 3 @>
+    //let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
+    //let prog = <@ 8.0 - 0.0 - 2.0 @>
+    //let prog' = ruleengine.compilePatternToRule (rules.assocSubSubIndex_exp) prog
+    let prog = <@ let i = 2 in vectorBuild 10 (fun i -> double i) @>
+    let prog' = rules.letInliner_old prog
     printfn "%A" prog'
 
 let compile_modules () = 
@@ -42,13 +46,14 @@ let test_guided_optimizer () =
     compiler.compileModule "linalg" [] false
     compiler.compileModule "usecases" ["linalg"] false
     let comp = ruleengine.compilePatternToRule
+      //ruleengine.compilePatternToRule2
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
     let chains = 
       optimizer.guidedOptimize vecAdd3 
         [ rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
           rules.letInliner, 0;
-          (*rules.letInliner, 0;
+          rules.letInliner, 0;
           rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
           rules.letInliner, 0;
@@ -71,7 +76,7 @@ let test_guided_optimizer () =
           rules.letInliner, 0;
           rules.algebraicRulesVector.[0], 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;*)
+          rules.letInliner, 0;
           ]
     // printfn "vecAdd3 chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     let hoistingExample = compiler.getMethodExpr "programs" "hoistingExample"
@@ -258,6 +263,7 @@ let test_guided_optimizer () =
           rules.letMerging, 0;
         ]
     //printfn "ba_reproj_err chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    //printfn "final one: %s" (chains |> List.rev |> List.head |> fun x -> transformer.variableRenaming x [] |> ccodegen.prettyprint)
     //printfn "ba_reproj_err code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_reproj_err" false)
     let bundleAdjustmentRodrigues_rotate_point = compiler.getMethodExpr "usecases" "rodrigues_rotate_point"
     let chains = 
