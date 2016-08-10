@@ -126,8 +126,6 @@ let (|ApplicableRule|_|) (rs: Rule List) (e: Expr): (Rule) Option =
 
 let (<==>) (s1: 'a) (s2: 'a):'a = s1
 
-let LET (e1: 'a) (e2: 'a -> 'b): 'b = e2 e1
-
 let compilePatternWithPreconditionToRule(pat: Expr, precondition: Expr): Rule =
   let rec extractList(pats: Expr List, exprs: Expr List): (Var * Expr) List Option = 
     let vars = List.map2 (fun vp ve -> extract(vp, ve)) pats exprs
@@ -236,20 +234,27 @@ let private solutionsGet (key: QVar) (solutions: Solution): Expr option =
   variableMapGet key solutions
 
 let rec private substVars (solutions: Solution) (e: Expr): Expr =
-  e.Substitute(fun v -> solutions |> solutionsGet (TypedVar v)) // TODO
+  e.Substitute(fun v -> solutions |> solutionsGet (TypedVar v))
 
 let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (e: Expr) = 
   match e with
-  | AppN(Patterns.Var(v), args) when findVariableInList (UntypedVar v) (Set.toList betaVars) (fun x -> x.var) |> Option.isSome -> // TODO
-    match solutionsGet (UntypedVar v) solutions with // TODO
+  | AppN(Patterns.Var(v), args) when findVariableInList (UntypedVar v) (Set.toList betaVars) (fun x -> x.var) |> Option.isSome ->
+    match solutionsGet (UntypedVar v) solutions with
     | Some(LambdaN(inputs, body)) -> 
-      let inlinedBody = substVars (List.zip (inputs |> List.map TypedVar) args |> Map.ofList) body // TODO
+      let inlinedBody = substVars (List.zip (inputs |> List.map TypedVar) args |> Map.ofList) body
       substAndReduce solutions betaVars inlinedBody
     | Some(e2) -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
     | None -> failwithf "There is no corresponding value in the solutions %A for the hoVar %A" solutions v
+  | Patterns.Let(x, e1, e2) -> // Be default in the RHS, the type of `x` is assumed to be the most generic type.
+    let te1 = substAndReduce solutions betaVars e1
+    let nx = new Var(newVar(x.Name), te1.Type)
+    let e2' = substVars (Map.empty.Add(TypedVar x, Expr.Var(nx))) e2
+    let te2 = substAndReduce solutions betaVars e2'
+    Expr.Let(nx, te1, te2)
   | _ ->
     match e with
-    | Patterns.Var(v) -> solutions |> solutionsGet (TypedVar v) |> Option.fold (fun _ x -> x) e // TODO
+    | Patterns.Var(v) -> 
+      solutions |> solutionsGet (TypedVar v) |> Option.fold (fun _ x -> x) e
     | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars body)
     | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (substAndReduce solutions betaVars))
     | _ -> failwithf "substAndReduce doesn't handle %A" e
