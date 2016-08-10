@@ -175,7 +175,16 @@ let letInliner_exp () =
     (%B1) %E1
   @>
 
+let letMerging_exp () = 
+  <@
+    (let x = %E1 in let y = %E1 in (%B1) x y)
+    <==>
+    let x = %E1 in (%B1) x x
+  @>
+
 let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
+
+let letMerging2: Rule = compilePatternToRule (letMerging_exp ())
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
@@ -245,12 +254,15 @@ let letIntroduction (e: Expr): Expr option =
 
 /// The composition of this rule, let introduction, and letFloatOutwards results in 
 /// common-subexpression elimination (CSE).
-let letMerging (e: Expr): Expr option =
+let letMerging_old (e: Expr): Expr option =
   match e with
   | Patterns.Let(x, e1, Patterns.Let(y, e2, e3)) when e1 = e2 -> 
     Some(Expr.Let(x, e1, e3.Substitute(fun v -> if v = y then Some(Expr.Var(x)) else None)))
   | _ -> None
-    
+
+let letMerging: Rule =
+  //letMerging_old
+  letMerging2
 
 open FSharp.Quotations.Evaluator
 
