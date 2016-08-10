@@ -182,9 +182,19 @@ let letMerging_exp () =
     let x = %E1 in (%B1) x x
   @>
 
+let letCommutingConversion_exp () = 
+  <@
+    (let x = let y = %E1 in (%B1) y in (%B2) x)
+    <==>
+    let y = %E1 in let x = (%B1) y in (%B2) x
+  @>
+
+
 let letInliner2: Rule = compilePatternToRule (letInliner_exp ())
 
 let letMerging2: Rule = compilePatternToRule (letMerging_exp ())
+
+let letCommutingConversion2: Rule = compilePatternToRule (letCommutingConversion_exp ())
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
@@ -287,7 +297,7 @@ let constantFold (e: Expr): Expr Option =
 
 open types
 
-let vectorSliceToBuild (e: Expr): Expr option =
+let vectorSliceToBuild_old (e: Expr): Expr option =
   match e with
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
@@ -303,6 +313,10 @@ let vectorSliceToBuild (e: Expr): Expr option =
       Some(<@ vectorBuild (%e - %s + 1) (fun i -> (%vec).[i + %s]) @>.Raw)
     | _ -> None
   | _ -> None
+
+let vectorSliceToBuild: Rule = 
+  vectorSliceToBuild_old
+  // compilePatternToRule vectorSliceToBuild_exp
 
 let letVectorBuildLength (e: Expr): Expr option =
   match e with
@@ -344,11 +358,15 @@ let letVectorBuildLength (e: Expr): Expr option =
   | _ -> None
 
 // c.f. "Compiling with Continuations, Continued", Andrew Kennedy, ICFP'07
-let letCommutingConversion (e: Expr): Expr Option = 
+let letCommutingConversion_old (e: Expr): Expr Option = 
   match e with 
   | Patterns.Let(v, Patterns.Let(v2, e1, e2), e3) -> 
     Some(Expr.Let(v2, e1, Expr.Let(v, e2, e3)))
   | _ -> None
+
+let letCommutingConversion = 
+  // letCommutingConversion_old
+  letCommutingConversion2
 
 let letReorder (e: Expr): Expr Option = 
   match e with 
