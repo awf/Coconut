@@ -21,15 +21,25 @@ let test_ba (argv: string[]) =
  
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
-    let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
-    let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
+    //let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
+    //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
     //let prog' = prog
     //let prog = <@ let y = 1 * 3 in y * 3 @>
     //let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
     //let prog = <@ 8.0 - 0.0 - 2.0 @>
     //let prog' = ruleengine.compilePatternToRule (rules.assocSubSubIndex_exp) prog
-    let prog = <@ let i = 2 in vectorBuild 10 (fun i -> double i) @>
-    let prog' = rules.letInliner_old prog
+    //let prog = <@ let i = 2 in vectorBuild 10 (fun i -> double i) @>
+    //let prog' = rules.letInliner_old prog
+    //let prog = <@ let i = 2 in let j = 2 in i / j @>
+    //let prog' = rules.letMerging2 prog
+    //let prog = <@ let b = vectorBuild 10 (fun i -> double i) in vectorBuild (b.Length) (fun j -> (add_vec b b).[j]) @>
+    //let prog' = rules.letVectorBuildLength2 prog
+    let prog = <@ let s = vectorAlloc 10 in vectorBuildGivenStorage s (fun i -> 2.0) @>
+    let prog' = rules.allocToCPS2 prog
+    //let prog = <@ let i = 3 in let j = i * 2 in i / j @>
+    //let prog' = rules.letReorder2 prog
+    //let prog = <@ let i = 3 in let j = 2 in i / j @>
+    //let prog' = rules.letReorder2 prog
     printfn "%A" prog'
 
 let compile_modules () = 
@@ -351,7 +361,7 @@ let main argv =
     test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    test_guided_optimizer ()
+    // test_guided_optimizer ()
     // benchmark_search ()
-    // test_ruleengine ()
+    test_ruleengine ()
     0

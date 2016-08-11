@@ -1,6 +1,6 @@
 ﻿module ruleengine
 
-
+open System
 open Microsoft.FSharp.Quotations
 open Quotations.DerivedPatterns
 open types
@@ -61,6 +61,7 @@ module metaVars =
   type T1 = T
   type T2 = T
   type T3 = T
+  let metaTypes = [typeof<T1>; typeof<T2>; typeof<T3>]
   let i = makeMetaVar<Index>("i")
   let j = makeMetaVar<Index>("j")
   let k = makeMetaVar<Index>("k")
@@ -239,27 +240,31 @@ let private solutionsGet (key: QVar) (solutions: Solution): Expr option =
 let rec private substVars (solutions: Solution) (e: Expr): Expr =
   e.Substitute(fun v -> solutions |> solutionsGet (TypedVar v))
 
-let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (e: Expr) = 
+let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (typeMapping: (Type * Type) list) (e: Expr) = 
   match e with
   | AppN(Patterns.Var(v), args) when findVariableInList (UntypedVar v) (Set.toList betaVars) (fun x -> x.var) |> Option.isSome ->
     match solutionsGet (UntypedVar v) solutions with
     | Some(LambdaN(inputs, body)) -> 
       let inlinedBody = substVars (List.zip (inputs |> List.map TypedVar) args |> Map.ofList) body
-      substAndReduce solutions betaVars inlinedBody
-    | Some(e2) -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars x]) args)
+      substAndReduce solutions betaVars typeMapping inlinedBody
+    | Some(e2) -> Expr.Applications(e2, List.map (fun x -> [substAndReduce solutions betaVars typeMapping x]) args)
     | None -> failwithf "There is no corresponding value in the solutions %A for the hoVar %A" solutions v
   | Patterns.Let(x, e1, e2) -> // Be default in the RHS, the type of `x` is assumed to be the most generic type.
-    let te1 = substAndReduce solutions betaVars e1
+    let te1 = substAndReduce solutions betaVars typeMapping e1
     let nx = new Var(newVar(x.Name), te1.Type)
     let e2' = substVars (Map.empty.Add(TypedVar x, Expr.Var(nx))) e2
-    let te2 = substAndReduce solutions betaVars e2'
+    let te2 = substAndReduce solutions betaVars typeMapping e2'
     Expr.Let(nx, te1, te2)
   | _ ->
     match e with
     | Patterns.Var(v) -> 
       solutions |> solutionsGet (TypedVar v) |> Option.fold (fun _ x -> x) e
-    | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars body)
-    | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (substAndReduce solutions betaVars))
+    | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars typeMapping body)
+    | Patterns.Call(None, op, args) when op.IsGenericMethod -> 
+      let tps' = op.GetGenericArguments() |> Array.map(fun x -> typeMapping |> List.tryFind(fun (y1, y2) -> y1 = x) |> Option.fold (fun _ x -> snd x) x)
+      let op' = op.GetGenericMethodDefinition().MakeGenericMethod(tps')
+      Expr.Call(op', args |> List.map (substAndReduce solutions betaVars typeMapping))
+    | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map (substAndReduce solutions betaVars typeMapping))
     | _ -> failwithf "substAndReduce doesn't handle %A" e
 
 let private recordSolution (key: QVar, value: Expr) (solutions: Solution): Solution = 
@@ -404,7 +409,25 @@ let compilePatternToRule (ruleExpr: Expr): Rule =
       | _ -> failwith "Rewrite patterns should be of the form `lhs <==> rhs`"
     try
       let solutions, hoVars = termMatch pat term
-      let unifiedRhs = substAndReduce solutions hoVars rhs
+      let rec typeContains (tp2: Type) (tp1: Type): bool =
+        tp1 = tp2 ||
+          tp1.GenericTypeArguments |> Seq.exists (typeContains tp2)
+      let rec findInType (tpSrc: Type) (tpDest: Type) (tpToFind: Type): Type option = 
+        if tpSrc = tpToFind then
+          Some(tpDest)
+        else
+          (tpSrc.GenericTypeArguments, tpDest.GenericTypeArguments) ||> Seq.zip |> Seq.choose (fun (x, y) -> findInType x y tpToFind) |> Seq.tryFind (fun x -> true)
+      let typeMapping = 
+        solutions |> Map.toList 
+        |> List.choose (fun (v, e) -> 
+            if (metaVars.metaTypes |> List.exists (fun x -> typeContains x v.var.Type)) then
+              let metaType = metaVars.metaTypes |> List.find (fun x -> typeContains x v.var.Type)
+              let convertedType = findInType v.var.Type e.Type metaType |> Option.get
+              Some(metaType, convertedType)
+            else
+              None
+           )
+      let unifiedRhs = substAndReduce solutions hoVars typeMapping rhs
       Some(unifiedRhs)
     with
       | NotMatched _ -> None
