@@ -112,7 +112,7 @@ let test_guided_optimizer () =
           rules.letCommutingConversion, 0;
           rules.allocToCPS, 0;
         ]
-    // printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     // printfn "hoistingExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     // printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
@@ -361,7 +361,7 @@ let main argv =
     test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    // test_guided_optimizer ()
+    test_guided_optimizer ()
     // benchmark_search ()
-    test_ruleengine ()
+    // test_ruleengine ()
     0

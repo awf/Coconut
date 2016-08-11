@@ -512,10 +512,15 @@ let letFloatOutwards (e: Expr): Expr option =
     Some(Expr.Let(y, e1, Expr.Lambda(x, e2)))
   | _ -> None
 
-// TODO requires conditional rewrite rule to be ported. Or alternatively, removing the rewrite condition!
-let allocToCPS (e: Expr): Expr option = 
+let allocToCPS_old (e: Expr): Expr option = 
   match e with
   | Patterns.Let(x, (DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [s]) as e1), e2) when (e2.Type = typeof<unit>) ->
     let op = assembly.GetType("corelang").GetMethod("vectorAllocCPS").MakeGenericMethod(e2.Type)
     Some(Expr.Call(op, [s; Expr.Lambda(x, e2)]))
   | _ -> None
+
+let allocToCPS: Rule = 
+  //allocToCPS_old
+  // TODO Does not check the type of return value.
+  allocToCPS2
+
