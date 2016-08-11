@@ -74,6 +74,7 @@
     <Compile Include="ccodegen.fs" />
     <Compile Include="cost.fs" />
     <Compile Include="ruleengine.fs" />
+    <Compile Include="rules_old.fs" />
     <Compile Include="rules.fs" />
     <Compile Include="search.fs" />
     <Compile Include="optimizer.fs" />

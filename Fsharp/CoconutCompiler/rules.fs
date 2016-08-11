@@ -228,7 +228,7 @@ let letReorder_exp =
   @>
 
 
-// TODO does not work because of type inference reasons
+// TODO does not take into account the preconditions
 let allocToCPS_exp =
   <@
     (
@@ -239,20 +239,33 @@ let allocToCPS_exp =
     (
       vectorAllocCPS %k (fun s -> (%B1) s)
     )
-
   @>
 
-let letVectorBuildLength2: Rule = compilePatternToRule (letVectorBuildLength_exp)
+// FIXME does not work
+let letFloatOutwards_exp = 
+  <@
+    (
+      //((%B1) (let x: T1 = %E1 in x)): T2
+      (%B1) (%E1: T1): T2
+    )
+    <==>
+    (
+      let x: T1 = %E1
+      (%B1) x
+    )
+  @>
 
-let letInliner2: Rule = compilePatternToRule (letInliner_exp)
+let letVectorBuildLength: Rule = compilePatternToRule (letVectorBuildLength_exp)
 
-let letMerging2: Rule = compilePatternToRule (letMerging_exp)
+let letInliner: Rule = compilePatternToRule (letInliner_exp)
 
-let letCommutingConversion2: Rule = compilePatternToRule (letCommutingConversion_exp)
+let letMerging: Rule = compilePatternToRule (letMerging_exp)
 
-let letReorder2: Rule = compilePatternToRule (letReorder_exp)
+let letCommutingConversion: Rule = compilePatternToRule (letCommutingConversion_exp)
 
-let allocToCPS2: Rule = compilePatternToRule (allocToCPS_exp)
+let letReorder: Rule = compilePatternToRule (letReorder_exp)
+
+let allocToCPS: Rule = compilePatternToRule (allocToCPS_exp)
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
@@ -263,17 +276,8 @@ let algebraicRulesVector_exp = [vectorBuildGet_exp.Raw; vectorSliceToBuild_exp.R
 let algebraicRulesVector: Rule List = List.map compilePatternToRule algebraicRulesVector_exp
 
 open transformer
-
-let letInliner_old (e: Expr): Expr Option = 
-  match e with 
-  | Patterns.Let(v, e1, e2) -> 
-    let renamedBody = captureAvoidingSubstitution e2 [v, e1]
-    Some(renamedBody)
-  | _ -> None
-
-let letInliner: Rule = 
-  letInliner2
-  // letInliner_old
+open FSharp.Quotations.Evaluator
+open types
 
 let methodDefToLambda (e: Expr): Expr Option = 
   match e with
@@ -310,30 +314,12 @@ let methodDefInliner (e: Expr): Expr Option =
 let letIntroduction (e: Expr): Expr option =
   match e with
   | Patterns.Let(x, e1, e2) -> None
-  (*| Patterns.PropertyGet(Some(exp), op, args) ->
-    let nv = new Var(utils.newVar "xi_", exp.Type)
-    Some(Expr.Let(nv, exp, Expr.PropertyGet(Expr.Var(nv), op, args)))
-  *)
   | Patterns.Lambda(_, _) -> None
   | Patterns.Var(_) -> None
   | Patterns.Value(_, _) -> None
   | _ -> 
     let nv = new Var(utils.newVar "xi_", e.Type)
     Some(Expr.Let(nv, e, Expr.Var(nv)))
-
-/// The composition of this rule, let introduction, and letFloatOutwards results in 
-/// common-subexpression elimination (CSE).
-let letMerging_old (e: Expr): Expr option =
-  match e with
-  | Patterns.Let(x, e1, Patterns.Let(y, e2, e3)) when e1 = e2 -> 
-    Some(Expr.Let(x, e1, e3.Substitute(fun v -> if v = y then Some(Expr.Var(x)) else None)))
-  | _ -> None
-
-let letMerging: Rule =
-  //letMerging_old
-  letMerging2
-
-open FSharp.Quotations.Evaluator
 
 // TODO requires meta programming facilities to be expressible in the rewrite engine.
 let constantFold (e: Expr): Expr Option =
@@ -347,7 +333,6 @@ let constantFold (e: Expr): Expr Option =
       ) args
     
     if (List.length staticArgs) = (List.length args) then
-      //let resultObject = op.Invoke(null, List.toArray staticArgs)
       let resultObject = e.EvaluateUntyped()
       let resultExpression = Expr.Value(resultObject, e.Type)
       Some(resultExpression)
@@ -355,9 +340,8 @@ let constantFold (e: Expr): Expr Option =
       None
   | _ -> None
 
-open types
-
-let vectorSliceToBuild_old (e: Expr): Expr option =
+// TODO quotation syntax requires supproting certain corner cases on pattern matching in quotations
+let vectorSliceToBuild (e: Expr): Expr option =
   match e with
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
@@ -374,74 +358,6 @@ let vectorSliceToBuild_old (e: Expr): Expr option =
     | _ -> None
   | _ -> None
 
-let vectorSliceToBuild: Rule = 
-  vectorSliceToBuild_old
-  // compilePatternToRule vectorSliceToBuild_exp
-
-let letVectorBuildLength_old (e: Expr): Expr option =
-  match e with
-  | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ vectorBuild @> (_, _, [size; f]) as buildExpr), e2) -> 
-    let rec findLength(exp: Expr): (Expr * (Expr -> Expr)) option = 
-      match exp with
-      | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" && arr = Expr.Var(x) -> 
-        Some(size, fun i -> i)
-      | ExprShape.ShapeLambda(input, body) ->
-        findLength body
-        |> Option.map (fun (l, f) -> l, fun i -> Expr.Lambda(input, f(i)))
-      | ExprShape.ShapeVar(v) -> None
-      | ExprShape.ShapeCombination(op, args) ->
-        let transformedArg = 
-          args 
-          |> List.mapi (fun idx arg ->
-               findLength(arg)
-               |> Option.map (fun (e, f) -> idx, e, f)
-             )
-          |> List.tryPick id
-        transformedArg 
-        |> Option.map (fun (idx, e, f) ->         
-             e, (fun i -> 
-                  let transformedArgs = 
-                    args
-                    |> List.mapi (fun idx2 arg ->
-                         if(idx2 = idx) then
-                           f(i)
-                         else
-                           arg
-                       )
-                  ExprShape.RebuildShapeCombination(op, transformedArgs)
-                )
-           )
-    findLength(e2)
-    |> Option.map (fun (te, tf) ->
-         Expr.Let (x, buildExpr, tf(te))
-       )
-  | _ -> None
-
-let letVectorBuildLength: Rule =
-  // letVectorBuildLength_old
-  letVectorBuildLength2
-
-// c.f. "Compiling with Continuations, Continued", Andrew Kennedy, ICFP'07
-let letCommutingConversion_old (e: Expr): Expr Option = 
-  match e with 
-  | Patterns.Let(v, Patterns.Let(v2, e1, e2), e3) -> 
-    Some(Expr.Let(v2, e1, Expr.Let(v, e2, e3)))
-  | _ -> None
-
-let letCommutingConversion = 
-  // letCommutingConversion_old
-  letCommutingConversion2
-
-let letReorder_old (e: Expr): Expr Option = 
-  match e with 
-  | Patterns.Let(v, e1, Patterns.Let(v2, e2, e3)) when not (Seq.exists (fun x -> x = v) (e2.GetFreeVars())) -> 
-    Some(Expr.Let(v2, e2, Expr.Let(v, e1, e3)))
-  | _ -> None
-
-let letReorder = 
-  //letReorder_old
-  letReorder2
-
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)
 let foldInvariantCodeMotion (e: Expr): Expr option = 
@@ -450,25 +366,6 @@ let foldInvariantCodeMotion (e: Expr): Expr option =
   | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; st; en]) ->
     match f with
     | LambdaN(inputs, body) ->
-      (*
-      let rec findInvariant (exp: Expr) (boundVars: Var list): (Var * Expr) option = 
-        match exp with
-        | Patterns.Let(x, e1, e2) ->
-          if(not (List.exists (fun e -> List.exists (fun e2 -> e = e2) boundVars) (List.ofSeq (e1.GetFreeVars())))) then
-            Some(x, e1)
-          else
-            match findInvariant e1 boundVars with
-            | Some(v) -> Some(v)
-            | None    -> findInvariant e2 (x::boundVars)
-        | LambdaN(inputs, body) ->
-          findInvariant body (inputs @ boundVars)
-        | ExprShape.ShapeVar(v) -> None
-        | ExprShape.ShapeCombination(_, args) ->
-          match List.choose(fun x -> findInvariant x boundVars) args with
-          | hd :: tl -> Some(hd)
-          | _        -> None
-      Option.map (snd) (findInvariant body inputs)
-      *)
       match body with
       | Patterns.Let(x, e1, e2) ->
         if(not (List.exists (fun e -> List.exists (fun y -> e = y) inputs) (List.ofSeq (e1.GetFreeVars())))) then
@@ -511,16 +408,3 @@ let letFloatOutwards (e: Expr): Expr option =
   | ExprShape.ShapeLambda(x, Patterns.Let(y, e1, e2)) when e1.GetFreeVars() |> Seq.exists (fun fv -> fv = x) |> not ->
     Some(Expr.Let(y, e1, Expr.Lambda(x, e2)))
   | _ -> None
-
-let allocToCPS_old (e: Expr): Expr option = 
-  match e with
-  | Patterns.Let(x, (DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [s]) as e1), e2) when (e2.Type = typeof<unit>) ->
-    let op = assembly.GetType("corelang").GetMethod("vectorAllocCPS").MakeGenericMethod(e2.Type)
-    Some(Expr.Call(op, [s; Expr.Lambda(x, e2)]))
-  | _ -> None
-
-let allocToCPS: Rule = 
-  //allocToCPS_old
-  // TODO Does not check the type of return value.
-  allocToCPS2
-
