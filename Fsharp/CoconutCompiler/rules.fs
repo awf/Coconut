@@ -408,6 +408,13 @@ let lambdaAppStoraged (e: Expr): Expr Option =
     Some(AppN(LambdaN(storageVarForLambda :: inputs, <@@ vectorCopy %%storageVarForLambdaExp %%body @@>), (Expr.Let(storageVarForApply, <@@ vectorAlloc %%sizeExpr @@>, storageVarForApplyExp)) :: args))
   | _ -> None
 
+let copyStoragedElimination (e: Expr): Expr option =
+  let STORAGE_POSTFIX = "GivenStorage"
+  match e with
+  | DerivedPatterns.SpecificCall <@ corelang.vectorCopy @> (_, _, [s1; Patterns.Call(None, op, s2 :: args)]) when op.Name.EndsWith(STORAGE_POSTFIX) ->
+    Some(Expr.Call(op, s1 :: args))
+  | _ -> None
+
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)
 let foldInvariantCodeMotion (e: Expr): Expr option = 
