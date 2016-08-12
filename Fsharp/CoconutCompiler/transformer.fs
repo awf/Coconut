@@ -175,6 +175,9 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
 let LambdaN (inputs: Var List, body: Expr): Expr =
   List.fold (fun acc cur -> Expr.Lambda(cur,  acc)) body (List.rev inputs)
 
+let AppN (e1: Expr, args: Expr list): Expr =
+  Expr.Applications(e1, List.map (fun x -> [x]) args)
+
 let LetN (inputs: (Var * Expr) List, body: Expr): Expr =
   List.fold (fun acc (curv, cure) -> Expr.Let(curv,  cure, acc)) body (List.rev inputs)
 

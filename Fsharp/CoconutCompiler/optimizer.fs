@@ -25,6 +25,7 @@ let examineAllRules (rs: Rule List) (e: Expr): Expr List =
     let constructedExpressionsByChildren =
       match exp with 
       | ExprShape.ShapeLambda(i, e) -> List.map (fun x -> Expr.Lambda(i, x)) (rcr e)
+      //| LambdaN(is, e) -> List.map (fun x -> LambdaN(is, x)) (rcr e)
       | ExprShape.ShapeVar(v) -> []
       | Patterns.Value(v, tp) -> []
       | ExprShape.ShapeCombination(o, exprs) ->

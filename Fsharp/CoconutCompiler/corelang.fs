@@ -109,6 +109,10 @@ let vectorAllocOnStack (size: Index): Storage =
   let v = [|for i = 0 to (size - 1) do yield (0.0)|]
   VS v
 
+[<CMacro()>]
+let vectorCopy (storage: Storage) (v: Vector) =
+  v
+
 /// Allocates storage needed for a Vector. 
 /// This storage is available only in the `cont` scope.
 [<CMirror("vector_alloc_cps")>]

@@ -130,9 +130,20 @@ let test_guided_optimizer () =
           rules.letFloatOutwards, 1;
           rules.allocToAllocOnStack, 0;
         ]
-    printfn "stackExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    // printfn "stackExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     // printfn "stackExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
-    printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "stackExample" false)
+    // printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "stackExample" false)
+    let storageConvertorExample = compiler.getMethodExpr "programs" "storageConvertorExample"
+    let chains = 
+      optimizer.guidedOptimize storageConvertorExample 
+        [ rules.methodDefToLambda, 0;
+          comp (rules.vectorBuildToStorage_exp), 0;
+          rules.lambdaAppStoraged, 0;
+          comp (rules.copyLet_exp), 0;
+        ]
+    printfn "storageConvertorExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    // printfn "storageConvertorExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
+    //printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "storageConvertorExample" false)
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
     let baProjectRules = 
         [ rules.vectorSliceToBuild, 0;
@@ -377,9 +388,9 @@ let test_guided_optimizer () =
 [<EntryPoint>]
 let main argv = 
     test_ba argv
-    compile_modules ()
+    // compile_modules ()
     // usecases.test1 [||]
-    // test_guided_optimizer ()
+    test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
     0

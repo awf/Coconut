@@ -255,6 +255,18 @@ let letFloatOutwards_exp =
     )
   @>
 
+let copyLet_exp = 
+  <@
+    (
+      vectorCopy %stg1 (let x = %E1 in (%B1) x)
+    )
+    <==>
+    (
+      let x = %E1
+      vectorCopy %stg1 ((%B1) x)
+    )
+  @>
+
 let letVectorBuildLength: Rule = compilePatternToRule (letVectorBuildLength_exp)
 
 let letInliner: Rule = compilePatternToRule (letInliner_exp)
@@ -376,6 +388,24 @@ let allocToAllocOnStack (e: Expr): Expr option =
       Some(<@@ corelang.vectorAllocOnStack (%%value) @@>)
     else
       None
+  | _ -> None
+
+// TODO quotation syntax requires supporting conditionals rewrite rules
+/// (\x1...xN e0) e1 ... eN ---> (\s0 x1...xN copy s0 e0) e1 ... eN (let s1 = e0.length in s1))
+let lambdaAppStoraged (e: Expr): Expr Option = 
+  match e with
+  // TODO add support for matrix
+  | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) && (List.head inputs).Type <> typeof<Storage> && 
+     (e.Type = typeof<Vector> || e.Type = typeof<Matrix>) -> 
+    let storageVarForLambda = new Var(utils.newVar "stg_input", typeof<Storage>)
+    let storageVarForLambdaExp = Expr.Var(storageVarForLambda)
+    let storageVarForApply = new Var(utils.newVar "stg", typeof<Storage>)
+    let storageVarForApplyExp = Expr.Var(storageVarForApply)
+    // TODO fix
+    let sizeExpr = 
+      // <@@ (%%e: Vector).Length @@>
+      <@@ 1000 @@> 
+    Some(AppN(LambdaN(storageVarForLambda :: inputs, <@@ vectorCopy %%storageVarForLambdaExp %%body @@>), (Expr.Let(storageVarForApply, <@@ vectorAlloc %%sizeExpr @@>, storageVarForApplyExp)) :: args))
   | _ -> None
 
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96

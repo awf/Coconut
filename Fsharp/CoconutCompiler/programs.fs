@@ -110,6 +110,12 @@ let stackAllocExample (x: Number) (y: Number) (z: Number) =
   vectorPrint v2
   ()
 
+[<DontOptimize>]
+let storageConvertorExample (s: Index) (e: Index) =
+  let v2 = vectorRange s e
+  vectorPrint v2
+  ()
+
 let small_tests (dum: Number) = 
   let num = 2.
   let a = test1 num
