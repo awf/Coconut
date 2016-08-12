@@ -358,6 +358,26 @@ let vectorSliceToBuild (e: Expr): Expr option =
     | _ -> None
   | _ -> None
 
+// TODO quotation syntax requires supproting handling a list of arguments and accessing their size
+///  [| e1; ...; eN |].length --> N
+let newArrayLength (e: Expr): Expr option =
+  match e with
+  | Patterns.PropertyGet(Some(Patterns.NewArray(tp, elems)), prop, []) when prop.Name = "Length"  -> 
+    Some(Expr.Value(elems.Length))
+  | _ -> None
+
+// TODO quotation syntax requires checking conditions whether something is constant or not
+/// vectorAlloc size --> vectorAllocOnStack size (if size is statically known is < 10)
+let allocToAllocOnStack (e: Expr): Expr option =
+  match e with
+  | DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [Patterns.Value(v, _) as value])  ->
+    let lengthValue = unbox<int> v
+    if lengthValue < 10 then
+      Some(<@@ corelang.vectorAllocOnStack (%%value) @@>)
+    else
+      None
+  | _ -> None
+
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)
 let foldInvariantCodeMotion (e: Expr): Expr option = 
