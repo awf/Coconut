@@ -377,9 +377,9 @@ let test_guided_optimizer () =
 [<EntryPoint>]
 let main argv = 
     test_ba argv
-    // compile_modules ()
+    compile_modules ()
     // usecases.test1 [||]
-    test_guided_optimizer ()
+    // test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
     0

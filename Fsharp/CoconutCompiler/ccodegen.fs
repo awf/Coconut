@@ -205,6 +205,19 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
            idxCode idxCode resultName idxCode
            bodyCode
            , bodyClosures, true)
+      | "vectorAllocOnStack" -> 
+        let size = ccodegen (elist.[0])
+        let tp = ccodegenType typeof<Vector>
+        let elemTp = ccodegenType typeof<Number>
+        let resultTp = ccodegenType typeof<Storage>
+        let structTp = sprintf "%s_struct" tp
+        let elementsVar = sprintf "%s_elements" var.Name
+        let structVar = sprintf "%s_struct" var.Name
+
+        let elementsDef = sprintf "%s %s[%s];" elemTp elementsVar size
+        let structDef   = sprintf "%s %s = { .arr = %s, .length = %s };" structTp structVar elementsVar size
+        (sprintf "%s\n\t%s\n\t%s %s = &%s;" elementsDef structDef resultTp var.Name structVar,
+          [], true)
       | name ->
         failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 
