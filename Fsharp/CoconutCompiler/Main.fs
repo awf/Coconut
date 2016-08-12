@@ -112,9 +112,27 @@ let test_guided_optimizer () =
           rules.letCommutingConversion, 0;
           rules.allocToCPS, 0;
         ]
-    printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    // printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     // printfn "hoistingExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     // printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
+    let stackExample = compiler.getMethodExpr "programs" "stackAllocExample"
+    let chains = 
+      optimizer.guidedOptimize stackExample 
+        [ comp (rules.vectorAddToStorage_exp), 0;
+          rules.letFloatOutwards, 0;
+          rules.letInliner, 0;
+          rules.newArrayLength, 0;
+          rules.letIntroduction, 2;
+          rules.letFloatOutwards, 1;
+          rules.letIntroduction, 3;
+          rules.letFloatOutwards, 2;
+          rules.letMerging, 0;
+          rules.letFloatOutwards, 1;
+          rules.allocToAllocOnStack, 0;
+        ]
+    printfn "stackExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
+    // printfn "stackExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
+    printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "stackExample" false)
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
     let baProjectRules = 
         [ rules.vectorSliceToBuild, 0;
