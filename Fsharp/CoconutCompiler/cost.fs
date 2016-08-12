@@ -76,6 +76,8 @@ let rec fopCost(exp: Expr): double =
     fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (cardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST
+  | DerivedPatterns.SpecificCall <@ corelang.vectorPrint @> (_, _, args) -> 
+    List.sum (List.map fopCost args) + NUMBER_PRINT_COST
   | ArraySlice(arr, s, e) ->
     let estimatedCardinality = rangeExprToDouble s e
     ARRAY_SLICE + MALLOC_COST + fopCost(arr) + fopCost(s) + fopCost(e) + ARRAY_ACCESS * (estimatedCardinality |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)

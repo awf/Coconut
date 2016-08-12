@@ -16,16 +16,16 @@ let closure_bug3 (m1: Matrix) (m2: Matrix): Matrix =
 
 let valloc_cps_feature1 (dum: Vector): unit =
   vectorAllocCPS 10 (fun s -> 
-    arrayPrint dum
-    arrayPrint dum
+    vectorPrint dum
+    vectorPrint dum
   )
   ()
 
 let valloc_cps_feature2 (dum: Vector): unit =
   vectorAllocCPS 10 (fun s -> 
     vectorAllocCPS 10 (fun s2 -> 
-      arrayPrint dum
-      arrayPrint dum
+      vectorPrint dum
+      vectorPrint dum
     )
   )
   ()

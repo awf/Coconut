@@ -103,13 +103,21 @@ let explicitMallocExample2 (v: Vector) =
   )
   ()
 
+[<DontOptimize>]
+let stackAllocExample (x: Number) (y: Number) (z: Number) =
+  let v = [| x; y; z |]
+  let v2 = add_vec v v
+  vectorPrint v2
+  ()
+
 let small_tests (dum: Number) = 
   let num = 2.
-  let a = test1(num)
+  let a = test1 num
   numberPrint a
   numberPrint (test2 num a)
-  let v2 = vectorRange(0)(99)
-  hoistingExample(v2)
-  explicitMallocExample1(v2)
-  explicitMallocExample2(v2)
+  let v2 = vectorRange 0 99
+  hoistingExample v2
+  explicitMallocExample1 v2
+  explicitMallocExample2 v2
+  stackAllocExample 2. 3. 5.
   ()

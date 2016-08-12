@@ -267,33 +267,33 @@ let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector
 let test1 (dum: Vector) =
   let a = [| 1.0; 2.0; 3.0 |]
   let b = [| 5.0; 6.0; 7.0 |]
-  arrayPrint a
-  arrayPrint b
-(*  arrayPrint (foo b) *)
+  vectorPrint a
+  vectorPrint b
+(*  vectorPrint (foo b) *)
 
   let c = cross a b
-  arrayPrint c
+  vectorPrint c
   let d = mult_by_scalar c 15.0
-  arrayPrint d
+  vectorPrint d
   let e = add_vec a b
-  arrayPrint e
+  vectorPrint e
   let f = sub_vec a b
-  arrayPrint f
+  vectorPrint f
   let g = add_vec3 a b c
-  arrayPrint g
+  vectorPrint g
   let h = sqnorm a
   numberPrint h
   let i = dot_prod a b
   numberPrint i
   let j = radial_distort a b
-  arrayPrint j
+  vectorPrint j
   let k = rodrigues_rotate_point a b
-  arrayPrint k
+  vectorPrint k
   let l = k.[1..2]
-  arrayPrint l
+  vectorPrint l
   let cam = [|0.; 2.; 4.; 6.; 8.; 10.; 12.; 14.; 16.; 18.; 20.|]
   let m = project cam j 
-  arrayPrint m
+  vectorPrint m
 
   let mat1 = 
     [| [| 1.0; 2.0; 3.0; |];

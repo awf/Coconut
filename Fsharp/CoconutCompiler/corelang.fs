@@ -76,13 +76,13 @@ let numberPrint (v: Number): Unit =
   printfn "%f" v
 
 [<CMirror("array_print")>]
-let arrayPrint (v: Vector): Unit = 
+let vectorPrint (v: Vector): Unit = 
   printfn "[%s]" (String.concat ", " (Array.map (sprintf "%f") v))
 
 [<CMirror("matrix_print")>]
 let matrixPrint (v: Matrix): Unit = 
   printf "[\n   "
-  Array.iteri (fun i x -> (if(i <> 0) then printf " , " else ()); arrayPrint x) v
+  Array.iteri (fun i x -> (if(i <> 0) then printf " , " else ()); vectorPrint x) v
   printfn "]"
 
 [<CMirror("matrix_read")>]
@@ -101,6 +101,11 @@ let matrixRead (fn: string) (startLine: Index) (rows: Index): Matrix =
 
 [<CMirror("vector_alloc")>]
 let vectorAlloc (size: Index): Storage =
+  let v = [|for i = 0 to (size - 1) do yield (0.0)|]
+  VS v
+
+[<CMacro()>]
+let vectorAllocOnStack (size: Index): Storage =
   let v = [|for i = 0 to (size - 1) do yield (0.0)|]
   VS v
 
