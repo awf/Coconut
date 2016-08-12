@@ -1,8 +1,6 @@
 ﻿open System
 open System.Diagnostics
 open System.IO
-open cruntime
-open utils
 
 #if MODE_AD
 open DiffSharp.AD
@@ -260,21 +258,6 @@ let test_hand model_dir fn_in fn_out nruns_f nruns_J =
   write_times (fn_out + "_times_" + name + ".txt") tf tJ
 #endif
 
-let test_ba_objective fn_in fn_out nruns_f nruns_J = 
-    let cams, x, w, obs, feat = ba.read_ba_instance (fn_in + ".txt")
-    (*printfn "cams: %A\nx: %A\nw: %A\nobs: %A\nfeat: %A" cams x w obs feat*)
-    let obs_double = Array.map (fun v -> Array.map double v) obs
-    let obj_stop_watch = Stopwatch.StartNew()
-    (*let err, werr = ba.ba_objective cams x w obs feat
-    printfn "error: %A\nwerr: %A" err werr*)
-    let err = usecases.reproj_err cams x w obs_double feat
-    obj_stop_watch.Stop()
-
-    printfn "Time: %d ms" obj_stop_watch.ElapsedMilliseconds
-
-open System.Runtime.InteropServices
-open linalg
-
 [<EntryPoint>]
 let main argv = 
     let dir_in = argv.[0]
@@ -290,74 +273,6 @@ let main argv =
 #endif
 #if DO_BA
     test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
-#endif
-#if DO_COMPILE
-    let res = usecases.run_ba_from_file (dir_in + fn + ".txt")
-    (*matrixPrint res*)
-    compiler.compileModule "linalg" [] false
-    compiler.compileModule "usecases" ["linalg"] false
-    compiler.compileModule "programs" ["linalg"] true
-    compiler.compileModule "ccodegentests" [] false
-    usecases.test1 [||]
-    let comp = ruleengine.compilePatternToRule
-    let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
-    let chains = 
-      optimizer.guidedOptimize vecAdd3 
-        [ rules.methodDefToLambda, 0; 
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.methodDefToLambda, 0; 
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.methodDefToLambda, 0; 
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.methodDefToLambda, 0; 
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.algebraicRulesVector.[0], 0;
-          rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          ]
-    //printfn "vecAdd3 chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    let hoistingExample = compiler.getMethodExpr "programs" "hoistingExample"
-    let chains = 
-      optimizer.guidedOptimize hoistingExample 
-        [ rules.vectorSliceToBuild, 0;
-          comp (rules.comAddIndex_exp), 1;
-          comp (rules.assocAddSubIndex_exp), 0;
-          comp (rules.subSameIndex_exp), 0;
-          comp (rules.constFold0Index_exp), 0;
-          rules.constantFold, 0;
-          comp (rules.vectorAddToStorage_exp), 0;
-          rules.letVectorBuildLength, 0;
-          rules.letFloatOutwards, 0;
-          comp (rules.vectorBuildToStorage_exp), 0;
-          rules.letCommutingConversion, 0;
-          rules.foldInvariantCodeMotion, 0;
-          rules.letCommutingConversion, 0;
-          rules.allocToCPS, 0;
-          rules.letFloatOutwards, 0;
-          rules.letReorder, 0;
-          rules.foldInvariantCodeMotion, 0;
-          rules.letCommutingConversion, 0;
-          rules.allocToCPS, 0;
-        ]
-    printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
-    printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "hoistingExample" false)
-    (*test_ba_objective (dir_in + fn) (dir_out + fn) nruns_f nruns_J*)
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "hand_instances\\simple_big\\model\\") (dir_in + fn) (dir_out + fn) nruns_f nruns_J

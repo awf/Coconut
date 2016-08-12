@@ -1,0 +1,61 @@
+typedef struct env_t_2599 {
+        array_number_t x;
+        array_number_t w_cross_X1284;
+        number_t tmp1286;
+        number_t theta_inv;
+        number_t sintheta;
+        array_number_t rot;
+        number_t costheta;
+} env_t_2599;
+env_t_2599 make_env_t_2599(array_number_t x,array_number_t w_cross_X1284,number_t tmp1286,number_t theta_inv,number_t sintheta,array_number_t rot,number_t costheta) {
+        env_t_2599 env;
+        env.x = x;
+        env.w_cross_X1284 = w_cross_X1284;
+        env.tmp1286 = tmp1286;
+        env.theta_inv = theta_inv;
+        env.sintheta = sintheta;
+        env.rot = rot;
+        env.costheta = costheta;
+        return env;
+}
+
+value_t lambda2599(env_t_2599* env2592, index_t i2525) {
+        array_number_t x2591 = env2592->x;
+        array_number_t w_cross_X12842590 = env2592->w_cross_X1284;
+        number_t tmp12862589 = env2592->tmp1286;
+        number_t theta_inv2588 = env2592->theta_inv;
+        number_t sintheta2587 = env2592->sintheta;
+        array_number_t rot2586 = env2592->rot;
+        number_t costheta2585 = env2592->costheta;
+        value_t res;
+        res.number_t_value = (((x2591->arr[i2525]) * (costheta2585)) + ((w_cross_X12842590->arr[i2525]) * (sintheta2587))) + (((rot2586->arr[i2525]) * (theta_inv2588)) * (tmp12862589));
+        return res;
+}
+array_number_t usecases_rodrigues_rotate_point(array_number_t rot, array_number_t x) {
+        number_t sqtheta = linalg_sqnorm(rot);
+        array_number_t ite2598 = 0;
+        if((sqtheta) != (0)) {
+                number_t theta = sqrt(sqtheta);
+                number_t costheta = cos(theta);
+                number_t sintheta = sin(theta);
+                number_t theta_inv = (1) / (theta);
+                array_number_t w_cross_X1284 = (array_number_t)malloc(sizeof(int) * 2);
+        w_cross_X1284->length=3;
+        w_cross_X1284->arr = (number_t*)malloc(sizeof(number_t) * 3);
+        w_cross_X1284->arr[0] = (((rot->arr[1]) * (theta_inv)) * (x->arr[2])) - (((rot->arr[2]) * (theta_inv)) * (x->arr[1]));
+        w_cross_X1284->arr[1] = (((rot->arr[2]) * (theta_inv)) * (x->arr[0])) - (((rot->arr[0]) * (theta_inv)) * (x->arr[2]));
+        w_cross_X1284->arr[2] = (((rot->arr[0]) * (theta_inv)) * (x->arr[1])) - (((rot->arr[1]) * (theta_inv)) * (x->arr[0]));;
+                number_t macroDef2573 = 0;
+        for(int idx = 0; idx <= (rot->length) - (1); idx++){
+
+                macroDef2573 = (macroDef2573) + (((rot->arr[idx]) * (theta_inv)) * (x->arr[idx]));
+        }
+                number_t tmp1286 = (macroDef2573) * ((1) - (costheta));
+                env_t_2599 env_t_2599_value = make_env_t_2599(x,w_cross_X1284,tmp1286,theta_inv,sintheta,rot,costheta); closure_t closure2594 = make_closure(lambda2599, &env_t_2599_value);
+                ite2598 = vector_build(x->length, closure2594);
+        } else {
+
+                ite2598 = linalg_add_vec(x, linalg_cross(rot, x));
+        }
+        return ite2598;
+}

@@ -1,0 +1,154 @@
+"Running ba1.txt"
+Time: 35 ms
+Time: 36 ms
+Time: 35 ms
+Time: 35 ms
+Time: 34 ms
+Time: 35 ms
+Time: 35 ms
+Time: 35 ms
+Time: 35 ms
+Time: 35 ms
+"Running ba2.txt"
+Time: 40 ms
+Time: 48 ms
+Time: 40 ms
+Time: 40 ms
+Time: 40 ms
+Time: 40 ms
+Time: 44 ms
+Time: 39 ms
+Time: 40 ms
+Time: 40 ms
+"Running ba3.txt"
+Time: 198 ms
+Time: 199 ms
+Time: 200 ms
+Time: 200 ms
+Time: 200 ms
+Time: 201 ms
+Time: 198 ms
+Time: 199 ms
+Time: 199 ms
+Time: 199 ms
+"Running ba4.txt"
+Time: 224 ms
+Time: 224 ms
+Time: 223 ms
+Time: 222 ms
+Time: 224 ms
+Time: 223 ms
+Time: 225 ms
+Time: 226 ms
+Time: 223 ms
+Time: 223 ms
+"Running ba5.txt"
+Time: 246 ms
+Time: 246 ms
+Time: 246 ms
+Time: 247 ms
+Time: 248 ms
+Time: 250 ms
+Time: 246 ms
+Time: 247 ms
+Time: 248 ms
+Time: 246 ms
+"Running ba6.txt"
+Time: 303 ms
+Time: 302 ms
+Time: 301 ms
+Time: 301 ms
+Time: 307 ms
+Time: 304 ms
+Time: 308 ms
+Time: 303 ms
+Time: 301 ms
+Time: 304 ms
+"Running ba7.txt"
+Time: 319 ms
+Time: 313 ms
+Time: 312 ms
+Time: 317 ms
+Time: 315 ms
+Time: 314 ms
+Time: 313 ms
+Time: 314 ms
+Time: 311 ms
+Time: 315 ms
+"Running ba8.txt"
+Time: 419 ms
+Time: 422 ms
+Time: 417 ms
+Time: 416 ms
+Time: 423 ms
+Time: 422 ms
+Time: 423 ms
+Time: 421 ms
+Time: 421 ms
+Time: 422 ms
+"Running ba9.txt"
+Time: 433 ms
+Time: 432 ms
+Time: 430 ms
+Time: 430 ms
+Time: 429 ms
+Time: 434 ms
+Time: 432 ms
+Time: 428 ms
+Time: 429 ms
+Time: 432 ms
+"Running ba10.txt"
+Time: 616 ms
+Time: 617 ms
+Time: 614 ms
+Time: 616 ms
+Time: 621 ms
+Time: 618 ms
+Time: 614 ms
+Time: 617 ms
+Time: 617 ms
+Time: 616 ms
+"Running ba11.txt"
+Time: 747 ms
+Time: 742 ms
+Time: 748 ms
+Time: 738 ms
+Time: 743 ms
+Time: 746 ms
+Time: 738 ms
+Time: 743 ms
+Time: 755 ms
+Time: 744 ms
+"Running ba12.txt"
+Time: 997 ms
+Time: 986 ms
+Time: 997 ms
+Time: 980 ms
+Time: 1068 ms
+Time: 981 ms
+Time: 993 ms
+Time: 995 ms
+Time: 980 ms
+Time: 987 ms
+"Running ba13.txt"
+Time: 1197 ms
+Time: 1227 ms
+Time: 1205 ms
+Time: 1218 ms
+Time: 1200 ms
+Time: 1199 ms
+Time: 1202 ms
+Time: 1197 ms
+Time: 1216 ms
+Time: 1207 ms
+"Running ba14.txt"
+Time: 1384 ms
+Time: 1371 ms
+Time: 1368 ms
+Time: 1372 ms
+Time: 1368 ms
+Time: 1388 ms
+Time: 1391 ms
+Time: 1375 ms
+Time: 1370 ms
+Time: 1373 ms
