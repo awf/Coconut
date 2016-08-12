@@ -267,6 +267,16 @@ let copyLet_exp =
     )
   @>
 
+let dce_exp =
+  <@
+    (
+      let x = %E1
+      %E2: T1
+    )
+    <==>
+     %E2
+ @>
+
 let letVectorBuildLength: Rule = compilePatternToRule (letVectorBuildLength_exp)
 
 let letInliner: Rule = compilePatternToRule (letInliner_exp)
@@ -278,6 +288,8 @@ let letCommutingConversion: Rule = compilePatternToRule (letCommutingConversion_
 let letReorder: Rule = compilePatternToRule (letReorder_exp)
 
 let allocToCPS: Rule = compilePatternToRule (allocToCPS_exp)
+
+let dce: Rule = compilePatternToRule (dce_exp)
 
 let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
 
