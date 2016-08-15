@@ -128,10 +128,16 @@ module termnet =
 
 type RuleInfo = string
 
-type Rule = Expr -> Expr list
+type Rule = (Expr -> Expr list) * RuleInfo
+
+let applyRule (rule: Rule) (exp: Expr): Expr list =
+  (fst rule) exp
+
+let ruleInfo (rule: Rule): RuleInfo =
+  snd rule
 
 let (|ApplicableRule|_|) (rs: Rule List) (e: Expr): (Rule) Option = 
-  rs |> List.tryFind (fun r -> not (r e |> List.isEmpty))
+  rs |> List.tryFind (fun r -> not (applyRule r e |> List.isEmpty))
 
 let (<==>) (s1: 'a) (s2: 'a):'a = s1
 
@@ -348,8 +354,9 @@ let private termMatch (pat: Expr) (term: Expr): Solution * Set<QVar> =
   if not (freeVarsList (List.map snd (Map.toList solutions))  - freeVars term).IsEmpty then raise ( NotMatched("Captured variables", [pat; term]))
   solutions, hoVars
 
-let compilePatternToRule (ruleExpr: Expr): Rule =
-  fun (term: Expr) ->
+let compilePatternWithNameToRule (ruleExpr: Expr) (name: string): Rule =
+  let ruleFunction = 
+   fun (term: Expr) ->
     let (pat, rhs) =
       match ruleExpr with 
       | SpecificCall <@ (<==>) @> (None, _, [p; rhs]) -> 
@@ -380,3 +387,10 @@ let compilePatternToRule (ruleExpr: Expr): Rule =
       [unifiedRhs]
     with
       | NotMatched _ -> []
+  ruleFunction, name
+
+let compilePatternToRule (ruleExpr: Expr): Rule =
+  compilePatternWithNameToRule ruleExpr "Unknown rule"
+
+let compileNamedPatternToRule (ruleExpr: Expr<Expr>): Rule =
+  failwith ""

@@ -35,7 +35,7 @@ let test_ruleengine () =
     //let prog = <@ let b = vectorBuild 10 (fun i -> double i) in vectorBuild (b.Length) (fun j -> (add_vec b b).[j]) @>
     //let prog' = rules.letVectorBuildLength2 prog
     let prog = <@ let s = vectorAlloc 10 in vectorBuildGivenStorage s (fun i -> 2.0) @>
-    let prog' = rules.allocToCPS prog
+    let prog' = ruleengine.applyRule rules.allocToCPS prog
     //let prog = <@ let i = 3 in let j = i * 2 in i / j @>
     //let prog' = rules.letReorder2 prog
     //let prog = <@ let i = 3 in let j = 2 in i / j @>
