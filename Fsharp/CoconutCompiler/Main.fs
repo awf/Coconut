@@ -387,12 +387,35 @@ let test_guided_optimizer () =
     //printfn "code: %s" (compiler.compile "ccodegentests" "valloc_cps_feature1" false)
     ()
 
+let test_feature () =
+  let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
+  let comp = ruleengine.compilePatternToRule
+  let uniqueRules = 
+      [
+        rules.vectorSliceToBuild;
+        comp (rules.comAddIndex_exp);
+        comp (rules.assocAddSubIndex_exp);
+        comp (rules.subSameIndex_exp);
+        comp (rules.constFold0Index_exp);
+        rules.constantFold;
+        rules.methodDefInliner;
+        rules.betaReduction;
+        comp (rules.vectorBuildLength_exp);
+        comp (rules.vectorBuildGet_exp);
+        comp (rules.vectorFoldBuildToFoldOnRange_exp);
+        rules.letCommutingConversion;
+        rules.letInliner;
+      ]
+  printfn "%A" (optimizer.examineAllRulesMetaData uniqueRules bundleAdjustmentProject)
+  ()
+
 [<EntryPoint>]
 let main argv = 
-    test_ba argv
+    // test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    test_guided_optimizer ()
+    // test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
+    test_feature ()
     0
