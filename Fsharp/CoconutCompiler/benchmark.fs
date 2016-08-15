@@ -7,16 +7,16 @@ let benchmark_test_algorithms program =
   let uniqueRules = 
       [
         rules.vectorSliceToBuild;
-        comp (rules.comAddIndex_exp);
-        comp (rules.assocAddSubIndex_exp);
-        comp (rules.subSameIndex_exp);
-        comp (rules.constFold0Index_exp);
+        comp <@ rules.comAddIndex_exp @>;
+        comp <@ rules.assocAddSubIndex_exp @>;
+        comp <@ rules.subSameIndex_exp @>;
+        comp <@ rules.constFold0Index_exp @>;
         rules.constantFold;
         rules.methodDefInliner;
         rules.betaReduction;
-        comp (rules.vectorBuildLength_exp);
-        comp (rules.vectorBuildGet_exp);
-        comp (rules.vectorFoldBuildToFoldOnRange_exp);
+        comp <@ rules.vectorBuildLength_exp @>;
+        comp <@ rules.vectorBuildGet_exp @>;
+        comp <@ rules.vectorFoldBuildToFoldOnRange_exp @>;
         rules.letCommutingConversion;
         rules.letInliner;
       ]

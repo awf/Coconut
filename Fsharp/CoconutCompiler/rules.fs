@@ -291,13 +291,15 @@ let allocToCPS: Rule = compilePatternWithNameToRule allocToCPS_exp "allocToCPS"
 
 let dce: Rule = compilePatternWithNameToRule dce_exp "dce"
 
-let algebraicRulesScalar_exp = [divide2Mult_exp; distrMult_exp; constFold0_exp; constFold1_exp; subSame_exp; multDivide_exp; assocAddSub_exp; assocAddAdd_exp; assocSubSub_exp]
+let algebraicRulesScalar_exp = 
+  [ <@ divide2Mult_exp @>; <@ distrMult_exp @>; <@ constFold0_exp @>; <@ constFold1_exp @>; <@subSame_exp@> ; 
+    <@ multDivide_exp @>; <@ assocAddSub_exp @>; <@ assocAddAdd_exp @>; <@ assocSubSub_exp @> ]
 
 let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp
 
-let algebraicRulesVector_exp = [vectorBuildGet_exp.Raw; vectorSliceToBuild_exp.Raw]
+//let algebraicRulesVector_exp = [ <@ vectorBuildGet_exp @>; <@ vectorSliceToBuild_exp @>]
 
-let algebraicRulesVector: Rule List = List.map compilePatternToRule algebraicRulesVector_exp
+//let algebraicRulesVector: Rule List = List.map compilePatternToRule algebraicRulesVector_exp
 
 open transformer
 open FSharp.Quotations.Evaluator

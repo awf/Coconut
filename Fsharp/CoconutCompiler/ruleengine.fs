@@ -389,8 +389,9 @@ let compilePatternWithNameToRule (ruleExpr: Expr) (name: string): Rule =
       | NotMatched _ -> []
   ruleFunction, name
 
-let compilePatternToRule (ruleExpr: Expr): Rule =
-  compilePatternWithNameToRule ruleExpr "Unknown rule"
-
-let compileNamedPatternToRule (ruleExpr: Expr<Expr>): Rule =
-  failwith ""
+let compilePatternToRule<'a> (ruleExprWithName: Expr<Expr<'a>>): Rule =
+  match ruleExprWithName.Raw with
+  | Patterns.PropertyGet(None, op, []) -> 
+    let expr = op.GetMethod.Invoke(assembly.GetModule("rules"), [| |]) :?> Expr
+    compilePatternWithNameToRule expr op.Name
+  | exp             -> failwithf "compileNamedPatternToRule should receive a property from the rules module, but received `%A` instead" exp

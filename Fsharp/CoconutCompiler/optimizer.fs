@@ -40,9 +40,13 @@ let examineAllRules (rs: Rule List) (e: Expr): Expr List =
     List.append immediatelyConstructedExpressions constructedExpressionsByChildren
   rcr(e)
 
-type MetaData = int
+type RulePosition = int
 
-let private zeroMetaData: MetaData = 0
+type InputMetaData = RulePosition
+
+type MetaData = InputMetaData * RuleInfo
+
+let private zeroMetaData: InputMetaData = 0
 
 let rec exprSize (exp: Expr): int =
   match exp with
@@ -51,8 +55,8 @@ let rec exprSize (exp: Expr): int =
   | ExprShape.ShapeCombination(o, exprs) -> 1 + (exprs |> List.map exprSize |> List.sum)
 
 let examineAllRulesMetaData (rs: Rule List) (e: Expr): MetaData List = 
-  let rec rcr (exp: Expr) (meta: MetaData): MetaData List = 
-    let immediatelyConstructedExpressions = rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta)) 
+  let rec rcr (exp: Expr) (meta: InputMetaData): MetaData List = 
+    let immediatelyConstructedExpressions = rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta, snd r)) 
     let constructedExpressionsByChildren =
       match exp with 
       | ExprShape.ShapeLambda(i, e) -> rcr e (meta + 1)
