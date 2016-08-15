@@ -44,7 +44,7 @@ type RulePosition = int
 
 type InputMetaData = RulePosition
 
-type MetaData = InputMetaData * RuleInfo
+type MetaData = InputMetaData * Rule
 
 let private zeroMetaData: InputMetaData = 0
 
@@ -56,7 +56,7 @@ let rec exprSize (exp: Expr): int =
 
 let examineAllRulesMetaData (rs: Rule List) (e: Expr): MetaData List = 
   let rec rcr (exp: Expr) (meta: InputMetaData): MetaData List = 
-    let immediatelyConstructedExpressions = rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta, snd r)) 
+    let immediatelyConstructedExpressions = rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta, r)) 
     let constructedExpressionsByChildren =
       match exp with 
       | ExprShape.ShapeLambda(i, e) -> rcr e (meta + 1)
@@ -66,6 +66,21 @@ let examineAllRulesMetaData (rs: Rule List) (e: Expr): MetaData List =
           let exprsExpressions = (([], meta + 1), exprs) ||> List.fold (fun (ms, idx) e  -> (rcr e idx) :: ms, idx + exprSize e)
           List.concat (fst exprsExpressions)
     List.append immediatelyConstructedExpressions constructedExpressionsByChildren
+  rcr e zeroMetaData
+
+let applyRuleAtParticularPosition (e: Expr) (rule: MetaData): Expr =
+  let matchesPosition (meta: InputMetaData): bool = (fst rule) = meta
+  let rec rcr (exp: Expr) (meta: InputMetaData): Expr = 
+    if matchesPosition meta then
+      applyRule (snd rule) exp |> List.head
+    else
+      match exp with 
+      | ExprShape.ShapeLambda(i, e) -> Expr.Lambda(i, rcr e (meta + 1))
+      | ExprShape.ShapeVar(v)       -> Expr.Var(v)
+      | Patterns.Value(v, tp)       -> Expr.Value(v, tp)
+      | ExprShape.ShapeCombination(o, exprs) ->
+          let exprsExpressions = (([], meta + 1), exprs) ||> List.fold (fun (ms, idx) e  -> (rcr e idx) :: ms, idx + exprSize e)
+          ExprShape.RebuildShapeCombination(o, fst exprsExpressions |> List.rev)
   rcr e zeroMetaData
 
 let rec inliner (exp: Expr): Expr = 

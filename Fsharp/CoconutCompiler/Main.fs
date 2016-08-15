@@ -406,7 +406,9 @@ let test_feature () =
         rules.letCommutingConversion;
         rules.letInliner;
       ]
-  printfn "%A" (optimizer.examineAllRulesMetaData uniqueRules bundleAdjustmentProject)
+  let firstLevelApplicableRules = optimizer.examineAllRulesMetaData uniqueRules bundleAdjustmentProject
+  let lastRule = firstLevelApplicableRules |> List.rev |> List.head
+  printfn "%A" (firstLevelApplicableRules |> List.map (optimizer.applyRuleAtParticularPosition bundleAdjustmentProject) |> List.map ccodegen.prettyprint )
   ()
 
 [<EntryPoint>]
@@ -414,8 +416,8 @@ let main argv =
     // test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    test_guided_optimizer ()
+    // test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
-    // test_feature ()
+    test_feature ()
     0
