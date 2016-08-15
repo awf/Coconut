@@ -414,8 +414,8 @@ let main argv =
     // test_ba argv
     // compile_modules ()
     // usecases.test1 [||]
-    // test_guided_optimizer ()
+    test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
-    test_feature ()
+    // test_feature ()
     0

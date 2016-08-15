@@ -12,7 +12,7 @@ open search
 let recursiveTransformer (e: Expr) (rs: Rule List): Expr = 
   let rec rcr(exp: Expr): Expr = 
     match exp with 
-    | ApplicableRule rs rule -> rcr(Option.get (rule(exp)))
+    | ApplicableRule rs rule -> rcr(rule exp |> List.head)
     | ExprShape.ShapeLambda(i, e) -> Expr.Lambda(i, rcr e)
     | ExprShape.ShapeVar(v) -> Expr.Var(v)
     | ExprShape.ShapeCombination(o, exprs) ->
@@ -21,7 +21,8 @@ let recursiveTransformer (e: Expr) (rs: Rule List): Expr =
 
 let examineAllRules (rs: Rule List) (e: Expr): Expr List = 
   let rec rcr(exp: Expr): Expr List = 
-    let immediatelyConstructedExpressions = List.collect (fun r -> Option.toList (r exp)) rs
+    let immediatelyConstructedExpressions =
+      rs |> List.collect (fun r -> r exp) 
     let constructedExpressionsByChildren =
       match exp with 
       | ExprShape.ShapeLambda(i, e) -> List.map (fun x -> Expr.Lambda(i, x)) (rcr e)
@@ -51,7 +52,7 @@ let rec exprSize (exp: Expr): int =
 
 let examineAllRulesMetaData (rs: Rule List) (e: Expr): MetaData List = 
   let rec rcr (exp: Expr) (meta: MetaData): MetaData List = 
-    let immediatelyConstructedExpressions = List.collect (fun r -> r exp |> Option.map (fun _ -> meta) |> Option.toList) rs
+    let immediatelyConstructedExpressions = rs |> List.collect (fun r -> r exp |> List.map (fun _ -> meta)) 
     let constructedExpressionsByChildren =
       match exp with 
       | ExprShape.ShapeLambda(i, e) -> rcr e (meta + 1)

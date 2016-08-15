@@ -303,50 +303,50 @@ open transformer
 open FSharp.Quotations.Evaluator
 open types
 
-let methodDefToLambda (e: Expr): Expr Option = 
+let methodDefToLambda (e: Expr): Expr list = 
   match e with
   | ExistingCompiledMethodWithLambda(methodName, moduleName, args, lam) -> 
-      Some(Expr.Applications(lam, List.map (fun x -> [x]) args))
-  | _ -> None
+      [Expr.Applications(lam, List.map (fun x -> [x]) args)]
+  | _ -> []
 
-let lambdaAppToLet (e: Expr): Expr Option = 
+let lambdaAppToLet (e: Expr): Expr list = 
   match e with
   | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) -> 
-      Some(LetN(List.zip inputs args, body))
-  | _ -> None
+      [LetN(List.zip inputs args, body)]
+  | _ -> []
 
 /// This rule is composition of one application of lambdaAppToLet and several applications of letInliner
-let betaReduction (e: Expr): Expr Option = 
+let betaReduction (e: Expr): Expr list = 
   match e with
   | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) -> 
       let inputsAndArgs = List.zip inputs args
       let renamedBody = captureAvoidingSubstitution body inputsAndArgs
-      Some(renamedBody)
-  | _ -> None
+      [renamedBody]
+  | _ -> []
 
 /// This rule is composition of one application of methodDefToLambda and lambdaAppToLet followed
 /// by several applications of letInliner.
-let methodDefInliner (e: Expr): Expr Option = 
+let methodDefInliner (e: Expr): Expr list = 
   match e with
   | ExistingCompiledMethodWithLambda(methodName, moduleName, args, LambdaN(inputs, body)) when (List.length inputs) = (List.length args) -> 
     let inputsAndArgs = List.zip inputs args
     let renamedBody = captureAvoidingSubstitution body inputsAndArgs
-    Some(renamedBody)
-  | _ -> None
+    [renamedBody]
+  | _ -> []
 
 // TODO requires support for unacceptable cases
-let letIntroduction (e: Expr): Expr option =
+let letIntroduction (e: Expr): Expr list =
   match e with
-  | Patterns.Let(x, e1, e2) -> None
-  | Patterns.Lambda(_, _) -> None
-  | Patterns.Var(_) -> None
-  | Patterns.Value(_, _) -> None
+  | Patterns.Let(x, e1, e2) -> []
+  | Patterns.Lambda(_, _) -> []
+  | Patterns.Var(_) -> []
+  | Patterns.Value(_, _) -> []
   | _ -> 
     let nv = new Var(utils.newVar "xi_", e.Type)
-    Some(Expr.Let(nv, e, Expr.Var(nv)))
+    [Expr.Let(nv, e, Expr.Var(nv))]
 
 // TODO requires meta programming facilities to be expressible in the rewrite engine.
-let constantFold (e: Expr): Expr Option =
+let constantFold (e: Expr): Expr list =
   match e with
   | Patterns.Call(None, op, args) ->
     let staticArgs = 
@@ -359,13 +359,13 @@ let constantFold (e: Expr): Expr Option =
     if (List.length staticArgs) = (List.length args) then
       let resultObject = e.EvaluateUntyped()
       let resultExpression = Expr.Value(resultObject, e.Type)
-      Some(resultExpression)
+      [resultExpression]
     else
-      None
-  | _ -> None
+      []
+  | _ -> []
 
 // TODO quotation syntax requires supproting certain corner cases on pattern matching in quotations
-let vectorSliceToBuild (e: Expr): Expr option =
+let vectorSliceToBuild (e: Expr): Expr list =
   match e with
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
@@ -378,33 +378,33 @@ let vectorSliceToBuild (e: Expr): Expr option =
       let vec = Expr.Cast<Vector>(args.[0])
       let s = Expr.Cast<Index>(args.[1])
       let e = Expr.Cast<Index>(args.[2])
-      Some(<@ vectorBuild (%e - %s + 1) (fun i -> (%vec).[i + %s]) @>.Raw)
-    | _ -> None
-  | _ -> None
+      [ <@ vectorBuild (%e - %s + 1) (fun i -> (%vec).[i + %s]) @>.Raw]
+    | _ -> []
+  | _ -> []
 
 // TODO quotation syntax requires supproting handling a list of arguments and accessing their size
 ///  [| e1; ...; eN |].length --> N
-let newArrayLength (e: Expr): Expr option =
+let newArrayLength (e: Expr): Expr list =
   match e with
   | Patterns.PropertyGet(Some(Patterns.NewArray(tp, elems)), prop, []) when prop.Name = "Length"  -> 
-    Some(Expr.Value(elems.Length))
-  | _ -> None
+    [Expr.Value(elems.Length)]
+  | _ -> []
 
 // TODO quotation syntax requires checking conditions whether something is constant or not
 /// vectorAlloc size --> vectorAllocOnStack size (if size is statically known is < 10)
-let allocToAllocOnStack (e: Expr): Expr option =
+let allocToAllocOnStack (e: Expr): Expr list =
   match e with
   | DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [Patterns.Value(v, _) as value])  ->
     let lengthValue = unbox<int> v
     if lengthValue < 10 then
-      Some(<@@ corelang.vectorAllocOnStack (%%value) @@>)
+      [ <@@ corelang.vectorAllocOnStack (%%value) @@> ]
     else
-      None
-  | _ -> None
+      []
+  | _ -> []
 
 // TODO quotation syntax requires supporting conditionals rewrite rules
 /// (\x1...xN e0) e1 ... eN ---> (\s0 x1...xN copy s0 e0) e1 ... eN (let s1 = e0.length in s1))
-let lambdaAppStoraged (e: Expr): Expr Option = 
+let lambdaAppStoraged (e: Expr): Expr list = 
   match e with
   // TODO add support for matrix
   | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) && (List.head inputs).Type <> typeof<Storage> && 
@@ -417,19 +417,19 @@ let lambdaAppStoraged (e: Expr): Expr Option =
     let sizeExpr = 
       // <@@ (%%e: Vector).Length @@>
       <@@ 1000 @@> 
-    Some(AppN(LambdaN(storageVarForLambda :: inputs, <@@ vectorCopy %%storageVarForLambdaExp %%body @@>), (Expr.Let(storageVarForApply, <@@ vectorAlloc %%sizeExpr @@>, storageVarForApplyExp)) :: args))
-  | _ -> None
+    [AppN(LambdaN(storageVarForLambda :: inputs, <@@ vectorCopy %%storageVarForLambdaExp %%body @@>), (Expr.Let(storageVarForApply, <@@ vectorAlloc %%sizeExpr @@>, storageVarForApplyExp)) :: args) ]
+  | _ -> []
 
-let copyStoragedElimination (e: Expr): Expr option =
+let copyStoragedElimination (e: Expr): Expr list =
   let STORAGE_POSTFIX = "GivenStorage"
   match e with
   | DerivedPatterns.SpecificCall <@ corelang.vectorCopy @> (_, _, [s1; Patterns.Call(None, op, s2 :: args)]) when op.Name.EndsWith(STORAGE_POSTFIX) ->
-    Some(Expr.Call(op, s1 :: args))
-  | _ -> None
+    [Expr.Call(op, s1 :: args)]
+  | _ -> []
 
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)
-let foldInvariantCodeMotion (e: Expr): Expr option = 
+let foldInvariantCodeMotion (e: Expr): Expr list = 
   match e with
   // TODO generalize
   | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; st; en]) ->
@@ -439,17 +439,17 @@ let foldInvariantCodeMotion (e: Expr): Expr option =
       | Patterns.Let(x, e1, e2) ->
         if(not (List.exists (fun e -> List.exists (fun y -> e = y) inputs) (List.ofSeq (e1.GetFreeVars())))) then
           let (Patterns.Call(_, mi, _)) = e
-          Some(Expr.Let(x, e1, Expr.Call(mi, [LambdaN(inputs, e2); z; st; en])))
+          [ Expr.Let(x, e1, Expr.Call(mi, [LambdaN(inputs, e2); z; st; en])) ]
         else
-          None
-      | _ -> None
+          []
+      | _ -> []
     | _ -> failwithf "The first argument of a fold function should be a lambda expression, but is `%A` instead." f
-  | _ -> None
+  | _ -> []
 
 // TODO this one and the previous can be merged
 // c.f.  "Let-floating: moving bindings to give faster programs", SPJ et. al., ICFP'96
 //  specially section 3.2 (full laziness)
-let letFloatOutwards (e: Expr): Expr option = 
+let letFloatOutwards (e: Expr): Expr list = 
   match e with
   | ExprShape.ShapeCombination(op, args) ->
     let transformedArg = 
@@ -474,6 +474,7 @@ let letFloatOutwards (e: Expr): Expr option =
                   )
             Expr.Let(x, e1, ExprShape.RebuildShapeCombination(op, transformedArgs))
           )
+        |> Option.toList
   | ExprShape.ShapeLambda(x, Patterns.Let(y, e1, e2)) when e1.GetFreeVars() |> Seq.exists (fun fv -> fv = x) |> not ->
-    Some(Expr.Let(y, e1, Expr.Lambda(x, e2)))
-  | _ -> None
+    [ Expr.Let(y, e1, Expr.Lambda(x, e2)) ]
+  | _ -> []
