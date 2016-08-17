@@ -93,17 +93,6 @@ module metaVars =
   let private genericFunctionMetaVars = List.map getExprRaw [F; G]
   let private genericExpressionMetaVars = List.map getExprRaw [E1; E2; E3; B1; B2; B3]
   let private allGenericMetaVars = genericFunctionMetaVars @ genericExpressionMetaVars
-  // TODO should be rewritten based on TypedVars and UntypedVars
-  let getMetaVarAmongGivenVarBindings<'a> (var: Var) (givenVarBindings: (Var * 'a) list): (Var * 'a) option = 
-    let filterVars(vars: Var list): Var list = vars |> List.filter (fun v -> givenVarBindings |> List.exists (fun gv -> (fst gv).Name = v.Name))
-    let allMetaVar = allMetaVars |> List.map getExprVar |> filterVars |> List.tryFind (fun x -> x = var)
-    let genericFunctionMetaVar = allGenericMetaVars |> List.map getExprVar |> filterVars |> List.tryFind (fun x -> x.Name = var.Name)
-    let resultVar = match allMetaVar with
-    | None -> genericFunctionMetaVar
-    | _ -> allMetaVar
-    resultVar |> Option.map (fun v -> givenVarBindings |> List.find(fun (v2, _) -> v2.Name = v.Name))
-  let isAMetaVar (var: Var): bool = 
-    getMetaVarAmongGivenVarBindings var (allMetaVars @ allGenericMetaVars |> List.map (fun v -> getExprVar(v), 1)) |> Option.isSome
   let getQMetaVar (var: Var): QVar option =
     let untypedVar = 
       allGenericMetaVars 
@@ -179,26 +168,13 @@ type private HoMatch = HoMatch of env: Map<QVar, QVar> * term: Expr * hoVar: QVa
 type private Solution = Map<QVar, Expr>
 exception NotMatched of string * Expr list
 
-let private findVariableInList<'a> (key: QVar) (col: 'a list) (conv: 'a -> Var): 'a option =
-  metaVars.getMetaVarAmongGivenVarBindings (key.var) (col |> List.map (fun x -> conv x, x))
-    |> Option.map snd
-
-let private variableMapGet<'a> (key: QVar) (map: Map<QVar, 'a>): 'a option = 
-  let res = findVariableInList key (Map.toList map) (fun (qv, _) -> qv.var) |> Option.map snd
-  match res with
-  | Some v -> res
-  | None   -> map.TryFind (key) 
-
-let private solutionsGet (key: QVar) (solutions: Solution): Expr option = 
-  variableMapGet key solutions
-
 let rec private substVars (solutions: Solution) (e: Expr): Expr =
-  e.Substitute(fun v -> solutions |> solutionsGet (TypedVar v))
+  e.Substitute(fun v -> solutions.TryFind (TypedVar v))
 
 let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (typeMapping: (Type * Type) list) (e: Expr) = 
   match e with
-  | AppN(Patterns.Var(v), args) when findVariableInList (UntypedVar v) (Set.toList betaVars) (fun x -> x.var) |> Option.isSome ->
-    match solutionsGet (UntypedVar v) solutions with
+  | AppN(Patterns.Var(v), args) when betaVars |> Set.contains (UntypedVar v) ->
+    match solutions.TryFind (UntypedVar v)  with
     | Some(LambdaN(inputs, body)) -> 
       let inlinedBody = substVars (List.zip (inputs |> List.map TypedVar) args |> Map.ofList) body
       substAndReduce solutions betaVars typeMapping inlinedBody
@@ -213,7 +189,7 @@ let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (type
   | _ ->
     match e with
     | Patterns.Var(v) -> 
-      solutions |> solutionsGet (TypedVar v) |> Option.fold (fun _ x -> x) e
+       solutions.TryFind (TypedVar v) |> Option.fold (fun _ x -> x) e
     | LambdaN(inputs, body) -> LambdaN(inputs, substAndReduce solutions betaVars typeMapping body)
     | Patterns.Call(None, op, args) when op.IsGenericMethod -> 
       let tps' = op.GetGenericArguments() |> Array.map(fun x -> typeMapping |> List.tryFind(fun (y1, y2) -> y1 = x) |> Option.fold (fun _ x -> snd x) x)
@@ -223,7 +199,7 @@ let rec private substAndReduce (solutions: Solution) (betaVars: Set<QVar>) (type
     | _ -> failwithf "substAndReduce doesn't handle %A" e
 
 let private recordSolution (key: QVar, value: Expr) (solutions: Solution): Solution = 
-  match solutionsGet key solutions with
+  match solutions.TryFind key with
   | Some value2 ->
     if alphaEquals value value2 then 
       solutions
@@ -233,15 +209,8 @@ let private recordSolution (key: QVar, value: Expr) (solutions: Solution): Solut
     solutions.Add(key, value)
 
 let private addVariableSet (vs: Set<QVar>) (v: Var): Set<QVar> = 
-  (*let alreadyContains = 
-    metaVars.getMetaVarAmongGivenVarBindings v (Set.toList vs |> List.map(fun qk -> qk.var, qk))
-    |> Option.isSome
-  if alreadyContains then
-    vs
-  else
-    vs.Add(TypedVar v) // TODO
-  *)
   vs.Add(TypedVar v)
+
 
 let private accFreeVars (fvs: Set<QVar>) (exp: Expr): Set<QVar> = 
   let newFvs = exp.GetFreeVars()
@@ -273,7 +242,7 @@ let private resolveHoMatch ((solutions: Solution, hoVars:Set<QVar>) as acc) (HoM
         match env.TryFind qa with  
         | Some x -> qa, Expr.Var (x.var)
         | None ->  
-            match solutionsGet (TypedVar a) solutions with  
+            match solutions.TryFind (TypedVar a)  with  
             | Some x ->  qa, x  
             | None -> failwith "second order pattern has spillover variable?")  
     |> Map.ofList  
@@ -315,7 +284,7 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
       | None   -> raise ( NotMatched("The variable is not a meta variable", [pat]))
     if qpatv.isTyped && qpatv.var.Type <> term.Type then
       raise ( NotMatched("The meta variable is typed, but the term has a different type", [pat; term]))
-    match variableMapGet qpatv env with
+    match env.TryFind qpatv with
     | Some v2 ->
       if term = Expr.Var(v2.var) then
         acc
@@ -324,7 +293,7 @@ let rec private termPartialMatch (env: Map<QVar,QVar>) ((solutions: Solution, ho
     | None ->
       let newSolutions = recordSolution (qpatv, term) solutions
       newSolutions, hoMatches
-  | AppN(Patterns.Var(hoVar), args), _ when variableMapGet (UntypedVar hoVar) env |> Option.isNone ->
+  | AppN(Patterns.Var(hoVar), args), _ when env.TryFind (UntypedVar hoVar)  |> Option.isNone ->
     let newHoMatches = HoMatch (env, term, UntypedVar hoVar, args) :: hoMatches
     solutions, newHoMatches 
   | (Patterns.Call(None, op, pats), Patterns.Call(None, oe, exprs)) when (List.length pats) = (List.length exprs) && op.Name = oe.Name && op.Module.Name = oe.Module.Name ->
