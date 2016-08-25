@@ -4,40 +4,41 @@ module linalg
 open corelang
 open types
 open utils
+open cardinality
 
 (** Extensions to the core language **)
 
 [<DontInline>]
 let inline vectorMap (f: Number -> Number) (v: Vector): Vector = 
-    vectorBuild (v.Length) (fun i -> f(v.[i]))
+    vectorBuild (length v) (fun i -> f(v.[i]))
 
 [<DontInline>]
-let vectorRange (s: Index) (e: Index): Vector = 
-  vectorBuild (e - s + 1) (fun i -> double (s + i))
+let vectorRange (s: Cardinality) (e: Cardinality): Vector = 
+  vectorBuild (addCard (subCard e s) (Card 1)) (fun i -> double (cardToInt s + i))
 
 [<DontInline>]
 let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 
-  matrixBuild (m.Length) (fun i -> f(m.[i]))
+  matrixBuild (length m) (fun i -> f(m.[i]))
 
 [<DontInline>]
 let vectorMap2 (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
-  vectorBuild (v1.Length) (fun i -> f(v1.[i])(v2.[i]))
+  vectorBuild (length v1) (fun i -> f(v1.[i])(v2.[i]))
 
 [<DontInline>]
 let matrixMap2 (f: Vector -> Vector -> Vector) (m1: Matrix) (m2: Matrix): Matrix = 
-  matrixBuild (m1.Length) (fun i -> f(m1.[i])(m2.[i]))
+  matrixBuild (length m1) (fun i -> f(m1.[i])(m2.[i]))
 
 [<DontInline>]
 let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
-  matrix3DBuild (m1.Length) (fun i -> f(m1.[i])(m2.[i]))
+  matrix3DBuild (length m1) (fun i -> f(m1.[i])(m2.[i]))
 
 [<DontInline>]
 let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
-  matrixBuild (arr.Length) (fun i -> f(arr.[i]))
+  matrixBuild (length arr) (fun i -> f(arr.[i]))
 
 [<DontInline>]
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
-  matrix3DBuild (arr.Length) (fun i -> f(arr.[i]))
+  matrix3DBuild (length arr) (fun i -> f(arr.[i]))
 
 (*
 [<DontInline>]
@@ -47,19 +48,19 @@ let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): un
 
 [<DontInline>]
 [<CMacro()>]
-let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): Number = 
+let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Cardinality) (e: Cardinality): Number = 
   vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
-let iterateVector (f: Vector -> Index -> Vector) (z: Vector) (s: Index) (e: Index): Vector = 
+let iterateVector (f: Vector -> Index -> Vector) (z: Vector) (s: Cardinality) (e: Cardinality): Vector = 
   vectorFoldVector (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
-let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Index) (e: Index): Matrix = 
+let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Cardinality) (e: Cardinality): Matrix = 
   vectorFoldMatrix (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
-let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Index) (e: Index): Matrix[] = 
+let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Cardinality) (e: Cardinality): Matrix[] = 
   vectorFoldMatrix3D (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
@@ -106,11 +107,11 @@ let inline dot_prod (x: Vector) (y: Vector) =
     arraySum (vectorMap2 (*) x y)
 
 [<DontInline>]
-let inline matrixFillFromVector (rows: Index) (row: Vector): Matrix = 
-  vectorMapToMatrix (fun r -> row) (vectorRange 1 rows)
+let inline matrixFillFromVector (rows: Cardinality) (row: Vector): Matrix = 
+  vectorMapToMatrix (fun r -> row) (vectorRange (Card 1) rows)
 
-let inline matrixFill (rows: Index) (cols: Index) (value: Number): Matrix = 
-  let row = vectorMap (fun c -> value) (vectorRange 1 cols)
+let inline matrixFill (rows: Cardinality) (cols: Cardinality) (value: Number): Matrix = 
+  let row = vectorMap (fun c -> value) (vectorRange (Card 1) cols)
   matrixFillFromVector rows row
 
 let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 

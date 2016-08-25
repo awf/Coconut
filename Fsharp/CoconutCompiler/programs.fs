@@ -27,7 +27,7 @@ let hoistingExample (v: Vector) =
     iterateNumber (fun acc idx ->
         let tmp = v.[idx..(idx+9)]  // First, let's desugar this to GetArraySlice/array_slice as F# does...
         acc + sqnorm (add_vec tmp tmp)
-    ) 0. 0 9
+    ) 0. (Card 0) (Card 9)
   numberPrint sum
   ()
 
@@ -78,26 +78,26 @@ let hoistingExample_pass3 (v: Vector) =
 [<DontOptimize>]
 let explicitMallocExample1(v: Vector) = 
   //let storage1 = vectorAlloc 10 
-  vectorAllocCPS 10 (fun storage1 ->
+  vectorAllocCPS (Card 10) (fun storage1 ->
     let sum = 
       iterateNumber (fun acc idx ->
           let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
           acc + sqnorm (add_vec tmp tmp)
-        ) 0. 0 9
+        ) 0. (Card 0) (Card 9)
     numberPrint sum
   )
   ()
 
 [<DontOptimize>]
 let explicitMallocExample2 (v: Vector) = 
-  vectorAllocCPS 10 (fun storage1 ->
-    vectorAllocCPS 10 (fun storage2 -> 
+  vectorAllocCPS (Card 10) (fun storage1 ->
+    vectorAllocCPS (Card 10) (fun storage2 -> 
       let sum = 
         iterateNumber (fun acc idx ->
             let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
             let tmp2 = add_vecGivenStorage storage2 tmp tmp
             acc + sqnorm tmp2
-          ) 0. 0 9
+          ) 0. (Card 0) (Card 9)
       numberPrint sum
     )
   )
@@ -111,7 +111,7 @@ let stackAllocExample (x: Number) (y: Number) (z: Number) =
   ()
 
 [<DontOptimize>]
-let storageConvertorExample (s: Index) (e: Index) =
+let storageConvertorExample (s: Cardinality) (e: Cardinality) =
   let v2 = vectorRange s e
   vectorPrint v2
   ()
@@ -121,7 +121,7 @@ let small_tests (dum: Number) =
   let a = test1 num
   numberPrint a
   numberPrint (test2 num a)
-  let v2 = vectorRange 0 99
+  let v2 = vectorRange (Card 0) (Card 99)
   hoistingExample v2
   explicitMallocExample1 v2
   explicitMallocExample2 v2

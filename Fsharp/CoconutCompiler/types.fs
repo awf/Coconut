@@ -9,6 +9,11 @@ type Index = int
 type Storage = VS of Vector
              | MS of Matrix
 
+type Cardinality = Card of int
+
+type Shape = FlatShape   of Cardinality
+           | VectorShape of Shape * Cardinality
+
 type AnyNumeric = 
   | ZeroD of Number
   | OneD of Vector

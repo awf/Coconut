@@ -4,6 +4,8 @@ open Microsoft.FSharp.Quotations
 open ruleengine
 open metaVars
 open corelang
+open types
+open cardinality
 
 
 let divide2Mult_exp        = <@ (%a / %b) / %c             <==>   %a / (%b * %c)      @>
@@ -16,8 +18,8 @@ let assocAddSub_exp        = <@ (%a + %b) - %c             <==>   %a + (%b - %c)
 let assocAddAdd_exp        = <@ (%a + %b) + %c             <==>   %a + (%b + %c)      @>
 let assocSubSub_exp        = <@ (%a - %b) - %c             <==>   %a - (%b + %c)      @>
 let indexToDoubleToInt_exp = <@ int (double %k)            <==>   %k                  @>
-let vectorBuildGet_exp     = <@ (vectorBuild %k %F).[%i]   <==>   (%F) %i             @>
-let vectorBuildLength_exp  = <@ (vectorBuild %k %F).Length <==>   %k                  @>
+let vectorBuildGet_exp     = <@ (vectorBuild %c1 %F).[%i]   <==>   (%F) %i             @>
+let vectorBuildLength_exp  = <@ (vectorBuild %c2 %F).Length <==>   %k                  @>
 let comAddIndex_exp        = <@ %i + %j                    <==>   %j + %i             @>
 let assocAddSubIndex_exp   = <@ (%i + %j) - %k             <==>   %i + (%j - %k)      @>
 let assocSubAddIndex_exp   = <@ (%i - %j) + %k             <==>   %i - (%j - %k)      @>
@@ -27,25 +29,25 @@ let constFold0Index_exp    = <@ %i + 0                     <==>   %i            
 let constFoldN0Index_exp   = <@ %i - 0                     <==>   %i                  @>
 let dce_exp                = <@ ( let x = %E1 in %E2: T1 ) <==>   %E2                 @>
 let vectorFoldBuildToFoldOnRange_exp = 
-                             <@ vectorFoldNumber %F %a (vectorBuild %k %G)
+                             <@ vectorFoldNumber %F %a (vectorBuild %c1 %G)
                                                            <==>
-                                linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a 0 (%k - 1)
+                                linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (subCard %c1  (Card 1))
                                                                                       @>
 let vectorBuildToStorage_exp = 
-                             <@ vectorBuild (%k) (%F)      
+                             <@ vectorBuild (%c1) (%F)      
                                                            <==>
-                                (let s = vectorAlloc (%k) in vectorBuildGivenStorage s (%F))
+                                (let s = vectorAlloc (%c1) in vectorBuildGivenStorage s (%F))
                                                                                       @>
 
 let vectorAddToStorage_exp = <@ linalg.add_vec %U %V       
                                                            <==>
-                                (let s2 = vectorAlloc ((%U).Length) in linalg.add_vecGivenStorage s2 %U %V)
+                                (let s2 = vectorAlloc (length %U) in linalg.add_vecGivenStorage s2 %U %V)
                                                                                       @>
 
 let letVectorBuildLength_exp = 
-                             <@ ( let x = (vectorBuild %k %F) in ((%B1) x.Length x): T1 )
+                             <@ ( let x = (vectorBuild %c1 %F) in ((%B1) (length x) x): T1 )
                                                            <==>
-                                ( let x = (vectorBuild %k %F) in (%B1) %k x )
+                                ( let x = (vectorBuild %c1 %F) in (%B1) %c1 x )
                                                                                       @>
 
 let letInliner_exp         = <@ ((let x = %E1 in (%B1) x): T1)
@@ -73,23 +75,25 @@ let copyLet_exp            = <@ ( vectorCopy %stg1 (let x = %E1 in (%B1) x) )
                                                                                       @>
 
 // FIXME doesn't work
+(*
 let vectorSliceToBuild_exp = <@
     (%V).[(%i)..(%j)]
     <==>
     vectorBuild (%j - %i + 1) (fun i -> (%V).[i])
   @>
+*)
 
 
 // TODO does not take into account the preconditions
 let allocToCPS_exp =
   <@
     (
-      let s = vectorAlloc %k
+      let s = vectorAlloc %c1
       ((%B1) s): T1
     )
     <==>
     (
-      vectorAllocCPS %k (fun s -> (%B1) s)
+      vectorAllocCPS %c1 (fun s -> (%B1) s)
     )
   @>
 
@@ -224,7 +228,7 @@ let vectorSliceToBuild: Rule =
         let vec = Expr.Cast<Vector>(args.[0])
         let s = Expr.Cast<Index>(args.[1])
         let e = Expr.Cast<Index>(args.[2])
-        [ <@ vectorBuild (%e - %s + 1) (fun i -> (%vec).[i + %s]) @>.Raw]
+        [ <@ vectorBuild (addCard (subCard (Card %e) (Card %s)) (Card 1)) (fun i -> (%vec).[i + %s]) @>.Raw]
       | _ -> []
     | _ -> []
   ), "vectorSliceToBuild"

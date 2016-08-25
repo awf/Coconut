@@ -62,6 +62,7 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="types.fs" />
+    <Compile Include="cardinality.fs" />
     <Compile Include="utils.fs" />
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />

@@ -6,6 +6,7 @@ open utils
 open linalg
 open corelang
 open FSharp.Quotations
+open types
 
 let test_ba (argv: string[]) = 
     let dir_in = argv.[0]
@@ -34,7 +35,7 @@ let test_ruleengine () =
     //let prog' = rules.letMerging2 prog
     //let prog = <@ let b = vectorBuild 10 (fun i -> double i) in vectorBuild (b.Length) (fun j -> (add_vec b b).[j]) @>
     //let prog' = rules.letVectorBuildLength2 prog
-    let prog = <@ let s = vectorAlloc 10 in vectorBuildGivenStorage s (fun i -> 2.0) @>
+    let prog = <@ let s = vectorAlloc (Card 10) in vectorBuildGivenStorage s (fun i -> 2.0) @>
     let prog' = ruleengine.applyRule rules.allocToCPS prog
     //let prog = <@ let i = 3 in let j = i * 2 in i / j @>
     //let prog' = rules.letReorder2 prog
