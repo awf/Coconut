@@ -60,6 +60,7 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<Number>) -> "number_t"
   | _ when (t = typeof<AnyNumeric>) -> "value_t"
   | _ when (t = typeof<Index>) -> "index_t"
+  | _ when (t = typeof<Cardinality>) -> "card_t"
   | _ when (t = typeof<Storage>) -> "storage_t"
   | _ when (t = typeof<Timer>) -> "timer_t"
   | _ when (t = typeof<string>) -> "string_t"
@@ -105,6 +106,8 @@ let rec ccodegen (e:Expr): string =
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
+  | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
+    (ccodegen args.[0])
   | _ -> sprintf "ERROR[%A]" e
 
 (* C code generation for a statement in the form of `let var = e` *)
@@ -218,6 +221,9 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let structDef   = sprintf "%s %s = { .arr = %s, .length = %s };" structTp structVar elementsVar size
         (sprintf "%s\n\t%s\n\t%s %s = &%s;" elementsDef structDef resultTp var.Name structVar,
           [], true)
+      | "length" ->
+        let arr = ccodegen (elist.[0])
+        (sprintf "%s->length" arr, [], false)
       | name ->
         failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 

@@ -14,7 +14,7 @@ let inline vectorMap (f: Number -> Number) (v: Vector): Vector =
 
 [<DontInline>]
 let vectorRange (s: Cardinality) (e: Cardinality): Vector = 
-  vectorBuild (addCard (subCard e s) (Card 1)) (fun i -> double (cardToInt s + i))
+  vectorBuild (e .- s .+ (Card 1)) (fun i -> double (cardToInt s + i))
 
 [<DontInline>]
 let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 

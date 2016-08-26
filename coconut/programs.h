@@ -26,29 +26,29 @@ array_array_number_t programs_matrix_add3(array_array_number_t m1, array_array_n
 }
 
 void programs_hoistingExample(array_number_t v) {
-	number_t macroDef772 = 0;
+	number_t macroDef789 = 0;
 	for(int idx = 0; idx <= 9; idx++){
 		array_number_t tmp = array_slice(v, idx, (idx) + (9));
-		macroDef772 = (macroDef772) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
+		macroDef789 = (macroDef789) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
 	}
-	number_t sum = macroDef772;
+	number_t sum = macroDef789;
 	number_print(sum);
 	return ;
 }
 
 void programs_explicitMallocExample1(array_number_t v) {
 	array_number_t storage1 = vector_alloc(10);
-	number_t macroDef781 = 0;
+	number_t macroDef798 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		array_number_t macroDef777 = (array_number_t)storage1;
-		for(int i = 0; i < macroDef777->length; i++){
+		array_number_t macroDef794 = (array_number_t)storage1;
+		for(int i = 0; i < macroDef794->length; i++){
 			
-			macroDef777->arr[i] = v->arr[(i) + (idx)];
+			macroDef794->arr[i] = v->arr[(i) + (idx)];
 		}
-		array_number_t tmp = macroDef777;
-		macroDef781 = (macroDef781) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
+		array_number_t tmp = macroDef794;
+		macroDef798 = (macroDef798) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
 	}
-	number_t sum = macroDef781;
+	number_t sum = macroDef798;
 	number_print(sum);
 	free(storage1);
 	;
@@ -58,18 +58,18 @@ void programs_explicitMallocExample1(array_number_t v) {
 void programs_explicitMallocExample2(array_number_t v) {
 	array_number_t storage1 = vector_alloc(10);
 	array_number_t storage2 = vector_alloc(10);
-	number_t macroDef791 = 0;
+	number_t macroDef808 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		array_number_t macroDef787 = (array_number_t)storage1;
-		for(int i = 0; i < macroDef787->length; i++){
+		array_number_t macroDef804 = (array_number_t)storage1;
+		for(int i = 0; i < macroDef804->length; i++){
 			
-			macroDef787->arr[i] = v->arr[(i) + (idx)];
+			macroDef804->arr[i] = v->arr[(i) + (idx)];
 		}
-		array_number_t tmp = macroDef787;
+		array_number_t tmp = macroDef804;
 		array_number_t tmp2 = linalg_add_vecGivenStorage(storage2, tmp, tmp);
-		macroDef791 = (macroDef791) + (linalg_sqnorm(tmp2));
+		macroDef808 = (macroDef808) + (linalg_sqnorm(tmp2));
 	}
-	number_t sum = macroDef791;
+	number_t sum = macroDef808;
 	number_print(sum);
 	free(storage2);
 	;
@@ -90,14 +90,20 @@ void programs_stackAllocExample(number_t x, number_t y, number_t z) {
 	return ;
 }
 
+void programs_storageConvertorExample(card_t s, card_t e) {
+	array_number_t v2 = linalg_vectorRange(s, e);
+	array_print(v2);
+	return ;
+}
+
 void programs_small_tests(number_t dum) {
-	number_t a799 = programs_test1(2);
-	number_print(a799);
-	number_print(programs_test2(2, a799));
-	array_number_t v2800 = linalg_vectorRange(0, 99);
-	programs_hoistingExample(v2800);
-	programs_explicitMallocExample1(v2800);
-	programs_explicitMallocExample2(v2800);
+	number_t a819 = programs_test1(2);
+	number_print(a819);
+	number_print(programs_test2(2, a819));
+	array_number_t v2820 = linalg_vectorRange(0, 99);
+	programs_hoistingExample(v2820);
+	programs_explicitMallocExample1(v2820);
+	programs_explicitMallocExample2(v2820);
 	programs_stackAllocExample(2, 3, 5);
 	return ;
 }

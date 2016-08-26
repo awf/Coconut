@@ -5,10 +5,10 @@ open types
 let cardToInt (c: Cardinality): int = 
   match c with | Card i -> i
 
-let addCard (c1: Cardinality) (c2: Cardinality): Cardinality =
+let (.+) (c1: Cardinality) (c2: Cardinality): Cardinality =
   Card((cardToInt c1) + (cardToInt c2))
 
-let subCard (c1: Cardinality) (c2: Cardinality): Cardinality =
+let (.-) (c1: Cardinality) (c2: Cardinality): Cardinality =
   Card((cardToInt c1) - (cardToInt c2))
 
 let shapeElem (s: Shape): Shape =

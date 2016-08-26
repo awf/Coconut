@@ -17,6 +17,8 @@ let (|OperatorName|_|) methodName =
     | "op_UnaryNegation" -> Some("-")
     | "op_LessThan" -> Some("<")
     | "op_GreaterThan" -> Some(">")
+    | "op_DotMinus" -> Some("-")
+    | "op_DotPlus" -> Some("+")
     | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
@@ -166,10 +168,11 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
         | tp when tp = typeof<Matrix3D> -> "matrix3d"
         | tp -> failwith (sprintf "Array slice not supported for the type %s" (tp.Name))
       Some(prefix + "_slice", args)
+    | ("cardToInt", "cardinality") -> Some("", argList)
     | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
         let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
         Some(attr.Method, argList)
-    | _ -> None 
+    | _ -> None
   | _ -> None
 
 let LambdaN (inputs: Var List, body: Expr): Expr =

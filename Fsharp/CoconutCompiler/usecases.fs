@@ -60,7 +60,7 @@ let w_err (w:Vector) =
 let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): Matrix =
     let n = length cams
     let p = length w
-    let range = vectorRange (Card 0) (subCard p  (Card 1))
+    let range = vectorRange (Card 0) (p .- (Card 1))
     vectorMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
 
 let run_ba_from_file (fn: string) = 
@@ -77,7 +77,7 @@ let run_ba_from_file (fn: string) =
     let w = vectorMap (fun x -> one_w)  (vectorRange oneCard p)
     let one_feat = vectorRead fn 4
     let feat = vectorMapToMatrix (fun x -> one_feat)  (vectorRange oneCard p)
-    let obs = vectorMapToMatrix (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )  (vectorRange (Card 0) (subCard p oneCard))
+    let obs = vectorMapToMatrix (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )  (vectorRange (Card 0) (p .- oneCard))
     let t = tic()
     let res = reproj_err cam x w obs feat
     toc(t)
@@ -172,7 +172,7 @@ let get_posed_relatives (n_bones: Cardinality) (pose_params: Matrix) (base_relat
   vectorMapToMatrix3D (fun i_bone -> 
      make_relative pose_params.[(int i_bone)+offset] base_relatives.[int i_bone]
     ) 
-    (vectorRange (Card 0) (subCard n_bones (Card 1)))
+    (vectorRange (Card 0) (n_bones .- (Card 1)))
 
 let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
   let n = sqrt(sqnorm angle_axis)
@@ -203,7 +203,7 @@ let relatives_to_absolutes (relatives: Matrix[]) (parents: Vector): Matrix[] =
       (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
       let newMatrix = [| matrixMult acc.[int parents.[i]] relatives.[i] |]
       matrix3DConcat acc newMatrix
-  ) (init) (Card 0) (subCard (length relatives) (Card 1))
+  ) (init) (Card 0) ((length relatives) .- (Card 1))
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
   let R = angle_axis_to_rotation_matrix pose_params.[0]
@@ -230,7 +230,7 @@ let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Cardinality) (po
       let curr_positions = matrixMult transforms.[i_transform].[0..2] base_positions
       let w = matrixFillFromVector (length base_positions) weights.[i_transform]
       matrixAdd acc (matrixMultElementwise curr_positions w)
-    ) init_positions (Card 0) (subCard (length transforms) (Card 1))
+    ) init_positions (Card 0) ((length transforms) .- (Card 1))
 
   let mirrored_positions =
     if(is_mirrored = 1) then 

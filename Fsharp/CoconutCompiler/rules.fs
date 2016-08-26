@@ -31,7 +31,7 @@ let dce_exp                = <@ ( let x = %E1 in %E2: T1 ) <==>   %E2           
 let vectorFoldBuildToFoldOnRange_exp = 
                              <@ vectorFoldNumber %F %a (vectorBuild %c1 %G)
                                                            <==>
-                                linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (subCard %c1  (Card 1))
+                                linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
                                                                                       @>
 let vectorBuildToStorage_exp = 
                              <@ vectorBuild (%c1) (%F)      
@@ -228,7 +228,7 @@ let vectorSliceToBuild: Rule =
         let vec = Expr.Cast<Vector>(args.[0])
         let s = Expr.Cast<Index>(args.[1])
         let e = Expr.Cast<Index>(args.[2])
-        [ <@ vectorBuild (addCard (subCard (Card %e) (Card %s)) (Card 1)) (fun i -> (%vec).[i + %s]) @>.Raw]
+        [ <@ vectorBuild (((Card %e) .- (Card %s)) .+ (Card 1)) (fun i -> (%vec).[i + %s]) @>.Raw]
       | _ -> []
     | _ -> []
   ), "vectorSliceToBuild"

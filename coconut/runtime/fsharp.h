@@ -9,6 +9,7 @@
 // extern int closure_mem = 0;
 
 typedef int index_t;
+typedef int card_t;
 typedef double number_t;
 typedef struct array_number_t_struct {
 	number_t* arr;
