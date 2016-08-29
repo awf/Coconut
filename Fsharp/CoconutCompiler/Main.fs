@@ -412,13 +412,19 @@ let test_feature () =
   printfn "%A" (firstLevelApplicableRules |> List.map (optimizer.applyRuleAtParticularPosition bundleAdjustmentProject) |> List.map ccodegen.prettyprint )
   ()
 
+let test_card () = 
+  let vecMap = compiler.getMethodExpr "linalg" "vectorMap"
+  let vecMapCard = cardinfer.inferCardinality vecMap
+  printfn "card: `%A`" vecMapCard
+
 [<EntryPoint>]
 let main argv = 
     // test_ba argv
-    compile_modules ()
+    // compile_modules ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
     // test_feature ()
+    test_card()
     0

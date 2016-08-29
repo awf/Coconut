@@ -137,6 +137,17 @@ let (|ArraySlice|_|) (e: Expr): (Expr * Expr * Expr) option =
     | _ -> None
   | _ -> None
 
+let (|ArrayLength|_|) (e: Expr): (Expr) option = 
+  match e with 
+  | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> Some(arr)
+  | DerivedPatterns.SpecificCall <@ corelang.length @> (_, _, [e0])     -> Some(e0)
+  | _                                                                   -> None
+
+let (|ArrayGet|_|) (e: Expr): (Expr * Expr) option = 
+  match e with 
+  | Patterns.Call (None, op, [e0; e1]) when op.Name = "GetArray" -> Some(e0, e1)
+  | _                                                            -> None
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->

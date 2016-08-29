@@ -72,6 +72,7 @@
     <Compile Include="cruntime.fs" />
     <Compile Include="transformer.fs" />
     <Compile Include="ctransformer.fs" />
+    <Compile Include="cardinfer.fs" />
     <Compile Include="ccodegen.fs" />
     <Compile Include="cost.fs" />
     <Compile Include="ruleengine.fs" />
