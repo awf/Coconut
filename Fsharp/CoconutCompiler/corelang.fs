@@ -144,3 +144,12 @@ let vectorBuildGivenStorage (storage: Storage) (f: Index -> Number): Vector =
   match storage with
   | VS v -> vectorBuild (Card v.Length) f
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
+
+[<CMacro()>]
+let vectorBuild_s (storage: Storage) (size: Cardinality) (f: Storage -> Index -> Number): Vector =
+  match storage with
+  | VS v -> vectorBuild size (f storage)
+  | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
+
+let get_s<'a> (storage: Storage) (arr: array<'a>) (ind: Index): 'a =
+  arr.[ind]
