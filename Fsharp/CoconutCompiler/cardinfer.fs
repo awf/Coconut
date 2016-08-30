@@ -45,3 +45,15 @@ let rec inferCardinality (exp: Expr): Expr =
     else
       <@@ shapeElem %%ce0 @@>
   | _ -> failwithf "Does not know how to compute cardinality for the expression `%A`" exp
+
+
+let WidthCard (exp: Expr): Expr = 
+  let t = exp.Type
+  if (t = typeof<Number> || t = typeof<Index> || t = typeof<bool>) then
+    ZERO_CARD
+  else
+    let cardExp = inferCardinality exp
+    if (t = typeof<Cardinality>) then
+      <@@ width (flatShape %%cardExp) @@>
+    else
+      <@@ width %%cardExp @@>

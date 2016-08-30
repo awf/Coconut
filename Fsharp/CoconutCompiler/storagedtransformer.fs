@@ -5,6 +5,7 @@ open cardinality
 open transformer
 open Microsoft.FSharp.Quotations
 open System
+open cardinfer
 
 let storagedName (name: string): string = sprintf "%s_s" name
 
@@ -29,11 +30,11 @@ let newStgVar (): Var = new Var(utils.newVar "stgVar", typeof<Storage>)
 let Alloc (size: Expr) (body: Var -> Expr): Expr = 
   let stgVar = newStgVar()
   let funExpr = Expr.Lambda(stgVar, body stgVar)
-  <@@ corelang.vectorAllocCPS %%size %%funExpr @@>
+  Helpers.MakeCall(<@@ corelang.vectorAllocCPS @@>)([size; funExpr])([funExpr.Type.GetGenericArguments() |> Array.rev |> fun x -> x.[0]])
 
-let WidthCard (exp: Expr): Expr = 
-  let cardExp = cardinfer.inferCardinality exp
-  <@@ width %%cardExp @@>
+let GetS (stg: Var) (e0: Expr) (e1: Expr): Expr = 
+  let t = e0.Type.GetElementType()
+  Helpers.MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1])([t])
 
 let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   let S = transformStoraged
@@ -55,24 +56,26 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     let s2 = newStgVar()
     LambdaN(s2 :: (xs |> List.map SV), S e s2)
   | Patterns.Var(v)                  -> Expr.Var(SV v)
-  //| Patterns.Let(x, e1, e2)          -> Expr.Let(CV x, C e1, C e2)
-  //| Patterns.IfThenElse(e1, e2, e3)  -> C e2
+  | Patterns.Let(x, e1, e2)          -> 
+    Alloc (WidthCard e1) (fun s2 ->
+      Expr.Let(SV x, S e1 s2, S e2 env))
+  | Patterns.IfThenElse(e1, e2, e3)  -> Expr.IfThenElse(S e1 O, S e2 env, S e3 env)
   //| Patterns.NewArray(tp, es)        -> 
   //  let ce1 = C es.[0]
   //  let N = Expr.Value(Card es.Length, typeof<Cardinality>)
   //  <@@ vectorShape (flatShape (%%ce1: Cardinality)) (%%N: Cardinality) @@>
-  //| DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
-  //  let ce0 = C e0
-  //  let ce1 = C e1
-  //  <@@ vectorShape (flatShape ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD)) (%%ce0: Cardinality) @@>
-  //| ArrayLength(e0) ->
-  //  let ce0 = C e0
-  //  <@@ shapeCard %%ce0 @@>
-  //| ArrayGet(e0, e1) ->
-  //  let ce0 = C e0
-  //  if exp.Type = typeof<Number> then
-  //    <@@ flatShapeCard (shapeElem %%ce0) @@>
-  //  else
-  //    <@@ shapeElem %%ce0 @@>
+  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
+    let ce0 = S e0 O
+    let ce1 = S e1 O
+    let s1 = Expr.Var(env)
+    <@@ corelang.vectorBuild_s %%s1 %%ce0 %%ce1 @@>
+  | ArrayLength(e0) ->
+    Alloc (WidthCard e0) (fun s ->
+      ArrayLength(S e0 s)
+    )
+  | ArrayGet(e0, e1) ->
+    Alloc (WidthCard e0) (fun s2 ->
+      GetS s2 (S e0 s2) (S e1 O)
+    )
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 
