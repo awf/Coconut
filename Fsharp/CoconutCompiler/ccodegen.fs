@@ -9,8 +9,9 @@ open transformer
 (* Pretty prints the given expression *)
 let rec prettyprint (e:Expr): string =
   match e with
-  | Patterns.Lambda (x, body) -> sprintf "\%s. %s" (x.Name) (prettyprint body)
+  | LambdaN (inputs, body) -> sprintf "\%s. %s" (String.concat ", " (inputs |> List.map (fun x -> x.Name))) (prettyprint body)
   | Patterns.Let(x, e1, e2) -> sprintf "let %s = %s in \n%s" (x.Name) (prettyprint e1) (prettyprint e2)
+  | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map prettyprint argList))
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | OperatorName opname -> 
@@ -21,12 +22,17 @@ let rec prettyprint (e:Expr): string =
         else 
           sprintf "%s(%s)" opname (String.concat ", " (List.map prettyprint elist))
       | "GetArray" -> sprintf "%s[%s]" (prettyprint elist.[0]) (prettyprint elist.[1])
-      | _ -> sprintf "%s(%s)" op.Name (String.concat ", " (List.map prettyprint elist))
+      | _ -> 
+        let argsStr = (String.concat ", " (List.map prettyprint elist))
+        sprintf "%s(%s)" op.Name argsStr
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     sprintf "Array[%s](%s)" (tp.ToString()) (String.concat ", " (List.map prettyprint elems))
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> "()"
-  | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
+  | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
+    let (Card(card)) = unbox<Cardinality>(v)
+    sprintf "%d" card
+  | Patterns.Value(v, tp) -> v.ToString()
   | Patterns.Sequential(e1, e2) -> sprintf "%s;\n%s" (prettyprint e1) (prettyprint e2)
   | Patterns.NewUnionCase (uci, args) -> 
      sprintf "%s(%s)" uci.Name (String.concat ", " (List.map prettyprint args))
@@ -105,6 +111,9 @@ let rec ccodegen (e:Expr): string =
   | Patterns.Let(x, e1, e2) -> 
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
+  | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
+    let (Card(card)) = unbox<Cardinality>(v)
+    sprintf "%d" card
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
     (ccodegen args.[0])
