@@ -27,34 +27,45 @@ let (|StripedAlloc|) (e: Expr): (Expr * Var) option * Expr =
 
 let newStgVar (): Var = new Var(utils.newVar "stgVar", typeof<Storage>)
 
+let AllocWithVar (size: Expr) (stgVar: Var) (funExpr: Expr): Expr = 
+  Helpers.MakeCall (<@@ corelang.vectorAllocCPS @@>)
+    ([size; funExpr])
+    ([funExpr.Type.GetGenericArguments() |> Array.rev |> fun x -> x.[0]])
+
 let Alloc (size: Expr) (body: Var -> Expr): Expr = 
   let stgVar = newStgVar()
   let funExpr = Expr.Lambda(stgVar, body stgVar)
-  Helpers.MakeCall(<@@ corelang.vectorAllocCPS @@>)([size; funExpr])([funExpr.Type.GetGenericArguments() |> Array.rev |> fun x -> x.[0]])
+  AllocWithVar size stgVar funExpr
 
 let GetS (stg: Var) (e0: Expr) (e1: Expr): Expr = 
   let t = e0.Type.GetElementType()
-  Helpers.MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1])([t])
+  Helpers.MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1; ZERO_SHAPE; ZERO_CARD])([t])
 
 let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   let S = transformStoraged
+  let CV = cardTransformVar
+  let CT = cardTransformType
+  let C = inferCardinality
   let rec ST (t: Type) = 
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
         t = typeof<bool> || t = typeof<Number>              -> t
     | _ when t = typeof<Vector> || t = typeof<Matrix>       -> t
-    | _ when t.Name = typeof<_ -> _>.Name                   -> 
-      let funType = typeof<_ -> _>
-      funType.GetGenericTypeDefinition().MakeGenericType(typeof<Storage>, t)                  
+    | FunctionType(inputs, o)                               -> 
+      let cinputs = inputs |> List.map CT
+      FunctionType (typeof<Storage> :: inputs @ cinputs) o                  
     | _ -> failwithf "Does not know how to convert the storaged type `%A`" t
   let SV (v: Var) = new Var(storagedName v.Name, ST v.Type)
   match exp with
-  | AppN(e0, es)                     -> // assumes es don't need allocation
+  | AppN(e0, es)                     ->
+    let ses = es |> List.map (fun x -> S x O) |> List.map (fun (StripedAlloc(a, e)) -> a, e)
+    let sesParams = ses |> List.map snd
+    let ces = es |> List.map C
     Alloc (WidthCard exp) (fun s2 ->
-      AppN(S e0 O, Expr.Var(s2) :: (es |> List.map (fun x -> S x O))))
+      AppN(S e0 O, Expr.Var(s2) :: sesParams @ ces))
   | LambdaN(xs, e)                   -> 
     let s2 = newStgVar()
-    LambdaN(s2 :: (xs |> List.map SV), S e s2)
+    LambdaN(s2 :: (xs |> List.map SV) @ (xs |> List.map CV), S e s2)
   | Patterns.Var(v)                  -> Expr.Var(SV v)
   | Patterns.Let(x, e1, e2)          -> 
     Alloc (WidthCard e1) (fun s2 ->
@@ -65,10 +76,12 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   //  let N = Expr.Value(Card es.Length, typeof<Cardinality>)
   //  <@@ vectorShape (flatShape (%%ce1: Cardinality)) (%%N: Cardinality) @@>
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
-    let ce0 = S e0 O
-    let ce1 = S e1 O
+    let se0 = S e0 O
+    let se1 = S e1 O
+    let ce0 = C e0
+    let ce1 = C e1
     let s1 = Expr.Var(env)
-    <@@ corelang.vectorBuild_s %%s1 %%ce0 %%ce1 @@>
+    <@@ corelang.vectorBuild_s %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
   | ArrayLength(e0) ->
     Alloc (WidthCard e0) (fun s ->
       ArrayLength(S e0 s)

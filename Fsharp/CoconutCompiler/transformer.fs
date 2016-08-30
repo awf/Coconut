@@ -2,6 +2,7 @@
 
 open Microsoft.FSharp.Quotations
 open types
+open System
 
 let assembly = System.Reflection.Assembly.GetExecutingAssembly()
 
@@ -218,6 +219,24 @@ let AppN (e1: Expr, args: Expr list): Expr =
 
 let LetN (inputs: (Var * Expr) List, body: Expr): Expr =
   List.fold (fun acc (curv, cure) -> Expr.Let(curv,  cure, acc)) body (List.rev inputs)
+
+let rec (|FunctionType|_|) (t: Type): (Type list * Type) option =
+  match t with 
+  | _ when t.Name = typeof<_ -> _>.Name ->
+    let args = t.GenericTypeArguments
+    let (inputs, output) = 
+      match args.[1] with
+      | FunctionType(is, o) -> is, o
+      | o                   -> [], o
+    Some(args.[0] :: inputs, output)
+  | _ -> None
+
+let rec FunctionType (inputs: Type list) (output: Type): Type =
+  match inputs with 
+  | [] ->
+    output
+  | x :: xs -> 
+    typeof<_ -> _>.GetGenericTypeDefinition().MakeGenericType(x, FunctionType xs output)
 
 open utils
 

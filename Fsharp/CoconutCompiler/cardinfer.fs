@@ -9,17 +9,23 @@ open System
 let cardName (name: string): string = sprintf "%s_c" name
 
 let ZERO_CARD = Expr.Value(Card 0, typeof<Cardinality>)
+let ZERO_SHAPE = <@@ flatShape %%ZERO_CARD @@>
 
-let rec inferCardinality (exp: Expr): Expr =
-  let C = inferCardinality
-  let rec CT (t: Type) = 
+let rec cardTransformType (t: Type) = 
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
         t = typeof<bool> || t = typeof<Number>              -> typeof<Cardinality>
     | _ when t = typeof<Vector> || t = typeof<Matrix>       -> typeof<Shape>
-    | _ when t.Name = typeof<_ -> _>.Name                   -> t.GetGenericTypeDefinition().MakeGenericType(t.GetGenericArguments() |> Array.map CT)                  
+    | _ when t.Name = typeof<_ -> _>.Name                   -> 
+      t.GetGenericTypeDefinition().MakeGenericType(t.GetGenericArguments() |> Array.map cardTransformType)                  
     | _ -> failwithf "Does not know how to convert the cardinality type `%A`" t
-  let CV (v: Var) = new Var(cardName v.Name, CT v.Type)
+
+let cardTransformVar (v: Var): Var = new Var(cardName v.Name, cardTransformType v.Type)
+
+let rec inferCardinality (exp: Expr): Expr =
+  let C = inferCardinality
+  let CT = cardTransformType
+  let CV = cardTransformVar
   match exp with
   | _ when exp.Type = typeof<Number> -> ZERO_CARD
   | AppN(e0, es)                     -> AppN(C e0, es |> List.map C)

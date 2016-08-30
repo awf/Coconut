@@ -417,7 +417,7 @@ let test_card () =
   let vecMapCard = cardinfer.inferCardinality vecMap
   printfn "card: `%A`" vecMapCard
   let vecMapStg = storagedtransformer.transformStoraged vecMap (storagedtransformer.newStgVar())
-  printfn "stg: `%A`" vecMapStg
+  printfn "stg: `%A`" (ccodegen.prettyprint vecMapStg)
   let vecAddEx = compiler.getMethodExpr "programs" "vectorAddExample"
   let vecAddExCard = cardinfer.inferCardinality vecAddEx
   printfn "card: `%A`" vecAddExCard
