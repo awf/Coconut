@@ -416,6 +416,9 @@ let test_card () =
   let vecMap = compiler.getMethodExpr "linalg" "vectorMap"
   let vecMapCard = cardinfer.inferCardinality vecMap
   printfn "card: `%A`" vecMapCard
+  let vecAddEx = compiler.getMethodExpr "programs" "vectorAddExample"
+  let vecAddExCard = cardinfer.inferCardinality vecAddEx
+  printfn "card: `%A`" vecAddExCard
 
 [<EntryPoint>]
 let main argv = 
