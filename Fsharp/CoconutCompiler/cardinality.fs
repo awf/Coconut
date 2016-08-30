@@ -31,3 +31,8 @@ let vectorShape (s: Shape) (c: Cardinality): Shape =
 
 let flatShape (c: Cardinality): Shape =
   FlatShape(c)
+
+let rec width (s: Shape): Cardinality = 
+  match s with
+  | VectorShape(s, c) -> Card ((cardToInt (width s)) * (cardToInt c))
+  | FlatShape(c)      -> c
