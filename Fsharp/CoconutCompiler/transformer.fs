@@ -143,10 +143,34 @@ let (|ArrayLength|_|) (e: Expr): (Expr) option =
   | DerivedPatterns.SpecificCall <@ corelang.length @> (_, _, [e0])     -> Some(e0)
   | _                                                                   -> None
 
+type Helpers = 
+  static member MakeCall (methodExpr: Expr) (args: Expr list) (tps: System.Type list): Expr = 
+    let body = 
+      match methodExpr with
+      | LambdaN(_, body) -> body
+      | _ -> methodExpr
+    match body with
+    | Patterns.Call(_, op, _) -> 
+      let methodInfo =
+        if tps |> List.isEmpty then
+          op
+        else 
+          op.GetGenericMethodDefinition().MakeGenericMethod(tps |> List.toArray)
+      Expr.Call(methodInfo, args)
+    | _ -> failwithf "Cannot make a call for the given method expression `%A`" methodExpr
+
+let ArrayLength (e: Expr): Expr =
+  let t = e.Type 
+  let t1 = t.GetElementType()
+  Helpers.MakeCall(<@@ corelang.length @@>)([e])([t1])
+
 let (|ArrayGet|_|) (e: Expr): (Expr * Expr) option = 
   match e with 
   | Patterns.Call (None, op, [e0; e1]) when op.Name = "GetArray" -> Some(e0, e1)
   | _                                                            -> None
+
+let ArrayGet (e0: Expr) (e1: Expr): Expr =
+  <@@ (%%e0: _[]).[%%e1: int] @@>
 
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
