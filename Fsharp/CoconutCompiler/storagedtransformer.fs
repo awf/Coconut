@@ -58,18 +58,26 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   let SV (v: Var) = new Var(storagedName v.Name, ST v.Type)
   match exp with
   | AppN(e0, es)                     ->
-    let ses = es |> List.map (fun x -> S x O) |> List.map (fun (StripedAlloc(a, e)) -> a, e)
+    let ses = es |> List.map (fun x -> S x (newStgVar())) |> List.map (fun (StripedAlloc(a, e)) -> a, e)
     let sesParams = ses |> List.map snd
+    let sesAllocs = ses |> List.choose fst
     let ces = es |> List.map C
-    Alloc (WidthCard exp) (fun s2 ->
+    let ce0 = C e0
+    let ce = AppN(ce0, ces)
+    let body = Alloc (Width ce) (fun s2 ->
       AppN(S e0 O, Expr.Var(s2) :: sesParams @ ces))
+    (body, sesAllocs) ||> List.fold (fun acc (size, stgVar) -> AllocWithVar size stgVar (Expr.Lambda(stgVar, acc)))
   | LambdaN(xs, e)                   -> 
     let s2 = newStgVar()
     LambdaN(s2 :: (xs |> List.map SV) @ (xs |> List.map CV), S e s2)
   | Patterns.Var(v)                  -> Expr.Var(SV v)
   | Patterns.Let(x, e1, e2)          -> 
-    Alloc (WidthCard e1) (fun s2 ->
-      Expr.Let(SV x, S e1 s2, S e2 env))
+    let x_c = CV x
+    Expr.Let(x_c, C e1,
+      Alloc (Width (Expr.Var(x_c))) (fun s2 ->
+        Expr.Let(SV x, S e1 s2, S e2 env)
+      )
+    )
   | Patterns.IfThenElse(e1, e2, e3)  -> Expr.IfThenElse(S e1 O, S e2 env, S e3 env)
   //| Patterns.NewArray(tp, es)        -> 
   //  let ce1 = C es.[0]

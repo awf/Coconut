@@ -153,6 +153,7 @@ let vectorBuild_s (storage: Storage)
   | VS v -> vectorBuild size (fun i -> f storage i (Card 0))
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
 
+[<CMacro()>]
 let get_s<'a> (storage: Storage) 
   (arr: array<'a>) (ind: Index)
   (arr_c: Shape) (ind_c: Cardinality): 'a =

@@ -16,8 +16,8 @@ let rec cardTransformType (t: Type) =
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
         t = typeof<bool> || t = typeof<Number>              -> typeof<Cardinality>
     | _ when t = typeof<Vector> || t = typeof<Matrix>       -> typeof<Shape>
-    | _ when t.Name = typeof<_ -> _>.Name                   -> 
-      t.GetGenericTypeDefinition().MakeGenericType(t.GetGenericArguments() |> Array.map cardTransformType)                  
+    | FunctionType(inputs, output)                          -> 
+      FunctionType (inputs |> List.map cardTransformType) (cardTransformType output)
     | _ -> failwithf "Does not know how to convert the cardinality type `%A`" t
 
 let cardTransformVar (v: Var): Var = new Var(cardName v.Name, cardTransformType v.Type)
@@ -52,6 +52,11 @@ let rec inferCardinality (exp: Expr): Expr =
       <@@ shapeElem %%ce0 @@>
   | _ -> failwithf "Does not know how to compute cardinality for the expression `%A`" exp
 
+let Width (cardExp: Expr): Expr =
+  if (cardExp.Type = typeof<Cardinality>) then
+    <@@ width (flatShape %%cardExp) @@>
+  else
+    <@@ width %%cardExp @@>
 
 let WidthCard (exp: Expr): Expr = 
   let t = exp.Type
@@ -59,7 +64,5 @@ let WidthCard (exp: Expr): Expr =
     ZERO_CARD
   else
     let cardExp = inferCardinality exp
-    if (t = typeof<Cardinality>) then
-      <@@ width (flatShape %%cardExp) @@>
-    else
-      <@@ width %%cardExp @@>
+    Width cardExp
+    
