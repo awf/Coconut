@@ -147,14 +147,6 @@ let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr Li
       Some(methodName, moduleName, args, lam)
   | _ -> None
 
-let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option = 
-  match e with
-  | AppN(e0, es)                          -> Some(e0, es)
-  | ReflectedMethodCall(mtd, mdl, e0, es) -> 
-    let v = new Var(sprintf "%s_%s" mdl mtd, e0.Type)
-    Some(Expr.Var(v), es)
-  | _ -> None
-
 let (|ArraySlice|_|) (e: Expr): (Expr * Expr * Expr) option = 
   match e with 
   | Patterns.Call (None, op, argList) -> 
@@ -174,6 +166,28 @@ let (|ArrayLength|_|) (e: Expr): (Expr) option =
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> Some(arr)
   | DerivedPatterns.SpecificCall <@ corelang.length @> (_, _, [e0])     -> Some(e0)
   | _                                                                   -> None
+
+let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option = 
+  match e with
+  | AppN(e0, es)                          -> Some(e0, es)
+  | ReflectedMethodCall(mtd, mdl, e0, es) -> 
+    let v = new Var(sprintf "%s_%s" mdl mtd, e0.Type)
+    Some(Expr.Var(v), es)
+  | ArraySlice(e0, st, en) ->
+    let vecSliceExp = <@@ linalg.vectorSlice @@>
+    let v = new Var("linealg_vectorSlice", vecSliceExp.Type)
+    match (st, en) with
+    | Patterns.Value(vs, ts), Patterns.Value(ve, te) when ts = te && ts = typeof<Index> ->
+      let vvs = unbox<int>(vs)
+      let vve = unbox<int>(ve)
+      let cardExp = Expr.Value(Card (vve - vvs + 1), typeof<Cardinality>)      
+      Some(Expr.Var(v), [cardExp; st; e0])
+    | _, ScalarOperation("+", [e2; Patterns.Value(vsz, tsz)]) when e2 = st && tsz = typeof<Index> ->
+      let cardExp = Expr.Value(Card (unbox<int>(vsz) + 1), typeof<Cardinality>)  
+      Some(Expr.Var(v), [cardExp; st; e0])
+    | _ ->
+      failwithf "Not supported slice operation: `%A`" e
+  | _ -> None
 
 type Helpers = 
   static member MakeCall (methodExpr: Expr) (args: Expr list) (tps: System.Type list): Expr = 
