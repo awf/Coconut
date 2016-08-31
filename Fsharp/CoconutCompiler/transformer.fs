@@ -167,15 +167,32 @@ let (|ArrayLength|_|) (e: Expr): (Expr) option =
   | DerivedPatterns.SpecificCall <@ corelang.length @> (_, _, [e0])     -> Some(e0)
   | _                                                                   -> None
 
+let getMethodInfo (methodExpr: Expr): Reflection.MethodInfo = 
+  let body = 
+    match methodExpr with
+    | LambdaN(_, body) -> body
+    | _ -> methodExpr
+  match body with
+  | Patterns.Call(_, op, _) -> 
+    op
+  | _ -> failwithf "The expression `%A` is not a method expression." methodExpr
+
+let methodVariableName (methodName: string) (moduleName: string): string = 
+  sprintf "%s_%s" moduleName methodName
+
+let methodVariableNameMethodInfo (op: Reflection.MethodInfo): string = 
+  methodVariableName op.Name op.DeclaringType.Name
+
 let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option = 
   match e with
   | AppN(e0, es)                          -> Some(e0, es)
   | ReflectedMethodCall(mtd, mdl, e0, es) -> 
-    let v = new Var(sprintf "%s_%s" mdl mtd, e0.Type)
+    let v = new Var(methodVariableName mtd mdl, e0.Type)
     Some(Expr.Var(v), es)
   | ArraySlice(e0, st, en) ->
     let vecSliceExp = <@@ linalg.vectorSlice @@>
-    let v = new Var("linealg_vectorSlice", vecSliceExp.Type)
+    let op = getMethodInfo vecSliceExp
+    let v = new Var(methodVariableNameMethodInfo op, vecSliceExp.Type)
     match (st, en) with
     | Patterns.Value(vs, ts), Patterns.Value(ve, te) when ts = te && ts = typeof<Index> ->
       let vvs = unbox<int>(vs)
@@ -189,27 +206,19 @@ let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option =
       failwithf "Not supported slice operation: `%A`" e
   | _ -> None
 
-type Helpers = 
-  static member MakeCall (methodExpr: Expr) (args: Expr list) (tps: System.Type list): Expr = 
-    let body = 
-      match methodExpr with
-      | LambdaN(_, body) -> body
-      | _ -> methodExpr
-    match body with
-    | Patterns.Call(_, op, _) -> 
-      let methodInfo =
-        if tps |> List.isEmpty then
-          op
-        else 
-          printfn "%A" tps
-          op.GetGenericMethodDefinition().MakeGenericMethod(tps |> List.toArray)
-      Expr.Call(methodInfo, args)
-    | _ -> failwithf "Cannot make a call for the given method expression `%A`" methodExpr
+let MakeCall (methodExpr: Expr) (args: Expr list) (tps: System.Type list): Expr = 
+  let op = getMethodInfo methodExpr
+  let methodInfo =
+    if tps |> List.isEmpty then
+      op
+    else 
+      op.GetGenericMethodDefinition().MakeGenericMethod(tps |> List.toArray)
+  Expr.Call(methodInfo, args)
 
 let ArrayLength (e: Expr): Expr =
   let t = e.Type 
   let t1 = t.GetElementType()
-  Helpers.MakeCall(<@@ corelang.length @@>)([e])([t1])
+  MakeCall(<@@ corelang.length @@>)([e])([t1])
 
 let (|ArrayGet|_|) (e: Expr): (Expr * Expr) option = 
   match e with 

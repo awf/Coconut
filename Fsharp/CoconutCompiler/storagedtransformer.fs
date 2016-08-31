@@ -28,7 +28,7 @@ let (|StripedAlloc|) (e: Expr): (Expr * Var) option * Expr =
 let newStgVar (): Var = new Var(utils.newVar "stgVar", typeof<Storage>)
 
 let AllocWithVar (size: Expr) (stgVar: Var) (funExpr: Expr): Expr = 
-  Helpers.MakeCall (<@@ corelang.vectorAllocCPS @@>)
+  MakeCall (<@@ corelang.vectorAllocCPS @@>)
     ([size; funExpr])
     ([funExpr.Type.GetGenericArguments() |> Array.rev |> fun x -> x.[0]])
 
@@ -39,14 +39,14 @@ let Alloc (size: Expr) (body: Var -> Expr): Expr =
 
 let GetS (stg: Var) (e0: Expr) (e1: Expr): Expr = 
   let t = e0.Type.GetElementType()
-  Helpers.MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1; ZERO_SHAPE; ZERO_CARD])([t])
+  MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1; ZERO_SHAPE; ZERO_CARD])([t])
 
 let NewArrayS (stg: Var) (es: Expr list): Expr = 
   let t = 
     match es.[0].Type with
     | FunctionType(_, o) -> o
     | t -> failwithf "The type of arguments of NewArrayS should be a function, but is `%A` instead!" t
-  Helpers.MakeCall(<@@ corelang.newArray_s @@>)(Expr.Var(stg) :: [Expr.NewArray(es.[0].Type, es)])([t])
+  MakeCall(<@@ corelang.newArray_s @@>)(Expr.Var(stg) :: [Expr.NewArray(es.[0].Type, es)])([t])
 
 let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   let S = transformStoraged
