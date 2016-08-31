@@ -421,6 +421,8 @@ let test_card () =
   let vecAddEx = compiler.getMethodExpr "programs" "vectorAddExample"
   let vecAddExCard = cardinfer.inferCardinality vecAddEx
   printfn "card: `%A`" vecAddExCard
+  let vecAddExStg = storagedtransformer.transformStoraged vecAddEx (storagedtransformer.newStgVar())
+  printfn "stg: `%A`" (ccodegen.prettyprint vecAddExStg)
 
 [<EntryPoint>]
 let main argv = 

@@ -158,3 +158,7 @@ let get_s<'a> (storage: Storage)
   (arr: array<'a>) (ind: Index)
   (arr_c: Shape) (ind_c: Cardinality): 'a =
   arr.[ind]
+
+[<CMacro()>]
+let newArray_s<'a> (storage: Storage) ([<ParamArray>] args: (Storage -> 'a) array): 'a array =
+  args |> Array.map (fun f -> f storage)

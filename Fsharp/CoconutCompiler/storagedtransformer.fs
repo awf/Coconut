@@ -41,6 +41,13 @@ let GetS (stg: Var) (e0: Expr) (e1: Expr): Expr =
   let t = e0.Type.GetElementType()
   Helpers.MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1; ZERO_SHAPE; ZERO_CARD])([t])
 
+let NewArrayS (stg: Var) (es: Expr list): Expr = 
+  let t = 
+    match es.[0].Type with
+    | FunctionType(_, o) -> o
+    | t -> failwithf "The type of arguments of NewArrayS should be a function, but is `%A` instead!" t
+  Helpers.MakeCall(<@@ corelang.newArray_s @@>)(Expr.Var(stg) :: [Expr.NewArray(es.[0].Type, es)])([t])
+
 let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   let S = transformStoraged
   let CV = cardTransformVar
@@ -79,10 +86,11 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
       )
     )
   | Patterns.IfThenElse(e1, e2, e3)  -> Expr.IfThenElse(S e1 O, S e2 env, S e3 env)
-  //| Patterns.NewArray(tp, es)        -> 
-  //  let ce1 = C es.[0]
-  //  let N = Expr.Value(Card es.Length, typeof<Cardinality>)
-  //  <@@ vectorShape (flatShape (%%ce1: Cardinality)) (%%N: Cardinality) @@>
+  | Patterns.NewArray(tp, es)        -> 
+    let ses = es |> List.map (fun x -> let s = newStgVar() in Expr.Lambda(s, S x s))
+    NewArrayS env ses
+  | ScalarOperation(name, args) ->
+    exp // FIXME should rebuild the scalar operation
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
     let se0 = S e0 O
     let se1 = S e1 O
@@ -98,5 +106,7 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     Alloc (WidthCard e0) (fun s2 ->
       GetS s2 (S e0 s2) (S e1 O)
     )
+  | Patterns.Value(v, tp) when tp = typeof<Double> ->
+    exp
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 

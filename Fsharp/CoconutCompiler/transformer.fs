@@ -22,6 +22,14 @@ let (|OperatorName|_|) methodName =
     | "op_DotPlus" -> Some("+")
     | _ -> None
 
+let (|ScalarOperation|_|) (exp: Expr): (string * Expr list) option =
+  match exp with 
+  | Patterns.Call(None, op, args) ->
+    match op.Name with
+    | OperatorName name -> Some(name, args)
+    | _                 -> None
+  | _ -> None
+
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
   (* TODO implement in a tail recursive way *)
   let rec lambdaNExtract exp = 
@@ -156,6 +164,7 @@ type Helpers =
         if tps |> List.isEmpty then
           op
         else 
+          printfn "%A" tps
           op.GetGenericMethodDefinition().MakeGenericMethod(tps |> List.toArray)
       Expr.Call(methodInfo, args)
     | _ -> failwithf "Cannot make a call for the given method expression `%A`" methodExpr

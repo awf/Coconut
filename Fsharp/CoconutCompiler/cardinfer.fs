@@ -55,6 +55,8 @@ let rec inferCardinality (exp: Expr): Expr =
 let Width (cardExp: Expr): Expr =
   if (cardExp.Type = typeof<Cardinality>) then
     <@@ width (flatShape %%cardExp) @@>
+  elif (cardExp.Type.Name = typeof<_ -> _>.Name) then
+    ZERO_CARD
   else
     <@@ width %%cardExp @@>
 
