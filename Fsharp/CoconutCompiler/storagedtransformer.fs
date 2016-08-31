@@ -69,10 +69,7 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     let sesParams = ses |> List.map snd
     let sesAllocs = ses |> List.choose fst
     let ces = es |> List.map C
-    let ce0 = C e0
-    let ce = AppN(ce0, ces)
-    let body = Alloc (Width ce) (fun s2 ->
-      AppN(S e0 O, Expr.Var(s2) :: sesParams @ ces))
+    let body = AppN(S e0 O, Expr.Var(env) :: sesParams @ ces)
     (body, sesAllocs) ||> List.fold (fun acc (size, stgVar) -> AllocWithVar size stgVar (Expr.Lambda(stgVar, acc)))
   | LambdaN(xs, e)                   -> 
     let s2 = newStgVar()
@@ -104,7 +101,7 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     )
   | ArrayGet(e0, e1) ->
     Alloc (WidthCard e0) (fun s2 ->
-      GetS s2 (S e0 s2) (S e1 O)
+      GetS env (S e0 s2) (S e1 O)
     )
   | Patterns.Value(v, tp) when tp = typeof<Double> ->
     exp
