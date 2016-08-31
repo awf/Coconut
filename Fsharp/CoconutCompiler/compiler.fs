@@ -14,7 +14,7 @@ let getMethodExpr (moduleName: string) (methodName: string): Expr =
    | Some(e) -> e
 
 (* The entry point for the compiler which invokes different phases and code generators *)
-let compile (moduleName: string) (methodName: string) (opt: bool): string = 
+let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: bool): string = 
      let e = getMethodExpr moduleName methodName
      let optimized = 
        if(opt) then 
@@ -30,23 +30,37 @@ let compile (moduleName: string) (methodName: string) (opt: bool): string =
        printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
        if(opt) then 
          printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
-     ccodegenTopLevel optimized (moduleName + "_" + methodName) debug
+     let functionName = methodVariableName methodName moduleName
+     let generatedCode = 
+       ccodegenTopLevel optimized functionName debug
+     let generatedStoragedCode = 
+       if storaged then
+         let se = storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE
+         let sFunctionName = storagedtransformer.storagedName functionName
+         let ce = cardinfer.inferCardinality optimized
+         let cFunctionName = cardinfer.cardName functionName
+         ccodegenTopLevel se sFunctionName debug +
+           ccodegenTopLevel ce cFunctionName debug
+       else
+         ""
+     generatedCode + generatedStoragedCode
 
-let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) =
+let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) (storaged: bool) =
   List.map (fun m -> 
     existingMethods <- (moduleName, m) :: existingMethods
-    compile moduleName m opt
+    compile moduleName m opt storaged
   ) methodNames
 
 
-let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) = 
+let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool) = 
   let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
                   (List.filter (fun (x: System.Reflection.MethodInfo) -> 
                     x.DeclaringType.Name = moduleName) 
                     (List.ofArray (assembly.GetType(moduleName).GetMethods())))
-  let generatedMethods = compileSeveral moduleName methods opt
+  let generatedMethods = compileSeveral moduleName methods opt storaged
   let depModulesString = List.map (fun m -> sprintf "#include \"%s.h\"" m) dependentModules
   let moduleMacroName = sprintf "__%s_H__" (moduleName.ToUpper())
+  let fileName = if storaged then sprintf "%s_storaged.h" moduleName else sprintf "%s.h" moduleName 
   let header = sprintf """#ifndef %s 
 #define %s 
 #include "runtime/fsharp.h"
@@ -54,6 +68,6 @@ let compileModule (moduleName: string) (dependentModules: string List) (opt: boo
 #include <math.h>""" moduleMacroName moduleMacroName
   let footer = "#endif"
   System.IO.File.WriteAllLines 
-    ("../../coconut/" + moduleName + ".h", 
+    ("../../coconut/" + fileName, 
       List.append (header :: (List.append depModulesString generatedMethods)) ([footer]))
   ()

@@ -44,18 +44,21 @@ let test_ruleengine () =
     printfn "%A" prog'
 
 let compile_modules () = 
-    compiler.compileModule "linalg" [] false
-    compiler.compileModule "usecases" ["linalg"] false
-    compiler.compileModule "programs" ["linalg"] true
-    compiler.compileModule "ccodegentests" [] false
+    compiler.compileModule "linalg" [] false false
+    compiler.compileModule "usecases" ["linalg"] false false
+    compiler.compileModule "programs" ["linalg"] true false
+    compiler.compileModule "ccodegentests" [] false false
+
+let compile_modules_storaged () = 
+    compiler.compileModule "linalg" [] true true
 
 let benchmark_search () =
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
     benchmark.benchmark_test_algorithms bundleAdjustmentProject
 
 let test_guided_optimizer () = 
-    compiler.compileModule "linalg" [] false
-    compiler.compileModule "usecases" ["linalg"] false
+    compiler.compileModule "linalg" [] false false
+    compiler.compileModule "usecases" ["linalg"] false false
     let comp = ruleengine.compilePatternToRule
       //ruleengine.compilePatternToRule2
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
@@ -427,7 +430,8 @@ let test_card () =
 [<EntryPoint>]
 let main argv = 
     // test_ba argv
-    compile_modules ()
+    // compile_modules ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()

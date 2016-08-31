@@ -184,7 +184,10 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
     | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
       match op.Name with
       | "vectorAllocCPS" -> 
-        let size = ccodegen (elist.[0])
+        let size = 
+          match elist.[0] with
+          | Patterns.Let(x, _, Patterns.Var(x2)) as sizeExpr when x = x2 -> fst (ccodegenStatements "\t" sizeExpr None)
+          | sizeExpr -> ccodegen sizeExpr
         let (Patterns.Lambda(i, body)) = elist.[1]
         let tp = ccodegenType typeof<Vector>
         let storageVar = i.Name 
@@ -217,6 +220,18 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
            idxCode idxCode resultName idxCode
            bodyCode
            , bodyClosures, true)
+      | "vectorBuild_s" ->
+        let storage = ccodegen (elist.[0])
+        let resultType = ccodegenType (var.Type)
+        let resultName = var.Name 
+        let (LambdaN([st; idx; crd], body)) = elist.[2]
+        let idxCode = idx.Name
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
+        (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
+           resultType resultName resultType storage 
+           idxCode idxCode resultName idxCode
+           bodyCode
+           , bodyClosures, true)
       | "vectorAllocOnStack" -> 
         let size = ccodegen (elist.[0])
         let tp = ccodegenType typeof<Vector>
@@ -233,6 +248,9 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       | "length" ->
         let arr = ccodegen (elist.[0])
         (sprintf "%s->length" arr, [], false)
+      | "width" ->
+        let crd = ccodegen (elist.[0])
+        (sprintf "width(%s)" crd, [], false)
       | name ->
         failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 

@@ -26,6 +26,7 @@ let vectorShape<'Shape> (s: 'Shape) (c: Cardinality): NestedShape<'Shape> =
 let flatShape (c: Cardinality): Cardinality =
   c
 
+[<CMacro()>]
 let rec width<'Shape> (s: 'Shape): Cardinality = 
   match s.GetType() with
   | t when t = typeof<Cardinality> -> unbox<Cardinality>(s)

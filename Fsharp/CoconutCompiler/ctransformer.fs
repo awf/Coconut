@@ -42,6 +42,9 @@ let letLifting (e: Expr): Expr =
     | Patterns.Call (None, op, elist) -> 
       let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) elist)
       (Expr.Call(op, tes), List.concat lls)
+    // | AppN (e0, elist) -> 
+    //   let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) elist)
+    //   (AppN(e0, tes), List.concat lls)
     | LambdaN (inputs, body) ->
       let (te, ll) = constructTopLevelLets (inputs @ boundVars) body
       //(LambdaN (inputs, te), ll)
