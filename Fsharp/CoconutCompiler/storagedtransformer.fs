@@ -59,12 +59,13 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
         t = typeof<bool> || t = typeof<Number>              -> t
     | _ when t = typeof<Vector> || t = typeof<Matrix>       -> t
     | FunctionType(inputs, o)                               -> 
+      let sinputs = inputs |> List.map ST
       let cinputs = inputs |> List.map CT
-      FunctionType (typeof<Storage> :: inputs @ cinputs) o                  
+      FunctionType (typeof<Storage> :: sinputs @ cinputs) o                  
     | _ -> failwithf "Does not know how to convert the storaged type `%A`" t
   let SV (v: Var) = new Var(storagedName v.Name, ST v.Type)
   match exp with
-  | AppN(e0, es)                     ->
+  | AllAppN(e0, es)                  ->
     let ses = es |> List.map (fun x -> S x (newStgVar())) |> List.map (fun (StripedAlloc(a, e)) -> a, e)
     let sesParams = ses |> List.map snd
     let sesAllocs = ses |> List.choose fst

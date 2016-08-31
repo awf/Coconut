@@ -109,6 +109,20 @@ let (|EnvRef|_|) (e: Expr): (Expr * string) Option =
 
 let mutable existingMethods: (string * string) List = []
 
+let (|ReflectedMethodCall|_|) (e: Expr): (string * string * Expr * Expr list) Option = 
+  match e with
+  | Patterns.Call (None, op, args) -> 
+    try 
+      let moduleName = op.DeclaringType.Name
+      let methodName = op.Name
+      let moduleInfo = assembly.GetType(moduleName)
+      let methodInfo = moduleInfo.GetMethod(methodName)
+      let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
+      reflDefnOpt |> Option.map (fun lam -> methodName, moduleName, lam, args)
+    with
+      _ -> None
+  | _ -> None
+
 let (|ExistingCompiledMethod|_|) (e: Expr): (string * string * Expr List) Option = 
   match e with 
   | Patterns.Call (None, op, argList) -> 
@@ -122,6 +136,7 @@ let (|ExistingCompiledMethod|_|) (e: Expr): (string * string * Expr List) Option
 let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr List * Expr) Option = 
   match e with
   | ExistingCompiledMethod(methodName, moduleName, args) -> 
+    // TODO rewrite using ReflectedMethodCall
     let moduleInfo = assembly.GetType(moduleName)
     let methodInfo = moduleInfo.GetMethod(methodName)
     let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
@@ -130,6 +145,14 @@ let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr Li
     | None -> failwith (sprintf "fatal error! Extracting lambda definition from a non-inlinable method: %s.%s!" moduleName methodName)
     | Some(lam) ->
       Some(methodName, moduleName, args, lam)
+  | _ -> None
+
+let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option = 
+  match e with
+  | AppN(e0, es)                          -> Some(e0, es)
+  | ReflectedMethodCall(mtd, mdl, e0, es) -> 
+    let v = new Var(sprintf "%s_%s" mdl mtd, e0.Type)
+    Some(Expr.Var(v), es)
   | _ -> None
 
 let (|ArraySlice|_|) (e: Expr): (Expr * Expr * Expr) option = 

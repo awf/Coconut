@@ -423,6 +423,11 @@ let test_card () =
   printfn "card: `%A`" vecAddExCard
   let vecAddExStg = storagedtransformer.transformStoraged vecAddEx (storagedtransformer.newStgVar())
   printfn "stg: `%A`" (ccodegen.prettyprint vecAddExStg)
+  let add_vecEx = compiler.getMethodExpr "linalg" "add_vec"
+  let add_vecExCard = cardinfer.inferCardinality add_vecEx
+  printfn "card: `%A`" add_vecExCard
+  let add_vecExStg = storagedtransformer.transformStoraged add_vecEx (storagedtransformer.newStgVar())
+  printfn "stg: `%A`" (ccodegen.prettyprint add_vecExStg)
 
 [<EntryPoint>]
 let main argv = 

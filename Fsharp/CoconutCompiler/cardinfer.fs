@@ -28,7 +28,7 @@ let rec inferCardinality (exp: Expr): Expr =
   let CV = cardTransformVar
   match exp with
   | _ when exp.Type = typeof<Number> -> ZERO_CARD
-  | AppN(e0, es)                     -> AppN(C e0, es |> List.map C)
+  | AllAppN(e0, es)                  -> AppN(C e0, es |> List.map C)
   | LambdaN(xs, e)                   -> LambdaN(xs |> List.map CV, C e)
   | Patterns.Var(v)                  -> Expr.Var(CV v)
   | Patterns.Let(x, e1, e2)          -> Expr.Let(CV x, C e1, C e2)
@@ -54,7 +54,7 @@ let rec inferCardinality (exp: Expr): Expr =
 
 let Width (cardExp: Expr): Expr =
   if (cardExp.Type = typeof<Cardinality>) then
-    <@@ width (flatShape %%cardExp) @@>
+    cardExp
   elif (cardExp.Type.Name = typeof<_ -> _>.Name) then
     ZERO_CARD
   else
