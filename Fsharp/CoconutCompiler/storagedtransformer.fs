@@ -104,7 +104,7 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     Alloc (WidthCard e0) (fun s2 ->
       GetS env (S e0 s2) (S e1 O)
     )
-  | Patterns.Value(v, tp) when tp = typeof<Double> ->
+  | Patterns.Value(v, tp) when tp = typeof<Double> || tp = typeof<Index> || tp = typeof<Cardinality> ->
     exp
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 

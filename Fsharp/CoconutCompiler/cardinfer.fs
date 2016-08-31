@@ -28,6 +28,8 @@ let rec inferCardinality (exp: Expr): Expr =
   let CV = cardTransformVar
   match exp with
   | _ when exp.Type = typeof<Number> -> ZERO_CARD
+  | _ when exp.Type = typeof<Index>  -> ZERO_CARD
+  | _ when exp.Type = typeof<bool>   -> ZERO_CARD
   | AllAppN(e0, es)                  -> AppN(C e0, es |> List.map C)
   | LambdaN(xs, e)                   -> LambdaN(xs |> List.map CV, C e)
   | Patterns.Var(v)                  -> Expr.Var(CV v)
@@ -50,6 +52,7 @@ let rec inferCardinality (exp: Expr): Expr =
       <@@ flatShapeCard (shapeElem %%ce0) @@>
     else
       <@@ shapeElem %%ce0 @@>
+  | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
   | _ -> failwithf "Does not know how to compute cardinality for the expression `%A`" exp
 
 let Width (cardExp: Expr): Expr =

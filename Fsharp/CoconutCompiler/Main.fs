@@ -413,21 +413,16 @@ let test_feature () =
   ()
 
 let test_card () = 
-  let vecMap = compiler.getMethodExpr "linalg" "vectorMap"
-  let vecMapCard = cardinfer.inferCardinality vecMap
-  printfn "card: `%A`" vecMapCard
-  let vecMapStg = storagedtransformer.transformStoraged vecMap (storagedtransformer.newStgVar())
-  printfn "stg: `%A`" (ccodegen.prettyprint vecMapStg)
-  let vecAddEx = compiler.getMethodExpr "programs" "vectorAddExample"
-  let vecAddExCard = cardinfer.inferCardinality vecAddEx
-  printfn "card: `%A`" vecAddExCard
-  let vecAddExStg = storagedtransformer.transformStoraged vecAddEx (storagedtransformer.newStgVar())
-  printfn "stg: `%A`" (ccodegen.prettyprint vecAddExStg)
-  let add_vecEx = compiler.getMethodExpr "linalg" "add_vec"
-  let add_vecExCard = cardinfer.inferCardinality add_vecEx
-  printfn "card: `%A`" add_vecExCard
-  let add_vecExStg = storagedtransformer.transformStoraged add_vecEx (storagedtransformer.newStgVar())
-  printfn "stg: `%A`" (ccodegen.prettyprint add_vecExStg)
+  let cardAndStg (moduleName: string) (methodName: string) = 
+    let exp = compiler.getMethodExpr moduleName methodName
+    let expCard = cardinfer.inferCardinality exp
+    printfn "card: `%A`" expCard
+    let expStg = storagedtransformer.transformStoraged exp (storagedtransformer.newStgVar())
+    printfn "stg: `%A`" (ccodegen.prettyprint expStg)
+  cardAndStg "linalg" "vectorMap"
+  cardAndStg "programs" "vectorAddExample"
+  cardAndStg "linalg" "add_vec"
+  cardAndStg "usecases" "project"
 
 [<EntryPoint>]
 let main argv = 
