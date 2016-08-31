@@ -39,7 +39,8 @@ let Alloc (size: Expr) (body: Var -> Expr): Expr =
 
 let GetS (stg: Var) (e0: Expr) (e1: Expr): Expr = 
   let t = e0.Type.GetElementType()
-  MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1; ZERO_SHAPE; ZERO_CARD])([t])
+  let ce0t = cardTransformType e0.Type
+  MakeCall(<@@ corelang.get_s @@>)([Expr.Var(stg); e0; e1; ZERO_SHAPE ce0t; ZERO_CARD])([t; ce0t])
 
 let NewArrayS (stg: Var) (es: Expr list): Expr = 
   let t = 
@@ -88,7 +89,8 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     let ses = es |> List.map (fun x -> let s = newStgVar() in Expr.Lambda(s, S x s))
     NewArrayS env ses
   | ScalarOperation(name, args) ->
-    exp // FIXME should rebuild the scalar operation
+    let op = getMethodInfo exp
+    Expr.Call(op, args |> List.map (fun x -> S x O))
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
     let se0 = S e0 O
     let se1 = S e1 O

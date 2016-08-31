@@ -11,8 +11,13 @@ type Storage = VS of Vector
 
 type Cardinality = Card of int
 
+(*
 type Shape = FlatShape   of Cardinality
            | VectorShape of Shape * Cardinality
+*)
+type NestedShape<'S> = | NestedShape of 'S * Cardinality
+type VectorShape = NestedShape<Cardinality>
+type MatrixShape = NestedShape<VectorShape>
 
 type AnyNumeric = 
   | ZeroD of Number

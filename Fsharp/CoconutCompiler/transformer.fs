@@ -170,8 +170,8 @@ let (|ArrayLength|_|) (e: Expr): (Expr) option =
 let getMethodInfo (methodExpr: Expr): Reflection.MethodInfo = 
   let body = 
     match methodExpr with
-    | LambdaN(_, body) -> body
-    | _ -> methodExpr
+    | TopLevelFunction(_, LetN(_, body)) -> body
+    | TopLevelFunction(_, body)          -> body
   match body with
   | Patterns.Call(_, op, _) -> 
     op

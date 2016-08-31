@@ -154,9 +154,9 @@ let vectorBuild_s (storage: Storage)
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
 
 [<CMacro()>]
-let get_s<'a> (storage: Storage) 
+let get_s<'a, 's> (storage: Storage) 
   (arr: array<'a>) (ind: Index)
-  (arr_c: Shape) (ind_c: Cardinality): 'a =
+  (arr_c: 's) (ind_c: Cardinality): 'a =
   arr.[ind]
 
 [<CMacro()>]

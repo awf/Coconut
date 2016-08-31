@@ -11,28 +11,28 @@ let (.+) (c1: Cardinality) (c2: Cardinality): Cardinality =
 let (.-) (c1: Cardinality) (c2: Cardinality): Cardinality =
   Card((cardToInt c1) - (cardToInt c2))
 
-let shapeElem (s: Shape): Shape =
-  match s with 
-  | VectorShape(x, y) -> x 
-  | _ -> failwithf "No elem available for the shape `%A`" s
+let shapeElem<'Shape> (s: NestedShape<'Shape>): 'Shape =
+  let (NestedShape(se, _)) = s in se
 
-let shapeCard (s: Shape): Cardinality =
-  match s with 
-  | VectorShape(x, y) -> y 
-  | _ -> failwithf "No card available for the shape `%A`" s
+let shapeCard<'Shape> (s: NestedShape<'Shape>): Cardinality =
+  let (NestedShape(_, c)) = s in c
 
-let flatShapeCard (s: Shape): Cardinality =
-  match s with 
-  | FlatShape(x) -> x
-  | _ -> failwithf "The following shape is not flat `%A`" s
+let flatShapeCard (s: Cardinality): Cardinality =
+  s
 
-let vectorShape (s: Shape) (c: Cardinality): Shape =
-  VectorShape(s, c)
+let vectorShape<'Shape> (s: 'Shape) (c: Cardinality): NestedShape<'Shape> =
+  NestedShape(s, c)
 
-let flatShape (c: Cardinality): Shape =
-  FlatShape(c)
+let flatShape (c: Cardinality): Cardinality =
+  c
 
-let rec width (s: Shape): Cardinality = 
-  match s with
-  | VectorShape(s, c) -> Card ((cardToInt (width s)) * (cardToInt c))
-  | FlatShape(c)      -> c
+let rec width<'Shape> (s: 'Shape): Cardinality = 
+  match s.GetType() with
+  | t when t = typeof<Cardinality> -> unbox<Cardinality>(s)
+  | t when t = typeof<VectorShape> -> 
+    let tup = unbox<VectorShape>(s)
+    Card ((cardToInt (shapeElem tup)) * (cardToInt (shapeCard tup)))
+  | t when t = typeof<MatrixShape> -> 
+    let tup = unbox<MatrixShape>(s)
+    Card ((cardToInt (width (shapeElem tup))) * (cardToInt (shapeCard tup)))
+  | _                              -> failwithf "Cannot compute width for `%A`" s

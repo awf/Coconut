@@ -9,13 +9,20 @@ open System
 let cardName (name: string): string = sprintf "%s_c" name
 
 let ZERO_CARD = Expr.Value(Card 0, typeof<Cardinality>)
-let ZERO_SHAPE = <@@ flatShape %%ZERO_CARD @@>
+let ZERO_SHAPE (shapeType: Type) = 
+  if shapeType = typeof<Cardinality> then 
+    ZERO_CARD
+  elif shapeType = typeof<VectorShape> then
+    <@@ vectorShape<Cardinality> %%ZERO_CARD %%ZERO_CARD @@>
+  else
+    failwithf "Doesn't know how to create ZERO_SHAPE for the shape type `%A`" shapeType
 
 let rec cardTransformType (t: Type) = 
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
         t = typeof<bool> || t = typeof<Number>              -> typeof<Cardinality>
-    | _ when t = typeof<Vector> || t = typeof<Matrix>       -> typeof<Shape>
+    | _ when t = typeof<Vector>                             -> typeof<VectorShape>
+    | _ when t = typeof<Matrix>                             -> typeof<MatrixShape>
     | FunctionType(inputs, output)                          -> 
       FunctionType (inputs |> List.map cardTransformType) (cardTransformType output)
     | _ -> failwithf "Does not know how to convert the cardinality type `%A`" t
@@ -45,7 +52,7 @@ let rec inferCardinality (exp: Expr): Expr =
     <@@ vectorShape (flatShape ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD)) (%%ce0: Cardinality) @@>
   | ArrayLength(e0) ->
     let ce0 = C e0
-    <@@ shapeCard %%ce0 @@>
+    MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
   | ArrayGet(e0, e1) ->
     let ce0 = C e0
     if exp.Type = typeof<Number> then
@@ -61,7 +68,7 @@ let Width (cardExp: Expr): Expr =
   elif (cardExp.Type.Name = typeof<_ -> _>.Name) then
     ZERO_CARD
   else
-    <@@ width %%cardExp @@>
+    MakeCall(<@@ width @@>)([cardExp])([cardExp.Type])
 
 let WidthCard (exp: Expr): Expr = 
   let t = exp.Type
