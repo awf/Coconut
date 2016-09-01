@@ -32,12 +32,13 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
          printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
      let functionName = methodVariableName methodName moduleName
      let generatedCode = 
-       ccodegenTopLevel optimized functionName debug
+       // ccodegenTopLevel optimized functionName debug
+       ""
      let generatedStoragedCode = 
        if storaged then
-         let se = storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE
+         let se = storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty
          let sFunctionName = storagedtransformer.storagedName functionName
-         let ce = cardinfer.inferCardinality optimized
+         let ce = cardinfer.inferCardinality optimized Map.empty
          let cFunctionName = cardinfer.cardName functionName
          ccodegenTopLevel ce cFunctionName debug +
            ccodegenTopLevel se sFunctionName debug

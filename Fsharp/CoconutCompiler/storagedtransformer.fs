@@ -9,10 +9,10 @@ open cardinfer
 
 let storagedName (name: string): string = sprintf "%s_s" name
 
-type StorageEnv = Var
+type StorageOutput = Var
 
-let EMPTY_STORAGE: StorageEnv = Var.Global("empty_storage", typeof<Storage>)
-let O: StorageEnv = EMPTY_STORAGE
+let EMPTY_STORAGE: StorageOutput = Var.Global("empty_storage", typeof<Storage>)
+let O: StorageOutput = EMPTY_STORAGE
 
 let (|Alloc|_|) (e: Expr): (Expr * Var * Expr) option = 
   match e with
@@ -49,11 +49,18 @@ let NewArrayS (stg: Var) (es: Expr list): Expr =
     | t -> failwithf "The type of arguments of NewArrayS should be a function, but is `%A` instead!" t
   MakeCall(<@@ corelang.newArray_s @@>)(Expr.Var(stg) :: [Expr.NewArray(es.[0].Type, es)])([t])
 
-let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
-  let S = transformStoraged
-  let CV = cardTransformVar
+let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<Var, Var * Var>): Expr =
+  let S e s = transformStoraged e s env
+  let SEnv = transformStoraged
+  let CVNew = cardTransformVar
+  let CV v = 
+    match env.TryFind(v) with 
+    | Some(vs, vc) -> vc
+    | _            -> failwithf "There is no cardinality variable associated with `%A`" v
   let CT = cardTransformType
-  let C = inferCardinality
+  let cardEnv = (env |> Map.map (fun k (v1, v2) -> v2))
+  let C e = inferCardinality e cardEnv
+  let CEnv = inferCardinality
   let rec ST (t: Type) = 
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
@@ -64,30 +71,38 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
       let cinputs = inputs |> List.map CT
       FunctionType (typeof<Storage> :: sinputs @ cinputs) o                  
     | _ -> failwithf "Does not know how to convert the storaged type `%A`" t
-  let SV (v: Var) = new Var(storagedName v.Name, ST v.Type)
+  let SVNew (v: Var) = new Var(storagedName v.Name, ST v.Type)
+  let SV v = 
+    match env.TryFind(v) with 
+    | Some(vs, vc) -> vs
+    | _            -> failwithf "There is no storage variable associated with `%A`" v
   match exp with
   | AllAppN(e0, es)                  ->
     let ses = es |> List.map (fun x -> S x (newStgVar())) |> List.map (fun (StripedAlloc(a, e)) -> a, e)
     let sesParams = ses |> List.map snd
     let sesAllocs = ses |> List.choose fst
     let ces = es |> List.map C
-    let body = AppN(S e0 O, Expr.Var(env) :: sesParams @ ces)
+    let body = AppN(S e0 O, Expr.Var(outputStorage) :: sesParams @ ces)
     (body, sesAllocs) ||> List.fold (fun acc (size, stgVar) -> AllocWithVar size stgVar (Expr.Lambda(stgVar, acc)))
   | LambdaN(xs, e)                   -> 
     let s2 = newStgVar()
-    LambdaN(s2 :: (xs |> List.map SV) @ (xs |> List.map CV), S e s2)
+    let sxs = xs |> List.map SVNew
+    let cxs = xs |> List.map CVNew
+    let nenv = (env, (xs, sxs, cxs) |||> List.zip3) ||> List.fold (fun acc (v1, vs, vc) -> acc.Add(v1, (vs, vc)))
+    LambdaN(s2 :: sxs @ cxs, SEnv e s2 nenv)
   | Patterns.Var(v)                  -> Expr.Var(SV v)
   | Patterns.Let(x, e1, e2)          -> 
-    let x_c = CV x
+    let x_c = CVNew x
     Expr.Let(x_c, C e1,
       Alloc (Width (Expr.Var(x_c))) (fun s2 ->
-        Expr.Let(SV x, S e1 s2, S e2 env)
+        let x_s = SVNew x
+        Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage (env.Add(x, (x_s, x_c))))
       )
     )
-  | Patterns.IfThenElse(e1, e2, e3)  -> Expr.IfThenElse(S e1 O, S e2 env, S e3 env)
+  | Patterns.IfThenElse(e1, e2, e3)  -> Expr.IfThenElse(S e1 O, S e2 outputStorage, S e3 outputStorage)
   | Patterns.NewArray(tp, es)        -> 
     let ses = es |> List.map (fun x -> let s = newStgVar() in Expr.Lambda(s, S x s))
-    NewArrayS env ses
+    NewArrayS outputStorage ses
   | ScalarOperation(name, args, _) ->
     let op = getMethodInfo exp
     Expr.Call(op, args |> List.map (fun x -> S x O))
@@ -96,22 +111,22 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     let se1 = S e1 O
     let ce0 = C e0
     let ce1 = C e1
-    let s1 = Expr.Var(env)
+    let s1 = Expr.Var(outputStorage)
     <@@ corelang.build_s<Number, Cardinality> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [e0; e1]) ->
     let se0 = S e0 O
     let se1 = S e1 O
     let ce0 = C e0
     let ce1 = C e1
-    let s1 = Expr.Var(env)
+    let s1 = Expr.Var(outputStorage)
     <@@ corelang.build_s<Vector, VectorShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
   | ArrayLength(e0) ->
-    Alloc (WidthCard e0) (fun s ->
+    Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)
     )
   | ArrayGet(e0, e1) ->
-    Alloc (WidthCard e0) (fun s2 ->
-      GetS env (S e0 s2) (S e1 O)
+    Alloc (WidthCard e0 cardEnv) (fun s2 ->
+      GetS outputStorage (S e0 s2) (S e1 O)
     )
   | Patterns.Value(v, tp) when tp = typeof<Double> || tp = typeof<Index> || tp = typeof<Cardinality> ->
     exp

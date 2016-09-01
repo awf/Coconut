@@ -9,11 +9,14 @@ open System
 let cardName (name: string): string = sprintf "%s_c" name
 
 let ZERO_CARD = Expr.Value(Card 0, typeof<Cardinality>)
-let ZERO_SHAPE (shapeType: Type) = 
+let rec ZERO_SHAPE (shapeType: Type) = 
   if shapeType = typeof<Cardinality> then 
     ZERO_CARD
   elif shapeType = typeof<VectorShape> then
     <@@ nestedShape<Cardinality> %%ZERO_CARD %%ZERO_CARD @@>
+  elif shapeType = typeof<MatrixShape> then
+    let elem = ZERO_SHAPE (typeof<VectorShape>)
+    <@@ nestedShape<VectorShape> (%%elem) %%ZERO_CARD @@>
   else
     failwithf "Doesn't know how to create ZERO_SHAPE for the shape type `%A`" shapeType
 
@@ -29,18 +32,30 @@ let rec cardTransformType (t: Type) =
 
 let cardTransformVar (v: Var): Var = new Var(cardName v.Name, cardTransformType v.Type)
 
-let rec inferCardinality (exp: Expr): Expr =
-  let C = inferCardinality
+type CardEnv = Map<Var, Var>
+
+let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
+  let C e = inferCardinality e env
+  let CEnv = inferCardinality
   let CT = cardTransformType
-  let CV = cardTransformVar
+  let CVNew = cardTransformVar
+  let CV v = 
+    match env.TryFind(v) with
+    | Some v2 -> v2
+    | None    -> failwithf "The environment does not contain mapping for `%A`" v
   match exp with
   | _ when exp.Type = typeof<Number> -> ZERO_CARD
   | _ when exp.Type = typeof<Index>  -> ZERO_CARD
   | _ when exp.Type = typeof<bool>   -> ZERO_CARD
   | AllAppN(e0, es)                  -> AppN(C e0, es |> List.map C)
-  | LambdaN(xs, e)                   -> LambdaN(xs |> List.map CV, C e)
+  | LambdaN(xs, e)                   -> 
+    let nxs = xs |> List.map CVNew
+    let nenv = (env, (xs, nxs) ||> List.zip) ||> List.fold (fun acc (v1, v2) -> acc.Add(v1, v2))
+    LambdaN(nxs, CEnv e nenv)
   | Patterns.Var(v)                  -> Expr.Var(CV v)
-  | Patterns.Let(x, e1, e2)          -> Expr.Let(CV x, C e1, C e2)
+  | Patterns.Let(x, e1, e2)          -> 
+    let nx = CVNew x
+    Expr.Let(nx, C e1, CEnv e2 (env.Add(x, nx)))
   | Patterns.IfThenElse(e1, e2, e3)  -> C e2
   | Patterns.NewArray(tp, es)        -> 
     let ce1 = C es.[0]
@@ -49,7 +64,11 @@ let rec inferCardinality (exp: Expr): Expr =
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
-    <@@ nestedShape ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+    <@@ nestedShape<Cardinality> ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [e0; e1]) ->
+    let ce0 = C e0
+    let ce1 = C e1
+    <@@ nestedShape<VectorShape> ((%%ce1: Cardinality -> VectorShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
   | ArrayLength(e0) ->
     let ce0 = C e0
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
@@ -80,11 +99,11 @@ let Width (cardExp: Expr): Expr =
   else
     MakeCall(<@@ width @@>)([cardExp])([cardExp.Type])
 
-let WidthCard (exp: Expr): Expr = 
+let WidthCard (exp: Expr) (env: CardEnv): Expr = 
   let t = exp.Type
   if (t = typeof<Number> || t = typeof<Index> || t = typeof<bool>) then
     ZERO_CARD
   else
-    let cardExp = inferCardinality exp
+    let cardExp = inferCardinality exp env
     Width cardExp
     

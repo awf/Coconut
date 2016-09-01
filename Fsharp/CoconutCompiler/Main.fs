@@ -50,8 +50,8 @@ let compile_modules () =
     compiler.compileModule "ccodegentests" [] false false
 
 let compile_modules_storaged () = 
-    compiler.compileModule "linalg" [] false true
-    //compiler.compile "linalg" "vectorMap" false true
+    //compiler.compileModule "linalg" [] false true
+    compiler.compile "linalg" "matrixMap" false true
     ()
 
 let benchmark_search () =
@@ -422,7 +422,7 @@ let test_card () =
     let exp = compiler.getMethodExpr moduleName methodName
     let expCard = cardinfer.inferCardinality exp
     printfn "card: `%A`" expCard
-    let expStg = storagedtransformer.transformStoraged exp (storagedtransformer.newStgVar())
+    let expStg = storagedtransformer.transformStoraged exp (storagedtransformer.newStgVar()) Map.empty
     printfn "stg: `%A`" (ccodegen.prettyprint expStg)
   cardAndStg "linalg" "vectorMap"
   cardAndStg "programs" "vectorAddExample"

@@ -116,6 +116,7 @@ let rec ccodegen (e:Expr): string =
   | Patterns.NewArray(tp, elems) -> 
     failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)
   | Patterns.Let(x, e1, e2) -> 
+    
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
@@ -134,11 +135,17 @@ and ccodegenMonomorphicMacro (e: Expr): string =
     sprintf "nested_shape_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
   | DerivedPatterns.SpecificCall <@ cardinality.shapeCard @> (_, [tp], args) ->
     sprintf "shape_card_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
+  | DerivedPatterns.SpecificCall <@ cardinality.shapeElem @> (_, [tp], args) ->
+    sprintf "shape_elem_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
   | DerivedPatterns.SpecificCall <@ cardinality.width @> (_, [tp], args) ->
     sprintf "width_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
   | DerivedPatterns.SpecificCall <@ corelang.get_s @> (_, [tp1; tp2], [st; arr; idx; arr_c; idx_c]) ->
     if(tp1 = typeof<Number>) then
       assert (tp2 = typeof<VectorShape>)
+      sprintf "%s->arr[%s]" (ccodegen arr) (ccodegen idx)
+    elif(tp1 = typeof<Vector>) then
+      assert (tp2 = typeof<MatrixShape>)
+      // FIXME make it non-leaky
       sprintf "%s->arr[%s]" (ccodegen arr) (ccodegen idx)
     else 
       failwithf "Does not know how to generate C code for get_s with type parameters `%A`, `%A`" tp1 tp2
@@ -262,9 +269,6 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       | "length" ->
         let arr = ccodegen (elist.[0])
         (sprintf "%s->length" arr, [], false)
-      | "width" ->
-        let crd = ccodegen (elist.[0])
-        (sprintf "width(%s)" crd, [], false)
       | name ->
         match e with
         | DerivedPatterns.SpecificCall <@ corelang.build_s @> (_, [ta; ts], _) ->
