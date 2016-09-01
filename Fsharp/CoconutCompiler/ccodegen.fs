@@ -122,13 +122,24 @@ let rec ccodegen (e:Expr): string =
   | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
     (ccodegen args.[0])
   | _ -> sprintf "ERROR[%A]" e
+
 and ccodegenMonomorphicMacro (e: Expr): string = 
+  let ccodegenArgs (args: Expr list): string = 
+    String.concat ", " (args |> List.map ccodegen)
   match e with
   | DerivedPatterns.SpecificCall <@ cardinality.nestedShape @> (_, [tp], args) ->
-    sprintf "nested_shape_%s(%s)" (ccodegenType tp) (String.concat ", " (args |> List.map ccodegen))
+    sprintf "nested_shape_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
   | DerivedPatterns.SpecificCall <@ cardinality.shapeCard @> (_, [tp], args) ->
-    sprintf "shape_card_%s(%s)" (ccodegenType tp) (String.concat ", " (args |> List.map ccodegen))
-  | _ ->
+    sprintf "shape_card_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
+  | DerivedPatterns.SpecificCall <@ cardinality.width @> (_, [tp], args) ->
+    sprintf "width_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
+  | DerivedPatterns.SpecificCall <@ corelang.get_s @> (_, [tp1; tp2], [st; arr; idx; arr_c; idx_c]) ->
+    if(tp1 = typeof<Number>) then
+      assert (tp2 = typeof<VectorShape>)
+      sprintf "%s->arr[%s]" (ccodegen arr) (ccodegen idx)
+    else 
+      failwithf "Does not know how to generate C code for get_s with type parameters `%A`, `%A`" tp1 tp2
+  | _ -> 
     failwithf "Does not know how to generate monomorhpic macro call for the expression `%A`" e
 
 (* C code generation for a statement in the form of `let var = e` *)

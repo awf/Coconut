@@ -124,11 +124,13 @@ let closureConversion (e: Expr): Expr =
     | Patterns.NewArray(tp, elems) -> 
       Expr.NewArray(tp, List.map rcr elems)
     | Patterns.Call (None, op, elist) -> 
-      let isCMacro = not (Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true)))
+      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
+      let isCMacro = cMacro |> Option.isSome
       let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
       let callExpr = Expr.Call(op, telist)
-      let macroVar = new Var(newVar "macroDef", exp.Type)
-      if isCMacro then
+      let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
+      if shouldLetBind then
+        let macroVar = new Var(newVar "macroDef", exp.Type)
         Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
       else
         callExpr
