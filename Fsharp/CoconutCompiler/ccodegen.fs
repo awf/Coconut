@@ -67,6 +67,8 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<AnyNumeric>) -> "value_t"
   | _ when (t = typeof<Index>) -> "index_t"
   | _ when (t = typeof<Cardinality>) -> "card_t"
+  | _ when (t = typeof<VectorShape>) -> "vector_shape_t"
+  | _ when (t = typeof<MatrixShape>) -> "matrix_shape_t"
   | _ when (t = typeof<Storage>) -> "storage_t"
   | _ when (t = typeof<Timer>) -> "timer_t"
   | _ when (t = typeof<string>) -> "string_t"
@@ -93,6 +95,8 @@ let rec ccodegen (e:Expr): string =
     sprintf "%s.lam(%s.env, %s).%s_value" closure closure (String.concat ", " (List.map ccodegen args)) tp
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
+  | Patterns.Call (None, op, _) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMonomorphicMacro>, true))) -> 
+    ccodegenMonomorphicMacro e
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | OperatorName opname -> 
@@ -118,6 +122,14 @@ let rec ccodegen (e:Expr): string =
   | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
     (ccodegen args.[0])
   | _ -> sprintf "ERROR[%A]" e
+and ccodegenMonomorphicMacro (e: Expr): string = 
+  match e with
+  | DerivedPatterns.SpecificCall <@ cardinality.nestedShape @> (_, [tp], args) ->
+    sprintf "nested_shape_%s(%s)" (ccodegenType tp) (String.concat ", " (args |> List.map ccodegen))
+  | DerivedPatterns.SpecificCall <@ cardinality.shapeCard @> (_, [tp], args) ->
+    sprintf "shape_card_%s(%s)" (ccodegenType tp) (String.concat ", " (args |> List.map ccodegen))
+  | _ ->
+    failwithf "Does not know how to generate monomorhpic macro call for the expression `%A`" e
 
 (* C code generation for a statement in the form of `let var = e` *)
 let rec ccodegenStatement (var: Var, e: Expr): string * string List =
@@ -252,7 +264,11 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let crd = ccodegen (elist.[0])
         (sprintf "width(%s)" crd, [], false)
       | name ->
-        failwithf "Does not know how to generate C macro code for the method `%s`" name
+        match e with
+        | DerivedPatterns.SpecificCall <@ cardinality.nestedShape @> (_, [tp], _) ->
+          (sprintf "nested_shaped_%s(%s)" (ccodegenType tp) (String.concat ", " (elist |> List.map ccodegen)), [], false)
+        | _ ->
+          failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 
       (ccodegen e, [], false)
   if(includesLhs) then 

@@ -48,3 +48,9 @@ type DontOptimize() =
 
 type CMacro() =
     inherit System.Attribute()
+    abstract member ShouldLetBind: unit -> bool
+    default this.ShouldLetBind () = true
+
+type CMonomorphicMacro() =
+    inherit CMacro()
+    override this.ShouldLetBind () = false
