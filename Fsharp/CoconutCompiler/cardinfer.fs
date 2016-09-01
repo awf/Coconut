@@ -13,7 +13,7 @@ let ZERO_SHAPE (shapeType: Type) =
   if shapeType = typeof<Cardinality> then 
     ZERO_CARD
   elif shapeType = typeof<VectorShape> then
-    <@@ vectorShape<Cardinality> %%ZERO_CARD %%ZERO_CARD @@>
+    <@@ nestedShape<Cardinality> %%ZERO_CARD %%ZERO_CARD @@>
   else
     failwithf "Doesn't know how to create ZERO_SHAPE for the shape type `%A`" shapeType
 
@@ -45,20 +45,20 @@ let rec inferCardinality (exp: Expr): Expr =
   | Patterns.NewArray(tp, es)        -> 
     let ce1 = C es.[0]
     let N = Expr.Value(Card es.Length, typeof<Cardinality>)
-    <@@ vectorShape (flatShape (%%ce1: Cardinality)) (%%N: Cardinality) @@>
+    <@@ nestedShape (%%ce1: Cardinality) (%%N: Cardinality) @@>
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
-    <@@ vectorShape (flatShape ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD)) (%%ce0: Cardinality) @@>
+    <@@ nestedShape ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
   | ArrayLength(e0) ->
     let ce0 = C e0
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
   | ArrayGet(e0, e1) ->
     let ce0 = C e0
     if exp.Type = typeof<Number> then
-      <@@ flatShapeCard (shapeElem %%ce0) @@>
+      <@@ shapeElem<Cardinality> %%ce0 @@>
     else
-      <@@ shapeElem %%ce0 @@>
+      <@@ shapeElem<VectorShape> %%ce0 @@>
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
   | _ -> failwithf "Does not know how to compute cardinality for the expression `%A`" exp
 

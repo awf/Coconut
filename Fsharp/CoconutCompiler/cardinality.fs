@@ -11,22 +11,19 @@ let (.+) (c1: Cardinality) (c2: Cardinality): Cardinality =
 let (.-) (c1: Cardinality) (c2: Cardinality): Cardinality =
   Card((cardToInt c1) - (cardToInt c2))
 
+[<CMonomorphicMacro()>]
 let shapeElem<'Shape> (s: NestedShape<'Shape>): 'Shape =
   let (NestedShape(se, _)) = s in se
 
+[<CMonomorphicMacro()>]
 let shapeCard<'Shape> (s: NestedShape<'Shape>): Cardinality =
   let (NestedShape(_, c)) = s in c
 
-let flatShapeCard (s: Cardinality): Cardinality =
-  s
-
-let vectorShape<'Shape> (s: 'Shape) (c: Cardinality): NestedShape<'Shape> =
+[<CMonomorphicMacro()>]
+let nestedShape<'Shape> (s: 'Shape) (c: Cardinality): NestedShape<'Shape> =
   NestedShape(s, c)
 
-let flatShape (c: Cardinality): Cardinality =
-  c
-
-[<CMacro()>]
+[<CMonomorphicMacro()>]
 let rec width<'Shape> (s: 'Shape): Cardinality = 
   match s.GetType() with
   | t when t = typeof<Cardinality> -> unbox<Cardinality>(s)
