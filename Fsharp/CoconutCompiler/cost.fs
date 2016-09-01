@@ -82,8 +82,8 @@ let rec fopCost(exp: Expr): double =
     List.sum (List.map fopCost args) + LENGTH_ACCESS
   | DerivedPatterns.SpecificCall <@ cardinality.cardToInt @> (_, _, args) -> 
     List.sum (List.map fopCost args)
-  | Patterns.NewUnionCase(info, args) when info.Name = "Card" ->
-    List.sum (List.map fopCost args)
+  | CardConstructor c ->
+    fopCost c
   | ArraySlice(arr, s, e) ->
     let estimatedCardinality = rangeExprToDouble s e
     ARRAY_SLICE + MALLOC_COST + fopCost(arr) + fopCost(s) + fopCost(e) + ARRAY_ACCESS * (estimatedCardinality |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)

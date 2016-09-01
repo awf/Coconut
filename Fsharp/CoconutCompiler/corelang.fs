@@ -146,11 +146,11 @@ let vectorBuildGivenStorage (storage: Storage) (f: Index -> Number): Vector =
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
 
 [<CMacro()>]
-let vectorBuild_s (storage: Storage) 
-  (size: Cardinality) (f: Storage -> Index -> Cardinality -> Number)
-  (size_c: Cardinality) (f_c: Cardinality -> Cardinality): Vector =
+let build_s<'a, 's> (storage: Storage) 
+  (size: Cardinality) (f: Storage -> Index -> Cardinality -> 'a)
+  (size_c: Cardinality) (f_c: Cardinality -> 's): array<'a> =
   match storage with
-  | VS v -> vectorBuild size (fun i -> f storage i (Card 0))
+  //| VS v -> vectorBuild size (fun i -> f storage i (Card 0))
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
 
 [<CMonomorphicMacro()>]

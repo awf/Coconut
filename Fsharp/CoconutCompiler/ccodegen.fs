@@ -93,22 +93,25 @@ let rec ccodegen (e:Expr): string =
     let closure = ccodegen func
     let tp = ccodegenType (e.Type)
     sprintf "%s.lam(%s.env, %s).%s_value" closure closure (String.concat ", " (List.map ccodegen args)) tp
+  | ScalarOperation(name, elist, isInfix) -> 
+    if((List.length elist) = 2) then 
+      if isInfix then
+        sprintf "(%s) %s (%s)" (ccodegen elist.[0]) name (ccodegen elist.[1]) 
+      else
+        sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen elist))
+    elif ((List.length elist) = 1) then
+      sprintf "%s(%s)" name (ccodegen elist.[0])
+    else 
+      failwith (sprintf "The code generator only supports unary and binary operators. The given operator accepts %d operators" 
+                  (List.length elist))
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, _) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMonomorphicMacro>, true))) -> 
     ccodegenMonomorphicMacro e
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> 
-        if((List.length elist) = 2) then 
-          sprintf "(%s) %s (%s)" (ccodegen elist.[0]) opname (ccodegen elist.[1]) 
-        elif ((List.length elist) = 1) then
-          sprintf "%s(%s)" opname (ccodegen elist.[0])
-        else 
-          failwith (sprintf "The code generator only supports unary and binary operators. The given operator accepts %d operators" 
-                      (List.length elist))
-      | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
-      | _ -> failwith (sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist)))
+    | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
+    | _ -> failwith (sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist)))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)
@@ -119,8 +122,8 @@ let rec ccodegen (e:Expr): string =
     let (Card(card)) = unbox<Cardinality>(v)
     sprintf "%d" card
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
-  | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
-    (ccodegen args.[0])
+  | CardConstructor c -> 
+    (ccodegen c)
   | _ -> sprintf "ERROR[%A]" e
 
 and ccodegenMonomorphicMacro (e: Expr): string = 
@@ -243,18 +246,6 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
            idxCode idxCode resultName idxCode
            bodyCode
            , bodyClosures, true)
-      | "vectorBuild_s" ->
-        let storage = ccodegen (elist.[0])
-        let resultType = ccodegenType (var.Type)
-        let resultName = var.Name 
-        let (LambdaN([st; idx; crd], body)) = elist.[2]
-        let idxCode = idx.Name
-        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
-        (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
-           resultType resultName resultType storage 
-           idxCode idxCode resultName idxCode
-           bodyCode
-           , bodyClosures, true)
       | "vectorAllocOnStack" -> 
         let size = ccodegen (elist.[0])
         let tp = ccodegenType typeof<Vector>
@@ -276,8 +267,18 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         (sprintf "width(%s)" crd, [], false)
       | name ->
         match e with
-        | DerivedPatterns.SpecificCall <@ cardinality.nestedShape @> (_, [tp], _) ->
-          (sprintf "nested_shaped_%s(%s)" (ccodegenType tp) (String.concat ", " (elist |> List.map ccodegen)), [], false)
+        | DerivedPatterns.SpecificCall <@ corelang.build_s @> (_, [ta; ts], _) ->
+          let storage = ccodegen (elist.[0])
+          let resultType = ccodegenType (var.Type)
+          let resultName = var.Name 
+          let (LambdaN([st; idx; crd], body)) = elist.[2]
+          let idxCode = idx.Name
+          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
+          (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
+             resultType resultName resultType storage 
+             idxCode idxCode resultName idxCode
+             bodyCode
+             , bodyClosures, true)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name
     | _ -> 

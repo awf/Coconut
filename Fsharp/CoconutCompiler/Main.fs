@@ -50,8 +50,8 @@ let compile_modules () =
     compiler.compileModule "ccodegentests" [] false false
 
 let compile_modules_storaged () = 
-    // compiler.compileModule "linalg" [] true true
-    compiler.compile "linalg" "vectorMap" false true
+    compiler.compileModule "linalg" [] false true
+    //compiler.compile "linalg" "vectorMap" false true
     ()
 
 let benchmark_search () =

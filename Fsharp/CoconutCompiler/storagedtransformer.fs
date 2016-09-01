@@ -88,7 +88,7 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
   | Patterns.NewArray(tp, es)        -> 
     let ses = es |> List.map (fun x -> let s = newStgVar() in Expr.Lambda(s, S x s))
     NewArrayS env ses
-  | ScalarOperation(name, args) ->
+  | ScalarOperation(name, args, _) ->
     let op = getMethodInfo exp
     Expr.Call(op, args |> List.map (fun x -> S x O))
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
@@ -97,7 +97,14 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
     let ce0 = C e0
     let ce1 = C e1
     let s1 = Expr.Var(env)
-    <@@ corelang.vectorBuild_s %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+    <@@ corelang.build_s<Number, Cardinality> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [e0; e1]) ->
+    let se0 = S e0 O
+    let se1 = S e1 O
+    let ce0 = C e0
+    let ce1 = C e1
+    let s1 = Expr.Var(env)
+    <@@ corelang.build_s<Vector, VectorShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
   | ArrayLength(e0) ->
     Alloc (WidthCard e0) (fun s ->
       ArrayLength(S e0 s)
@@ -107,6 +114,8 @@ let rec transformStoraged (exp: Expr) (env: StorageEnv): Expr =
       GetS env (S e0 s2) (S e1 O)
     )
   | Patterns.Value(v, tp) when tp = typeof<Double> || tp = typeof<Index> || tp = typeof<Cardinality> ->
+    exp
+  | CardConstructor c ->
     exp
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 

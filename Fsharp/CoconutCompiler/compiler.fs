@@ -1,4 +1,4 @@
-﻿module compiler
+﻿module compiler 
 
 open Microsoft.FSharp.Quotations
 open transformer
@@ -25,7 +25,7 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
            e
        else 
          e
-     let debug = false
+     let debug = true
      if(debug) then 
        printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
        if(opt) then 
@@ -39,8 +39,8 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
          let sFunctionName = storagedtransformer.storagedName functionName
          let ce = cardinfer.inferCardinality optimized
          let cFunctionName = cardinfer.cardName functionName
-         ccodegenTopLevel se sFunctionName debug +
-           ccodegenTopLevel ce cFunctionName debug
+         ccodegenTopLevel ce cFunctionName debug +
+           ccodegenTopLevel se sFunctionName debug
        else
          ""
      generatedCode + generatedStoragedCode

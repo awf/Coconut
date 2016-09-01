@@ -22,12 +22,26 @@ let (|OperatorName|_|) methodName =
     | "op_DotPlus" -> Some("+")
     | _ -> None
 
-let (|ScalarOperation|_|) (exp: Expr): (string * Expr list) option =
+let (|ScalarOperation|_|) (exp: Expr): (string * Expr list * bool) option =
   match exp with 
-  | Patterns.Call(None, op, args) ->
-    match op.Name with
-    | OperatorName name -> Some(name, args)
-    | _                 -> None
+  | Patterns.Call(None, op, argList) ->
+    match (op.Name, op.DeclaringType.Name) with
+    | (OperatorName name, _) -> Some(name, argList, true)
+    | ("Sqrt", "Operators") -> Some("sqrt", argList, false)
+    | ("Sin", "Operators") -> Some("sin", argList, false)
+    | ("Cos", "Operators") -> Some("cos", argList, false)
+    | ("Log", "Operators") -> Some("log", argList, false)
+    | ("Exp", "Operators") -> Some("exp", argList, false)
+    | ("Pow", "Math") -> Some("pow", argList, false)
+    | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList, false)
+    | ("ToInt", "Operators") -> Some("(int)", argList, false)
+    | ("ToDouble", "Operators") -> Some("(double)", argList, false)
+    | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList, false)
+    | _                 -> 
+      match exp with
+      | DerivedPatterns.SpecificCall <@ cardinality.cardToInt @> (_, _, [arg]) ->
+        Some("", [arg], false)
+      | _ -> None
   | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
@@ -199,7 +213,7 @@ let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option =
       let vve = unbox<int>(ve)
       let cardExp = Expr.Value(Card (vve - vvs + 1), typeof<Cardinality>)      
       Some(Expr.Var(v), [cardExp; st; e0])
-    | _, ScalarOperation("+", [e2; Patterns.Value(vsz, tsz)]) when e2 = st && tsz = typeof<Index> ->
+    | _, ScalarOperation("+", [e2; Patterns.Value(vsz, tsz)], _) when e2 = st && tsz = typeof<Index> ->
       let cardExp = Expr.Value(Card (unbox<int>(vsz) + 1), typeof<Cardinality>)  
       Some(Expr.Var(v), [cardExp; st; e0])
     | _ ->
@@ -228,6 +242,12 @@ let (|ArrayGet|_|) (e: Expr): (Expr * Expr) option =
 let ArrayGet (e0: Expr) (e1: Expr): Expr =
   <@@ (%%e0: _[]).[%%e1: int] @@>
 
+let (|CardConstructor|_|) (e: Expr): Expr option =
+  match e with
+  | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
+    Some(args.[0])
+  | _ -> None
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->
@@ -236,16 +256,16 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
     match (op.Name, op.DeclaringType.Name) with
     | (methodName, "ArrayModule") -> 
       failwith (sprintf "The generic version of the method Array.%s is not supported!" methodName)
-    | ("Sqrt", "Operators") -> Some("sqrt", argList)
-    | ("Sin", "Operators") -> Some("sin", argList)
-    | ("Cos", "Operators") -> Some("cos", argList)
-    | ("Log", "Operators") -> Some("log", argList)
-    | ("Exp", "Operators") -> Some("exp", argList)
-    | ("Pow", "Math") -> Some("pow", argList)
-    | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList)
-    | ("ToInt", "Operators") -> Some("(int)", argList)
-    | ("ToDouble", "Operators") -> Some("(double)", argList)
-    | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
+    // | ("Sqrt", "Operators") -> Some("sqrt", argList)
+    // | ("Sin", "Operators") -> Some("sin", argList)
+    // | ("Cos", "Operators") -> Some("cos", argList)
+    // | ("Log", "Operators") -> Some("log", argList)
+    // | ("Exp", "Operators") -> Some("exp", argList)
+    // | ("Pow", "Math") -> Some("pow", argList)
+    // | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList)
+    // | ("ToInt", "Operators") -> Some("(int)", argList)
+    // | ("ToDouble", "Operators") -> Some("(double)", argList)
+    // | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> // TODO rewrite using the `ArraySlice` active pattern
       let args = 
         List.map (fun x -> 
@@ -259,7 +279,7 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
         | tp when tp = typeof<Matrix3D> -> "matrix3d"
         | tp -> failwith (sprintf "Array slice not supported for the type %s" (tp.Name))
       Some(prefix + "_slice", args)
-    | ("cardToInt", "cardinality") -> Some("", argList)
+    // | ("cardToInt", "cardinality") -> Some("", argList)
     | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
         let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
         Some(attr.Method, argList)

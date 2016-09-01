@@ -60,6 +60,16 @@ let rec inferCardinality (exp: Expr): Expr =
     else
       <@@ shapeElem<VectorShape> %%ce0 @@>
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
+  | DerivedPatterns.SpecificCall <@ (.+) @> (_, _, [e0; e1]) ->
+    let ce0 = Expr.Cast<Cardinality>(C e0)
+    let ce1 = Expr.Cast<Cardinality>(C e1)
+    <@ %ce0 .+ %ce1 @>.Raw
+  | DerivedPatterns.SpecificCall <@ (.-) @> (_, _, [e0; e1]) ->
+    let ce0 = Expr.Cast<Cardinality>(C e0)
+    let ce1 = Expr.Cast<Cardinality>(C e1)
+    <@ %ce0 .- %ce1 @>.Raw
+  | CardConstructor c ->
+    exp
   | _ -> failwithf "Does not know how to compute cardinality for the expression `%A`" exp
 
 let Width (cardExp: Expr): Expr =
