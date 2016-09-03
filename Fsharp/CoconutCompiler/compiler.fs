@@ -32,8 +32,8 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
          printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
      let functionName = methodVariableName methodName moduleName
      let generatedCode = 
-       // ccodegenTopLevel optimized functionName debug
-       ""
+       ccodegenTopLevel optimized functionName debug
+       //""
      let generatedStoragedCode = 
        if storaged then
          let se = storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty

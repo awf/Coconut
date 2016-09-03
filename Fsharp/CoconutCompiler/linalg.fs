@@ -52,27 +52,27 @@ let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): un
 [<DontInline>]
 [<CMacro()>]
 let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Cardinality) (e: Cardinality): Number = 
-  vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e)
+  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
 let iterateVector (f: Vector -> Index -> Vector) (z: Vector) (s: Cardinality) (e: Cardinality): Vector = 
-  vectorFoldVector (fun acc cur -> f acc (int cur)) z (vectorRange s e)
+  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
 let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Cardinality) (e: Cardinality): Matrix = 
-  vectorFoldMatrix (fun acc cur -> f acc (int cur)) z (vectorRange s e)
+  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
 let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Cardinality) (e: Cardinality): Matrix[] = 
-  vectorFoldMatrix3D (fun acc cur -> f acc (int cur)) z (vectorRange s e)
+  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
 let arraySum (arr: Vector): Number = 
-  vectorFoldNumber (fun acc cur -> acc + cur) 0.0 arr
+  fold (fun acc cur -> acc + cur) 0.0 arr
 
 [<DontInline>]
 let arrayMax (arr: Vector): Number = 
-  vectorFoldNumber (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) arr
+  fold (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) arr
 
 let inline mult_by_scalar (x: Vector) (y: Number): Vector =
     vectorMap (fun a -> a*y) x

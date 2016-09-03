@@ -69,6 +69,11 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
 
 (** Fold methods **)
 
+[<CMacro()>]
+let fold<'a, 'b> (f: 'b -> 'a -> 'b) (z: 'b) (range: array<'a>): 'b = 
+  Array.fold (fun acc cur -> f acc cur) z range
+
+(*
 [<CMirror("vector_fold_number")>]
 let vectorFoldNumber (f: Number -> Number -> Number) (z: Number) (range: Vector): Number = 
   Array.fold (fun acc cur -> f acc cur) z range
@@ -84,6 +89,7 @@ let vectorFoldMatrix (f: Matrix -> Number -> Matrix) (z: Matrix) (range: Vector)
 [<CMirror("vector_fold_matrix3d")>]
 let vectorFoldMatrix3D (f: Matrix[] -> Number -> Matrix[]) (z: Matrix[]) (range: Vector): Matrix[] = 
   Array.fold (fun acc cur -> f acc cur) z range
+*)
 
 (** I/O Methods **)
 

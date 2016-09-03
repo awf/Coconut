@@ -72,7 +72,7 @@ let rec fopCost(exp: Expr): double =
     MALLOC_FREE_COST + fopCost(size) + fopCost(cont)
   | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
     MALLOC_COST + buildCost(size, f)
-  | DerivedPatterns.SpecificCall <@ corelang.vectorFoldNumber @> (_, _, [f; z; range]) -> 
+  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, _, [f; z; range]) -> 
     fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (estimateCardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 
     List.sum (List.map fopCost args) + NUMBER_PRINT_COST

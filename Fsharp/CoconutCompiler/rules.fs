@@ -29,7 +29,7 @@ let constFold0Index_exp    = <@ %i + 0                     <==>   %i            
 let constFoldN0Index_exp   = <@ %i - 0                     <==>   %i                  @>
 let dce_exp                = <@ ( let x = %E1 in %E2: T1 ) <==>   %E2                 @>
 let vectorFoldBuildToFoldOnRange_exp = 
-                             <@ vectorFoldNumber %F %a (vectorBuild %c1 %G)
+                             <@ fold<Number, Number> %F %a (vectorBuild %c1 %G)
                                                            <==>
                                 linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
                                                                                       @>

@@ -174,53 +174,9 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         let leftVar = Option.fold (fun _ x -> x) (var.Name) resultVar
         sprintf "%s = %s" leftVar (ccodegen res)
     (sprintf "%s\n%s%s;" statementsCode tabs lastStatement, List.concat closuresList) 
-    
-  let (rhs, funs, includesLhs) = 
-    match e with 
-    | Patterns.NewArray(tp, elems) -> 
-      let args = String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems)
-      let arrTp = ccodegenType (tp.MakeArrayType()) 
-      let elemTp = (ccodegenType tp)
-      let rhs = sprintf "(%s)malloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" 
-                  arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
-      (rhs, [], false)
-    | MakeClosure(envVar, lamBody, fields) ->
-      let lambdaName = newVar "lambda"
-      let id = variable_counter
-      let envName = sprintf "env_t_%d" id
-      let isEmptyEnvironment = List.isEmpty fields
-      let fieldsDeclList = List.map (fun (tp, v, _) -> (ccodegenType tp) + " " + v) fields 
-      let envStruct = 
-        if isEmptyEnvironment then
-          sprintf "typedef empty_env_t %s;" envName
-        else
-          let fieldsStructDecl = String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
-          sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
-      let fieldsDecl = String.concat "," fieldsDeclList
-      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v, _) -> sprintf "env.%s = %s;" v v) fields)
-      let makeEnvDef = 
-        if isEmptyEnvironment then
-          ""
-        else
-          sprintf "%s make_%s(%s) {\n\t%s env;\n\t%s\n\treturn env;\n}" 
-                         envName envName fieldsDecl envName fieldsInit
-      let makeEnvInvoke = 
-        if isEmptyEnvironment then
-          "make_empty_env()"
-        else 
-          sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
-      let makeEnvVar = sprintf "%s_value" envName
-      let makeEnvStatement = sprintf "%s %s = %s" envName makeEnvVar makeEnvInvoke 
-      let lambdaCode = withEnvNumer id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
-      (sprintf "%s; %s %s = make_closure(%s, &%s);" makeEnvStatement (ccodegenType var.Type) (var.Name)  lambdaName makeEnvVar, 
-        [envStruct; makeEnvDef; lambdaCode], 
-        true)
-    | Patterns.IfThenElse(cond, e1, e2) ->
-      let (e1code, e1closures) = ccodegenStatements "\t\t" e1 None
-      let (e2code, e2closures) = ccodegenStatements "\t\t" e2 None
-      (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
-        (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
-    | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
+  let ccodegenMacro (e: Expr): string * string list * bool = 
+    match e with
+    | Patterns.Call (None, op, elist) -> 
       match op.Name with
       | "vectorAllocCPS" -> 
         let size = 
@@ -289,8 +245,74 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
              idxCode idxCode resultName idxCode
              bodyCode
              , bodyClosures, true)
+        | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], _) ->
+          let (Patterns.Lambda(acc, Patterns.Lambda(cur, body))) = elist.[0]
+          let elementType = ccodegenType ta
+          let curCode = cur.Name
+          let idxCode = sprintf "%s_idx" curCode
+          let resultType = ccodegenType (var.Type)
+          let resultName = var.Name
+          let initCode = ccodegen (elist.[1])
+          let rangeCode = ccodegen (elist.[2])
+          let lengthCode = sprintf "%s->length" rangeCode
+          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = acc then Some(Expr.Var(var)) else None)) None
+          (sprintf "%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
+             resultType resultName initCode 
+             idxCode idxCode lengthCode idxCode
+             elementType curCode rangeCode idxCode
+             bodyCode
+             , bodyClosures, true)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name
+      | _ ->
+        failwithf "Does not know how to generate C macro code for the expression `%A`" e
+  let (rhs, funs, includesLhs) = 
+    match e with 
+    | Patterns.NewArray(tp, elems) -> 
+      let args = String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems)
+      let arrTp = ccodegenType (tp.MakeArrayType()) 
+      let elemTp = (ccodegenType tp)
+      let rhs = sprintf "(%s)malloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" 
+                  arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
+      (rhs, [], false)
+    | MakeClosure(envVar, lamBody, fields) ->
+      let lambdaName = newVar "lambda"
+      let id = variable_counter
+      let envName = sprintf "env_t_%d" id
+      let isEmptyEnvironment = List.isEmpty fields
+      let fieldsDeclList = List.map (fun (tp, v, _) -> (ccodegenType tp) + " " + v) fields 
+      let envStruct = 
+        if isEmptyEnvironment then
+          sprintf "typedef empty_env_t %s;" envName
+        else
+          let fieldsStructDecl = String.concat "\n\t" (List.map (fun x -> x + ";") fieldsDeclList)
+          sprintf "typedef struct %s {\n\t%s\n} %s;" envName fieldsStructDecl envName
+      let fieldsDecl = String.concat "," fieldsDeclList
+      let fieldsInit = String.concat "\n\t" (List.map (fun (_, v, _) -> sprintf "env.%s = %s;" v v) fields)
+      let makeEnvDef = 
+        if isEmptyEnvironment then
+          ""
+        else
+          sprintf "%s make_%s(%s) {\n\t%s env;\n\t%s\n\treturn env;\n}" 
+                         envName envName fieldsDecl envName fieldsInit
+      let makeEnvInvoke = 
+        if isEmptyEnvironment then
+          "make_empty_env()"
+        else 
+          sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
+      let makeEnvVar = sprintf "%s_value" envName
+      let makeEnvStatement = sprintf "%s %s = %s" envName makeEnvVar makeEnvInvoke 
+      let lambdaCode = withEnvNumer id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
+      (sprintf "%s; %s %s = make_closure(%s, &%s);" makeEnvStatement (ccodegenType var.Type) (var.Name)  lambdaName makeEnvVar, 
+        [envStruct; makeEnvDef; lambdaCode], 
+        true)
+    | Patterns.IfThenElse(cond, e1, e2) ->
+      let (e1code, e1closures) = ccodegenStatements "\t\t" e1 None
+      let (e2code, e2closures) = ccodegenStatements "\t\t" e2 None
+      (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
+        (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
+    | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
+      ccodegenMacro e
     | _ -> 
       (ccodegen e, [], false)
   if(includesLhs) then 
