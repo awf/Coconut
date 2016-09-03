@@ -17,6 +17,9 @@ let rec ZERO_SHAPE (shapeType: Type) =
   elif shapeType = typeof<MatrixShape> then
     let elem = ZERO_SHAPE (typeof<VectorShape>)
     <@@ nestedShape<VectorShape> (%%elem) %%ZERO_CARD @@>
+  elif shapeType = typeof<Matrix3DShape> then
+    let elem = ZERO_SHAPE (typeof<MatrixShape>)
+    <@@ nestedShape<MatrixShape> (%%elem) %%ZERO_CARD @@>
   else
     failwithf "Doesn't know how to create ZERO_SHAPE for the shape type `%A`" shapeType
 
@@ -26,6 +29,7 @@ let rec cardTransformType (t: Type) =
         t = typeof<bool> || t = typeof<Number>              -> typeof<Cardinality>
     | _ when t = typeof<Vector>                             -> typeof<VectorShape>
     | _ when t = typeof<Matrix>                             -> typeof<MatrixShape>
+    | _ when t = typeof<Matrix3D>                           -> typeof<Matrix3DShape>
     | FunctionType(inputs, output)                          -> 
       FunctionType (inputs |> List.map cardTransformType) (cardTransformType output)
     | _ -> failwithf "Does not know how to convert the cardinality type `%A`" t
@@ -69,15 +73,20 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     let ce0 = C e0
     let ce1 = C e1
     <@@ nestedShape<VectorShape> ((%%ce1: Cardinality -> VectorShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+  | DerivedPatterns.SpecificCall <@ corelang.matrix3DBuild @> (_, _, [e0; e1]) ->
+    let ce0 = C e0
+    let ce1 = C e1
+    <@@ nestedShape<MatrixShape> ((%%ce1: Cardinality -> MatrixShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
   | ArrayLength(e0) ->
     let ce0 = C e0
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
   | ArrayGet(e0, e1) ->
     let ce0 = C e0
-    if exp.Type = typeof<Number> then
-      <@@ shapeElem<Cardinality> %%ce0 @@>
-    else
-      <@@ shapeElem<VectorShape> %%ce0 @@>
+    match exp.Type with
+    | t when t = typeof<Number> -> <@@ shapeElem<Cardinality> %%ce0 @@>
+    | t when t = typeof<Vector> -> <@@ shapeElem<VectorShape> %%ce0 @@>
+    | t when t = typeof<Matrix> -> <@@ shapeElem<MatrixShape> %%ce0 @@>
+    | t                         -> failwithf "Does not know how to infer cardinality for array get of type `%A`" t
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
   | DerivedPatterns.SpecificCall <@ (.+) @> (_, _, [e0; e1]) ->
     let ce0 = Expr.Cast<Cardinality>(C e0)

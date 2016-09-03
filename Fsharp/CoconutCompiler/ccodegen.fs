@@ -69,6 +69,7 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<Cardinality>) -> "card_t"
   | _ when (t = typeof<VectorShape>) -> "vector_shape_t"
   | _ when (t = typeof<MatrixShape>) -> "matrix_shape_t"
+  | _ when (t = typeof<Matrix3DShape>) -> "matrix3d_shape_t"
   | _ when (t = typeof<Storage>) -> "storage_t"
   | _ when (t = typeof<Timer>) -> "timer_t"
   | _ when (t = typeof<string>) -> "string_t"
@@ -140,14 +141,19 @@ and ccodegenMonomorphicMacro (e: Expr): string =
   | DerivedPatterns.SpecificCall <@ cardinality.width @> (_, [tp], args) ->
     sprintf "width_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
   | DerivedPatterns.SpecificCall <@ corelang.get_s @> (_, [tp1; tp2], [st; arr; idx; arr_c; idx_c]) ->
-    if(tp1 = typeof<Number>) then
+    match tp1 with
+    | t when t = typeof<Number> ->
       assert (tp2 = typeof<VectorShape>)
       sprintf "%s->arr[%s]" (ccodegen arr) (ccodegen idx)
-    elif(tp1 = typeof<Vector>) then
+    | t when t = typeof<Vector> ->
       assert (tp2 = typeof<MatrixShape>)
       // FIXME make it non-leaky
       sprintf "%s->arr[%s]" (ccodegen arr) (ccodegen idx)
-    else 
+    | t when t = typeof<Matrix> ->
+      assert (tp2 = typeof<Matrix3DShape>)
+      // FIXME make it non-leaky
+      sprintf "%s->arr[%s]" (ccodegen arr) (ccodegen idx)
+    | _                         ->
       failwithf "Does not know how to generate C code for get_s with type parameters `%A`, `%A`" tp1 tp2
   | _ -> 
     failwithf "Does not know how to generate monomorhpic macro call for the expression `%A`" e

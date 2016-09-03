@@ -65,7 +65,8 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
         t = typeof<bool> || t = typeof<Number>              -> t
-    | _ when t = typeof<Vector> || t = typeof<Matrix>       -> t
+    | _ when t = typeof<Vector> || t = typeof<Matrix> || 
+        t = typeof<Matrix3D>                                -> t
     | FunctionType(inputs, o)                               -> 
       let sinputs = inputs |> List.map ST
       let cinputs = inputs |> List.map CT
@@ -120,6 +121,13 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     let ce1 = C e1
     let s1 = Expr.Var(outputStorage)
     <@@ corelang.build_s<Vector, VectorShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+  | DerivedPatterns.SpecificCall <@ corelang.matrix3DBuild @> (_, _, [e0; e1]) ->
+    let se0 = S e0 O
+    let se1 = S e1 O
+    let ce0 = C e0
+    let ce1 = C e1
+    let s1 = Expr.Var(outputStorage)
+    <@@ corelang.build_s<Matrix, MatrixShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
   | ArrayLength(e0) ->
     Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)
