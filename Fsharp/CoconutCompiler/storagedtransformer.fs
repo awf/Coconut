@@ -113,15 +113,19 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     let ce0 = C e0
     let ce1 = C e1
     let s1 = Expr.Var(outputStorage)
-    match t with
-    | t when t = typeof<Number> ->
-      <@@ corelang.build_s<Number, Cardinality> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
-    | t when t = typeof<Vector> ->
-      <@@ corelang.build_s<Vector, VectorShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
-    | t when t = typeof<Matrix> ->
-      <@@ corelang.build_s<Matrix, MatrixShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
-    | _                         ->
-      failwithf "Does not know how to transform to the storaged version for the build expression of type `%A`" t
+    let tc = CT t
+    MakeCall <@ corelang.build_s @> [s1; se0; se1; ce0; ce1] [t; tc] 
+  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
+    let sf = S f O
+    let sz = S z O
+    let sr = S r O
+    let cf = C f
+    let cz = C z
+    let cr = C r
+    let s1 = Expr.Var(outputStorage)
+    let tac = CT ta
+    let tbc = CT tb
+    MakeCall <@ corelang.fold_s @> [s1; sf; sz; sr; cf; cz; cr] [ta; tb; tac; tbc]
   | ArrayLength(e0) ->
     Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)

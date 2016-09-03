@@ -12,6 +12,7 @@ let ZERO_CARD = Expr.Value(Card 0, typeof<Cardinality>)
 let rec ZERO_SHAPE (shapeType: Type) = 
   if shapeType = typeof<Cardinality> then 
     ZERO_CARD
+  // TODO rewrite using MakeCall
   elif shapeType = typeof<VectorShape> then
     <@@ nestedShape<Cardinality> %%ZERO_CARD %%ZERO_CARD @@>
   elif shapeType = typeof<MatrixShape> then
@@ -68,6 +69,7 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
+    // TODO rewrite using MakeCall
     match t with
     | t when t = typeof<Number> -> 
       <@@ nestedShape<Cardinality> ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
@@ -82,6 +84,7 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
   | ArrayGet(e0, e1) ->
     let ce0 = C e0
+    // TODO rewrite using MakeCall
     match exp.Type with
     | t when t = typeof<Number> -> <@@ shapeElem<Cardinality> %%ce0 @@>
     | t when t = typeof<Vector> -> <@@ shapeElem<VectorShape> %%ce0 @@>
