@@ -28,9 +28,7 @@ let rec estimateCardinality (exp: Expr): double option =
   match exp with
   | DerivedPatterns.SpecificCall <@ linalg.vectorRange @> (_, _, [s; e]) -> 
     Option.bind (fun e -> Option.bind(fun s -> Some(e - s + 1.0)) (exprToDouble(s))) (exprToDouble(e))
-  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [size; f]) -> 
-    exprToDouble(size)
-  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
+  | DerivedPatterns.SpecificCall <@ corelang.build @> (_, _, [size; f]) -> 
     exprToDouble(size)
   | _ -> 
       //(printfn "**WARNING!** Does not know how to estimate the cardinality for the operator `%A`." exp)
@@ -62,7 +60,7 @@ let rec fopCost(exp: Expr): double =
     fopCost(z) + fopCost(s) + fopCost(e) + fopCost(f) * (rangeExprToDouble s e |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
     CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
-  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [size; f]) -> 
+  | DerivedPatterns.SpecificCall <@ corelang.build @> (_, _, [size; f]) -> 
     MALLOC_COST + buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuildGivenStorage @> (_, _, [s; f]) -> 
     fopCost(f)
@@ -70,8 +68,6 @@ let rec fopCost(exp: Expr): double =
     MALLOC_COST + fopCost(size)
   | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, _, [size; cont]) -> 
     MALLOC_FREE_COST + fopCost(size) + fopCost(cont)
-  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [size; f]) -> 
-    MALLOC_COST + buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, _, [f; z; range]) -> 
     fopCost(z) + fopCost(range) + fopCost(f) * (Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE (estimateCardinality(range)))
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) -> 

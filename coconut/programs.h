@@ -26,29 +26,29 @@ array_array_number_t programs_matrix_add3(array_array_number_t m1, array_array_n
 }
 
 void programs_hoistingExample(array_number_t v) {
-	number_t macroDef299 = 0;
+	number_t macroDef252 = 0;
 	for(int idx = 0; idx <= 9; idx++){
 		array_number_t tmp = array_slice(v, idx, (idx) + (9));
-		macroDef299 = (macroDef299) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
+		macroDef252 = (macroDef252) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
 	}
-	number_t sum = macroDef299;
+	number_t sum = macroDef252;
 	number_print(sum);
 	return ;
 }
 
 void programs_explicitMallocExample1(array_number_t v) {
 	array_number_t storage1 = vector_alloc(10);
-	number_t macroDef302 = 0;
+	number_t macroDef255 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		array_number_t macroDef301 = (array_number_t)storage1;
-		for(int i = 0; i < macroDef301->length; i++){
+		array_number_t macroDef254 = (array_number_t)storage1;
+		for(int i = 0; i < macroDef254->length; i++){
 			
-			macroDef301->arr[i] = v->arr[(i) + (idx)];
+			macroDef254->arr[i] = v->arr[(i) + (idx)];
 		}
-		array_number_t tmp = macroDef301;
-		macroDef302 = (macroDef302) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
+		array_number_t tmp = macroDef254;
+		macroDef255 = (macroDef255) + (linalg_sqnorm(linalg_add_vec(tmp, tmp)));
 	}
-	number_t sum = macroDef302;
+	number_t sum = macroDef255;
 	number_print(sum);
 	free(storage1);
 	;
@@ -58,18 +58,18 @@ void programs_explicitMallocExample1(array_number_t v) {
 void programs_explicitMallocExample2(array_number_t v) {
 	array_number_t storage1 = vector_alloc(10);
 	array_number_t storage2 = vector_alloc(10);
-	number_t macroDef306 = 0;
+	number_t macroDef259 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		array_number_t macroDef305 = (array_number_t)storage1;
-		for(int i = 0; i < macroDef305->length; i++){
+		array_number_t macroDef258 = (array_number_t)storage1;
+		for(int i = 0; i < macroDef258->length; i++){
 			
-			macroDef305->arr[i] = v->arr[(i) + (idx)];
+			macroDef258->arr[i] = v->arr[(i) + (idx)];
 		}
-		array_number_t tmp = macroDef305;
+		array_number_t tmp = macroDef258;
 		array_number_t tmp2 = linalg_add_vecGivenStorage(storage2, tmp, tmp);
-		macroDef306 = (macroDef306) + (linalg_sqnorm(tmp2));
+		macroDef259 = (macroDef259) + (linalg_sqnorm(tmp2));
 	}
-	number_t sum = macroDef306;
+	number_t sum = macroDef259;
 	number_print(sum);
 	free(storage2);
 	;
@@ -95,36 +95,25 @@ void programs_storageConvertorExample(card_t s, card_t e) {
 	array_print(v2);
 	return ;
 }
-typedef empty_env_t env_t_321;
+typedef empty_env_t env_t_270;
 
-typedef struct env_t_322 {
-	array_number_t b;
-	array_number_t a;
-} env_t_322;
-env_t_322 make_env_t_322(array_number_t b,array_number_t a) {
-	env_t_322 env;
-	env.b = b;
-	env.a = a;
-	return env;
-}
 
-value_t lambda322(env_t_322* env315, index_t i) {
-	array_number_t b314 = env315->b;
-	array_number_t a313 = env315->a;
+value_t lambda270(env_t_270* env267, array_number_t a, array_number_t b) {
+	card_t macroDef265 = a->length;
+	array_number_t macroDef266 = (array_number_t)malloc(sizeof(int) * 2);
+	macroDef266->length=macroDef265;
+	macroDef266->arr = (number_t*)malloc(sizeof(number_t) * macroDef265);
+		for(int i = 0; i < macroDef266->length; i++){
+			
+			macroDef266->arr[i] = (a->arr[i]) + (b->arr[i]);
+		}
 	value_t res;
-	res.number_t_value = (a313->arr[i]) + (b314->arr[i]);
-	return res;
-}
-value_t lambda321(env_t_321* env318, array_number_t a, array_number_t b) {
-	card_t macroDef312 = a->length;
-	env_t_322 env_t_322_value = make_env_t_322(b,a); closure_t closure317 = make_closure(lambda322, &env_t_322_value);
-	value_t res;
-	res.array_number_t_value = vector_build(macroDef312, closure317);
+	res.array_number_t_value = macroDef266;
 	return res;
 }
 array_number_t programs_vectorAddExample(number_t dum) {
-	env_t_321 env_t_321_value = make_empty_env(); closure_t closure320 = make_closure(lambda321, &env_t_321_value);
-	closure_t add = closure320;
+	env_t_270 env_t_270_value = make_empty_env(); closure_t closure269 = make_closure(lambda270, &env_t_270_value);
+	closure_t add = closure269;
 	array_number_t vec1 = (array_number_t)malloc(sizeof(int) * 2);
 	vec1->length=3;
 	vec1->arr = (number_t*)malloc(sizeof(number_t) * 3);
@@ -141,13 +130,13 @@ array_number_t programs_vectorAddExample(number_t dum) {
 }
 
 void programs_small_tests(number_t dum) {
-	number_t a323 = programs_test1(2);
-	number_print(a323);
-	number_print(programs_test2(2, a323));
-	array_number_t v2324 = linalg_vectorRange(0, 99);
-	programs_hoistingExample(v2324);
-	programs_explicitMallocExample1(v2324);
-	programs_explicitMallocExample2(v2324);
+	number_t a271 = programs_test1(2);
+	number_print(a271);
+	number_print(programs_test2(2, a271));
+	array_number_t v2272 = linalg_vectorRange(0, 99);
+	programs_hoistingExample(v2272);
+	programs_explicitMallocExample1(v2272);
+	programs_explicitMallocExample2(v2272);
 	programs_stackAllocExample(2, 3, 5);
 	return ;
 }

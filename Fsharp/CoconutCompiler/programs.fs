@@ -118,7 +118,7 @@ let storageConvertorExample (s: Cardinality) (e: Cardinality) =
 
 [<DontOptimize>]
 let vectorAddExample (dum: Number): Vector =
-  let add (a: Vector) (b: Vector) = vectorBuild (length a) (fun i -> a.[i] + b.[i])
+  let add (a: Vector) (b: Vector) = build (length a) (fun i -> a.[i] + b.[i])
   let vec1 = [| 1.; 2.; 3. |]
   let vec2 = [| 4.; 5.; 6. |]
   add vec1 vec2

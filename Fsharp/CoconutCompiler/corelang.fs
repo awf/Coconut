@@ -8,6 +8,11 @@ open System.IO
 
 (** Constructor Methods **)
 
+[<CMacro()>]
+let build<'a> (size: Cardinality) (f: Index -> 'a): array<'a> =
+  [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
+
+(*
 [<CMirror("vector_build")>]
 let vectorBuild (size: Cardinality) (f: Index -> Number): Vector =
   [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
@@ -19,16 +24,6 @@ let matrixBuild (size: Cardinality) (f: Index -> Vector): Matrix =
 [<CMirror("matrix3d_build")>]
 let matrix3DBuild (size: Cardinality) (f: Index -> Matrix): Matrix3D =
   [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
-
-(*
-let vectorLength (v: Vector): Cardinality = 
-  Card v.Length
-
-let matrixLength (m: Matrix): Cardinality = 
-  Card m.Length
-
-let matrix3dLength (m: Matrix3D): Cardinality = 
-  Card m.Length
 *)
 
 [<CMacro()>]
@@ -36,7 +31,7 @@ let length<'a> (v: array<'a>): Cardinality =
   Card v.Length
 
 let private arrayRange (s: int) (e: int): Vector = 
-  vectorBuild (Card(e - s + 1)) (fun i -> double (s + i))
+  build (Card(e - s + 1)) (fun i -> double (s + i))
 
 (** Transformer Methods **)
 
@@ -148,7 +143,7 @@ let vectorAllocCPS (size: Cardinality) (cont: Storage -> 'a): 'a =
 [<CMacro()>]
 let vectorBuildGivenStorage (storage: Storage) (f: Index -> Number): Vector =
   match storage with
-  | VS v -> vectorBuild (Card v.Length) f
+  | VS v -> build (Card v.Length) f
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
 
 [<CMacro()>]

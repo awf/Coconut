@@ -65,18 +65,18 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     let ce1 = C es.[0]
     let N = Expr.Value(Card es.Length, typeof<Cardinality>)
     <@@ nestedShape (%%ce1: Cardinality) (%%N: Cardinality) @@>
-  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
+  | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
-    <@@ nestedShape<Cardinality> ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
-  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [e0; e1]) ->
-    let ce0 = C e0
-    let ce1 = C e1
-    <@@ nestedShape<VectorShape> ((%%ce1: Cardinality -> VectorShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
-  | DerivedPatterns.SpecificCall <@ corelang.matrix3DBuild @> (_, _, [e0; e1]) ->
-    let ce0 = C e0
-    let ce1 = C e1
-    <@@ nestedShape<MatrixShape> ((%%ce1: Cardinality -> MatrixShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+    match t with
+    | t when t = typeof<Number> -> 
+      <@@ nestedShape<Cardinality> ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+    | t when t = typeof<Vector> ->
+      <@@ nestedShape<VectorShape> ((%%ce1: Cardinality -> VectorShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+    | t when t = typeof<Matrix> ->
+      <@@ nestedShape<MatrixShape> ((%%ce1: Cardinality -> MatrixShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
+    | _ ->
+      failwithf "Does not know how to infer cardinality for type `%A`" t
   | ArrayLength(e0) ->
     let ce0 = C e0
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])

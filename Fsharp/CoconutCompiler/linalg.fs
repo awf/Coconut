@@ -10,38 +10,38 @@ open cardinality
 
 [<DontInline>]
 let inline vectorMap (f: Number -> Number) (v: Vector): Vector = 
-    vectorBuild (length v) (fun i -> f(v.[i]))
+  build (length v) (fun i -> f(v.[i]))
 
 [<DontInline>]
 let vectorRange (s: Cardinality) (e: Cardinality): Vector = 
-  vectorBuild (e .- s .+ (Card 1)) (fun i -> double (cardToInt s + i))
+  build (e .- s .+ (Card 1)) (fun i -> double (cardToInt s + i))
 
 let vectorSlice (size: Cardinality) (offset: Index) (v: Vector): Vector =
-  vectorBuild size (fun i -> v.[i + offset])
+  build size (fun i -> v.[i + offset])
 
 [<DontInline>]
 let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 
-  matrixBuild (length m) (fun i -> f(m.[i]))
+  build (length m) (fun i -> f(m.[i]))
 
 [<DontInline>]
 let vectorMap2 (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
-  vectorBuild (length v1) (fun i -> f(v1.[i])(v2.[i]))
+  build (length v1) (fun i -> f(v1.[i])(v2.[i]))
 
 [<DontInline>]
 let matrixMap2 (f: Vector -> Vector -> Vector) (m1: Matrix) (m2: Matrix): Matrix = 
-  matrixBuild (length m1) (fun i -> f(m1.[i])(m2.[i]))
+  build (length m1) (fun i -> f(m1.[i])(m2.[i]))
 
 [<DontInline>]
 let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
-  matrix3DBuild (length m1) (fun i -> f(m1.[i])(m2.[i]))
+  build (length m1) (fun i -> f(m1.[i])(m2.[i]))
 
 [<DontInline>]
 let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
-  matrixBuild (length arr) (fun i -> f(arr.[i]))
+  build (length arr) (fun i -> f(arr.[i]))
 
 [<DontInline>]
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
-  matrix3DBuild (length arr) (fun i -> f(arr.[i]))
+  build (length arr) (fun i -> f(arr.[i]))
 
 (*
 [<DontInline>]

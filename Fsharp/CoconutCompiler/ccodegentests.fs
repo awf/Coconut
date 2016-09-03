@@ -5,14 +5,14 @@ open types
 open corelang
 
 let closure_bug1 (m1: Matrix) (m2: Matrix): Matrix = 
-  matrixBuild (Card 10) (fun i -> vectorBuild (Card 20) (fun j -> double(j)))
+  build (Card 10) (fun i -> build (Card 20) (fun j -> double(j)))
 
 let closure_bug2 (m1: Matrix) (m2: Matrix): Matrix = 
-  matrixBuild (Card 10) (fun i -> vectorBuild (Card 20) (fun j -> double(i + j)))
+  build (Card 10) (fun i -> build (Card 20) (fun j -> double(i + j)))
 
 let closure_bug3 (m1: Matrix) (m2: Matrix): Matrix = 
   let n = 3.0
-  matrixBuild (Card 10) (fun i -> vectorBuild (Card 20) (fun j -> double(i + j) * n))
+  build (Card 10) (fun i -> build (Card 20) (fun j -> double(i + j) * n))
 
 let valloc_cps_feature1 (dum: Vector): unit =
   vectorAllocCPS (Card 10) (fun s -> 

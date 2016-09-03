@@ -107,27 +107,21 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   | ScalarOperation(name, args, _) ->
     let op = getMethodInfo exp
     Expr.Call(op, args |> List.map (fun x -> S x O))
-  | DerivedPatterns.SpecificCall <@ corelang.vectorBuild @> (_, _, [e0; e1]) ->
+  | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let se0 = S e0 O
     let se1 = S e1 O
     let ce0 = C e0
     let ce1 = C e1
     let s1 = Expr.Var(outputStorage)
-    <@@ corelang.build_s<Number, Cardinality> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
-  | DerivedPatterns.SpecificCall <@ corelang.matrixBuild @> (_, _, [e0; e1]) ->
-    let se0 = S e0 O
-    let se1 = S e1 O
-    let ce0 = C e0
-    let ce1 = C e1
-    let s1 = Expr.Var(outputStorage)
-    <@@ corelang.build_s<Vector, VectorShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
-  | DerivedPatterns.SpecificCall <@ corelang.matrix3DBuild @> (_, _, [e0; e1]) ->
-    let se0 = S e0 O
-    let se1 = S e1 O
-    let ce0 = C e0
-    let ce1 = C e1
-    let s1 = Expr.Var(outputStorage)
-    <@@ corelang.build_s<Matrix, MatrixShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+    match t with
+    | t when t = typeof<Number> ->
+      <@@ corelang.build_s<Number, Cardinality> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+    | t when t = typeof<Vector> ->
+      <@@ corelang.build_s<Vector, VectorShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+    | t when t = typeof<Matrix> ->
+      <@@ corelang.build_s<Matrix, MatrixShape> %%s1 %%se0 %%se1 %%ce0 %%ce1 @@>
+    | _                         ->
+      failwithf "Does not know how to transform to the storaged version for the build expression of type `%A`" t
   | ArrayLength(e0) ->
     Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)

@@ -233,6 +233,23 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
         (sprintf "%s->length" arr, [], false)
       | name ->
         match e with
+        | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [ta], _) ->
+          let resultType = ccodegenType (var.Type)
+          let resultName = var.Name 
+          let (Patterns.Lambda(idx, body)) = elist.[1]
+          let idxCode = idx.Name
+          let lengthCode = ccodegen elist.[0]
+          let arrTp = ccodegenType (ta.MakeArrayType()) 
+          let elemTp = (ccodegenType ta)
+          let arrayInit = 
+            sprintf "%s %s = (%s)malloc(sizeof(int) * 2);\n\t%s->length=%s;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %s)" 
+                  arrTp resultName arrTp resultName lengthCode resultName elemTp elemTp lengthCode
+          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
+          (sprintf "%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
+             arrayInit
+             idxCode idxCode resultName idxCode
+             bodyCode
+             , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.build_s @> (_, [ta; ts], _) ->
           let storage = ccodegen (elist.[0])
           let resultType = ccodegenType (var.Type)
