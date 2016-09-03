@@ -126,34 +126,6 @@ storage_t matrix3d_alloc(index_t size) {
 	return res;
 }
 
-array_number_t vector_build(index_t size, closure_t closure) {
-	array_number_t res = (array_number_t)vector_alloc(size);
-	// start_timing();
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).number_t_value;
-	}
-	// pause_timing();
-	return res;
-}
-
-array_array_number_t matrix_build(index_t size, closure_t closure) {
-	array_array_number_t res = (array_array_number_t)matrix_alloc(size);
-	// start_timing();
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).array_number_t_value;
-	}
-	// pause_timing();
-	return res;
-}
-
-array_array_array_number_t matrix3d_build(index_t size, closure_t closure) {
-	array_array_array_number_t res = (array_array_array_number_t)matrix3d_alloc(size);
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).array_array_number_t_value;
-	}
-	return res;
-}
-
 array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
 	index_t size = end - start + 1;
 	array_number_t res = (array_number_t)vector_alloc(size);
@@ -205,38 +177,6 @@ array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, arra
 			res->arr[i] = mat2->arr[i - mat1->length];
 	}
 	return res;
-}
-
-number_t vector_fold_number(closure_t closure, number_t zero, array_number_t range) {
-	number_t acc = zero;
-	for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).number_t_value;
-	}
-	return acc;
-}
-
-array_number_t vector_fold_vector(closure_t closure, array_number_t zero, array_number_t range) {
-	array_number_t acc = zero;
-	for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).array_number_t_value;
-	}
-	return acc;
-}
-
-array_array_number_t vector_fold_matrix(closure_t closure, array_array_number_t zero, array_number_t range) {
-	array_array_number_t acc = zero;
-	for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_number_t_value;
-	}
-	return acc;
-}
-
-array_array_array_number_t vector_fold_matrix3d(closure_t closure, array_array_array_number_t zero, array_number_t range) {
-	array_array_array_number_t acc = zero;
-		for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_array_number_t_value;
-	}
-	return acc;
 }
 
 array_array_number_t matrix_transpose(array_array_number_t mat) {

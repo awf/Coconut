@@ -12,20 +12,6 @@ open System.IO
 let build<'a> (size: Cardinality) (f: Index -> 'a): array<'a> =
   [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
 
-(*
-[<CMirror("vector_build")>]
-let vectorBuild (size: Cardinality) (f: Index -> Number): Vector =
-  [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
-
-[<CMirror("matrix_build")>]
-let matrixBuild (size: Cardinality) (f: Index -> Vector): Matrix =
-  [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
-
-[<CMirror("matrix3d_build")>]
-let matrix3DBuild (size: Cardinality) (f: Index -> Matrix): Matrix3D =
-  [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
-*)
-
 [<CMacro()>]
 let length<'a> (v: array<'a>): Cardinality = 
   Card v.Length
@@ -67,24 +53,6 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
 [<CMacro()>]
 let fold<'a, 'b> (f: 'b -> 'a -> 'b) (z: 'b) (range: array<'a>): 'b = 
   Array.fold (fun acc cur -> f acc cur) z range
-
-(*
-[<CMirror("vector_fold_number")>]
-let vectorFoldNumber (f: Number -> Number -> Number) (z: Number) (range: Vector): Number = 
-  Array.fold (fun acc cur -> f acc cur) z range
-
-[<CMirror("vector_fold_vector")>]
-let vectorFoldVector (f: Vector -> Number -> Vector) (z: Vector) (range: Vector): Vector = 
-  Array.fold (fun acc cur -> f acc cur) z range
-
-[<CMirror("vector_fold_matrix")>]
-let vectorFoldMatrix (f: Matrix -> Number -> Matrix) (z: Matrix) (range: Vector): Matrix = 
-  Array.fold (fun acc cur -> f acc cur) z range
-
-[<CMirror("vector_fold_matrix3d")>]
-let vectorFoldMatrix3D (f: Matrix[] -> Number -> Matrix[]) (z: Matrix[]) (range: Vector): Matrix[] = 
-  Array.fold (fun acc cur -> f acc cur) z range
-*)
 
 (** I/O Methods **)
 
@@ -153,6 +121,12 @@ let build_s<'a, 's> (storage: Storage)
   match storage with
   //| VS v -> vectorBuild size (fun i -> f storage i (Card 0))
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
+
+[<CMacro()>]
+let fold_s<'a, 'b, 'ac, 'bc> (storage: Storage) 
+  (f: Storage -> 'b -> 'a -> 'b) (z: 'b) (range: array<'a>)
+  (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: NestedShape<'a>): 'b = 
+  Array.fold (fun acc cur -> f storage acc cur) z range
 
 [<CMonomorphicMacro()>]
 let get_s<'a, 's> (storage: Storage) 
