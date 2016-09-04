@@ -124,9 +124,9 @@ let build_s<'a, 's> (storage: Storage)
 
 [<CMacro()>]
 let fold_s<'a, 'b, 'ac, 'bc> (storage: Storage) 
-  (f: Storage -> 'b -> 'a -> 'b) (z: 'b) (range: array<'a>)
-  (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: NestedShape<'a>): 'b = 
-  Array.fold (fun acc cur -> f storage acc cur) z range
+  (f: Storage -> 'b -> 'a -> 'bc -> 'ac -> 'b) (z: 'b) (range: array<'a>)
+  (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: NestedShape<'ac>): 'b = 
+  Array.fold (fun acc cur -> f storage acc cur z_c (shapeElem range_c)) z range
 
 [<CMonomorphicMacro()>]
 let get_s<'a, 's> (storage: Storage) 

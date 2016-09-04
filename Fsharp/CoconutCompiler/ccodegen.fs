@@ -279,6 +279,24 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
              elementType curCode rangeCode idxCode
              bodyCode
              , bodyClosures, true)
+        | DerivedPatterns.SpecificCall <@ corelang.fold_s @> (_, [ta; tb; tac; tbc], _) ->
+          // TODO not memory safe yet
+          let (LambdaN([st;acc;cur; acc_c; cur_c], body)) = elist.[1]
+          let elementType = ccodegenType ta
+          let curCode = cur.Name
+          let idxCode = sprintf "%s_idx" curCode
+          let resultType = ccodegenType (var.Type)
+          let resultName = var.Name
+          let initCode = ccodegen (elist.[2])
+          let rangeCode = ccodegen (elist.[3])
+          let lengthCode = sprintf "%s->length" rangeCode
+          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = acc then Some(Expr.Var(var)) else None)) None
+          (sprintf "%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
+             resultType resultName initCode 
+             idxCode idxCode lengthCode idxCode
+             elementType curCode rangeCode idxCode
+             bodyCode
+             , bodyClosures, true)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name
       | _ ->
