@@ -103,27 +103,32 @@ void pause_timing() {
 
 storage_t vector_alloc(index_t size) {
 	// start_timing();
-	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	storage_t area = malloc(sizeof(int) * 2 + sizeof(number_t) * size);
+	array_number_t boxed_vector = (array_number_t)area;
+	boxed_vector->length = size;
+	boxed_vector->arr = (number_t*)(((int*)area) + 2);
 	// pause_timing();
-	return res;
+	return area;
 }
 
 storage_t matrix_alloc(index_t size) {
 	// start_timing();
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	storage_t area = malloc(sizeof(int) * 2 + sizeof(array_number_t) * size);
+	array_array_number_t boxed_vector = (array_array_number_t)area;
+	boxed_vector->length = size;
+	boxed_vector->arr = (array_number_t*)(((int*)area) + 2);
 	// pause_timing();
-	return res;
+	return area;
 }
 
 storage_t matrix3d_alloc(index_t size) {
-	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
-	return res;
+	// start_timing();
+	storage_t area = malloc(sizeof(int) * 2 + sizeof(array_array_number_t) * size);
+	array_array_array_number_t boxed_vector = (array_array_array_number_t)area;
+	boxed_vector->length = size;
+	boxed_vector->arr = (array_array_number_t*)(((int*)area) + 2);
+	// pause_timing();
+	return area;
 }
 
 array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
