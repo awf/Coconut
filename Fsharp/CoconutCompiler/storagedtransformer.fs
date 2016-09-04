@@ -56,7 +56,10 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   let CV v = 
     match env.TryFind(v) with 
     | Some(vs, vc) -> vc
-    | _            -> failwithf "There is no cardinality variable associated with `%A`" v
+    | _            -> 
+      match v with
+      | MethodVariable(mdl, mtd) -> CVNew v
+      | _            -> failwithf "There is no cardinality variable associated with `%A`" v
   let CT = cardTransformType
   let cardEnv = (env |> Map.map (fun k (v1, v2) -> v2))
   let C e = inferCardinality e cardEnv
@@ -76,7 +79,10 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   let SV v = 
     match env.TryFind(v) with 
     | Some(vs, vc) -> vs
-    | _            -> failwithf "There is no storage variable associated with `%A`" v
+    | _            -> 
+      match v with
+      | MethodVariable(mdl, mtd) -> SVNew v
+      | _ -> failwithf "There is no storage variable associated with `%A`" v
   match exp with
   | AllAppN(e0, es)                  ->
     let ses = es |> List.map (fun x -> S x (newStgVar())) |> List.map (fun (StripedAlloc(a, e)) -> a, e)

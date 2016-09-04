@@ -191,8 +191,20 @@ let getMethodInfo (methodExpr: Expr): Reflection.MethodInfo =
     op
   | _ -> failwithf "The expression `%A` is not a method expression." methodExpr
 
+let METHOD_VARIABLE_PREFIX = "TOP_LEVEL_"
+
 let methodVariableName (methodName: string) (moduleName: string): string = 
-  sprintf "%s_%s" moduleName methodName
+  sprintf "%s%s_%s" METHOD_VARIABLE_PREFIX moduleName methodName
+
+let (|MethodVariable|_|) (v: Var): (string * string) option = 
+  if v.Name.StartsWith(METHOD_VARIABLE_PREFIX) then
+    let methodModuleStr = v.Name.Substring(METHOD_VARIABLE_PREFIX.Length)
+    let separatorIndex = methodModuleStr.IndexOf('_')
+    let methodName = methodModuleStr.Substring(0, separatorIndex)
+    let moduleName = methodModuleStr.Substring(separatorIndex + 1)
+    Some(moduleName, methodName)
+  else
+    None
 
 let methodVariableNameMethodInfo (op: Reflection.MethodInfo): string = 
   methodVariableName op.Name op.DeclaringType.Name

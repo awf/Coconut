@@ -45,9 +45,12 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   let CT = cardTransformType
   let CVNew = cardTransformVar
   let CV v = 
-    match env.TryFind(v) with
+    match env.TryFind(v) with 
     | Some v2 -> v2
-    | None    -> failwithf "The environment does not contain mapping for `%A`" v
+    | _            -> 
+      match v with
+      | MethodVariable(mdl, mtd) -> CVNew v
+      | _            -> failwithf "There is no cardinality variable associated with `%A`" v
   match exp with
   | _ when exp.Type = typeof<Number> -> ZERO_CARD
   | _ when exp.Type = typeof<Index>  -> ZERO_CARD
@@ -79,6 +82,9 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
       <@@ nestedShape<MatrixShape> ((%%ce1: Cardinality -> MatrixShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
     | _ ->
       failwithf "Does not know how to infer cardinality for type `%A`" t
+  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
+    // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
+    C z
   | ArrayLength(e0) ->
     let ce0 = C e0
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
