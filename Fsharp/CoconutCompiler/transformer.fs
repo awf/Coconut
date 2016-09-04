@@ -196,8 +196,11 @@ let METHOD_VARIABLE_PREFIX = "TOP_LEVEL_"
 let methodVariableName (methodName: string) (moduleName: string): string = 
   sprintf "%s%s_%s" METHOD_VARIABLE_PREFIX moduleName methodName
 
+let isMethodVariable (v: Var): bool =
+  v.Name.StartsWith(METHOD_VARIABLE_PREFIX)
+
 let (|MethodVariable|_|) (v: Var): (string * string) option = 
-  if v.Name.StartsWith(METHOD_VARIABLE_PREFIX) then
+  if isMethodVariable v then
     let methodModuleStr = v.Name.Substring(METHOD_VARIABLE_PREFIX.Length)
     let separatorIndex = methodModuleStr.IndexOf('_')
     let methodName = methodModuleStr.Substring(0, separatorIndex)
@@ -263,7 +266,7 @@ let (|CardConstructor|_|) (e: Expr): Expr option =
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->
-      Some(sprintf "%s_%s" moduleName methodName, argList)
+      Some(methodVariableName methodName moduleName, argList)
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
     | (methodName, "ArrayModule") -> 

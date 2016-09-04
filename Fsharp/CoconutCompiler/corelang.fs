@@ -28,11 +28,12 @@ let matrixConcat (m1: Matrix) (m2: Matrix): Matrix =
 [<CMirror("matrix3d_concat")>]
 let matrix3DConcat (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
   Array.append m1 m2
-
+(*
 [<CMirror("matrix_transpose")>]
 let matrixTranspose (m: Matrix): Matrix = 
   Array.map (fun c -> Array.map (fun r -> m.[int r - 1].[int c - 1]) (arrayRange 1 (m.Length))) (arrayRange 1 (m.[0].Length))
-
+*)
+(*
 [<CMirror("matrix_mult")>]
 let matrixMult (m1: Matrix) (m2: Matrix): Matrix = 
   let r1 = m1.Length
@@ -47,6 +48,7 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
       Array.sum 
         (Array.map2 ( * ) (m1.[int r]) (m2T.[int c]))) (arrayRange 0 (c2 - 1)))
     (arrayRange 0 (r1 - 1))
+*)
 
 (** Fold methods **)
 

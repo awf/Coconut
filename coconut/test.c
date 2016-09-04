@@ -4,8 +4,8 @@
 
 int main(int argc, char** argv)
 {
-	usecases_test1(0);
+	TOP_LEVEL_usecases_test1(0);
 	printf("---small tests---\n");
-	programs_small_tests(0);
+	TOP_LEVEL_programs_small_tests(0);
 	return 0;
 }

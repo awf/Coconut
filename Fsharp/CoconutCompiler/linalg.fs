@@ -117,10 +117,31 @@ let inline matrixFill (rows: Cardinality) (cols: Cardinality) (value: Number): M
   let row = vectorMap (fun c -> value) (vectorRange (Card 1) cols)
   matrixFillFromVector rows row
 
+let matrixTranspose (m: Matrix): Matrix = 
+  let rows = length m
+  let cols = length (m.[0])
+  build cols (fun i ->
+    build rows (fun j ->
+      m.[j].[i]
+    )
+  )
+
 let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
   let m1t = matrixTranspose m1
   let m2t = matrixTranspose m2
   matrixTranspose (matrixConcat m1t m2t)
+
+let matrixMult (m1: Matrix) (m2: Matrix): Matrix = 
+  let r1 = length m1
+  let c2 = length m2.[0]
+  let c1 = length m1.[0]
+  let r2 = length m2
+  let m2T = matrixTranspose m2
+  build r1 (fun r ->
+    build c2 (fun c ->
+      arraySum ( vectorMap2 ( * ) m1.[r] m2T.[c] )
+    )
+  )
 
 let vectorRead (fn: string) (startLine: Index): Vector = 
     let matrix = matrixRead fn startLine 1
