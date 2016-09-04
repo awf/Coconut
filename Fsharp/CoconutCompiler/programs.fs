@@ -88,6 +88,16 @@ let explicitMallocExample1(v: Vector) =
   )
   ()
 
+
+[<DontOptimize>]
+let vectorMap2GivenStorage (storage: Storage) (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
+  vectorBuildGivenStorage storage (fun i -> f(v1.[i])(v2.[i]))
+
+[<DontOptimize>]
+let inline add_vecGivenStorage (s: Storage) (x: Vector) (y: Vector) =
+    vectorMap2GivenStorage s (+) x y
+
+
 [<DontOptimize>]
 let explicitMallocExample2 (v: Vector) = 
   vectorAllocCPS (Card 10) (fun storage1 ->

@@ -134,7 +134,7 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
   let m2T = matrixTranspose m2
   build r1 (fun r ->
     build c2 (fun c ->
-      arraySum ( vectorMap2 ( * ) m1.[r] m2T.[c] )
+      dot_prod m1.[r] m2T.[c]
     )
   )
 
@@ -164,17 +164,9 @@ let matrix3DConcat (m1: Matrix[]) (m2: Matrix[]): Matrix[] =
   )
 
 let vectorRead (fn: string) (startLine: Index): Vector = 
-    let matrix = matrixRead fn startLine 1
+    let matrix = matrixRead fn startLine (Card 1)
     matrix.[0]
 
 let numberRead (fn: string) (startLine: Index): Number = 
     let vector = vectorRead fn startLine
     vector.[0]
-
-[<DontInline>]
-let vectorMap2GivenStorage (storage: Storage) (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
-  vectorBuildGivenStorage storage (fun i -> f(v1.[i])(v2.[i]))
-
-[<DontInline>]
-let inline add_vecGivenStorage (s: Storage) (x: Vector) (y: Vector) =
-    vectorMap2GivenStorage s (+) x y

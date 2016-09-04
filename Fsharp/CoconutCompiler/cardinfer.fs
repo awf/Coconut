@@ -27,7 +27,8 @@ let rec ZERO_SHAPE (shapeType: Type) =
 let rec cardTransformType (t: Type) = 
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
-        t = typeof<bool> || t = typeof<Number>              -> typeof<Cardinality>
+        t = typeof<bool> || t = typeof<Number> ||  
+        t = typeof<string>                                  -> typeof<Cardinality>
     | _ when t = typeof<Vector>                             -> typeof<VectorShape>
     | _ when t = typeof<Matrix>                             -> typeof<MatrixShape>
     | _ when t = typeof<Matrix3D>                           -> typeof<Matrix3DShape>
@@ -96,6 +97,9 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     | t when t = typeof<Vector> -> <@@ shapeElem<VectorShape> %%ce0 @@>
     | t when t = typeof<Matrix> -> <@@ shapeElem<MatrixShape> %%ce0 @@>
     | t                         -> failwithf "Does not know how to infer cardinality for array get of type `%A`" t
+  | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
+    // TODO requires number of column information in the matrixRead construct
+    <@@ nestedShape<VectorShape> (nestedShape<Cardinality> (Card 0) (Card 10)) (%%rows) @@>
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
   | DerivedPatterns.SpecificCall <@ (.+) @> (_, _, [e0; e1]) ->
     let ce0 = Expr.Cast<Cardinality>(C e0)

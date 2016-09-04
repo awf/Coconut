@@ -78,7 +78,8 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   let rec ST (t: Type) = 
     match t with
     | _ when t = typeof<Index> || t = typeof<Cardinality> ||
-        t = typeof<bool> || t = typeof<Number>              -> t
+        t = typeof<bool> || t = typeof<Number> || 
+        t = typeof<string>                                  -> t
     | _ when t = typeof<Vector> || t = typeof<Matrix> || 
         t = typeof<Matrix3D>                                -> t
     | FunctionType(inputs, o)                               -> 
@@ -151,6 +152,10 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     Alloc (WidthCard e0 cardEnv) (fun s2 ->
       GetS outputStorage (S e0 s2) (S e1 O)
     )
+  | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
+    // TODO requires number of column information in the matrixRead construct
+    let s = Expr.Var(outputStorage)
+    <@@ corelang.matrixRead_s %%s %%name %%start %%rows @@>
   | Patterns.Value(v, tp) when tp = typeof<Double> || tp = typeof<Index> || tp = typeof<Cardinality> ->
     exp
   | CardConstructor c ->

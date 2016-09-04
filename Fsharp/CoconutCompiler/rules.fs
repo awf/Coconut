@@ -41,7 +41,7 @@ let vectorBuildToStorage_exp =
 
 let vectorAddToStorage_exp = <@ linalg.add_vec %U %V       
                                                            <==>
-                                (let s2 = vectorAlloc (length %U) in linalg.add_vecGivenStorage s2 %U %V)
+                                (let s2 = vectorAlloc (length %U) in programs.add_vecGivenStorage s2 %U %V)
                                                                                       @>
 
 let letVectorBuildLength_exp = 
