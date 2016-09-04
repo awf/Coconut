@@ -297,6 +297,20 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
              elementType curCode rangeCode idxCode
              bodyCode
              , bodyClosures, true)
+        | DerivedPatterns.SpecificCall <@ corelang.newArray_s @> (_, [tp], [stg; arr]) ->
+          // TODO use the provided storage of each element
+          let elems = 
+            match arr with 
+            | Patterns.Let(x1, Patterns.NewArray(_, elems), Patterns.Var(x2)) when x1 = x2 -> elems
+            | Patterns.NewArray(_, elems) -> elems
+            | _ -> failwithf "Cannot generate C code for newArray_s with elems `%A`" arr
+          let stgCode = ccodegen stg
+          let elemsNoStg = elems |> List.map (fun (Patterns.Lambda(s, body)) -> body)
+          let args = String.concat "\n\t" (elemsNoStg |> List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
+          let arrTp = ccodegenType (tp.MakeArrayType()) 
+          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s" 
+                      arrTp stgCode var.Name (elemsNoStg.Length) args
+          (rhs, [], false)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name
       | _ ->

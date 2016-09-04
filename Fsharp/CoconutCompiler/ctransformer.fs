@@ -122,7 +122,7 @@ let closureConversion (e: Expr): Expr =
     | Patterns.Let(x, e1, e2) -> Expr.Let(x, rcr e1, rcr e2)
     | Patterns.Value(v, tp) -> exp
     | Patterns.NewArray(tp, elems) -> 
-      Expr.NewArray(tp, List.map rcr elems)
+      Expr.NewArray(tp, List.map (lambdaLift ctx) elems)
     | Patterns.Call (None, op, elist) -> 
       let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
       let isCMacro = cMacro |> Option.isSome
