@@ -36,7 +36,9 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
        //""
      let generatedStoragedCode = 
        if storaged then
-         let se = storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty
+         let se = 
+           storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty
+           |> storagedtransformer.simplifyStoraged
          let sFunctionName = storagedtransformer.storagedName functionName
          let ce = cardinfer.inferCardinality optimized Map.empty
          let cFunctionName = cardinfer.cardName functionName

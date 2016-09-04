@@ -361,7 +361,11 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
       (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
         (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
     | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
-      ccodegenMacro e
+      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true).[0] :?> CMacro
+      if cMacro.ShouldLetBind() then
+        ccodegenMacro e
+      else
+        (ccodegenMonomorphicMacro e, [], false)
     | _ -> 
       (ccodegen e, [], false)
   if(includesLhs) then 

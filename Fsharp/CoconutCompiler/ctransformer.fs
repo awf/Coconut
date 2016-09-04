@@ -28,11 +28,13 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
 (* Lifts let bindings to top-level statements *)
 let letLifting (e: Expr): Expr = 
   let rec constructTopLevelLets (boundVars: Var List) (exp: Expr): Expr * (Var * Expr) List = 
+    let isSafeToLift (freeVars: Var list): bool = 
+      let freeNotBoundVars = listDiff freeVars boundVars
+      List.isEmpty freeNotBoundVars || (freeNotBoundVars |> List.forall isMethodVariable)
     match exp with 
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
-      let existingFreeVars = List.ofSeq (e1.GetFreeVars())
-      let canBeLifted = List.isEmpty (listDiff existingFreeVars boundVars)
+      let canBeLifted = e1.GetFreeVars() |> List.ofSeq |> isSafeToLift
       let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
       let (te2, liftedLets2) = constructTopLevelLets newBoundVars e2
       if (canBeLifted) then
