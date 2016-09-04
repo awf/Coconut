@@ -49,6 +49,17 @@ let NewArrayS (stg: Var) (es: Expr list): Expr =
     | t -> failwithf "The type of arguments of NewArrayS should be a function, but is `%A` instead!" t
   MakeCall(<@@ corelang.newArray_s @@>)(Expr.Var(stg) :: [Expr.NewArray(es.[0].Type, es)])([t])
 
+let rec simplifyStoraged (exp: Expr): Expr =
+  match exp with
+  | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, [t], [width; Patterns.Lambda(st, body)]) ->
+    if width = ZERO_CARD || not (body.GetFreeVars() |> Seq.exists(fun v -> v = st)) then
+      body.Substitute(fun v -> if st = v then Some(Expr.Var(EMPTY_STORAGE)) else None)
+    else 
+      MakeCall <@@ corelang.vectorAllocCPS @@> [width; Expr.Lambda(st, simplifyStoraged body)] [t]
+  | ExprShape.ShapeLambda(x, body)       -> Expr.Lambda(x, simplifyStoraged body)
+  | ExprShape.ShapeVar(x)                -> Expr.Var(x)
+  | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map simplifyStoraged)
+
 let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<Var, Var * Var>): Expr =
   let S e s = transformStoraged e s env
   let SEnv = transformStoraged
