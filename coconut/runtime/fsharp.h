@@ -144,77 +144,9 @@ array_array_number_t matrix_slice(array_array_number_t arr, index_t start, index
 	return res;
 }
 
-array_number_t array_range(index_t start, index_t end) {
-	index_t size = end - start + 1;
-	array_number_t res = (array_number_t)vector_alloc(size);
-	for (int i = 0; i < size; i++) {
-		res->arr[i] = start + i;
-	}
-	return res;
-}
-
 void number_print(number_t num) {
 	printf("%f\n", num);
 }
-
-array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number_t mat2) {
-	array_array_number_t res = (array_array_number_t)matrix_alloc(mat1->length + mat2->length);
-	for (int i = 0; i < res->length; i++) {
-		if (i < mat1->length)
-			res->arr[i] = mat1->arr[i];
-		else 
-			res->arr[i] = mat2->arr[i - mat1->length];
-	}
-	return res;
-}
-
-array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, array_array_array_number_t mat2) {
-	array_array_array_number_t res = (array_array_array_number_t)matrix3d_alloc(mat1->length + mat2->length);
-	for (int i = 0; i < res->length; i++) {
-		if (i < mat1->length)
-			res->arr[i] = mat1->arr[i];
-		else 
-			res->arr[i] = mat2->arr[i - mat1->length];
-	}
-	return res;
-}
-
-array_array_number_t matrix_transpose(array_array_number_t mat) {
-	array_array_number_t res = (array_array_number_t)matrix_alloc(mat->arr[0]->length);
-	for (int i = 0; i < res->length; i++) {
-		array_number_t row = (array_number_t)vector_alloc(mat->length);
-		for (int j = 0; j < row->length; j++) {
-			row->arr[j] = mat->arr[j]->arr[i];
-		}
-		res->arr[i] = row;
-	}
-	return res;
-}
-
-array_array_number_t matrix_mult(array_array_number_t mat1, array_array_number_t mat2) {
-	int r1 = mat1->length;
-	int c2 = mat2->arr[0]->length;
-	int c1 = mat1->arr[0]->length;
-	int r2 = mat2->length;
-	if(c1 != r2) {
-		printf("Matrcies have the inconsistent dimensions %dx%d and %dx%d for MMM", r1, c1, r2, c2);
-		exit(1);
-	}
-	array_array_number_t res = (array_array_number_t)matrix_alloc(r1);
-	for (int i = 0; i < r1; i++) {
-		array_number_t row = (array_number_t)vector_alloc(c2);
-		for (int j = 0; j < c2; j++) {
-			row->arr[j] = 0;
-			for(int k = 0; k < c1; k++) {
-				row->arr[j] += mat1->arr[i]->arr[k] * mat2->arr[k]->arr[j];
-			}
-		}
-		res->arr[i] = row;
-	}
-	return res;
-}
-
-
 
 void matrix_print(array_array_number_t arr) {
 	printf("[\n   ");
@@ -252,7 +184,7 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 			length++;
 		}
 		fseek(fp, -length-2, SEEK_CUR);
-		array_number_t one_row = array_range(0, elems - 1);
+		array_number_t one_row = (array_number_t)vector_alloc(elems);
 		for(int i=0; i<elems; i++) {
 			fscanf(fp, "%lf", &one_row->arr[i]);
 		}
