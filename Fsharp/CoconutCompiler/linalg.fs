@@ -126,11 +126,6 @@ let matrixTranspose (m: Matrix): Matrix =
     )
   )
 
-let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
-  let m1t = matrixTranspose m1
-  let m2t = matrixTranspose m2
-  matrixTranspose (matrixConcat m1t m2t)
-
 let matrixMult (m1: Matrix) (m2: Matrix): Matrix = 
   let r1 = length m1
   let c2 = length m2.[0]
@@ -141,6 +136,31 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
     build c2 (fun c ->
       arraySum ( vectorMap2 ( * ) m1.[r] m2T.[c] )
     )
+  )
+
+let matrixConcat (m1: Matrix) (m2: Matrix): Matrix = 
+  let rows = (length m1) .+ (length m2)
+  let m1Rows = cardToInt (length m1)
+  build rows (fun r ->
+    if r < m1Rows then
+      m1.[r]
+    else
+      m2.[r - m1Rows]
+  )
+
+let matrixConcatCol (m1: Matrix) (m2: Matrix): Matrix = 
+  let m1t = matrixTranspose m1
+  let m2t = matrixTranspose m2
+  matrixTranspose (matrixConcat m1t m2t)
+
+let matrix3DConcat (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
+  let rows = (length m1) .+ (length m2)
+  let m1Rows = cardToInt (length m1)
+  build rows (fun r ->
+    if r < m1Rows then
+      m1.[r]
+    else
+      m2.[r - m1Rows]
   )
 
 let vectorRead (fn: string) (startLine: Index): Vector = 

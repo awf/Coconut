@@ -361,12 +361,6 @@ array_array_number_t TOP_LEVEL_linalg_matrixTranspose(array_array_number_t m) {
 		}
 	return macroDef71;
 }
-
-array_array_number_t TOP_LEVEL_linalg_matrixConcatCol(array_array_number_t m1, array_array_number_t m2) {
-	array_array_number_t m1t = TOP_LEVEL_linalg_matrixTranspose(m1);
-	array_array_number_t m2t = TOP_LEVEL_linalg_matrixTranspose(m2);
-	return TOP_LEVEL_linalg_matrixTranspose(matrix_concat(m1t, m2t));
-}
 typedef empty_env_t env_t_81;
 
 
@@ -402,6 +396,58 @@ array_array_number_t TOP_LEVEL_linalg_matrixMult(array_array_number_t m1, array_
 	return macroDef80;
 }
 
+array_array_number_t TOP_LEVEL_linalg_matrixConcat(array_array_number_t m1, array_array_number_t m2) {
+	card_t macroDef82 = m1->length;
+	card_t macroDef83 = m2->length;
+	card_t rows = (macroDef82) + (macroDef83);
+	card_t macroDef84 = m1->length;
+	index_t m1Rows = (macroDef84);
+	array_array_number_t macroDef85 = (array_array_number_t)malloc(sizeof(int) * 2);
+	macroDef85->length=rows;
+	macroDef85->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+		for(int r = 0; r < macroDef85->length; r++){
+			array_number_t ite86 = 0;
+	if((r) < (m1Rows)) {
+		
+		ite86 = m1->arr[r];
+	} else {
+		
+		ite86 = m2->arr[(r) - (m1Rows)];
+	}
+			macroDef85->arr[r] = ite86;
+		}
+	return macroDef85;
+}
+
+array_array_number_t TOP_LEVEL_linalg_matrixConcatCol(array_array_number_t m1, array_array_number_t m2) {
+	array_array_number_t m1t = TOP_LEVEL_linalg_matrixTranspose(m1);
+	array_array_number_t m2t = TOP_LEVEL_linalg_matrixTranspose(m2);
+	return TOP_LEVEL_linalg_matrixTranspose(TOP_LEVEL_linalg_matrixConcat(m1t, m2t));
+}
+
+array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat(array_array_array_number_t m1, array_array_array_number_t m2) {
+	card_t macroDef87 = m1->length;
+	card_t macroDef88 = m2->length;
+	card_t rows = (macroDef87) + (macroDef88);
+	card_t macroDef89 = m1->length;
+	index_t m1Rows = (macroDef89);
+	array_array_array_number_t macroDef90 = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	macroDef90->length=rows;
+	macroDef90->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * rows);
+		for(int r = 0; r < macroDef90->length; r++){
+			array_array_number_t ite91 = 0;
+	if((r) < (m1Rows)) {
+		
+		ite91 = m1->arr[r];
+	} else {
+		
+		ite91 = m2->arr[(r) - (m1Rows)];
+	}
+			macroDef90->arr[r] = ite91;
+		}
+	return macroDef90;
+}
+
 array_number_t TOP_LEVEL_linalg_vectorRead(string_t fn, index_t startLine) {
 	array_array_number_t matrix = matrix_read(fn, startLine, 1);
 	return matrix->arr[0];
@@ -413,24 +459,24 @@ number_t TOP_LEVEL_linalg_numberRead(string_t fn, index_t startLine) {
 }
 
 array_number_t TOP_LEVEL_linalg_vectorMap2GivenStorage(storage_t storage, closure_t f, array_number_t v1, array_number_t v2) {
-	array_number_t macroDef82 = (array_number_t)storage;
-		for(int i = 0; i < macroDef82->length; i++){
+	array_number_t macroDef92 = (array_number_t)storage;
+		for(int i = 0; i < macroDef92->length; i++){
 			
-			macroDef82->arr[i] = f.lam(f.env, v1->arr[i], v2->arr[i]).number_t_value;
+			macroDef92->arr[i] = f.lam(f.env, v1->arr[i], v2->arr[i]).number_t_value;
 		}
-	return macroDef82;
+	return macroDef92;
 }
-typedef empty_env_t env_t_86;
+typedef empty_env_t env_t_96;
 
 
-value_t lambda86(env_t_86* env83, number_t x, number_t y) {
+value_t lambda96(env_t_96* env93, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) + (y);
 	return res;
 }
 array_number_t TOP_LEVEL_linalg_add_vecGivenStorage(storage_t s, array_number_t x, array_number_t y) {
-	env_t_86 env_t_86_value = make_empty_env(); closure_t closure85 = make_closure(lambda86, &env_t_86_value);
-	return TOP_LEVEL_linalg_vectorMap2GivenStorage(s, closure85, x, y);
+	env_t_96 env_t_96_value = make_empty_env(); closure_t closure95 = make_closure(lambda96, &env_t_96_value);
+	return TOP_LEVEL_linalg_vectorMap2GivenStorage(s, closure95, x, y);
 }
 #endif

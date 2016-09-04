@@ -15,12 +15,12 @@ let build<'a> (size: Cardinality) (f: Index -> 'a): array<'a> =
 [<CMacro()>]
 let length<'a> (v: array<'a>): Cardinality = 
   Card v.Length
-
+(*
 let private arrayRange (s: int) (e: int): Vector = 
   build (Card(e - s + 1)) (fun i -> double (s + i))
-
+*)
 (** Transformer Methods **)
-
+(*
 [<CMirror("matrix_concat")>]
 let matrixConcat (m1: Matrix) (m2: Matrix): Matrix = 
   Array.append m1 m2
@@ -28,6 +28,7 @@ let matrixConcat (m1: Matrix) (m2: Matrix): Matrix =
 [<CMirror("matrix3d_concat")>]
 let matrix3DConcat (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
   Array.append m1 m2
+*)
 (*
 [<CMirror("matrix_transpose")>]
 let matrixTranspose (m: Matrix): Matrix = 
