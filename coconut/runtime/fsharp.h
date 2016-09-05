@@ -263,4 +263,8 @@ matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
 	return res;
 }
 
+card_t width_vector_shape_t(vector_shape_t shape) {
+  return shape.card;
+}
+
 #endif
