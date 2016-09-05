@@ -79,7 +79,7 @@ void TOP_LEVEL_linalgtests_test1_s(storage_t stgVar603, array_number_t dum_s, ve
 	array_number_t stgVar604 = malloc(width_vector_shape_t(a_c));
 	array_number_t macroDef663 = (array_number_t)stgVar604;
 	macroDef663->length=3;
-	macroDef663->arr=(number_t*)((int*)stgVar604 + VECTOR_HEADER_BYTES);
+	macroDef663->arr=(number_t*)((char*)stgVar604 + VECTOR_HEADER_BYTES);
 	macroDef663->arr[0] = 1;
 	macroDef663->arr[1] = 2;
 	macroDef663->arr[2] = 3;;
@@ -88,7 +88,7 @@ void TOP_LEVEL_linalgtests_test1_s(storage_t stgVar603, array_number_t dum_s, ve
 	array_number_t stgVar608 = malloc(width_vector_shape_t(b_c));
 	array_number_t macroDef664 = (array_number_t)stgVar608;
 	macroDef664->length=3;
-	macroDef664->arr=(number_t*)((int*)stgVar608 + VECTOR_HEADER_BYTES);
+	macroDef664->arr=(number_t*)((char*)stgVar608 + VECTOR_HEADER_BYTES);
 	macroDef664->arr[0] = 5;
 	macroDef664->arr[1] = 6;
 	macroDef664->arr[2] = 7;;
@@ -127,7 +127,7 @@ void TOP_LEVEL_linalgtests_test1_s(storage_t stgVar603, array_number_t dum_s, ve
 	array_number_t stgVar633 = malloc(width_vector_shape_t(r1_c));
 	array_number_t macroDef665 = (array_number_t)stgVar633;
 	macroDef665->length=3;
-	macroDef665->arr=(number_t*)((int*)stgVar633 + VECTOR_HEADER_BYTES);
+	macroDef665->arr=(number_t*)((char*)stgVar633 + VECTOR_HEADER_BYTES);
 	macroDef665->arr[0] = 1;
 	macroDef665->arr[1] = 2;
 	macroDef665->arr[2] = 3;;
@@ -136,7 +136,7 @@ void TOP_LEVEL_linalgtests_test1_s(storage_t stgVar603, array_number_t dum_s, ve
 	array_number_t stgVar637 = malloc(width_vector_shape_t(r2_c));
 	array_number_t macroDef666 = (array_number_t)stgVar637;
 	macroDef666->length=3;
-	macroDef666->arr=(number_t*)((int*)stgVar637 + VECTOR_HEADER_BYTES);
+	macroDef666->arr=(number_t*)((char*)stgVar637 + VECTOR_HEADER_BYTES);
 	macroDef666->arr[0] = 4;
 	macroDef666->arr[1] = 5;
 	macroDef666->arr[2] = 6;;
@@ -145,7 +145,7 @@ void TOP_LEVEL_linalgtests_test1_s(storage_t stgVar603, array_number_t dum_s, ve
 	array_number_t stgVar641 = malloc(width_vector_shape_t(r3_c));
 	array_number_t macroDef667 = (array_number_t)stgVar641;
 	macroDef667->length=3;
-	macroDef667->arr=(number_t*)((int*)stgVar641 + VECTOR_HEADER_BYTES);
+	macroDef667->arr=(number_t*)((char*)stgVar641 + VECTOR_HEADER_BYTES);
 	macroDef667->arr[0] = 7;
 	macroDef667->arr[1] = 8;
 	macroDef667->arr[2] = 9;;
@@ -154,7 +154,7 @@ void TOP_LEVEL_linalgtests_test1_s(storage_t stgVar603, array_number_t dum_s, ve
 	array_number_t stgVar645 = malloc(width_matrix_shape_t(mat1_c));
 	array_array_number_t macroDef668 = (array_array_number_t)stgVar645;
 	macroDef668->length=3;
-	macroDef668->arr=(array_number_t*)((int*)stgVar645 + VECTOR_HEADER_BYTES);
+	macroDef668->arr=(array_number_t*)((char*)stgVar645 + VECTOR_HEADER_BYTES);
 	macroDef668->arr[0] = r1_s;
 	macroDef668->arr[1] = r2_s;
 	macroDef668->arr[2] = r3_s;;

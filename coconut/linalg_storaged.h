@@ -30,6 +30,8 @@ vector_shape_t TOP_LEVEL_linalg_vectorMap_c(closure_t f_c, vector_shape_t v_c) {
 array_number_t TOP_LEVEL_linalg_vectorMap_s(storage_t stgVar3, closure_t f_s, array_number_t v_s, closure_t f_c, vector_shape_t v_c) {
 	card_t macroDef12 = v_s->length;
 	array_number_t macroDef13 = (array_number_t)stgVar3;
+		macroDef13->length=macroDef12;
+		macroDef13->arr=(number_t*)((char*)macroDef13 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef13->length; i_s++){
 			storage_t stgVar5 = &macroDef13->arr[i_s];
 			
@@ -62,6 +64,8 @@ vector_shape_t TOP_LEVEL_linalg_vectorRange_c(card_t s_c, card_t e_c) {
 }
 array_number_t TOP_LEVEL_linalg_vectorRange_s(storage_t stgVar15, card_t s_s, card_t e_s, card_t s_c, card_t e_c) {
 	array_number_t macroDef21 = (array_number_t)stgVar15;
+		macroDef21->length=((e_s) - (s_s)) + (1);
+		macroDef21->arr=(number_t*)((char*)macroDef21 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef21->length; i_s++){
 			storage_t stgVar16 = &macroDef21->arr[i_s];
 			
@@ -94,6 +98,8 @@ vector_shape_t TOP_LEVEL_linalg_vectorSlice_c(card_t size_c, card_t offset_c, ve
 }
 array_number_t TOP_LEVEL_linalg_vectorSlice_s(storage_t stgVar23, card_t size_s, index_t offset_s, array_number_t v_s, card_t size_c, card_t offset_c, vector_shape_t v_c) {
 	array_number_t macroDef30 = (array_number_t)stgVar23;
+		macroDef30->length=size_s;
+		macroDef30->arr=(number_t*)((char*)macroDef30 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef30->length; i_s++){
 			storage_t stgVar24 = &macroDef30->arr[i_s];
 			
@@ -137,6 +143,8 @@ matrix_shape_t TOP_LEVEL_linalg_matrixMap_c(closure_t f_c, matrix_shape_t m_c) {
 array_array_number_t TOP_LEVEL_linalg_matrixMap_s(storage_t stgVar33, closure_t f_s, array_array_number_t m_s, closure_t f_c, matrix_shape_t m_c) {
 	card_t macroDef44 = m_s->length;
 	array_array_number_t macroDef46 = (array_array_number_t)stgVar33;
+		macroDef46->length=macroDef44;
+		macroDef46->arr=(array_number_t*)((char*)macroDef46 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef46->length; i_s++){
 			storage_t stgVar35 = &macroDef46->arr[i_s];
 			array_number_t stgVar36 = malloc(width_vector_shape_t(m_c.elem));
@@ -174,6 +182,8 @@ vector_shape_t TOP_LEVEL_linalg_vectorMap2_c(closure_t f_c, vector_shape_t v1_c,
 array_number_t TOP_LEVEL_linalg_vectorMap2_s(storage_t stgVar49, closure_t f_s, array_number_t v1_s, array_number_t v2_s, closure_t f_c, vector_shape_t v1_c, vector_shape_t v2_c) {
 	card_t macroDef60 = v1_s->length;
 	array_number_t macroDef61 = (array_number_t)stgVar49;
+		macroDef61->length=macroDef60;
+		macroDef61->arr=(number_t*)((char*)macroDef61 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef61->length; i_s++){
 			storage_t stgVar51 = &macroDef61->arr[i_s];
 			
@@ -220,6 +230,8 @@ matrix_shape_t TOP_LEVEL_linalg_matrixMap2_c(closure_t f_c, matrix_shape_t m1_c,
 array_array_number_t TOP_LEVEL_linalg_matrixMap2_s(storage_t stgVar64, closure_t f_s, array_array_number_t m1_s, array_array_number_t m2_s, closure_t f_c, matrix_shape_t m1_c, matrix_shape_t m2_c) {
 	card_t macroDef78 = m1_s->length;
 	array_array_number_t macroDef81 = (array_array_number_t)stgVar64;
+		macroDef81->length=macroDef78;
+		macroDef81->arr=(array_number_t*)((char*)macroDef81 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef81->length; i_s++){
 			storage_t stgVar66 = &macroDef81->arr[i_s];
 			array_number_t stgVar68 = malloc(width_vector_shape_t(m2_c.elem));
@@ -272,6 +284,8 @@ matrix3d_shape_t TOP_LEVEL_linalg_matrix3DMap2_c(closure_t f_c, matrix3d_shape_t
 array_array_array_number_t TOP_LEVEL_linalg_matrix3DMap2_s(storage_t stgVar84, closure_t f_s, array_array_array_number_t m1_s, array_array_array_number_t m2_s, closure_t f_c, matrix3d_shape_t m1_c, matrix3d_shape_t m2_c) {
 	card_t macroDef98 = m1_s->length;
 	array_array_array_number_t macroDef101 = (array_array_array_number_t)stgVar84;
+		macroDef101->length=macroDef98;
+		macroDef101->arr=(array_array_number_t*)((char*)macroDef101 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef101->length; i_s++){
 			storage_t stgVar86 = &macroDef101->arr[i_s];
 			array_number_t stgVar88 = malloc(width_matrix_shape_t(m2_c.elem));
@@ -318,6 +332,8 @@ matrix_shape_t TOP_LEVEL_linalg_vectorMapToMatrix_c(closure_t f_c, vector_shape_
 array_array_number_t TOP_LEVEL_linalg_vectorMapToMatrix_s(storage_t stgVar104, closure_t f_s, array_number_t arr_s, closure_t f_c, vector_shape_t arr_c) {
 	card_t macroDef114 = arr_s->length;
 	array_array_number_t macroDef115 = (array_array_number_t)stgVar104;
+		macroDef115->length=macroDef114;
+		macroDef115->arr=(array_number_t*)((char*)macroDef115 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef115->length; i_s++){
 			storage_t stgVar106 = &macroDef115->arr[i_s];
 			
@@ -358,6 +374,8 @@ matrix3d_shape_t TOP_LEVEL_linalg_vectorMapToMatrix3D_c(closure_t f_c, vector_sh
 array_array_array_number_t TOP_LEVEL_linalg_vectorMapToMatrix3D_s(storage_t stgVar118, closure_t f_s, array_number_t arr_s, closure_t f_c, vector_shape_t arr_c) {
 	card_t macroDef128 = arr_s->length;
 	array_array_array_number_t macroDef129 = (array_array_array_number_t)stgVar118;
+		macroDef129->length=macroDef128;
+		macroDef129->arr=(array_array_number_t*)((char*)macroDef129 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef129->length; i_s++){
 			storage_t stgVar120 = &macroDef129->arr[i_s];
 			
@@ -605,7 +623,7 @@ vector_shape_t TOP_LEVEL_linalg_cross_c(vector_shape_t a_c, vector_shape_t b_c) 
 array_number_t TOP_LEVEL_linalg_cross_s(storage_t stgVar195, array_number_t a_s, array_number_t b_s, vector_shape_t a_c, vector_shape_t b_c) {
 	array_number_t macroDef211 = (array_number_t)stgVar195;
 	macroDef211->length=3;
-	macroDef211->arr=(number_t*)((int*)stgVar195 + VECTOR_HEADER_BYTES);
+	macroDef211->arr=(number_t*)((char*)stgVar195 + VECTOR_HEADER_BYTES);
 	macroDef211->arr[0] = ((a_s->arr[1]) * (b_s->arr[2])) - ((a_s->arr[2]) * (b_s->arr[1]));
 	macroDef211->arr[1] = ((a_s->arr[2]) * (b_s->arr[0])) - ((a_s->arr[0]) * (b_s->arr[2]));
 	macroDef211->arr[2] = ((a_s->arr[0]) * (b_s->arr[1])) - ((a_s->arr[1]) * (b_s->arr[0]));;
@@ -1200,9 +1218,13 @@ array_array_number_t TOP_LEVEL_linalg_matrixTranspose_s(storage_t stgVar444, arr
 	free(stgVar448);
 	card_t cols_s = macroDef465;
 	array_array_number_t macroDef471 = (array_array_number_t)stgVar444;
+		macroDef471->length=cols_s;
+		macroDef471->arr=(array_number_t*)((char*)macroDef471 + VECTOR_HEADER_BYTES);
 		for(int i_s = 0; i_s < macroDef471->length; i_s++){
 			storage_t stgVar450 = &macroDef471->arr[i_s];
 			array_number_t macroDef467 = (array_number_t)stgVar450;
+		macroDef467->length=rows_s;
+		macroDef467->arr=(number_t*)((char*)macroDef467 + VECTOR_HEADER_BYTES);
 		for(int j_s = 0; j_s < macroDef467->length; j_s++){
 			storage_t stgVar451 = &macroDef467->arr[j_s];
 			array_number_t stgVar452 = malloc(width_vector_shape_t(m_c.elem));
@@ -1296,9 +1318,13 @@ array_array_number_t TOP_LEVEL_linalg_matrixMult_s(storage_t stgVar478, array_ar
 	array_number_t stgVar489 = malloc(width_matrix_shape_t(m2T_c));
 	array_array_number_t macroDef519;array_array_number_t m2T_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar489, m2_s, m2_c);
 	array_array_number_t macroDef518 = (array_array_number_t)stgVar478;
+		macroDef518->length=r1_s;
+		macroDef518->arr=(array_number_t*)((char*)macroDef518 + VECTOR_HEADER_BYTES);
 		for(int r_s = 0; r_s < macroDef518->length; r_s++){
 			storage_t stgVar491 = &macroDef518->arr[r_s];
 			array_number_t macroDef514 = (array_number_t)stgVar491;
+		macroDef514->length=c2_s;
+		macroDef514->arr=(number_t*)((char*)macroDef514 + VECTOR_HEADER_BYTES);
 		for(int c_s = 0; c_s < macroDef514->length; c_s++){
 			storage_t stgVar492 = &macroDef514->arr[c_s];
 			array_number_t stgVar494 = malloc(width_vector_shape_t(m2T_c.elem));
@@ -1368,6 +1394,8 @@ array_array_number_t TOP_LEVEL_linalg_matrixConcat_s(storage_t stgVar525, array_
 	card_t macroDef541 = m1_s->length;
 	index_t m1Rows_s = (macroDef541);
 	array_array_number_t macroDef542 = (array_array_number_t)stgVar525;
+		macroDef542->length=rows_s;
+		macroDef542->arr=(array_number_t*)((char*)macroDef542 + VECTOR_HEADER_BYTES);
 		for(int r_s = 0; r_s < macroDef542->length; r_s++){
 			storage_t stgVar531 = &macroDef542->arr[r_s];
 			array_number_t ite543 = 0;
@@ -1462,6 +1490,8 @@ array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat_s(storage_t stgVar560
 	card_t macroDef576 = m1_s->length;
 	index_t m1Rows_s = (macroDef576);
 	array_array_array_number_t macroDef577 = (array_array_array_number_t)stgVar560;
+		macroDef577->length=rows_s;
+		macroDef577->arr=(array_array_number_t*)((char*)macroDef577 + VECTOR_HEADER_BYTES);
 		for(int r_s = 0; r_s < macroDef577->length; r_s++){
 			storage_t stgVar566 = &macroDef577->arr[r_s];
 			array_array_number_t ite578 = 0;

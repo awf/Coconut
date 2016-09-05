@@ -252,9 +252,13 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           let idxCode = idx.Name
           let stCode = st.Name
           let stType = ccodegenType st.Type
+          let elemType = ccodegenType body.Type
+          let lengthCode = ccodegen elist.[1]
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
-          (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s %s = &%s->arr[%s];\n\t\t\t%s\n\t\t}"
+          (sprintf "%s %s = (%s)%s;\n\t\t%s->length=%s;\n\t\t%s->arr=(%s*)((char*)%s + VECTOR_HEADER_BYTES);\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s %s = &%s->arr[%s];\n\t\t\t%s\n\t\t}"
              resultType resultName resultType storage 
+             resultName lengthCode
+             resultName elemType resultName
              idxCode idxCode resultName idxCode
              stType stCode resultName idxCode
              bodyCode
@@ -322,7 +326,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           let args = String.concat "\n\t" (elemsNoStg |> List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
           let arrTp = ccodegenType (tp.MakeArrayType()) 
           let elemTp = ccodegenType tp
-          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)((int*)%s + VECTOR_HEADER_BYTES);\n\t%s" 
+          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)((char*)%s + VECTOR_HEADER_BYTES);\n\t%s" 
                       arrTp stgCode 
                       var.Name elemsNoStg.Length
                       var.Name elemTp stgCode
