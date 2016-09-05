@@ -12,7 +12,7 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
   | Patterns.Let(x, e1, e2) when not letRhs -> Expr.Let(x, anfConversion true e1, anfConversion false e2)
   | Patterns.Value(v, tp) -> e
   | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion false body)
-  | Patterns.NewArray(tp, elems) when not letRhs -> 
+  | Patterns.NewArray(tp, elems) when not letRhs && not (tp.Name = typeof<_ -> _>.Name)  -> 
     let variable = new Var(newVar "array", e.Type)
     Expr.Let(variable, Expr.NewArray(tp, List.map (anfConversion false) elems), Expr.Var(variable))
   | Patterns.IfThenElse(cond, e1, e2) when not letRhs ->
@@ -28,11 +28,13 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
 (* Lifts let bindings to top-level statements *)
 let letLifting (e: Expr): Expr = 
   let rec constructTopLevelLets (boundVars: Var List) (exp: Expr): Expr * (Var * Expr) List = 
+    let isSafeToLift (freeVars: Var list): bool = 
+      let freeNotBoundVars = listDiff freeVars boundVars
+      List.isEmpty freeNotBoundVars || (freeNotBoundVars |> List.forall isMethodVariable)
     match exp with 
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
-      let existingFreeVars = List.ofSeq (e1.GetFreeVars())
-      let canBeLifted = List.isEmpty (listDiff existingFreeVars boundVars)
+      let canBeLifted = e1.GetFreeVars() |> List.ofSeq |> isSafeToLift
       let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
       let (te2, liftedLets2) = constructTopLevelLets newBoundVars e2
       if (canBeLifted) then
@@ -42,6 +44,9 @@ let letLifting (e: Expr): Expr =
     | Patterns.Call (None, op, elist) -> 
       let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) elist)
       (Expr.Call(op, tes), List.concat lls)
+    // | AppN (e0, elist) -> 
+    //   let (tes, lls) = List.unzip (List.map (constructTopLevelLets boundVars) elist)
+    //   (AppN(e0, tes), List.concat lls)
     | LambdaN (inputs, body) ->
       let (te, ll) = constructTopLevelLets (inputs @ boundVars) body
       //(LambdaN (inputs, te), ll)
@@ -119,13 +124,15 @@ let closureConversion (e: Expr): Expr =
     | Patterns.Let(x, e1, e2) -> Expr.Let(x, rcr e1, rcr e2)
     | Patterns.Value(v, tp) -> exp
     | Patterns.NewArray(tp, elems) -> 
-      Expr.NewArray(tp, List.map rcr elems)
+      Expr.NewArray(tp, List.map (lambdaLift ctx) elems)
     | Patterns.Call (None, op, elist) -> 
-      let isCMacro = not (Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true)))
+      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
+      let isCMacro = cMacro |> Option.isSome
       let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
       let callExpr = Expr.Call(op, telist)
-      let macroVar = new Var(newVar "macroDef", exp.Type)
-      if isCMacro then
+      let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
+      if shouldLetBind then
+        let macroVar = new Var(newVar "macroDef", exp.Type)
         Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
       else
         callExpr

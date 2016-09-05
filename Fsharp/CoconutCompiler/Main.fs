@@ -6,6 +6,7 @@ open utils
 open linalg
 open corelang
 open FSharp.Quotations
+open types
 
 let test_ba (argv: string[]) = 
     let dir_in = argv.[0]
@@ -34,7 +35,7 @@ let test_ruleengine () =
     //let prog' = rules.letMerging2 prog
     //let prog = <@ let b = vectorBuild 10 (fun i -> double i) in vectorBuild (b.Length) (fun j -> (add_vec b b).[j]) @>
     //let prog' = rules.letVectorBuildLength2 prog
-    let prog = <@ let s = vectorAlloc 10 in vectorBuildGivenStorage s (fun i -> 2.0) @>
+    let prog = <@ let s = vectorAlloc (Card 10) in vectorBuildGivenStorage s (fun i -> 2.0) @>
     let prog' = ruleengine.applyRule rules.allocToCPS prog
     //let prog = <@ let i = 3 in let j = i * 2 in i / j @>
     //let prog' = rules.letReorder2 prog
@@ -43,18 +44,24 @@ let test_ruleengine () =
     printfn "%A" prog'
 
 let compile_modules () = 
-    compiler.compileModule "linalg" [] false
-    compiler.compileModule "usecases" ["linalg"] false
-    compiler.compileModule "programs" ["linalg"] true
-    compiler.compileModule "ccodegentests" [] false
+    compiler.compileModule "linalg" [] false false
+    compiler.compileModule "usecases" ["linalg"] false false
+    compiler.compileModule "programs" ["linalg"] true false
+    compiler.compileModule "ccodegentests" [] false false
+
+let compile_modules_storaged () = 
+    compiler.compileModule "linalg" [] false true
+    compiler.compileModule "linalgtests" ["linalg"] false true
+    //compiler.compile "linalg" "matrixMap" false true
+    ()
 
 let benchmark_search () =
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
     benchmark.benchmark_test_algorithms bundleAdjustmentProject
 
 let test_guided_optimizer () = 
-    compiler.compileModule "linalg" [] false
-    compiler.compileModule "usecases" ["linalg"] false
+    compiler.compileModule "linalg" [] false false
+    compiler.compileModule "usecases" ["linalg"] false false
     let comp = ruleengine.compilePatternToRule
       //ruleengine.compilePatternToRule2
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
@@ -411,13 +418,27 @@ let test_feature () =
   printfn "%A" (firstLevelApplicableRules |> List.map (optimizer.applyRuleAtParticularPosition bundleAdjustmentProject) |> List.map ccodegen.prettyprint )
   ()
 
+let test_card () = 
+  let cardAndStg (moduleName: string) (methodName: string) = 
+    let exp = compiler.getMethodExpr moduleName methodName
+    let expCard = cardinfer.inferCardinality exp
+    printfn "card: `%A`" expCard
+    let expStg = storagedtransformer.transformStoraged exp (storagedtransformer.newStgVar()) Map.empty
+    printfn "stg: `%A`" (ccodegen.prettyprint expStg)
+  cardAndStg "linalg" "vectorMap"
+  cardAndStg "programs" "vectorAddExample"
+  cardAndStg "linalg" "add_vec"
+  cardAndStg "usecases" "project"
+
 [<EntryPoint>]
 let main argv = 
     // test_ba argv
     // compile_modules ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
-    test_guided_optimizer ()
+    // test_guided_optimizer ()
     // benchmark_search ()
     // test_ruleengine ()
     // test_feature ()
+    // test_card()
     0

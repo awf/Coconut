@@ -34,7 +34,7 @@ let letMerging_old (e: Expr): Expr option =
 
 let letVectorBuildLength_old (e: Expr): Expr option =
   match e with
-  | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ vectorBuild @> (_, _, [size; f]) as buildExpr), e2) -> 
+  | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ build @> (_, _, [size; f]) as buildExpr), e2) -> 
     let rec findLength(exp: Expr): (Expr * (Expr -> Expr)) option = 
       match exp with
       | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" && arr = Expr.Var(x) -> 

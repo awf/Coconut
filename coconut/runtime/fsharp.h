@@ -24,12 +24,31 @@ typedef struct array_array_array_number_t {
 	int length;
 }* array_array_array_number_t;
 
+typedef int card_t;
+typedef struct vector_shape_t {
+  card_t elem;
+  card_t card;
+} vector_shape_t;
+typedef struct matrix_shape_t {
+  vector_shape_t elem;
+  card_t card;
+} matrix_shape_t;
+typedef struct matrix3d_shape_t {
+  matrix_shape_t elem;
+  card_t card;
+} matrix3d_shape_t;
+
 typedef union value_t {
+	card_t card_t_value;
+	vector_shape_t vector_shape_t_value;
+	matrix_shape_t matrix_shape_t_value;
+	matrix3d_shape_t matrix3d_shape_t_value;
 	number_t number_t_value;
 	array_number_t array_number_t_value;
 	array_array_number_t array_array_number_t_value;
 	array_array_array_number_t array_array_array_number_t_value;
 } value_t;
+
 
 typedef void* storage_t;
 
@@ -40,6 +59,8 @@ typedef value_t (*lambda_t)();
 typedef void* env_t;
 
 typedef int empty_env_t;
+
+storage_t empty_storage = (void*)0;
 
 empty_env_t make_empty_env() {
 	return 0;
@@ -102,55 +123,32 @@ void pause_timing() {
 
 storage_t vector_alloc(index_t size) {
 	// start_timing();
-	array_number_t res = (array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (number_t*)malloc(sizeof(number_t) * res->length);
+	storage_t area = malloc(sizeof(int) * 2 + sizeof(number_t) * size);
+	array_number_t boxed_vector = (array_number_t)area;
+	boxed_vector->length = size;
+	boxed_vector->arr = (number_t*)(((int*)area) + 2);
 	// pause_timing();
-	return res;
+	return area;
 }
 
 storage_t matrix_alloc(index_t size) {
 	// start_timing();
-	array_array_number_t res = (array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_number_t*)malloc(sizeof(array_number_t) * res->length);
+	storage_t area = malloc(sizeof(int) * 2 + sizeof(array_number_t) * size);
+	array_array_number_t boxed_vector = (array_array_number_t)area;
+	boxed_vector->length = size;
+	boxed_vector->arr = (array_number_t*)(((int*)area) + 2);
 	// pause_timing();
-	return res;
+	return area;
 }
 
 storage_t matrix3d_alloc(index_t size) {
-	array_array_array_number_t res = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	res->length = size;
-	res->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * res->length);
-	return res;
-}
-
-array_number_t vector_build(index_t size, closure_t closure) {
-	array_number_t res = (array_number_t)vector_alloc(size);
 	// start_timing();
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).number_t_value;
-	}
+	storage_t area = malloc(sizeof(int) * 2 + sizeof(array_array_number_t) * size);
+	array_array_array_number_t boxed_vector = (array_array_array_number_t)area;
+	boxed_vector->length = size;
+	boxed_vector->arr = (array_array_number_t*)(((int*)area) + 2);
 	// pause_timing();
-	return res;
-}
-
-array_array_number_t matrix_build(index_t size, closure_t closure) {
-	array_array_number_t res = (array_array_number_t)matrix_alloc(size);
-	// start_timing();
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).array_number_t_value;
-	}
-	// pause_timing();
-	return res;
-}
-
-array_array_array_number_t matrix3d_build(index_t size, closure_t closure) {
-	array_array_array_number_t res = (array_array_array_number_t)matrix3d_alloc(size);
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).array_array_number_t_value;
-	}
-	return res;
+	return area;
 }
 
 array_number_t array_slice(array_number_t arr, index_t start, index_t end) {
@@ -171,109 +169,9 @@ array_array_number_t matrix_slice(array_array_number_t arr, index_t start, index
 	return res;
 }
 
-array_number_t array_range(index_t start, index_t end) {
-	index_t size = end - start + 1;
-	array_number_t res = (array_number_t)vector_alloc(size);
-	for (int i = 0; i < size; i++) {
-		res->arr[i] = start + i;
-	}
-	return res;
-}
-
 void number_print(number_t num) {
 	printf("%f\n", num);
 }
-
-array_array_number_t matrix_concat(array_array_number_t mat1, array_array_number_t mat2) {
-	array_array_number_t res = (array_array_number_t)matrix_alloc(mat1->length + mat2->length);
-	for (int i = 0; i < res->length; i++) {
-		if (i < mat1->length)
-			res->arr[i] = mat1->arr[i];
-		else 
-			res->arr[i] = mat2->arr[i - mat1->length];
-	}
-	return res;
-}
-
-array_array_array_number_t matrix3d_concat(array_array_array_number_t mat1, array_array_array_number_t mat2) {
-	array_array_array_number_t res = (array_array_array_number_t)matrix3d_alloc(mat1->length + mat2->length);
-	for (int i = 0; i < res->length; i++) {
-		if (i < mat1->length)
-			res->arr[i] = mat1->arr[i];
-		else 
-			res->arr[i] = mat2->arr[i - mat1->length];
-	}
-	return res;
-}
-
-number_t vector_fold_number(closure_t closure, number_t zero, array_number_t range) {
-	number_t acc = zero;
-	for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).number_t_value;
-	}
-	return acc;
-}
-
-array_number_t vector_fold_vector(closure_t closure, array_number_t zero, array_number_t range) {
-	array_number_t acc = zero;
-	for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).array_number_t_value;
-	}
-	return acc;
-}
-
-array_array_number_t vector_fold_matrix(closure_t closure, array_array_number_t zero, array_number_t range) {
-	array_array_number_t acc = zero;
-	for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_number_t_value;
-	}
-	return acc;
-}
-
-array_array_array_number_t vector_fold_matrix3d(closure_t closure, array_array_array_number_t zero, array_number_t range) {
-	array_array_array_number_t acc = zero;
-		for (int i = 0; i < range->length; i++) {
-		acc = closure.lam(closure.env, acc, range->arr[i]).array_array_array_number_t_value;
-	}
-	return acc;
-}
-
-array_array_number_t matrix_transpose(array_array_number_t mat) {
-	array_array_number_t res = (array_array_number_t)matrix_alloc(mat->arr[0]->length);
-	for (int i = 0; i < res->length; i++) {
-		array_number_t row = (array_number_t)vector_alloc(mat->length);
-		for (int j = 0; j < row->length; j++) {
-			row->arr[j] = mat->arr[j]->arr[i];
-		}
-		res->arr[i] = row;
-	}
-	return res;
-}
-
-array_array_number_t matrix_mult(array_array_number_t mat1, array_array_number_t mat2) {
-	int r1 = mat1->length;
-	int c2 = mat2->arr[0]->length;
-	int c1 = mat1->arr[0]->length;
-	int r2 = mat2->length;
-	if(c1 != r2) {
-		printf("Matrcies have the inconsistent dimensions %dx%d and %dx%d for MMM", r1, c1, r2, c2);
-		exit(1);
-	}
-	array_array_number_t res = (array_array_number_t)matrix_alloc(r1);
-	for (int i = 0; i < r1; i++) {
-		array_number_t row = (array_number_t)vector_alloc(c2);
-		for (int j = 0; j < c2; j++) {
-			row->arr[j] = 0;
-			for(int k = 0; k < c1; k++) {
-				row->arr[j] += mat1->arr[i]->arr[k] * mat2->arr[k]->arr[j];
-			}
-		}
-		res->arr[i] = row;
-	}
-	return res;
-}
-
-
 
 void matrix_print(array_array_number_t arr) {
 	printf("[\n   ");
@@ -311,7 +209,7 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 			length++;
 		}
 		fseek(fp, -length-2, SEEK_CUR);
-		array_number_t one_row = array_range(0, elems - 1);
+		array_number_t one_row = (array_number_t)vector_alloc(elems);
 		for(int i=0; i<elems; i++) {
 			fscanf(fp, "%lf", &one_row->arr[i]);
 		}
@@ -339,6 +237,34 @@ array_number_t vector_build_given_storage(storage_t storage, closure_t closure) 
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
 	return res;
+}
+
+// cardinality related methods
+
+vector_shape_t nested_shape_card_t(card_t elem, card_t card) {
+	vector_shape_t res;
+	res.elem = elem;
+	res.card = card;
+	return res;
+}
+
+
+matrix_shape_t nested_shape_vector_shape_t(vector_shape_t elem, card_t card) {
+	matrix_shape_t res;
+	res.elem = elem;
+	res.card = card;
+	return res;
+}
+
+matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
+	matrix3d_shape_t res;
+	res.elem = elem;
+	res.card = card;
+	return res;
+}
+
+card_t width_vector_shape_t(vector_shape_t shape) {
+  return shape.card;
 }
 
 #endif

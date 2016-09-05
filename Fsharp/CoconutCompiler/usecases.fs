@@ -5,6 +5,7 @@ open corelang
 open linalg
 open types
 open utils
+open cardinality
 
 (** Bundle Adjustment **)
 
@@ -57,25 +58,26 @@ let w_err (w:Vector) =
     vectorMap compute_zach_weight_error w 
 
 let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): Matrix =
-    let n = cams.Length
-    let p = w.Length
-    let range = vectorRange 0 (p - 1)
+    let n = length cams
+    let p = length w
+    let range = vectorRange (Card 0) (p .- (Card 1))
     vectorMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
 
 let run_ba_from_file (fn: string) = 
     let nmp = vectorRead fn 0
-    let n = int nmp.[0]
-    let m = int nmp.[1]
-    let p = int nmp.[2]
+    let n = Card (int nmp.[0])
+    let m = Card (int nmp.[1])
+    let p = Card (int nmp.[2])
+    let oneCard = Card 1
     let one_cam = vectorRead fn 1
-    let cam = vectorMapToMatrix (fun x -> one_cam)  (vectorRange 1 n)
+    let cam = vectorMapToMatrix (fun x -> one_cam)  (vectorRange oneCard n)
     let one_x = vectorRead fn 2
-    let x = vectorMapToMatrix (fun x -> one_x)  (vectorRange 1 m)
+    let x = vectorMapToMatrix (fun x -> one_x)  (vectorRange oneCard m)
     let one_w = numberRead fn 3
-    let w = vectorMap (fun x -> one_w)  (vectorRange 1 p)
+    let w = vectorMap (fun x -> one_w)  (vectorRange oneCard p)
     let one_feat = vectorRead fn 4
-    let feat = vectorMapToMatrix (fun x -> one_feat)  (vectorRange 1 p)
-    let obs = vectorMapToMatrix (fun x -> [| double ((int x) % n); double ((int x) % m) |] )  (vectorRange 0 (p - 1))
+    let feat = vectorMapToMatrix (fun x -> one_feat)  (vectorRange oneCard p)
+    let obs = vectorMapToMatrix (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )  (vectorRange (Card 0) (p .- oneCard))
     let t = tic()
     let res = reproj_err cam x w obs feat
     toc(t)
@@ -93,7 +95,7 @@ let inline log_gamma_distrib (a: Number) (p: Number) =
         //MathNet.Numerics.SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))
         a + 0.5*(1. - (float j))
       ) 
-      (vectorRange 1 (int p)))
+      (vectorRange (Card 1) (Card (int p))))
 
 let inline new_matrix_test (dum: Vector): Matrix = 
   let res = [| [| 0.0; 0.0; 0.0 |] |]
@@ -101,7 +103,7 @@ let inline new_matrix_test (dum: Vector): Matrix =
 
 (** Hand Tracking **)
 
-let inline to_pose_params (theta: Vector) (n_bones: Index): Matrix =
+let inline to_pose_params (theta: Vector) (n_bones: Cardinality): Matrix =
   let row1 = theta.[0..2]
   let row2 = [| 1.0; 1.0; 1.0|]
   let row3 = theta.[3..5]
@@ -165,12 +167,12 @@ let make_relative (pose_params: Vector) (base_relative: Matrix): Matrix =
                  (r2)
   matrixMult base_relative T
 
-let get_posed_relatives (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix[]): Matrix[] =
+let get_posed_relatives (n_bones: Cardinality) (pose_params: Matrix) (base_relatives: Matrix[]): Matrix[] =
   let offset = 3
   vectorMapToMatrix3D (fun i_bone -> 
      make_relative pose_params.[(int i_bone)+offset] base_relatives.[int i_bone]
     ) 
-    (vectorRange 0 (n_bones - 1))
+    (vectorRange (Card 0) (n_bones .- (Card 1)))
 
 let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
   let n = sqrt(sqnorm angle_axis)
@@ -201,7 +203,7 @@ let relatives_to_absolutes (relatives: Matrix[]) (parents: Vector): Matrix[] =
       (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
       let newMatrix = [| matrixMult acc.[int parents.[i]] relatives.[i] |]
       matrix3DConcat acc newMatrix
-  ) (init) 0 (relatives.Length-1)
+  ) (init) (Card 0) ((length relatives) .- (Card 1))
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
   let R = angle_axis_to_rotation_matrix pose_params.[0]
@@ -209,26 +211,26 @@ let apply_global_transform (pose_params: Matrix) (positions: Matrix) =
   let R1 = matrixMap (fun row -> mult_vec_elementwise row scale) R 
   
   let T = matrixConcatCol R1 (matrixTranspose ([| pose_params.[2] |]))
-  let ones = vectorMap (fun x -> 1.) (vectorRange 1 (positions.[0].Length))
+  let ones = vectorMap (fun x -> 1.) (vectorRange (Card 1) (length positions.[0]))
   let positions_homog = matrixConcat positions ([| ones |])
   matrixMult T positions_homog
 
-let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_params: Matrix) (base_relatives: Matrix[]) (parents: Vector)
+let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Cardinality) (pose_params: Matrix) (base_relatives: Matrix[]) (parents: Vector)
      (inverse_base_absolutes: Matrix[]) (base_positions: Matrix) (weights: Matrix) =
   let relatives = get_posed_relatives n_bones pose_params base_relatives
   let absolutes = relatives_to_absolutes relatives parents
   
   let transforms = matrix3DMap2 (matrixMult) absolutes inverse_base_absolutes
   
-  let n_verts = base_positions.[0].Length
-  let init_positions = matrixFill 3 n_verts 0.
+  let n_verts = length base_positions.[0]
+  let init_positions = matrixFill (Card 3) n_verts 0.
 
   let positions = 
     iterateMatrix (fun acc i_transform ->
       let curr_positions = matrixMult transforms.[i_transform].[0..2] base_positions
-      let w = matrixFillFromVector base_positions.Length weights.[i_transform]
+      let w = matrixFillFromVector (length base_positions) weights.[i_transform]
       matrixAdd acc (matrixMultElementwise curr_positions w)
-    ) init_positions 0 (transforms.Length-1)
+    ) init_positions (Card 0) ((length transforms) .- (Card 1))
 
   let mirrored_positions =
     if(is_mirrored = 1) then 
@@ -243,7 +245,7 @@ let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Index) (pose_par
   apply_global_transform pose_params mirrored_positions
 
 let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector) (points: Matrix)
-      (n_bones: Index) (base_relatives: Matrix[]) (parents: Vector)
+      (n_bones: Cardinality) (base_relatives: Matrix[]) (parents: Vector)
       (inverse_base_absolutes: Matrix[]) (base_positions: Matrix) (weights: Matrix): Vector =
   let pose_params = to_pose_params param n_bones
   
@@ -259,7 +261,7 @@ let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector
       let r = ind / n_corr
       let c = ind % n_corr
       points.[r].[c] - vertex_positions.[r].[int correspondences.[c]]
-    ) (vectorRange 0 (dims * n_corr - 1))
+    ) (vectorRange (Card 0) (Card (dims * n_corr - 1))) // TODO violates fixed size behaviour of cardinalities
   err
 
 (** Testing **)
@@ -305,7 +307,7 @@ let test1 (dum: Vector) =
   matrixPrint o
   let p = matrixConcatCol mat1 mat1
   matrixPrint p
-  let base_rel = vectorMapToMatrix (fun r -> vectorRange (int r * 4) (int r * 4 + 3)) (vectorRange 1 4)
+  let base_rel = vectorMapToMatrix (fun r -> vectorRange (Card (int r * 4)) (Card (int r * 4 + 3))) (vectorRange (Card 1) (Card 4))
   let q = make_relative a base_rel
   matrixPrint q
   let r = angle_axis_to_rotation_matrix a
@@ -314,6 +316,6 @@ let test1 (dum: Vector) =
   matrixPrint s
   let t = matrixAdd mat1 mat1
   matrixPrint t
-  let u = matrixFillFromVector 5 a
+  let u = matrixFillFromVector (Card 5) a
   matrixPrint u
   ()

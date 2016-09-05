@@ -2,6 +2,7 @@
 
 open Microsoft.FSharp.Quotations
 open types
+open System
 
 let assembly = System.Reflection.Assembly.GetExecutingAssembly()
 
@@ -17,7 +18,31 @@ let (|OperatorName|_|) methodName =
     | "op_UnaryNegation" -> Some("-")
     | "op_LessThan" -> Some("<")
     | "op_GreaterThan" -> Some(">")
+    | "op_DotMinus" -> Some("-")
+    | "op_DotPlus" -> Some("+")
     | _ -> None
+
+let (|ScalarOperation|_|) (exp: Expr): (string * Expr list * bool) option =
+  match exp with 
+  | Patterns.Call(None, op, argList) ->
+    match (op.Name, op.DeclaringType.Name) with
+    | (OperatorName name, _) -> Some(name, argList, true)
+    | ("Sqrt", "Operators") -> Some("sqrt", argList, false)
+    | ("Sin", "Operators") -> Some("sin", argList, false)
+    | ("Cos", "Operators") -> Some("cos", argList, false)
+    | ("Log", "Operators") -> Some("log", argList, false)
+    | ("Exp", "Operators") -> Some("exp", argList, false)
+    | ("Pow", "Math") -> Some("pow", argList, false)
+    | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList, false)
+    | ("ToInt", "Operators") -> Some("(int)", argList, false)
+    | ("ToDouble", "Operators") -> Some("(double)", argList, false)
+    | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList, false)
+    | _                 -> 
+      match exp with
+      | DerivedPatterns.SpecificCall <@ cardinality.cardToInt @> (_, _, [arg]) ->
+        Some("", [arg], false)
+      | _ -> None
+  | _ -> None
 
 let (|LambdaN|_|) (e: Expr): (Var List * Expr) Option = 
   (* TODO implement in a tail recursive way *)
@@ -98,6 +123,20 @@ let (|EnvRef|_|) (e: Expr): (Expr * string) Option =
 
 let mutable existingMethods: (string * string) List = []
 
+let (|ReflectedMethodCall|_|) (e: Expr): (string * string * Expr * Expr list) Option = 
+  match e with
+  | Patterns.Call (None, op, args) -> 
+    try 
+      let moduleName = op.DeclaringType.Name
+      let methodName = op.Name
+      let moduleInfo = assembly.GetType(moduleName)
+      let methodInfo = moduleInfo.GetMethod(methodName)
+      let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
+      reflDefnOpt |> Option.map (fun lam -> methodName, moduleName, lam, args)
+    with
+      _ -> None
+  | _ -> None
+
 let (|ExistingCompiledMethod|_|) (e: Expr): (string * string * Expr List) Option = 
   match e with 
   | Patterns.Call (None, op, argList) -> 
@@ -111,6 +150,7 @@ let (|ExistingCompiledMethod|_|) (e: Expr): (string * string * Expr List) Option
 let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr List * Expr) Option = 
   match e with
   | ExistingCompiledMethod(methodName, moduleName, args) -> 
+    // TODO rewrite using ReflectedMethodCall
     let moduleInfo = assembly.GetType(moduleName)
     let methodInfo = moduleInfo.GetMethod(methodName)
     let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
@@ -135,24 +175,112 @@ let (|ArraySlice|_|) (e: Expr): (Expr * Expr * Expr) option =
     | _ -> None
   | _ -> None
 
+let (|ArrayLength|_|) (e: Expr): (Expr) option = 
+  match e with 
+  | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> Some(arr)
+  | DerivedPatterns.SpecificCall <@ corelang.length @> (_, _, [e0])     -> Some(e0)
+  | _                                                                   -> None
+
+let getMethodInfo (methodExpr: Expr): Reflection.MethodInfo = 
+  let body = 
+    match methodExpr with
+    | TopLevelFunction(_, LetN(_, body)) -> body
+    | TopLevelFunction(_, body)          -> body
+  match body with
+  | Patterns.Call(_, op, _) -> 
+    op
+  | _ -> failwithf "The expression `%A` is not a method expression." methodExpr
+
+let METHOD_VARIABLE_PREFIX = "TOP_LEVEL_"
+
+let methodVariableName (methodName: string) (moduleName: string): string = 
+  sprintf "%s%s_%s" METHOD_VARIABLE_PREFIX moduleName methodName
+
+let isMethodVariable (v: Var): bool =
+  v.Name.StartsWith(METHOD_VARIABLE_PREFIX)
+
+let (|MethodVariable|_|) (v: Var): (string * string) option = 
+  if isMethodVariable v then
+    let methodModuleStr = v.Name.Substring(METHOD_VARIABLE_PREFIX.Length)
+    let separatorIndex = methodModuleStr.IndexOf('_')
+    let methodName = methodModuleStr.Substring(0, separatorIndex)
+    let moduleName = methodModuleStr.Substring(separatorIndex + 1)
+    Some(moduleName, methodName)
+  else
+    None
+
+let methodVariableNameMethodInfo (op: Reflection.MethodInfo): string = 
+  methodVariableName op.Name op.DeclaringType.Name
+
+let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option = 
+  match e with
+  | AppN(e0, es)                          -> Some(e0, es)
+  | ReflectedMethodCall(mtd, mdl, e0, es) -> 
+    let v = new Var(methodVariableName mtd mdl, e0.Type)
+    Some(Expr.Var(v), es)
+  | ArraySlice(e0, st, en) ->
+    let vecSliceExp = <@@ linalg.vectorSlice @@>
+    let op = getMethodInfo vecSliceExp
+    let v = new Var(methodVariableNameMethodInfo op, vecSliceExp.Type)
+    match (st, en) with
+    | Patterns.Value(vs, ts), Patterns.Value(ve, te) when ts = te && ts = typeof<Index> ->
+      let vvs = unbox<int>(vs)
+      let vve = unbox<int>(ve)
+      let cardExp = Expr.Value(Card (vve - vvs + 1), typeof<Cardinality>)      
+      Some(Expr.Var(v), [cardExp; st; e0])
+    | _, ScalarOperation("+", [e2; Patterns.Value(vsz, tsz)], _) when e2 = st && tsz = typeof<Index> ->
+      let cardExp = Expr.Value(Card (unbox<int>(vsz) + 1), typeof<Cardinality>)  
+      Some(Expr.Var(v), [cardExp; st; e0])
+    | _ ->
+      failwithf "Not supported slice operation: `%A`" e
+  | _ -> None
+
+let MakeCall (methodExpr: Expr) (args: Expr list) (tps: System.Type list): Expr = 
+  let op = getMethodInfo methodExpr
+  let methodInfo =
+    if tps |> List.isEmpty then
+      op
+    else 
+      op.GetGenericMethodDefinition().MakeGenericMethod(tps |> List.toArray)
+  Expr.Call(methodInfo, args)
+
+let ArrayLength (e: Expr): Expr =
+  let t = e.Type 
+  let t1 = t.GetElementType()
+  MakeCall(<@@ corelang.length @@>)([e])([t1])
+
+let (|ArrayGet|_|) (e: Expr): (Expr * Expr) option = 
+  match e with 
+  | Patterns.Call (None, op, [e0; e1]) when op.Name = "GetArray" -> Some(e0, e1)
+  | _                                                            -> None
+
+let ArrayGet (e0: Expr) (e1: Expr): Expr =
+  <@@ (%%e0: _[]).[%%e1: int] @@>
+
+let (|CardConstructor|_|) (e: Expr): Expr option =
+  match e with
+  | Patterns.NewUnionCase(info, args) when info.Name = "Card" -> 
+    Some(args.[0])
+  | _ -> None
+
 let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option = 
   match e with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->
-      Some(sprintf "%s_%s" moduleName methodName, argList)
+      Some(methodVariableName methodName moduleName, argList)
   | Patterns.Call (None, op, argList) -> 
     match (op.Name, op.DeclaringType.Name) with
     | (methodName, "ArrayModule") -> 
       failwith (sprintf "The generic version of the method Array.%s is not supported!" methodName)
-    | ("Sqrt", "Operators") -> Some("sqrt", argList)
-    | ("Sin", "Operators") -> Some("sin", argList)
-    | ("Cos", "Operators") -> Some("cos", argList)
-    | ("Log", "Operators") -> Some("log", argList)
-    | ("Exp", "Operators") -> Some("exp", argList)
-    | ("Pow", "Math") -> Some("pow", argList)
-    | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList)
-    | ("ToInt", "Operators") -> Some("(int)", argList)
-    | ("ToDouble", "Operators") -> Some("(double)", argList)
-    | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
+    // | ("Sqrt", "Operators") -> Some("sqrt", argList)
+    // | ("Sin", "Operators") -> Some("sin", argList)
+    // | ("Cos", "Operators") -> Some("cos", argList)
+    // | ("Log", "Operators") -> Some("log", argList)
+    // | ("Exp", "Operators") -> Some("exp", argList)
+    // | ("Pow", "Math") -> Some("pow", argList)
+    // | ("GammaLn", "SpecialFunctions") -> Some("gamma_ln", argList)
+    // | ("ToInt", "Operators") -> Some("(int)", argList)
+    // | ("ToDouble", "Operators") -> Some("(double)", argList)
+    // | ("ToDouble", "ExtraTopLevelOperators") -> Some("(double)", argList)
     | ("GetArraySlice", "OperatorIntrinsics") -> // TODO rewrite using the `ArraySlice` active pattern
       let args = 
         List.map (fun x -> 
@@ -166,10 +294,11 @@ let (|LibraryCall|_|) (e: Expr): (string * Expr List) Option =
         | tp when tp = typeof<Matrix3D> -> "matrix3d"
         | tp -> failwith (sprintf "Array slice not supported for the type %s" (tp.Name))
       Some(prefix + "_slice", args)
+    // | ("cardToInt", "cardinality") -> Some("", argList)
     | _ when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMirror>, true))) -> 
         let attr = Seq.head (op.GetCustomAttributes(typeof<CMirror>, true)) :?> CMirror
         Some(attr.Method, argList)
-    | _ -> None 
+    | _ -> None
   | _ -> None
 
 let LambdaN (inputs: Var List, body: Expr): Expr =
@@ -180,6 +309,24 @@ let AppN (e1: Expr, args: Expr list): Expr =
 
 let LetN (inputs: (Var * Expr) List, body: Expr): Expr =
   List.fold (fun acc (curv, cure) -> Expr.Let(curv,  cure, acc)) body (List.rev inputs)
+
+let rec (|FunctionType|_|) (t: Type): (Type list * Type) option =
+  match t with 
+  | _ when t.Name = typeof<_ -> _>.Name ->
+    let args = t.GenericTypeArguments
+    let (inputs, output) = 
+      match args.[1] with
+      | FunctionType(is, o) -> is, o
+      | o                   -> [], o
+    Some(args.[0] :: inputs, output)
+  | _ -> None
+
+let rec FunctionType (inputs: Type list) (output: Type): Type =
+  match inputs with 
+  | [] ->
+    output
+  | x :: xs -> 
+    typeof<_ -> _>.GetGenericTypeDefinition().MakeGenericType(x, FunctionType xs output)
 
 open utils
 
