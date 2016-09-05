@@ -60,6 +60,8 @@ typedef void* env_t;
 
 typedef int empty_env_t;
 
+storage_t empty_storage = (void*)0;
+
 empty_env_t make_empty_env() {
 	return 0;
 }

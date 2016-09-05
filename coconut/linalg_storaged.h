@@ -366,8 +366,10 @@ card_t TOP_LEVEL_linalg_iterateNumber_c(closure_t f_c, card_t z_c, card_t s_c, c
 }
 number_t TOP_LEVEL_linalg_iterateNumber_s(storage_t stgVar126, closure_t f_s, number_t z_s, card_t s_s, card_t e_s, closure_t f_c, card_t z_c, card_t s_c, card_t e_c) {
 	number_t macroDef132 = z_s;
-	for(int cur_s_idx = 0; cur_s_idx < TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->length; cur_s_idx++){
-		number_t cur_s = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->arr[cur_s_idx];
+	array_number_t cur_s_range = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c);
+	storage_t stgVar127 = stgVar126;
+	for(int cur_s_idx = 0; cur_s_idx < cur_s_range->length; cur_s_idx++){
+		number_t cur_s = cur_s_range->arr[cur_s_idx];
 		
 		macroDef132 = f_s.lam(f_s.env, stgVar127, macroDef132, (int)(cur_s), 0, 0).number_t_value;
 	}
@@ -389,10 +391,12 @@ vector_shape_t TOP_LEVEL_linalg_iterateVector_c(closure_t f_c, vector_shape_t z_
 }
 array_number_t TOP_LEVEL_linalg_iterateVector_s(storage_t stgVar134, closure_t f_s, array_number_t z_s, card_t s_s, card_t e_s, closure_t f_c, vector_shape_t z_c, card_t s_c, card_t e_c) {
 	array_number_t macroDef140 = z_s;
-	for(int cur_s_idx = 0; cur_s_idx < TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->length; cur_s_idx++){
-		number_t cur_s = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->arr[cur_s_idx];
+	array_number_t cur_s_range = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c);
+	storage_t stgVar135 = stgVar134;
+	for(int cur_s_idx = 0; cur_s_idx < cur_s_range->length; cur_s_idx++){
+		number_t cur_s = cur_s_range->arr[cur_s_idx];
 		
-		macroDef140 = f_s.lam(f_s.env, stgVar135, macroDef140, (int)(cur_s), acc_c, 0).array_number_t_value;
+		macroDef140 = f_s.lam(f_s.env, stgVar135, macroDef140, (int)(cur_s), z_c, 0).array_number_t_value;
 	}
 	return macroDef140;
 }
@@ -412,10 +416,12 @@ matrix_shape_t TOP_LEVEL_linalg_iterateMatrix_c(closure_t f_c, matrix_shape_t z_
 }
 array_array_number_t TOP_LEVEL_linalg_iterateMatrix_s(storage_t stgVar142, closure_t f_s, array_array_number_t z_s, card_t s_s, card_t e_s, closure_t f_c, matrix_shape_t z_c, card_t s_c, card_t e_c) {
 	array_array_number_t macroDef148 = z_s;
-	for(int cur_s_idx = 0; cur_s_idx < TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->length; cur_s_idx++){
-		number_t cur_s = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->arr[cur_s_idx];
+	array_number_t cur_s_range = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c);
+	storage_t stgVar143 = stgVar142;
+	for(int cur_s_idx = 0; cur_s_idx < cur_s_range->length; cur_s_idx++){
+		number_t cur_s = cur_s_range->arr[cur_s_idx];
 		
-		macroDef148 = f_s.lam(f_s.env, stgVar143, macroDef148, (int)(cur_s), acc_c, 0).array_array_number_t_value;
+		macroDef148 = f_s.lam(f_s.env, stgVar143, macroDef148, (int)(cur_s), z_c, 0).array_array_number_t_value;
 	}
 	return macroDef148;
 }
@@ -435,10 +441,12 @@ matrix3d_shape_t TOP_LEVEL_linalg_iterateMatrix3D_c(closure_t f_c, matrix3d_shap
 }
 array_array_array_number_t TOP_LEVEL_linalg_iterateMatrix3D_s(storage_t stgVar150, closure_t f_s, array_array_array_number_t z_s, card_t s_s, card_t e_s, closure_t f_c, matrix3d_shape_t z_c, card_t s_c, card_t e_c) {
 	array_array_array_number_t macroDef156 = z_s;
-	for(int cur_s_idx = 0; cur_s_idx < TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->length; cur_s_idx++){
-		number_t cur_s = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c)->arr[cur_s_idx];
+	array_number_t cur_s_range = TOP_LEVEL_linalg_vectorRange_s(empty_storage, s_s, e_s, s_c, e_c);
+	storage_t stgVar151 = stgVar150;
+	for(int cur_s_idx = 0; cur_s_idx < cur_s_range->length; cur_s_idx++){
+		number_t cur_s = cur_s_range->arr[cur_s_idx];
 		
-		macroDef156 = f_s.lam(f_s.env, stgVar151, macroDef156, (int)(cur_s), acc_c, 0).array_array_array_number_t_value;
+		macroDef156 = f_s.lam(f_s.env, stgVar151, macroDef156, (int)(cur_s), z_c, 0).array_array_array_number_t_value;
 	}
 	return macroDef156;
 }
@@ -458,8 +466,10 @@ card_t TOP_LEVEL_linalg_arraySum_c(vector_shape_t arr_c) {
 }
 number_t TOP_LEVEL_linalg_arraySum_s(storage_t stgVar158, array_number_t arr_s, vector_shape_t arr_c) {
 	number_t macroDef160 = 0;
-	for(int cur_s_idx = 0; cur_s_idx < arr_s->length; cur_s_idx++){
-		number_t cur_s = arr_s->arr[cur_s_idx];
+	array_number_t cur_s_range = arr_s;
+	storage_t stgVar159 = stgVar158;
+	for(int cur_s_idx = 0; cur_s_idx < cur_s_range->length; cur_s_idx++){
+		number_t cur_s = cur_s_range->arr[cur_s_idx];
 		
 		macroDef160 = (macroDef160) + (cur_s);
 	}
@@ -488,8 +498,10 @@ card_t TOP_LEVEL_linalg_arrayMax_c(vector_shape_t arr_c) {
 }
 number_t TOP_LEVEL_linalg_arrayMax_s(storage_t stgVar163, array_number_t arr_s, vector_shape_t arr_c) {
 	number_t macroDef165 = -1000;
-	for(int cur_s_idx = 0; cur_s_idx < arr_s->length; cur_s_idx++){
-		number_t cur_s = arr_s->arr[cur_s_idx];
+	array_number_t cur_s_range = arr_s;
+	storage_t stgVar164 = stgVar163;
+	for(int cur_s_idx = 0; cur_s_idx < cur_s_range->length; cur_s_idx++){
+		number_t cur_s = cur_s_range->arr[cur_s_idx];
 		number_t ite166 = 0;
 	if((macroDef165) > (cur_s)) {
 		

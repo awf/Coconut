@@ -289,20 +289,35 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
              , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.fold_s @> (_, [ta; tb; tac; tbc], _) ->
           // TODO not memory safe yet
+          let storage = ccodegen (elist.[0])
           let (LambdaN([st;acc;cur; acc_c; cur_c], body)) = elist.[1]
           let elementType = ccodegenType ta
           let curCode = cur.Name
           let idxCode = sprintf "%s_idx" curCode
+          let rangeVarCode = sprintf "%s_range" curCode
+          let rangeType = ccodegenType (elist.[3].Type)
           let resultType = ccodegenType (var.Type)
           let resultName = var.Name
           let initCode = ccodegen (elist.[2])
           let rangeCode = ccodegen (elist.[3])
-          let lengthCode = sprintf "%s->length" rangeCode
-          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = acc then Some(Expr.Var(var)) else None)) None
-          (sprintf "%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
+          let lengthCode = sprintf "%s->length" rangeVarCode
+          let stCode = st.Name
+          let stType = ccodegenType st.Type
+          let (bodyCode, bodyClosures) = 
+            ccodegenStatements "\t\t" (body.Substitute(fun v -> 
+              if v = acc then 
+                Some(Expr.Var(var)) 
+              elif v = acc_c then
+                Some(elist.[5])
+              else 
+                None
+            )) None
+          (sprintf "%s %s = %s;\n\t%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
              resultType resultName initCode 
+             rangeType rangeVarCode rangeCode
+             stType stCode storage
              idxCode idxCode lengthCode idxCode
-             elementType curCode rangeCode idxCode
+             elementType curCode rangeVarCode idxCode
              bodyCode
              , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.newArray_s @> (_, [tp], [stg; arr]) ->
