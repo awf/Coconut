@@ -1487,7 +1487,7 @@ vector_shape_t TOP_LEVEL_linalg_vectorRead_c(card_t fn_c, card_t startLine_c) {
 array_number_t TOP_LEVEL_linalg_vectorRead_s(storage_t stgVar579, string_t fn_s, index_t startLine_s, card_t fn_c, card_t startLine_c) {
 	matrix_shape_t matrix_c = nested_shape_vector_shape_t(nested_shape_card_t(0, 10), 1);
 	array_number_t stgVar580 = vector_alloc(width_matrix_shape_t(matrix_c));
-	array_number_t macroDef582;array_array_number_t matrix_s = matrix_read(stgVar580, fn, startLine, 1);
+	array_number_t macroDef582;array_array_number_t matrix_s = matrix_read_s(stgVar580, fn_s, startLine_s, 1);
 	macroDef582 = matrix_s->arr[0];
 	free(stgVar580);
 	return macroDef582;

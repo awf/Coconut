@@ -141,7 +141,7 @@ let get_s<'a, 's> (storage: Storage)
 let newArray_s<'a> (storage: Storage) ([<ParamArray>] args: (Storage -> 'a) array): 'a array =
   args |> Array.map (fun f -> f storage)
 
-[<CMirror("matrix_read")>]
+[<CMirror("matrix_read_s")>]
 let matrixRead_s (storage: Storage) 
       (fn: string) (startLine: Index) (rows: Cardinality): Matrix = 
   matrixRead fn startLine rows

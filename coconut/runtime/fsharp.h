@@ -183,7 +183,7 @@ void matrix_print(array_array_number_t arr) {
 	printf("]\n");
 }
 
-array_array_number_t matrix_read(string_t name, int start_line, int rows) {
+array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_line, int rows) {
 	FILE * fp;
     fp = fopen(name, "r");
     if (fp == NULL) {
@@ -194,7 +194,7 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
     for(int i = 0; i < start_line; i++) {
     	while(getc(fp) != '\n') {}
     }
-	array_array_number_t res = (array_array_number_t)matrix_alloc(rows);
+	array_array_number_t res = (array_array_number_t)storage;
 	for(int row_index=0; row_index<rows; row_index++) {
 		char cur = 0;
 		int length = 0;
@@ -217,6 +217,10 @@ array_array_number_t matrix_read(string_t name, int start_line, int rows) {
 	}
 	fclose(fp);
 	return res;
+}
+
+array_array_number_t matrix_read(string_t name, int start_line, int rows) {
+	return matrix_read_s(matrix_alloc(rows), name, start_line, rows);
 }
 
 number_t gamma_ln(number_t x) {
@@ -264,6 +268,10 @@ matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
 }
 
 card_t width_vector_shape_t(vector_shape_t shape) {
+  return shape.card;
+}
+
+card_t width_matrix_shape_t(matrix_shape_t shape) {
   return shape.card;
 }
 

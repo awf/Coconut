@@ -174,7 +174,10 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
     // TODO requires number of column information in the matrixRead construct
     let s = Expr.Var(outputStorage)
-    <@@ corelang.matrixRead_s %%s %%name %%start %%rows @@>
+    let name_s = S name O
+    let start_s = S start O
+    let rows_s = S rows O
+    <@@ corelang.matrixRead_s %%s %%name_s %%start_s %%rows_s @@>
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) ->
     // TODO
     MakeCall <@@ corelang.numberPrint @@> (args |> List.map (fun x -> S x O)) []
