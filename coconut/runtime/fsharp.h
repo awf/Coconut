@@ -6,6 +6,8 @@
 #include <time.h>
 #include <malloc.h>
 
+#define VECTOR_HEADER_BYTES (sizeof(int) * 2)
+
 // extern int closure_mem = 0;
 
 typedef int index_t;
@@ -123,7 +125,7 @@ void pause_timing() {
 
 storage_t vector_alloc(index_t size) {
 	// start_timing();
-	storage_t area = malloc(sizeof(int) * 2 + sizeof(number_t) * size);
+	storage_t area = malloc(VECTOR_HEADER_BYTES + sizeof(number_t) * size);
 	array_number_t boxed_vector = (array_number_t)area;
 	boxed_vector->length = size;
 	boxed_vector->arr = (number_t*)(((int*)area) + 2);
@@ -133,7 +135,7 @@ storage_t vector_alloc(index_t size) {
 
 storage_t matrix_alloc(index_t size) {
 	// start_timing();
-	storage_t area = malloc(sizeof(int) * 2 + sizeof(array_number_t) * size);
+	storage_t area = malloc(VECTOR_HEADER_BYTES + sizeof(array_number_t) * size);
 	array_array_number_t boxed_vector = (array_array_number_t)area;
 	boxed_vector->length = size;
 	boxed_vector->arr = (array_number_t*)(((int*)area) + 2);
@@ -143,7 +145,7 @@ storage_t matrix_alloc(index_t size) {
 
 storage_t matrix3d_alloc(index_t size) {
 	// start_timing();
-	storage_t area = malloc(sizeof(int) * 2 + sizeof(array_array_number_t) * size);
+	storage_t area = malloc(VECTOR_HEADER_BYTES + sizeof(array_array_number_t) * size);
 	array_array_array_number_t boxed_vector = (array_array_array_number_t)area;
 	boxed_vector->length = size;
 	boxed_vector->arr = (array_array_number_t*)(((int*)area) + 2);
@@ -268,11 +270,13 @@ matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
 }
 
 card_t width_vector_shape_t(vector_shape_t shape) {
-  return shape.card;
+  return shape.card * sizeof(number_t) + VECTOR_HEADER_BYTES;
 }
 
 card_t width_matrix_shape_t(matrix_shape_t shape) {
-  return shape.card;
+  card_t rows = shape.card;
+  card_t cols = shape.elem.card;
+  return width_vector_shape_t(shape.elem) * rows + VECTOR_HEADER_BYTES;
 }
 
 #endif

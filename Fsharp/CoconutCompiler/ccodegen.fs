@@ -321,8 +321,12 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           let elemsNoStg = elems |> List.map (fun (Patterns.Lambda(s, body)) -> body)
           let args = String.concat "\n\t" (elemsNoStg |> List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
           let arrTp = ccodegenType (tp.MakeArrayType()) 
-          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s" 
-                      arrTp stgCode var.Name (elemsNoStg.Length) args
+          let elemTp = ccodegenType tp
+          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)((int*)%s + VECTOR_HEADER_BYTES);\n\t%s" 
+                      arrTp stgCode 
+                      var.Name elemsNoStg.Length
+                      var.Name elemTp stgCode
+                      args
           (rhs, [], false)
         | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, [tres], [sizeExpr; cont]) ->
           let size = 
@@ -338,7 +342,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
               bodyCode
             else 
               sprintf "%s %s;%s" (ccodegenType tres) var.Name bodyCode
-          (sprintf "%s %s = vector_alloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyAssignment storageVar,
+          (sprintf "%s %s = malloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyAssignment storageVar,
             bodyClosures, true)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name
