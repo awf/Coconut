@@ -9,7 +9,6 @@
 // extern int closure_mem = 0;
 
 typedef int index_t;
-typedef int card_t;
 typedef double number_t;
 typedef struct array_number_t_struct {
 	number_t* arr;
@@ -25,12 +24,31 @@ typedef struct array_array_array_number_t {
 	int length;
 }* array_array_array_number_t;
 
+typedef int card_t;
+typedef struct vector_shape_t {
+  card_t elem;
+  card_t card;
+} vector_shape_t;
+typedef struct matrix_shape_t {
+  vector_shape_t elem;
+  card_t card;
+} matrix_shape_t;
+typedef struct matrix3d_shape_t {
+  matrix_shape_t elem;
+  card_t card;
+} matrix3d_shape_t;
+
 typedef union value_t {
+	card_t card_t_value;
+	vector_shape_t vector_shape_t_value;
+	matrix_shape_t matrix_shape_t_value;
+	matrix3d_shape_t matrix3d_shape_t_value;
 	number_t number_t_value;
 	array_number_t array_number_t_value;
 	array_array_number_t array_array_number_t_value;
 	array_array_array_number_t array_array_array_number_t_value;
 } value_t;
+
 
 typedef void* storage_t;
 
@@ -216,6 +234,30 @@ array_number_t vector_build_given_storage(storage_t storage, closure_t closure) 
 	for (int i = 0; i < res->length; i++) {
 		res->arr[i] = closure.lam(closure.env, i).number_t_value;
 	}
+	return res;
+}
+
+// cardinality related methods
+
+vector_shape_t nested_shape_card_t(card_t elem, card_t card) {
+	vector_shape_t res;
+	res.elem = elem;
+	res.card = card;
+	return res;
+}
+
+
+matrix_shape_t nested_shape_vector_shape_t(vector_shape_t elem, card_t card) {
+	matrix_shape_t res;
+	res.elem = elem;
+	res.card = card;
+	return res;
+}
+
+matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
+	matrix3d_shape_t res;
+	res.elem = elem;
+	res.card = card;
 	return res;
 }
 
