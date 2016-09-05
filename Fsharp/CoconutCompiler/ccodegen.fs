@@ -91,9 +91,14 @@ let rec ccodegen (e:Expr): string =
   | Patterns.Lambda (x, body) -> failwith (sprintf "ERROR lambda should always be in the form of closure creation.\n`%A`" e)
   | EnvRef(env, name) -> sprintf "%s->%s" (ccodegen env) name
   | AppN(func, args) -> 
-    let closure = ccodegen func
-    let tp = ccodegenType (e.Type)
-    sprintf "%s.lam(%s.env, %s).%s_value" closure closure (String.concat ", " (List.map ccodegen args)) tp
+    let argsCode = String.concat ", " (List.map ccodegen args)
+    match func with
+    | Patterns.Var(MethodVariable(methodName, moduleName) as funcVar) ->
+      sprintf "%s(%s)" funcVar.Name argsCode
+    | _ ->
+      let closure = ccodegen func
+      let tp = ccodegenType (e.Type)
+      sprintf "%s.lam(%s.env, %s).%s_value" closure closure argsCode tp
   | ScalarOperation(name, elist, isInfix) -> 
     if((List.length elist) = 2) then 
       if isInfix then
