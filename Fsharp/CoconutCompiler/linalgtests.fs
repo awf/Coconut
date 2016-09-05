@@ -43,4 +43,6 @@ let test1 (dum: Vector) =
   matrixPrint t
   let u = matrixFillFromVector (Card 5) a
   matrixPrint u
+  let v = matrixFill (Card 5) (Card 2) 5.0
+  matrixPrint v
   ()

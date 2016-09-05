@@ -114,8 +114,13 @@ let inline matrixFillFromVector (rows: Cardinality) (row: Vector): Matrix =
   vectorMapToMatrix (fun r -> row) (vectorRange (Card 1) rows)
 
 let inline matrixFill (rows: Cardinality) (cols: Cardinality) (value: Number): Matrix = 
-  let row = vectorMap (fun c -> value) (vectorRange (Card 1) cols)
-  matrixFillFromVector rows row
+  //let row = vectorMap (fun c -> value) (vectorRange (Card 1) cols)
+  //matrixFillFromVector rows row
+  build rows (fun r ->
+    build cols (fun c ->
+      value
+    )
+  )
 
 let matrixTranspose (m: Matrix): Matrix = 
   let rows = length m
