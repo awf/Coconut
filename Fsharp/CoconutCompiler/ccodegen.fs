@@ -256,10 +256,13 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           let resultName = var.Name 
           let (LambdaN([st; idx; crd], body)) = elist.[2]
           let idxCode = idx.Name
+          let stCode = st.Name
+          let stType = ccodegenType st.Type
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
-          (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
+          (sprintf "%s %s = (%s)%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s %s = &%s->arr[%s];\n\t\t\t%s\n\t\t}"
              resultType resultName resultType storage 
              idxCode idxCode resultName idxCode
+             stType stCode resultName idxCode
              bodyCode
              , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], _) ->
