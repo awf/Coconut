@@ -24,11 +24,12 @@ let rec ZERO_SHAPE (shapeType: Type) =
   else
     failwithf "Doesn't know how to create ZERO_SHAPE for the shape type `%A`" shapeType
 
+let isScalarType (t: Type): bool =
+  t = typeof<Index> || t = typeof<bool> || t = typeof<Number> || t = typeof<string>   
+
 let rec cardTransformType (t: Type) = 
     match t with
-    | _ when t = typeof<Index> || t = typeof<Cardinality> ||
-        t = typeof<bool> || t = typeof<Number> ||  
-        t = typeof<string>                                  -> typeof<Cardinality>
+    | _ when isScalarType t || t = typeof<Cardinality>      -> typeof<Cardinality>
     | _ when t = typeof<Vector>                             -> typeof<VectorShape>
     | _ when t = typeof<Matrix>                             -> typeof<MatrixShape>
     | _ when t = typeof<Matrix3D>                           -> typeof<Matrix3DShape>

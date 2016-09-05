@@ -97,10 +97,29 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
       | _ -> failwithf "There is no storage variable associated with `%A`" v
   match exp with
   | AllAppN(e0, es)                  ->
-    let ses = es |> List.map (fun x -> S x (newStgVar())) |> List.map (fun (StripedAlloc(a, e)) -> a, e)
+    let sevars = es |> List.map (fun _ -> newStgVar())
+    let ces = es |> List.map C
+    let ses = 
+      // let sesvars = (es, sevars) ||> List.map (fun x s -> S x s, s)
+      // //List.map (fun (StripedAlloc(a, e)) -> a, e)
+      // (sesvars, ces) ||> List.map2 (fun (e, s) s -> 
+      //   if isScalarType e.Type then
+      //     None
+      //   else
+      //     Some(C e)
+      // , e)
+      (es, sevars, ces) |||> List.map3 (fun e s c ->
+        let se = S e s
+        let allocPart = 
+          if isScalarType e.Type then
+            None
+          else
+            Some(Width c, s)
+        allocPart, se
+      )
+
     let sesParams = ses |> List.map snd
     let sesAllocs = ses |> List.choose fst
-    let ces = es |> List.map C
     let body = AppN(S e0 O, Expr.Var(outputStorage) :: sesParams @ ces)
     (body, sesAllocs) ||> List.fold (fun acc (size, stgVar) -> AllocWithVar size stgVar (Expr.Lambda(stgVar, acc)))
   | LambdaN(xs, e)                   -> 
