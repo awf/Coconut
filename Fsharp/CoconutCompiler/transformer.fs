@@ -330,6 +330,9 @@ let rec FunctionType (inputs: Type list) (output: Type): Type =
 
 open utils
 
+let getFreeVariables (e: Expr): Var list = 
+  e.GetFreeVars() |> Seq.filter (isMethodVariable >> not) |> List.ofSeq
+
 let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
   let alreadyExistingVariable(v: Var) = 
     renamings |> List.exists (fun (v1, v2) -> v1.Name = v.Name || v2.Name = v.Name)

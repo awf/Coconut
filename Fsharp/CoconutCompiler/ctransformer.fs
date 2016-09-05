@@ -28,13 +28,14 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
 (* Lifts let bindings to top-level statements *)
 let letLifting (e: Expr): Expr = 
   let rec constructTopLevelLets (boundVars: Var List) (exp: Expr): Expr * (Var * Expr) List = 
-    let isSafeToLift (freeVars: Var list): bool = 
+    let isSafeToLift (exp: Expr): bool = 
+      let freeVars = getFreeVariables exp
       let freeNotBoundVars = listDiff freeVars boundVars
-      List.isEmpty freeNotBoundVars || (freeNotBoundVars |> List.forall isMethodVariable)
+      List.isEmpty freeNotBoundVars
     match exp with 
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
-      let canBeLifted = e1.GetFreeVars() |> List.ofSeq |> isSafeToLift
+      let canBeLifted = isSafeToLift e1
       let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
       let (te2, liftedLets2) = constructTopLevelLets newBoundVars e2
       if (canBeLifted) then
@@ -78,7 +79,7 @@ let closureConversion (e: Expr): Expr =
     match exp with 
     | LambdaN (inputs, body) when not (ctx.isMacro) -> 
       let transformedBody = rcr body
-      let freeVars = listDiff (List.ofSeq (transformedBody.GetFreeVars())) inputs
+      let freeVars = listDiff (getFreeVariables transformedBody) inputs
       let newVars = List.map (fun (x: Var) -> new Var(newVar(x.Name), x.Type)) freeVars
       let freeNewVars = List.zip freeVars newVars
       let convertedBody = transformedBody.Substitute(fun v -> 

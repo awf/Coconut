@@ -779,524 +779,488 @@ value_t lambda284(env_t_284* env281, array_number_t x, array_number_t y) {
 array_array_number_t TOP_LEVEL_linalg_matrixAdd(array_array_number_t x, array_array_number_t y) {
 	env_t_284 env_t_284_value = make_empty_env(); closure_t closure283 = make_closure(lambda284, &env_t_284_value);
 	return TOP_LEVEL_linalg_matrixMap2(closure283, x, y);
-}typedef struct env_t_296 {
-	closure_t TOP_LEVEL_linalg_add_vec_c;
-} env_t_296;
-env_t_296 make_env_t_296(closure_t TOP_LEVEL_linalg_add_vec_c) {
-	env_t_296 env;
-	env.TOP_LEVEL_linalg_add_vec_c = TOP_LEVEL_linalg_add_vec_c;
-	return env;
-}
+}typedef empty_env_t env_t_295;
 
-value_t lambda296(env_t_296* env293, vector_shape_t x_c, vector_shape_t y_c) {
-	closure_t TOP_LEVEL_linalg_add_vec_c292 = env293->TOP_LEVEL_linalg_add_vec_c;
+
+value_t lambda295(env_t_295* env292, vector_shape_t x_c, vector_shape_t y_c) {
+	
 	value_t res;
-	res.vector_shape_t_value = TOP_LEVEL_linalg_add_vec_c292(x_c, y_c);
+	res.vector_shape_t_value = TOP_LEVEL_linalg_add_vec_c(x_c, y_c);
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixAdd_c(matrix_shape_t x_c, matrix_shape_t y_c) {
-	env_t_296 env_t_296_value = make_env_t_296(TOP_LEVEL_linalg_add_vec_c); closure_t closure295 = make_closure(lambda296, &env_t_296_value);
-	return TOP_LEVEL_linalg_matrixMap2_c(closure295, x_c, y_c);
-}typedef struct env_t_305 {
-	closure_t TOP_LEVEL_linalg_add_vec_s;
-} env_t_305;
-env_t_305 make_env_t_305(closure_t TOP_LEVEL_linalg_add_vec_s) {
-	env_t_305 env;
-	env.TOP_LEVEL_linalg_add_vec_s = TOP_LEVEL_linalg_add_vec_s;
-	return env;
-}
+	env_t_295 env_t_295_value = make_empty_env(); closure_t closure294 = make_closure(lambda295, &env_t_295_value);
+	return TOP_LEVEL_linalg_matrixMap2_c(closure294, x_c, y_c);
+}typedef empty_env_t env_t_302;
 
-value_t lambda305(env_t_305* env298, storage_t stgVar289, array_number_t x_s, array_number_t y_s, vector_shape_t x_c, vector_shape_t y_c) {
-	closure_t TOP_LEVEL_linalg_add_vec_s297 = env298->TOP_LEVEL_linalg_add_vec_s;
+
+value_t lambda302(env_t_302* env296, storage_t stgVar289, array_number_t x_s, array_number_t y_s, vector_shape_t x_c, vector_shape_t y_c) {
+	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_add_vec_s297(stgVar289, x_s, y_s, x_c, y_c);
+	res.array_number_t_value = TOP_LEVEL_linalg_add_vec_s(stgVar289, x_s, y_s, x_c, y_c);
 	return res;
 }
-typedef struct env_t_306 {
-	closure_t TOP_LEVEL_linalg_add_vec_c;
-} env_t_306;
-env_t_306 make_env_t_306(closure_t TOP_LEVEL_linalg_add_vec_c) {
-	env_t_306 env;
-	env.TOP_LEVEL_linalg_add_vec_c = TOP_LEVEL_linalg_add_vec_c;
-	return env;
-}
+typedef empty_env_t env_t_303;
 
-value_t lambda306(env_t_306* env302, vector_shape_t x_c, vector_shape_t y_c) {
-	closure_t TOP_LEVEL_linalg_add_vec_c301 = env302->TOP_LEVEL_linalg_add_vec_c;
+
+value_t lambda303(env_t_303* env299, vector_shape_t x_c, vector_shape_t y_c) {
+	
 	value_t res;
-	res.vector_shape_t_value = TOP_LEVEL_linalg_add_vec_c301(x_c, y_c);
+	res.vector_shape_t_value = TOP_LEVEL_linalg_add_vec_c(x_c, y_c);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixAdd_s(storage_t stgVar285, array_array_number_t x_s, array_array_number_t y_s, matrix_shape_t x_c, matrix_shape_t y_c) {
-	env_t_305 env_t_305_value = make_env_t_305(TOP_LEVEL_linalg_add_vec_s); closure_t closure300 = make_closure(lambda305, &env_t_305_value);
-	env_t_306 env_t_306_value = make_env_t_306(TOP_LEVEL_linalg_add_vec_c); closure_t closure304 = make_closure(lambda306, &env_t_306_value);
-	return TOP_LEVEL_linalg_matrixMap2_s(stgVar285, closure300, x_s, y_s, closure304, x_c, y_c);
+	env_t_302 env_t_302_value = make_empty_env(); closure_t closure298 = make_closure(lambda302, &env_t_302_value);
+	env_t_303 env_t_303_value = make_empty_env(); closure_t closure301 = make_closure(lambda303, &env_t_303_value);
+	return TOP_LEVEL_linalg_matrixMap2_s(stgVar285, closure298, x_s, y_s, closure301, x_c, y_c);
 }
-typedef empty_env_t env_t_310;
+typedef empty_env_t env_t_307;
 
 
-value_t lambda310(env_t_310* env307, array_number_t x, array_number_t y) {
+value_t lambda307(env_t_307* env304, array_number_t x, array_number_t y) {
 	
 	value_t res;
 	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise(x, y);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixMultElementwise(array_array_number_t x, array_array_number_t y) {
-	env_t_310 env_t_310_value = make_empty_env(); closure_t closure309 = make_closure(lambda310, &env_t_310_value);
-	return TOP_LEVEL_linalg_matrixMap2(closure309, x, y);
-}typedef struct env_t_322 {
-	closure_t TOP_LEVEL_linalg_mult_vec_elementwise_c;
-} env_t_322;
-env_t_322 make_env_t_322(closure_t TOP_LEVEL_linalg_mult_vec_elementwise_c) {
-	env_t_322 env;
-	env.TOP_LEVEL_linalg_mult_vec_elementwise_c = TOP_LEVEL_linalg_mult_vec_elementwise_c;
-	return env;
-}
+	env_t_307 env_t_307_value = make_empty_env(); closure_t closure306 = make_closure(lambda307, &env_t_307_value);
+	return TOP_LEVEL_linalg_matrixMap2(closure306, x, y);
+}typedef empty_env_t env_t_318;
 
-value_t lambda322(env_t_322* env319, vector_shape_t x_c, vector_shape_t y_c) {
-	closure_t TOP_LEVEL_linalg_mult_vec_elementwise_c318 = env319->TOP_LEVEL_linalg_mult_vec_elementwise_c;
+
+value_t lambda318(env_t_318* env315, vector_shape_t x_c, vector_shape_t y_c) {
+	
 	value_t res;
-	res.vector_shape_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c318(x_c, y_c);
+	res.vector_shape_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c(x_c, y_c);
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixMultElementwise_c(matrix_shape_t x_c, matrix_shape_t y_c) {
-	env_t_322 env_t_322_value = make_env_t_322(TOP_LEVEL_linalg_mult_vec_elementwise_c); closure_t closure321 = make_closure(lambda322, &env_t_322_value);
-	return TOP_LEVEL_linalg_matrixMap2_c(closure321, x_c, y_c);
-}typedef struct env_t_331 {
-	closure_t TOP_LEVEL_linalg_mult_vec_elementwise_s;
-} env_t_331;
-env_t_331 make_env_t_331(closure_t TOP_LEVEL_linalg_mult_vec_elementwise_s) {
-	env_t_331 env;
-	env.TOP_LEVEL_linalg_mult_vec_elementwise_s = TOP_LEVEL_linalg_mult_vec_elementwise_s;
-	return env;
-}
+	env_t_318 env_t_318_value = make_empty_env(); closure_t closure317 = make_closure(lambda318, &env_t_318_value);
+	return TOP_LEVEL_linalg_matrixMap2_c(closure317, x_c, y_c);
+}typedef empty_env_t env_t_325;
 
-value_t lambda331(env_t_331* env324, storage_t stgVar315, array_number_t x_s, array_number_t y_s, vector_shape_t x_c, vector_shape_t y_c) {
-	closure_t TOP_LEVEL_linalg_mult_vec_elementwise_s323 = env324->TOP_LEVEL_linalg_mult_vec_elementwise_s;
+
+value_t lambda325(env_t_325* env319, storage_t stgVar312, array_number_t x_s, array_number_t y_s, vector_shape_t x_c, vector_shape_t y_c) {
+	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_s323(stgVar315, x_s, y_s, x_c, y_c);
+	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_s(stgVar312, x_s, y_s, x_c, y_c);
 	return res;
 }
-typedef struct env_t_332 {
-	closure_t TOP_LEVEL_linalg_mult_vec_elementwise_c;
-} env_t_332;
-env_t_332 make_env_t_332(closure_t TOP_LEVEL_linalg_mult_vec_elementwise_c) {
-	env_t_332 env;
-	env.TOP_LEVEL_linalg_mult_vec_elementwise_c = TOP_LEVEL_linalg_mult_vec_elementwise_c;
-	return env;
-}
+typedef empty_env_t env_t_326;
 
-value_t lambda332(env_t_332* env328, vector_shape_t x_c, vector_shape_t y_c) {
-	closure_t TOP_LEVEL_linalg_mult_vec_elementwise_c327 = env328->TOP_LEVEL_linalg_mult_vec_elementwise_c;
+
+value_t lambda326(env_t_326* env322, vector_shape_t x_c, vector_shape_t y_c) {
+	
 	value_t res;
-	res.vector_shape_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c327(x_c, y_c);
+	res.vector_shape_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c(x_c, y_c);
 	return res;
 }
-array_array_number_t TOP_LEVEL_linalg_matrixMultElementwise_s(storage_t stgVar311, array_array_number_t x_s, array_array_number_t y_s, matrix_shape_t x_c, matrix_shape_t y_c) {
-	env_t_331 env_t_331_value = make_env_t_331(TOP_LEVEL_linalg_mult_vec_elementwise_s); closure_t closure326 = make_closure(lambda331, &env_t_331_value);
-	env_t_332 env_t_332_value = make_env_t_332(TOP_LEVEL_linalg_mult_vec_elementwise_c); closure_t closure330 = make_closure(lambda332, &env_t_332_value);
-	return TOP_LEVEL_linalg_matrixMap2_s(stgVar311, closure326, x_s, y_s, closure330, x_c, y_c);
+array_array_number_t TOP_LEVEL_linalg_matrixMultElementwise_s(storage_t stgVar308, array_array_number_t x_s, array_array_number_t y_s, matrix_shape_t x_c, matrix_shape_t y_c) {
+	env_t_325 env_t_325_value = make_empty_env(); closure_t closure321 = make_closure(lambda325, &env_t_325_value);
+	env_t_326 env_t_326_value = make_empty_env(); closure_t closure324 = make_closure(lambda326, &env_t_326_value);
+	return TOP_LEVEL_linalg_matrixMap2_s(stgVar308, closure321, x_s, y_s, closure324, x_c, y_c);
 }
-typedef empty_env_t env_t_336;
+typedef empty_env_t env_t_330;
 
 
-value_t lambda336(env_t_336* env333, number_t x1) {
+value_t lambda330(env_t_330* env327, number_t x1) {
 	
 	value_t res;
 	res.number_t_value = (x1) * (x1);
 	return res;
 }
 number_t TOP_LEVEL_linalg_sqnorm(array_number_t x) {
-	env_t_336 env_t_336_value = make_empty_env(); closure_t closure335 = make_closure(lambda336, &env_t_336_value);
-	return TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap(closure335, x));
+	env_t_330 env_t_330_value = make_empty_env(); closure_t closure329 = make_closure(lambda330, &env_t_330_value);
+	return TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap(closure329, x));
 }
 card_t TOP_LEVEL_linalg_sqnorm_c(vector_shape_t x_c) {
 	
 	return 0;
-}typedef empty_env_t env_t_355;
+}typedef empty_env_t env_t_349;
 
 
-value_t lambda355(env_t_355* env342, card_t x1_c) {
+value_t lambda349(env_t_349* env336, card_t x1_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef empty_env_t env_t_356;
+typedef empty_env_t env_t_350;
 
 
-value_t lambda356(env_t_356* env345, storage_t stgVar341, number_t x1_s, card_t x1_c) {
+value_t lambda350(env_t_350* env339, storage_t stgVar335, number_t x1_s, card_t x1_c) {
 	
 	value_t res;
 	res.number_t_value = (x1_s) * (x1_s);
 	return res;
 }
-typedef empty_env_t env_t_357;
+typedef empty_env_t env_t_351;
 
 
-value_t lambda357(env_t_357* env348, card_t x1_c) {
+value_t lambda351(env_t_351* env342, card_t x1_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef empty_env_t env_t_358;
+typedef empty_env_t env_t_352;
 
 
-value_t lambda358(env_t_358* env351, card_t x1_c) {
+value_t lambda352(env_t_352* env345, card_t x1_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-number_t TOP_LEVEL_linalg_sqnorm_s(storage_t stgVar337, array_number_t x_s, vector_shape_t x_c) {
-	env_t_355 env_t_355_value = make_empty_env(); closure_t closure344 = make_closure(lambda355, &env_t_355_value);
-	array_number_t stgVar338 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorMap_c(closure344, x_c)));
-	number_t macroDef354;env_t_356 env_t_356_value = make_empty_env(); closure_t closure347 = make_closure(lambda356, &env_t_356_value);
-	env_t_357 env_t_357_value = make_empty_env(); closure_t closure350 = make_closure(lambda357, &env_t_357_value);
-	env_t_358 env_t_358_value = make_empty_env(); closure_t closure353 = make_closure(lambda358, &env_t_358_value);
-	macroDef354 = TOP_LEVEL_linalg_arraySum_s(stgVar337, TOP_LEVEL_linalg_vectorMap_s(stgVar338, closure347, x_s, closure350, x_c), TOP_LEVEL_linalg_vectorMap_c(closure353, x_c));
-	free(stgVar338);
-	return macroDef354;
+number_t TOP_LEVEL_linalg_sqnorm_s(storage_t stgVar331, array_number_t x_s, vector_shape_t x_c) {
+	env_t_349 env_t_349_value = make_empty_env(); closure_t closure338 = make_closure(lambda349, &env_t_349_value);
+	array_number_t stgVar332 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorMap_c(closure338, x_c)));
+	number_t macroDef348;env_t_350 env_t_350_value = make_empty_env(); closure_t closure341 = make_closure(lambda350, &env_t_350_value);
+	env_t_351 env_t_351_value = make_empty_env(); closure_t closure344 = make_closure(lambda351, &env_t_351_value);
+	env_t_352 env_t_352_value = make_empty_env(); closure_t closure347 = make_closure(lambda352, &env_t_352_value);
+	macroDef348 = TOP_LEVEL_linalg_arraySum_s(stgVar331, TOP_LEVEL_linalg_vectorMap_s(stgVar332, closure341, x_s, closure344, x_c), TOP_LEVEL_linalg_vectorMap_c(closure347, x_c));
+	free(stgVar332);
+	return macroDef348;
 }
-typedef empty_env_t env_t_362;
+typedef empty_env_t env_t_356;
 
 
-value_t lambda362(env_t_362* env359, number_t x, number_t y) {
+value_t lambda356(env_t_356* env353, number_t x, number_t y) {
 	
 	value_t res;
 	res.number_t_value = (x) * (y);
 	return res;
 }
 number_t TOP_LEVEL_linalg_dot_prod(array_number_t x, array_number_t y) {
-	env_t_362 env_t_362_value = make_empty_env(); closure_t closure361 = make_closure(lambda362, &env_t_362_value);
-	return TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap2(closure361, x, y));
+	env_t_356 env_t_356_value = make_empty_env(); closure_t closure355 = make_closure(lambda356, &env_t_356_value);
+	return TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap2(closure355, x, y));
 }
 card_t TOP_LEVEL_linalg_dot_prod_c(vector_shape_t x_c, vector_shape_t y_c) {
 	
 	return 0;
-}typedef empty_env_t env_t_382;
+}typedef empty_env_t env_t_376;
 
 
-value_t lambda382(env_t_382* env369, card_t x_c, card_t y_c) {
+value_t lambda376(env_t_376* env363, card_t x_c, card_t y_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef empty_env_t env_t_383;
+typedef empty_env_t env_t_377;
 
 
-value_t lambda383(env_t_383* env372, storage_t stgVar368, number_t x_s, number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda377(env_t_377* env366, storage_t stgVar362, number_t x_s, number_t y_s, card_t x_c, card_t y_c) {
 	
 	value_t res;
 	res.number_t_value = (x_s) * (y_s);
 	return res;
 }
-typedef empty_env_t env_t_384;
+typedef empty_env_t env_t_378;
 
 
-value_t lambda384(env_t_384* env375, card_t x_c, card_t y_c) {
+value_t lambda378(env_t_378* env369, card_t x_c, card_t y_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef empty_env_t env_t_385;
+typedef empty_env_t env_t_379;
 
 
-value_t lambda385(env_t_385* env378, card_t x_c, card_t y_c) {
+value_t lambda379(env_t_379* env372, card_t x_c, card_t y_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-number_t TOP_LEVEL_linalg_dot_prod_s(storage_t stgVar363, array_number_t x_s, array_number_t y_s, vector_shape_t x_c, vector_shape_t y_c) {
-	env_t_382 env_t_382_value = make_empty_env(); closure_t closure371 = make_closure(lambda382, &env_t_382_value);
-	array_number_t stgVar364 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorMap2_c(closure371, x_c, y_c)));
-	number_t macroDef381;env_t_383 env_t_383_value = make_empty_env(); closure_t closure374 = make_closure(lambda383, &env_t_383_value);
-	env_t_384 env_t_384_value = make_empty_env(); closure_t closure377 = make_closure(lambda384, &env_t_384_value);
-	env_t_385 env_t_385_value = make_empty_env(); closure_t closure380 = make_closure(lambda385, &env_t_385_value);
-	macroDef381 = TOP_LEVEL_linalg_arraySum_s(stgVar363, TOP_LEVEL_linalg_vectorMap2_s(stgVar364, closure374, x_s, y_s, closure377, x_c, y_c), TOP_LEVEL_linalg_vectorMap2_c(closure380, x_c, y_c));
-	free(stgVar364);
-	return macroDef381;
+number_t TOP_LEVEL_linalg_dot_prod_s(storage_t stgVar357, array_number_t x_s, array_number_t y_s, vector_shape_t x_c, vector_shape_t y_c) {
+	env_t_376 env_t_376_value = make_empty_env(); closure_t closure365 = make_closure(lambda376, &env_t_376_value);
+	array_number_t stgVar358 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorMap2_c(closure365, x_c, y_c)));
+	number_t macroDef375;env_t_377 env_t_377_value = make_empty_env(); closure_t closure368 = make_closure(lambda377, &env_t_377_value);
+	env_t_378 env_t_378_value = make_empty_env(); closure_t closure371 = make_closure(lambda378, &env_t_378_value);
+	env_t_379 env_t_379_value = make_empty_env(); closure_t closure374 = make_closure(lambda379, &env_t_379_value);
+	macroDef375 = TOP_LEVEL_linalg_arraySum_s(stgVar357, TOP_LEVEL_linalg_vectorMap2_s(stgVar358, closure368, x_s, y_s, closure371, x_c, y_c), TOP_LEVEL_linalg_vectorMap2_c(closure374, x_c, y_c));
+	free(stgVar358);
+	return macroDef375;
 }
-typedef struct env_t_390 {
+typedef struct env_t_384 {
 	array_number_t row;
-} env_t_390;
-env_t_390 make_env_t_390(array_number_t row) {
-	env_t_390 env;
+} env_t_384;
+env_t_384 make_env_t_384(array_number_t row) {
+	env_t_384 env;
 	env.row = row;
 	return env;
 }
 
-value_t lambda390(env_t_390* env387, number_t r) {
-	array_number_t row386 = env387->row;
+value_t lambda384(env_t_384* env381, number_t r) {
+	array_number_t row380 = env381->row;
 	value_t res;
-	res.array_number_t_value = row386;
+	res.array_number_t_value = row380;
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixFillFromVector(card_t rows, array_number_t row) {
-	env_t_390 env_t_390_value = make_env_t_390(row); closure_t closure389 = make_closure(lambda390, &env_t_390_value);
-	return TOP_LEVEL_linalg_vectorMapToMatrix(closure389, TOP_LEVEL_linalg_vectorRange(1, rows));
-}typedef struct env_t_401 {
+	env_t_384 env_t_384_value = make_env_t_384(row); closure_t closure383 = make_closure(lambda384, &env_t_384_value);
+	return TOP_LEVEL_linalg_vectorMapToMatrix(closure383, TOP_LEVEL_linalg_vectorRange(1, rows));
+}typedef struct env_t_395 {
 	vector_shape_t row_c;
-} env_t_401;
-env_t_401 make_env_t_401(vector_shape_t row_c) {
-	env_t_401 env;
+} env_t_395;
+env_t_395 make_env_t_395(vector_shape_t row_c) {
+	env_t_395 env;
 	env.row_c = row_c;
 	return env;
 }
 
-value_t lambda401(env_t_401* env398, card_t r_c) {
-	vector_shape_t row_c397 = env398->row_c;
+value_t lambda395(env_t_395* env392, card_t r_c) {
+	vector_shape_t row_c391 = env392->row_c;
 	value_t res;
-	res.vector_shape_t_value = row_c397;
+	res.vector_shape_t_value = row_c391;
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixFillFromVector_c(card_t rows_c, vector_shape_t row_c) {
-	env_t_401 env_t_401_value = make_env_t_401(row_c); closure_t closure400 = make_closure(lambda401, &env_t_401_value);
-	return TOP_LEVEL_linalg_vectorMapToMatrix_c(closure400, TOP_LEVEL_linalg_vectorRange_c(1, rows_c));
-}typedef struct env_t_411 {
+	env_t_395 env_t_395_value = make_env_t_395(row_c); closure_t closure394 = make_closure(lambda395, &env_t_395_value);
+	return TOP_LEVEL_linalg_vectorMapToMatrix_c(closure394, TOP_LEVEL_linalg_vectorRange_c(1, rows_c));
+}typedef struct env_t_405 {
 	array_number_t row_s;
-} env_t_411;
-env_t_411 make_env_t_411(array_number_t row_s) {
-	env_t_411 env;
+} env_t_405;
+env_t_405 make_env_t_405(array_number_t row_s) {
+	env_t_405 env;
 	env.row_s = row_s;
 	return env;
 }
 
-value_t lambda411(env_t_411* env403, storage_t stgVar394, number_t r_s, card_t r_c) {
-	array_number_t row_s402 = env403->row_s;
+value_t lambda405(env_t_405* env397, storage_t stgVar388, number_t r_s, card_t r_c) {
+	array_number_t row_s396 = env397->row_s;
 	value_t res;
-	res.array_number_t_value = row_s402;
+	res.array_number_t_value = row_s396;
 	return res;
 }
-typedef struct env_t_412 {
+typedef struct env_t_406 {
 	vector_shape_t row_c;
-} env_t_412;
-env_t_412 make_env_t_412(vector_shape_t row_c) {
-	env_t_412 env;
+} env_t_406;
+env_t_406 make_env_t_406(vector_shape_t row_c) {
+	env_t_406 env;
 	env.row_c = row_c;
 	return env;
 }
 
-value_t lambda412(env_t_412* env407, card_t r_c) {
-	vector_shape_t row_c406 = env407->row_c;
+value_t lambda406(env_t_406* env401, card_t r_c) {
+	vector_shape_t row_c400 = env401->row_c;
 	value_t res;
-	res.vector_shape_t_value = row_c406;
+	res.vector_shape_t_value = row_c400;
 	return res;
 }
-array_array_number_t TOP_LEVEL_linalg_matrixFillFromVector_s(storage_t stgVar391, card_t rows_s, array_number_t row_s, card_t rows_c, vector_shape_t row_c) {
-	array_number_t stgVar393 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorRange_c(1, rows_c)));
-	array_array_number_t macroDef410;env_t_411 env_t_411_value = make_env_t_411(row_s); closure_t closure405 = make_closure(lambda411, &env_t_411_value);
-	env_t_412 env_t_412_value = make_env_t_412(row_c); closure_t closure409 = make_closure(lambda412, &env_t_412_value);
-	macroDef410 = TOP_LEVEL_linalg_vectorMapToMatrix_s(stgVar391, closure405, TOP_LEVEL_linalg_vectorRange_s(stgVar393, 1, rows_s, 1, rows_c), closure409, TOP_LEVEL_linalg_vectorRange_c(1, rows_c));
-	free(stgVar393);
-	return macroDef410;
+array_array_number_t TOP_LEVEL_linalg_matrixFillFromVector_s(storage_t stgVar385, card_t rows_s, array_number_t row_s, card_t rows_c, vector_shape_t row_c) {
+	array_number_t stgVar387 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorRange_c(1, rows_c)));
+	array_array_number_t macroDef404;env_t_405 env_t_405_value = make_env_t_405(row_s); closure_t closure399 = make_closure(lambda405, &env_t_405_value);
+	env_t_406 env_t_406_value = make_env_t_406(row_c); closure_t closure403 = make_closure(lambda406, &env_t_406_value);
+	macroDef404 = TOP_LEVEL_linalg_vectorMapToMatrix_s(stgVar385, closure399, TOP_LEVEL_linalg_vectorRange_s(stgVar387, 1, rows_s, 1, rows_c), closure403, TOP_LEVEL_linalg_vectorRange_c(1, rows_c));
+	free(stgVar387);
+	return macroDef404;
 }
-typedef struct env_t_417 {
+typedef struct env_t_411 {
 	number_t value;
-} env_t_417;
-env_t_417 make_env_t_417(number_t value) {
-	env_t_417 env;
+} env_t_411;
+env_t_411 make_env_t_411(number_t value) {
+	env_t_411 env;
 	env.value = value;
 	return env;
 }
 
-value_t lambda417(env_t_417* env414, number_t c) {
-	number_t value413 = env414->value;
+value_t lambda411(env_t_411* env408, number_t c) {
+	number_t value407 = env408->value;
 	value_t res;
-	res.number_t_value = value413;
+	res.number_t_value = value407;
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixFill(card_t rows, card_t cols, number_t value) {
-	env_t_417 env_t_417_value = make_env_t_417(value); closure_t closure416 = make_closure(lambda417, &env_t_417_value);
-	array_number_t row = TOP_LEVEL_linalg_vectorMap(closure416, TOP_LEVEL_linalg_vectorRange(1, cols));
+	env_t_411 env_t_411_value = make_env_t_411(value); closure_t closure410 = make_closure(lambda411, &env_t_411_value);
+	array_number_t row = TOP_LEVEL_linalg_vectorMap(closure410, TOP_LEVEL_linalg_vectorRange(1, cols));
 	return TOP_LEVEL_linalg_matrixFillFromVector(rows, row);
-}typedef empty_env_t env_t_430;
+}typedef empty_env_t env_t_424;
 
 
-value_t lambda430(env_t_430* env427, card_t c_c) {
+value_t lambda424(env_t_424* env421, card_t c_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixFill_c(card_t rows_c, card_t cols_c, card_t value_c) {
-	env_t_430 env_t_430_value = make_empty_env(); closure_t closure429 = make_closure(lambda430, &env_t_430_value);
-	vector_shape_t row_c = TOP_LEVEL_linalg_vectorMap_c(closure429, TOP_LEVEL_linalg_vectorRange_c(1, cols_c));
+	env_t_424 env_t_424_value = make_empty_env(); closure_t closure423 = make_closure(lambda424, &env_t_424_value);
+	vector_shape_t row_c = TOP_LEVEL_linalg_vectorMap_c(closure423, TOP_LEVEL_linalg_vectorRange_c(1, cols_c));
 	return TOP_LEVEL_linalg_matrixFillFromVector_c(rows_c, row_c);
-}typedef empty_env_t env_t_443;
+}typedef empty_env_t env_t_437;
 
 
-value_t lambda443(env_t_443* env431, card_t c_c) {
+value_t lambda437(env_t_437* env425, card_t c_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef struct env_t_444 {
+typedef struct env_t_438 {
 	number_t value_s;
-} env_t_444;
-env_t_444 make_env_t_444(number_t value_s) {
-	env_t_444 env;
+} env_t_438;
+env_t_438 make_env_t_438(number_t value_s) {
+	env_t_438 env;
 	env.value_s = value_s;
 	return env;
 }
 
-value_t lambda444(env_t_444* env435, storage_t stgVar422, number_t c_s, card_t c_c) {
-	number_t value_s434 = env435->value_s;
+value_t lambda438(env_t_438* env429, storage_t stgVar416, number_t c_s, card_t c_c) {
+	number_t value_s428 = env429->value_s;
 	value_t res;
-	res.number_t_value = value_s434;
+	res.number_t_value = value_s428;
 	return res;
 }
-typedef empty_env_t env_t_445;
+typedef empty_env_t env_t_439;
 
 
-value_t lambda445(env_t_445* env438, card_t c_c) {
+value_t lambda439(env_t_439* env432, card_t c_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-array_array_number_t TOP_LEVEL_linalg_matrixFill_s(storage_t stgVar418, card_t rows_s, card_t cols_s, number_t value_s, card_t rows_c, card_t cols_c, card_t value_c) {
-	env_t_443 env_t_443_value = make_empty_env(); closure_t closure433 = make_closure(lambda443, &env_t_443_value);
-	vector_shape_t row_c = TOP_LEVEL_linalg_vectorMap_c(closure433, TOP_LEVEL_linalg_vectorRange_c(1, cols_c));
-	array_number_t stgVar419 = vector_alloc(width_vector_shape_t(row_c));
-	array_array_number_t macroDef442;array_number_t stgVar421 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorRange_c(1, cols_c)));
-	array_number_t macroDef441;env_t_444 env_t_444_value = make_env_t_444(value_s); closure_t closure437 = make_closure(lambda444, &env_t_444_value);
-	env_t_445 env_t_445_value = make_empty_env(); closure_t closure440 = make_closure(lambda445, &env_t_445_value);
-	macroDef441 = TOP_LEVEL_linalg_vectorMap_s(stgVar419, closure437, TOP_LEVEL_linalg_vectorRange_s(stgVar421, 1, cols_s, 1, cols_c), closure440, TOP_LEVEL_linalg_vectorRange_c(1, cols_c));
-	free(stgVar421);
-	array_number_t row_s = macroDef441;
-	macroDef442 = TOP_LEVEL_linalg_matrixFillFromVector_s(stgVar418, rows_s, row_s, rows_c, row_c);
-	free(stgVar419);
-	return macroDef442;
+array_array_number_t TOP_LEVEL_linalg_matrixFill_s(storage_t stgVar412, card_t rows_s, card_t cols_s, number_t value_s, card_t rows_c, card_t cols_c, card_t value_c) {
+	env_t_437 env_t_437_value = make_empty_env(); closure_t closure427 = make_closure(lambda437, &env_t_437_value);
+	vector_shape_t row_c = TOP_LEVEL_linalg_vectorMap_c(closure427, TOP_LEVEL_linalg_vectorRange_c(1, cols_c));
+	array_number_t stgVar413 = vector_alloc(width_vector_shape_t(row_c));
+	array_array_number_t macroDef436;array_number_t stgVar415 = vector_alloc(width_vector_shape_t(TOP_LEVEL_linalg_vectorRange_c(1, cols_c)));
+	array_number_t macroDef435;env_t_438 env_t_438_value = make_env_t_438(value_s); closure_t closure431 = make_closure(lambda438, &env_t_438_value);
+	env_t_439 env_t_439_value = make_empty_env(); closure_t closure434 = make_closure(lambda439, &env_t_439_value);
+	macroDef435 = TOP_LEVEL_linalg_vectorMap_s(stgVar413, closure431, TOP_LEVEL_linalg_vectorRange_s(stgVar415, 1, cols_s, 1, cols_c), closure434, TOP_LEVEL_linalg_vectorRange_c(1, cols_c));
+	free(stgVar415);
+	array_number_t row_s = macroDef435;
+	macroDef436 = TOP_LEVEL_linalg_matrixFillFromVector_s(stgVar412, rows_s, row_s, rows_c, row_c);
+	free(stgVar413);
+	return macroDef436;
 }
 
 array_array_number_t TOP_LEVEL_linalg_matrixTranspose(array_array_number_t m) {
-	card_t macroDef446 = m->length;
-	card_t rows = macroDef446;
-	card_t macroDef447 = m->arr[0]->length;
-	card_t cols = macroDef447;
-	array_array_number_t macroDef449 = (array_array_number_t)malloc(sizeof(int) * 2);
-	macroDef449->length=cols;
-	macroDef449->arr = (array_number_t*)malloc(sizeof(array_number_t) * cols);
-		for(int i = 0; i < macroDef449->length; i++){
-			array_number_t macroDef448 = (array_number_t)malloc(sizeof(int) * 2);
-	macroDef448->length=rows;
-	macroDef448->arr = (number_t*)malloc(sizeof(number_t) * rows);
-		for(int j = 0; j < macroDef448->length; j++){
+	card_t macroDef440 = m->length;
+	card_t rows = macroDef440;
+	card_t macroDef441 = m->arr[0]->length;
+	card_t cols = macroDef441;
+	array_array_number_t macroDef443 = (array_array_number_t)malloc(sizeof(int) * 2);
+	macroDef443->length=cols;
+	macroDef443->arr = (array_number_t*)malloc(sizeof(array_number_t) * cols);
+		for(int i = 0; i < macroDef443->length; i++){
+			array_number_t macroDef442 = (array_number_t)malloc(sizeof(int) * 2);
+	macroDef442->length=rows;
+	macroDef442->arr = (number_t*)malloc(sizeof(number_t) * rows);
+		for(int j = 0; j < macroDef442->length; j++){
 			
-			macroDef448->arr[j] = m->arr[j]->arr[i];
+			macroDef442->arr[j] = m->arr[j]->arr[i];
 		}
-			macroDef449->arr[i] = macroDef448;
+			macroDef443->arr[i] = macroDef442;
 		}
-	return macroDef449;
-}typedef struct env_t_467 {
+	return macroDef443;
+}typedef struct env_t_461 {
 	card_t rows_c;
-} env_t_467;
-env_t_467 make_env_t_467(card_t rows_c) {
-	env_t_467 env;
+} env_t_461;
+env_t_461 make_env_t_461(card_t rows_c) {
+	env_t_461 env;
 	env.rows_c = rows_c;
 	return env;
 }
-typedef empty_env_t env_t_468;
+typedef empty_env_t env_t_462;
 
 
-value_t lambda468(env_t_468* env460, card_t j_c) {
+value_t lambda462(env_t_462* env454, card_t j_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-value_t lambda467(env_t_467* env464, card_t i_c) {
-	card_t rows_c463 = env464->rows_c;
-	env_t_468 env_t_468_value = make_empty_env(); closure_t closure462 = make_closure(lambda468, &env_t_468_value);
+value_t lambda461(env_t_461* env458, card_t i_c) {
+	card_t rows_c457 = env458->rows_c;
+	env_t_462 env_t_462_value = make_empty_env(); closure_t closure456 = make_closure(lambda462, &env_t_462_value);
 	value_t res;
-	res.vector_shape_t_value = nested_shape_card_t(closure462.lam(closure462.env, 0).card_t_value, rows_c463);
+	res.vector_shape_t_value = nested_shape_card_t(closure456.lam(closure456.env, 0).card_t_value, rows_c457);
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixTranspose_c(matrix_shape_t m_c) {
 	card_t rows_c = m_c.card;
 	card_t cols_c = m_c.elem.card;
-	env_t_467 env_t_467_value = make_env_t_467(rows_c); closure_t closure466 = make_closure(lambda467, &env_t_467_value);
-	return nested_shape_vector_shape_t(closure466.lam(closure466.env, 0).vector_shape_t_value, cols_c);
+	env_t_461 env_t_461_value = make_env_t_461(rows_c); closure_t closure460 = make_closure(lambda461, &env_t_461_value);
+	return nested_shape_vector_shape_t(closure460.lam(closure460.env, 0).vector_shape_t_value, cols_c);
 }
-array_array_number_t TOP_LEVEL_linalg_matrixTranspose_s(storage_t stgVar450, array_array_number_t m_s, matrix_shape_t m_c) {
+array_array_number_t TOP_LEVEL_linalg_matrixTranspose_s(storage_t stgVar444, array_array_number_t m_s, matrix_shape_t m_c) {
 	card_t rows_c = m_c.card;
-	card_t macroDef469 = m_s->length;
-	card_t rows_s = macroDef469;
+	card_t macroDef463 = m_s->length;
+	card_t rows_s = macroDef463;
 	card_t cols_c = m_c.elem.card;
-	array_number_t stgVar454 = vector_alloc(width_vector_shape_t(m_c.elem));
-	card_t macroDef471;card_t macroDef470 = m_s->arr[0]->length;
-	macroDef471 = macroDef470;
-	free(stgVar454);
-	card_t cols_s = macroDef471;
-	array_array_number_t macroDef477 = (array_array_number_t)stgVar450;
-		for(int i_s = 0; i_s < macroDef477->length; i_s++){
-			storage_t stgVar456 = &macroDef477->arr[i_s];
-			array_number_t macroDef473 = (array_number_t)stgVar456;
-		for(int j_s = 0; j_s < macroDef473->length; j_s++){
-			storage_t stgVar457 = &macroDef473->arr[j_s];
-			array_number_t stgVar458 = vector_alloc(width_vector_shape_t(m_c.elem));
-	number_t macroDef472;
-	macroDef472 = m_s->arr[j_s]->arr[i_s];
-	free(stgVar458);
-			macroDef473->arr[j_s] = macroDef472;
+	array_number_t stgVar448 = vector_alloc(width_vector_shape_t(m_c.elem));
+	card_t macroDef465;card_t macroDef464 = m_s->arr[0]->length;
+	macroDef465 = macroDef464;
+	free(stgVar448);
+	card_t cols_s = macroDef465;
+	array_array_number_t macroDef471 = (array_array_number_t)stgVar444;
+		for(int i_s = 0; i_s < macroDef471->length; i_s++){
+			storage_t stgVar450 = &macroDef471->arr[i_s];
+			array_number_t macroDef467 = (array_number_t)stgVar450;
+		for(int j_s = 0; j_s < macroDef467->length; j_s++){
+			storage_t stgVar451 = &macroDef467->arr[j_s];
+			array_number_t stgVar452 = vector_alloc(width_vector_shape_t(m_c.elem));
+	number_t macroDef466;
+	macroDef466 = m_s->arr[j_s]->arr[i_s];
+	free(stgVar452);
+			macroDef467->arr[j_s] = macroDef466;
 		}
-			macroDef477->arr[i_s] = macroDef473;
+			macroDef471->arr[i_s] = macroDef467;
 		}
-	return macroDef477;
+	return macroDef471;
 }
 
 array_array_number_t TOP_LEVEL_linalg_matrixMult(array_array_number_t m1, array_array_number_t m2) {
-	card_t macroDef478 = m1->length;
-	card_t r1 = macroDef478;
-	card_t macroDef479 = m2->arr[0]->length;
-	card_t c2 = macroDef479;
-	card_t macroDef480 = m1->arr[0]->length;
-	card_t c1 = macroDef480;
-	card_t macroDef481 = m2->length;
-	card_t r2 = macroDef481;
+	card_t macroDef472 = m1->length;
+	card_t r1 = macroDef472;
+	card_t macroDef473 = m2->arr[0]->length;
+	card_t c2 = macroDef473;
+	card_t macroDef474 = m1->arr[0]->length;
+	card_t c1 = macroDef474;
+	card_t macroDef475 = m2->length;
+	card_t r2 = macroDef475;
 	array_array_number_t m2T = TOP_LEVEL_linalg_matrixTranspose(m2);
-	array_array_number_t macroDef483 = (array_array_number_t)malloc(sizeof(int) * 2);
-	macroDef483->length=r1;
-	macroDef483->arr = (array_number_t*)malloc(sizeof(array_number_t) * r1);
-		for(int r = 0; r < macroDef483->length; r++){
-			array_number_t macroDef482 = (array_number_t)malloc(sizeof(int) * 2);
-	macroDef482->length=c2;
-	macroDef482->arr = (number_t*)malloc(sizeof(number_t) * c2);
-		for(int c = 0; c < macroDef482->length; c++){
+	array_array_number_t macroDef477 = (array_array_number_t)malloc(sizeof(int) * 2);
+	macroDef477->length=r1;
+	macroDef477->arr = (array_number_t*)malloc(sizeof(array_number_t) * r1);
+		for(int r = 0; r < macroDef477->length; r++){
+			array_number_t macroDef476 = (array_number_t)malloc(sizeof(int) * 2);
+	macroDef476->length=c2;
+	macroDef476->arr = (number_t*)malloc(sizeof(number_t) * c2);
+		for(int c = 0; c < macroDef476->length; c++){
 			
-			macroDef482->arr[c] = TOP_LEVEL_linalg_dot_prod(m1->arr[r], m2T->arr[c]);
+			macroDef476->arr[c] = TOP_LEVEL_linalg_dot_prod(m1->arr[r], m2T->arr[c]);
 		}
-			macroDef483->arr[r] = macroDef482;
+			macroDef477->arr[r] = macroDef476;
 		}
-	return macroDef483;
-}typedef struct env_t_510 {
+	return macroDef477;
+}typedef struct env_t_504 {
 	card_t c2_c;
-} env_t_510;
-env_t_510 make_env_t_510(card_t c2_c) {
-	env_t_510 env;
+} env_t_504;
+env_t_504 make_env_t_504(card_t c2_c) {
+	env_t_504 env;
 	env.c2_c = c2_c;
 	return env;
 }
-typedef empty_env_t env_t_511;
+typedef empty_env_t env_t_505;
 
 
-value_t lambda511(env_t_511* env503, card_t c_c) {
+value_t lambda505(env_t_505* env497, card_t c_c) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-value_t lambda510(env_t_510* env507, card_t r_c) {
-	card_t c2_c506 = env507->c2_c;
-	env_t_511 env_t_511_value = make_empty_env(); closure_t closure505 = make_closure(lambda511, &env_t_511_value);
+value_t lambda504(env_t_504* env501, card_t r_c) {
+	card_t c2_c500 = env501->c2_c;
+	env_t_505 env_t_505_value = make_empty_env(); closure_t closure499 = make_closure(lambda505, &env_t_505_value);
 	value_t res;
-	res.vector_shape_t_value = nested_shape_card_t(closure505.lam(closure505.env, 0).card_t_value, c2_c506);
+	res.vector_shape_t_value = nested_shape_card_t(closure499.lam(closure499.env, 0).card_t_value, c2_c500);
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixMult_c(matrix_shape_t m1_c, matrix_shape_t m2_c) {
@@ -1305,117 +1269,117 @@ matrix_shape_t TOP_LEVEL_linalg_matrixMult_c(matrix_shape_t m1_c, matrix_shape_t
 	card_t c1_c = m1_c.elem.card;
 	card_t r2_c = m2_c.card;
 	matrix_shape_t m2T_c = TOP_LEVEL_linalg_matrixTranspose_c(m2_c);
-	env_t_510 env_t_510_value = make_env_t_510(c2_c); closure_t closure509 = make_closure(lambda510, &env_t_510_value);
-	return nested_shape_vector_shape_t(closure509.lam(closure509.env, 0).vector_shape_t_value, r1_c);
+	env_t_504 env_t_504_value = make_env_t_504(c2_c); closure_t closure503 = make_closure(lambda504, &env_t_504_value);
+	return nested_shape_vector_shape_t(closure503.lam(closure503.env, 0).vector_shape_t_value, r1_c);
 }
-array_array_number_t TOP_LEVEL_linalg_matrixMult_s(storage_t stgVar484, array_array_number_t m1_s, array_array_number_t m2_s, matrix_shape_t m1_c, matrix_shape_t m2_c) {
+array_array_number_t TOP_LEVEL_linalg_matrixMult_s(storage_t stgVar478, array_array_number_t m1_s, array_array_number_t m2_s, matrix_shape_t m1_c, matrix_shape_t m2_c) {
 	card_t r1_c = m1_c.card;
-	card_t macroDef512 = m1_s->length;
-	card_t r1_s = macroDef512;
+	card_t macroDef506 = m1_s->length;
+	card_t r1_s = macroDef506;
 	card_t c2_c = m2_c.elem.card;
-	array_number_t stgVar488 = vector_alloc(width_vector_shape_t(m2_c.elem));
-	card_t macroDef514;card_t macroDef513 = m2_s->arr[0]->length;
-	macroDef514 = macroDef513;
-	free(stgVar488);
-	card_t c2_s = macroDef514;
+	array_number_t stgVar482 = vector_alloc(width_vector_shape_t(m2_c.elem));
+	card_t macroDef508;card_t macroDef507 = m2_s->arr[0]->length;
+	macroDef508 = macroDef507;
+	free(stgVar482);
+	card_t c2_s = macroDef508;
 	card_t c1_c = m1_c.elem.card;
-	array_number_t stgVar491 = vector_alloc(width_vector_shape_t(m1_c.elem));
-	card_t macroDef516;card_t macroDef515 = m1_s->arr[0]->length;
-	macroDef516 = macroDef515;
-	free(stgVar491);
-	card_t c1_s = macroDef516;
+	array_number_t stgVar485 = vector_alloc(width_vector_shape_t(m1_c.elem));
+	card_t macroDef510;card_t macroDef509 = m1_s->arr[0]->length;
+	macroDef510 = macroDef509;
+	free(stgVar485);
+	card_t c1_s = macroDef510;
 	card_t r2_c = m2_c.card;
-	card_t macroDef517 = m2_s->length;
-	card_t r2_s = macroDef517;
+	card_t macroDef511 = m2_s->length;
+	card_t r2_s = macroDef511;
 	matrix_shape_t m2T_c = TOP_LEVEL_linalg_matrixTranspose_c(m2_c);
-	array_number_t stgVar495 = vector_alloc(width_matrix_shape_t(m2T_c));
-	array_array_number_t macroDef525;array_array_number_t m2T_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar495, m2_s, m2_c);
-	array_array_number_t macroDef524 = (array_array_number_t)stgVar484;
-		for(int r_s = 0; r_s < macroDef524->length; r_s++){
-			storage_t stgVar497 = &macroDef524->arr[r_s];
-			array_number_t macroDef520 = (array_number_t)stgVar497;
-		for(int c_s = 0; c_s < macroDef520->length; c_s++){
-			storage_t stgVar498 = &macroDef520->arr[c_s];
-			array_number_t stgVar500 = vector_alloc(width_vector_shape_t(m2T_c.elem));
-	number_t macroDef519;array_number_t stgVar499 = vector_alloc(width_vector_shape_t(m1_c.elem));
-	number_t macroDef518;
-	macroDef518 = TOP_LEVEL_linalg_dot_prod_s(stgVar498, m1_s->arr[r_s], m2T_s->arr[c_s], m1_c.elem, m2T_c.elem);
-	free(stgVar499);
+	array_number_t stgVar489 = vector_alloc(width_matrix_shape_t(m2T_c));
+	array_array_number_t macroDef519;array_array_number_t m2T_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar489, m2_s, m2_c);
+	array_array_number_t macroDef518 = (array_array_number_t)stgVar478;
+		for(int r_s = 0; r_s < macroDef518->length; r_s++){
+			storage_t stgVar491 = &macroDef518->arr[r_s];
+			array_number_t macroDef514 = (array_number_t)stgVar491;
+		for(int c_s = 0; c_s < macroDef514->length; c_s++){
+			storage_t stgVar492 = &macroDef514->arr[c_s];
+			array_number_t stgVar494 = vector_alloc(width_vector_shape_t(m2T_c.elem));
+	number_t macroDef513;array_number_t stgVar493 = vector_alloc(width_vector_shape_t(m1_c.elem));
+	number_t macroDef512;
+	macroDef512 = TOP_LEVEL_linalg_dot_prod_s(stgVar492, m1_s->arr[r_s], m2T_s->arr[c_s], m1_c.elem, m2T_c.elem);
+	free(stgVar493);
+	macroDef513 = macroDef512;
+	free(stgVar494);
+			macroDef514->arr[c_s] = macroDef513;
+		}
+			macroDef518->arr[r_s] = macroDef514;
+		}
 	macroDef519 = macroDef518;
-	free(stgVar500);
-			macroDef520->arr[c_s] = macroDef519;
-		}
-			macroDef524->arr[r_s] = macroDef520;
-		}
-	macroDef525 = macroDef524;
-	free(stgVar495);
-	return macroDef525;
+	free(stgVar489);
+	return macroDef519;
 }
 
 array_array_number_t TOP_LEVEL_linalg_matrixConcat(array_array_number_t m1, array_array_number_t m2) {
-	card_t macroDef526 = m1->length;
-	card_t macroDef527 = m2->length;
-	card_t rows = (macroDef526) + (macroDef527);
-	card_t macroDef528 = m1->length;
-	index_t m1Rows = (macroDef528);
-	array_array_number_t macroDef529 = (array_array_number_t)malloc(sizeof(int) * 2);
-	macroDef529->length=rows;
-	macroDef529->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
-		for(int r = 0; r < macroDef529->length; r++){
-			array_number_t ite530 = 0;
+	card_t macroDef520 = m1->length;
+	card_t macroDef521 = m2->length;
+	card_t rows = (macroDef520) + (macroDef521);
+	card_t macroDef522 = m1->length;
+	index_t m1Rows = (macroDef522);
+	array_array_number_t macroDef523 = (array_array_number_t)malloc(sizeof(int) * 2);
+	macroDef523->length=rows;
+	macroDef523->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+		for(int r = 0; r < macroDef523->length; r++){
+			array_number_t ite524 = 0;
 	if((r) < (m1Rows)) {
 		
-		ite530 = m1->arr[r];
+		ite524 = m1->arr[r];
 	} else {
 		
-		ite530 = m2->arr[(r) - (m1Rows)];
+		ite524 = m2->arr[(r) - (m1Rows)];
 	}
-			macroDef529->arr[r] = ite530;
+			macroDef523->arr[r] = ite524;
 		}
-	return macroDef529;
-}typedef struct env_t_544 {
+	return macroDef523;
+}typedef struct env_t_538 {
 	matrix_shape_t m1_c;
-} env_t_544;
-env_t_544 make_env_t_544(matrix_shape_t m1_c) {
-	env_t_544 env;
+} env_t_538;
+env_t_538 make_env_t_538(matrix_shape_t m1_c) {
+	env_t_538 env;
 	env.m1_c = m1_c;
 	return env;
 }
 
-value_t lambda544(env_t_544* env541, card_t r_c) {
-	matrix_shape_t m1_c540 = env541->m1_c;
+value_t lambda538(env_t_538* env535, card_t r_c) {
+	matrix_shape_t m1_c534 = env535->m1_c;
 	value_t res;
-	res.vector_shape_t_value = m1_c540.elem;
+	res.vector_shape_t_value = m1_c534.elem;
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixConcat_c(matrix_shape_t m1_c, matrix_shape_t m2_c) {
 	card_t rows_c = (m1_c.card) + (m2_c.card);
 	card_t m1Rows_c = 0;
-	env_t_544 env_t_544_value = make_env_t_544(m1_c); closure_t closure543 = make_closure(lambda544, &env_t_544_value);
-	return nested_shape_vector_shape_t(closure543.lam(closure543.env, 0).vector_shape_t_value, rows_c);
+	env_t_538 env_t_538_value = make_env_t_538(m1_c); closure_t closure537 = make_closure(lambda538, &env_t_538_value);
+	return nested_shape_vector_shape_t(closure537.lam(closure537.env, 0).vector_shape_t_value, rows_c);
 }
-array_array_number_t TOP_LEVEL_linalg_matrixConcat_s(storage_t stgVar531, array_array_number_t m1_s, array_array_number_t m2_s, matrix_shape_t m1_c, matrix_shape_t m2_c) {
+array_array_number_t TOP_LEVEL_linalg_matrixConcat_s(storage_t stgVar525, array_array_number_t m1_s, array_array_number_t m2_s, matrix_shape_t m1_c, matrix_shape_t m2_c) {
 	card_t rows_c = (m1_c.card) + (m2_c.card);
-	card_t macroDef545 = m1_s->length;
-	card_t macroDef546 = m2_s->length;
-	card_t rows_s = (macroDef545) + (macroDef546);
+	card_t macroDef539 = m1_s->length;
+	card_t macroDef540 = m2_s->length;
+	card_t rows_s = (macroDef539) + (macroDef540);
 	card_t m1Rows_c = 0;
-	card_t macroDef547 = m1_s->length;
-	index_t m1Rows_s = (macroDef547);
-	array_array_number_t macroDef548 = (array_array_number_t)stgVar531;
-		for(int r_s = 0; r_s < macroDef548->length; r_s++){
-			storage_t stgVar537 = &macroDef548->arr[r_s];
-			array_number_t ite549 = 0;
+	card_t macroDef541 = m1_s->length;
+	index_t m1Rows_s = (macroDef541);
+	array_array_number_t macroDef542 = (array_array_number_t)stgVar525;
+		for(int r_s = 0; r_s < macroDef542->length; r_s++){
+			storage_t stgVar531 = &macroDef542->arr[r_s];
+			array_number_t ite543 = 0;
 	if((r_s) < (m1Rows_s)) {
 		
-		ite549 = m1_s->arr[r_s];
+		ite543 = m1_s->arr[r_s];
 	} else {
 		
-		ite549 = m2_s->arr[(r_s) - (m1Rows_s)];
+		ite543 = m2_s->arr[(r_s) - (m1Rows_s)];
 	}
-			macroDef548->arr[r_s] = ite549;
+			macroDef542->arr[r_s] = ite543;
 		}
-	return macroDef548;
+	return macroDef542;
 }
 
 array_array_number_t TOP_LEVEL_linalg_matrixConcatCol(array_array_number_t m1, array_array_number_t m2) {
@@ -1428,88 +1392,88 @@ matrix_shape_t TOP_LEVEL_linalg_matrixConcatCol_c(matrix_shape_t m1_c, matrix_sh
 	matrix_shape_t m2t_c = TOP_LEVEL_linalg_matrixTranspose_c(m2_c);
 	return TOP_LEVEL_linalg_matrixTranspose_c(TOP_LEVEL_linalg_matrixConcat_c(m1t_c, m2t_c));
 }
-array_array_number_t TOP_LEVEL_linalg_matrixConcatCol_s(storage_t stgVar550, array_array_number_t m1_s, array_array_number_t m2_s, matrix_shape_t m1_c, matrix_shape_t m2_c) {
+array_array_number_t TOP_LEVEL_linalg_matrixConcatCol_s(storage_t stgVar544, array_array_number_t m1_s, array_array_number_t m2_s, matrix_shape_t m1_c, matrix_shape_t m2_c) {
 	matrix_shape_t m1t_c = TOP_LEVEL_linalg_matrixTranspose_c(m1_c);
-	array_number_t stgVar551 = vector_alloc(width_matrix_shape_t(m1t_c));
-	array_array_number_t macroDef560;array_array_number_t m1t_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar551, m1_s, m1_c);
+	array_number_t stgVar545 = vector_alloc(width_matrix_shape_t(m1t_c));
+	array_array_number_t macroDef554;array_array_number_t m1t_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar545, m1_s, m1_c);
 	matrix_shape_t m2t_c = TOP_LEVEL_linalg_matrixTranspose_c(m2_c);
-	array_number_t stgVar553 = vector_alloc(width_matrix_shape_t(m2t_c));
-	array_array_number_t macroDef559;array_array_number_t m2t_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar553, m2_s, m2_c);
-	array_number_t stgVar555 = vector_alloc(width_matrix_shape_t(TOP_LEVEL_linalg_matrixConcat_c(m1t_c, m2t_c)));
-	array_array_number_t macroDef558;
-	macroDef558 = TOP_LEVEL_linalg_matrixTranspose_s(stgVar550, TOP_LEVEL_linalg_matrixConcat_s(stgVar555, m1t_s, m2t_s, m1t_c, m2t_c), TOP_LEVEL_linalg_matrixConcat_c(m1t_c, m2t_c));
-	free(stgVar555);
-	macroDef559 = macroDef558;
-	free(stgVar553);
-	macroDef560 = macroDef559;
-	free(stgVar551);
-	return macroDef560;
+	array_number_t stgVar547 = vector_alloc(width_matrix_shape_t(m2t_c));
+	array_array_number_t macroDef553;array_array_number_t m2t_s = TOP_LEVEL_linalg_matrixTranspose_s(stgVar547, m2_s, m2_c);
+	array_number_t stgVar549 = vector_alloc(width_matrix_shape_t(TOP_LEVEL_linalg_matrixConcat_c(m1t_c, m2t_c)));
+	array_array_number_t macroDef552;
+	macroDef552 = TOP_LEVEL_linalg_matrixTranspose_s(stgVar544, TOP_LEVEL_linalg_matrixConcat_s(stgVar549, m1t_s, m2t_s, m1t_c, m2t_c), TOP_LEVEL_linalg_matrixConcat_c(m1t_c, m2t_c));
+	free(stgVar549);
+	macroDef553 = macroDef552;
+	free(stgVar547);
+	macroDef554 = macroDef553;
+	free(stgVar545);
+	return macroDef554;
 }
 
 array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat(array_array_array_number_t m1, array_array_array_number_t m2) {
-	card_t macroDef561 = m1->length;
-	card_t macroDef562 = m2->length;
-	card_t rows = (macroDef561) + (macroDef562);
-	card_t macroDef563 = m1->length;
-	index_t m1Rows = (macroDef563);
-	array_array_array_number_t macroDef564 = (array_array_array_number_t)malloc(sizeof(int) * 2);
-	macroDef564->length=rows;
-	macroDef564->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * rows);
-		for(int r = 0; r < macroDef564->length; r++){
-			array_array_number_t ite565 = 0;
+	card_t macroDef555 = m1->length;
+	card_t macroDef556 = m2->length;
+	card_t rows = (macroDef555) + (macroDef556);
+	card_t macroDef557 = m1->length;
+	index_t m1Rows = (macroDef557);
+	array_array_array_number_t macroDef558 = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	macroDef558->length=rows;
+	macroDef558->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * rows);
+		for(int r = 0; r < macroDef558->length; r++){
+			array_array_number_t ite559 = 0;
 	if((r) < (m1Rows)) {
 		
-		ite565 = m1->arr[r];
+		ite559 = m1->arr[r];
 	} else {
 		
-		ite565 = m2->arr[(r) - (m1Rows)];
+		ite559 = m2->arr[(r) - (m1Rows)];
 	}
-			macroDef564->arr[r] = ite565;
+			macroDef558->arr[r] = ite559;
 		}
-	return macroDef564;
-}typedef struct env_t_579 {
+	return macroDef558;
+}typedef struct env_t_573 {
 	matrix3d_shape_t m1_c;
-} env_t_579;
-env_t_579 make_env_t_579(matrix3d_shape_t m1_c) {
-	env_t_579 env;
+} env_t_573;
+env_t_573 make_env_t_573(matrix3d_shape_t m1_c) {
+	env_t_573 env;
 	env.m1_c = m1_c;
 	return env;
 }
 
-value_t lambda579(env_t_579* env576, card_t r_c) {
-	matrix3d_shape_t m1_c575 = env576->m1_c;
+value_t lambda573(env_t_573* env570, card_t r_c) {
+	matrix3d_shape_t m1_c569 = env570->m1_c;
 	value_t res;
-	res.matrix_shape_t_value = m1_c575.elem;
+	res.matrix_shape_t_value = m1_c569.elem;
 	return res;
 }
 matrix3d_shape_t TOP_LEVEL_linalg_matrix3DConcat_c(matrix3d_shape_t m1_c, matrix3d_shape_t m2_c) {
 	card_t rows_c = (m1_c.card) + (m2_c.card);
 	card_t m1Rows_c = 0;
-	env_t_579 env_t_579_value = make_env_t_579(m1_c); closure_t closure578 = make_closure(lambda579, &env_t_579_value);
-	return nested_shape_matrix_shape_t(closure578.lam(closure578.env, 0).matrix_shape_t_value, rows_c);
+	env_t_573 env_t_573_value = make_env_t_573(m1_c); closure_t closure572 = make_closure(lambda573, &env_t_573_value);
+	return nested_shape_matrix_shape_t(closure572.lam(closure572.env, 0).matrix_shape_t_value, rows_c);
 }
-array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat_s(storage_t stgVar566, array_array_array_number_t m1_s, array_array_array_number_t m2_s, matrix3d_shape_t m1_c, matrix3d_shape_t m2_c) {
+array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat_s(storage_t stgVar560, array_array_array_number_t m1_s, array_array_array_number_t m2_s, matrix3d_shape_t m1_c, matrix3d_shape_t m2_c) {
 	card_t rows_c = (m1_c.card) + (m2_c.card);
-	card_t macroDef580 = m1_s->length;
-	card_t macroDef581 = m2_s->length;
-	card_t rows_s = (macroDef580) + (macroDef581);
+	card_t macroDef574 = m1_s->length;
+	card_t macroDef575 = m2_s->length;
+	card_t rows_s = (macroDef574) + (macroDef575);
 	card_t m1Rows_c = 0;
-	card_t macroDef582 = m1_s->length;
-	index_t m1Rows_s = (macroDef582);
-	array_array_array_number_t macroDef583 = (array_array_array_number_t)stgVar566;
-		for(int r_s = 0; r_s < macroDef583->length; r_s++){
-			storage_t stgVar572 = &macroDef583->arr[r_s];
-			array_array_number_t ite584 = 0;
+	card_t macroDef576 = m1_s->length;
+	index_t m1Rows_s = (macroDef576);
+	array_array_array_number_t macroDef577 = (array_array_array_number_t)stgVar560;
+		for(int r_s = 0; r_s < macroDef577->length; r_s++){
+			storage_t stgVar566 = &macroDef577->arr[r_s];
+			array_array_number_t ite578 = 0;
 	if((r_s) < (m1Rows_s)) {
 		
-		ite584 = m1_s->arr[r_s];
+		ite578 = m1_s->arr[r_s];
 	} else {
 		
-		ite584 = m2_s->arr[(r_s) - (m1Rows_s)];
+		ite578 = m2_s->arr[(r_s) - (m1Rows_s)];
 	}
-			macroDef583->arr[r_s] = ite584;
+			macroDef577->arr[r_s] = ite578;
 		}
-	return macroDef583;
+	return macroDef577;
 }
 
 array_number_t TOP_LEVEL_linalg_vectorRead(string_t fn, index_t startLine) {
@@ -1520,13 +1484,13 @@ vector_shape_t TOP_LEVEL_linalg_vectorRead_c(card_t fn_c, card_t startLine_c) {
 	matrix_shape_t matrix_c = nested_shape_vector_shape_t(nested_shape_card_t(0, 10), 1);
 	return matrix_c.elem;
 }
-array_number_t TOP_LEVEL_linalg_vectorRead_s(storage_t stgVar585, string_t fn_s, index_t startLine_s, card_t fn_c, card_t startLine_c) {
+array_number_t TOP_LEVEL_linalg_vectorRead_s(storage_t stgVar579, string_t fn_s, index_t startLine_s, card_t fn_c, card_t startLine_c) {
 	matrix_shape_t matrix_c = nested_shape_vector_shape_t(nested_shape_card_t(0, 10), 1);
-	array_number_t stgVar586 = vector_alloc(width_matrix_shape_t(matrix_c));
-	array_number_t macroDef588;array_array_number_t matrix_s = matrix_read(stgVar586, fn, startLine, 1);
-	macroDef588 = matrix_s->arr[0];
-	free(stgVar586);
-	return macroDef588;
+	array_number_t stgVar580 = vector_alloc(width_matrix_shape_t(matrix_c));
+	array_number_t macroDef582;array_array_number_t matrix_s = matrix_read(stgVar580, fn, startLine, 1);
+	macroDef582 = matrix_s->arr[0];
+	free(stgVar580);
+	return macroDef582;
 }
 
 number_t TOP_LEVEL_linalg_numberRead(string_t fn, index_t startLine) {
@@ -1537,12 +1501,12 @@ card_t TOP_LEVEL_linalg_numberRead_c(card_t fn_c, card_t startLine_c) {
 	
 	return 0;
 }
-number_t TOP_LEVEL_linalg_numberRead_s(storage_t stgVar589, string_t fn_s, index_t startLine_s, card_t fn_c, card_t startLine_c) {
+number_t TOP_LEVEL_linalg_numberRead_s(storage_t stgVar583, string_t fn_s, index_t startLine_s, card_t fn_c, card_t startLine_c) {
 	vector_shape_t vector_c = TOP_LEVEL_linalg_vectorRead_c(fn_c, 0);
-	array_number_t stgVar590 = vector_alloc(width_vector_shape_t(vector_c));
-	number_t macroDef594;array_number_t vector_s = TOP_LEVEL_linalg_vectorRead_s(stgVar590, fn_s, startLine_s, fn_c, 0);
-	macroDef594 = vector_s->arr[0];
-	free(stgVar590);
-	return macroDef594;
+	array_number_t stgVar584 = vector_alloc(width_vector_shape_t(vector_c));
+	number_t macroDef588;array_number_t vector_s = TOP_LEVEL_linalg_vectorRead_s(stgVar584, fn_s, startLine_s, fn_c, 0);
+	macroDef588 = vector_s->arr[0];
+	free(stgVar584);
+	return macroDef588;
 }
 #endif
