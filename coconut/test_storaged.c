@@ -2,6 +2,8 @@
 
 int main(int argc, char** argv)
 {
-	TOP_LEVEL_linalgtests_test1(0);
+	vector_shape_t dum;
+	dum.card = 0;
+	TOP_LEVEL_linalgtests_test1_s(0, 0, dum);
 	return 0;
 }

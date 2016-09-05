@@ -158,13 +158,13 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     <@@ corelang.matrixRead_s %%s %%name %%start %%rows @@>
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) ->
     // TODO
-    exp
+    MakeCall <@@ corelang.numberPrint @@> (args |> List.map (fun x -> S x O)) []
   | DerivedPatterns.SpecificCall <@ corelang.vectorPrint @> (_, _, args) ->
     // TODO
-    exp
+    MakeCall <@@ corelang.vectorPrint @@> (args |> List.map (fun x -> S x O)) []
   | DerivedPatterns.SpecificCall <@ corelang.matrixPrint @> (_, _, args) ->
     // TODO
-    exp
+    MakeCall <@@ corelang.matrixPrint @@> (args |> List.map (fun x -> S x O)) []
   | Patterns.Value(v, tp) when tp = typeof<Double> || 
       tp = typeof<Index> || tp = typeof<Cardinality> || tp = typeof<Unit> ->
     exp

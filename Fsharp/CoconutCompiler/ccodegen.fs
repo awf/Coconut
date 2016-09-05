@@ -139,10 +139,10 @@ and ccodegenMonomorphicMacro (e: Expr): string =
   match e with
   | DerivedPatterns.SpecificCall <@ cardinality.nestedShape @> (_, [tp], args) ->
     sprintf "nested_shape_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
-  | DerivedPatterns.SpecificCall <@ cardinality.shapeCard @> (_, [tp], args) ->
-    sprintf "shape_card_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
-  | DerivedPatterns.SpecificCall <@ cardinality.shapeElem @> (_, [tp], args) ->
-    sprintf "shape_elem_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
+  | DerivedPatterns.SpecificCall <@ cardinality.shapeCard @> (_, [tp], [shape]) ->
+    sprintf "%s.card" (ccodegen shape)
+  | DerivedPatterns.SpecificCall <@ cardinality.shapeElem @> (_, [tp], [shape]) ->
+    sprintf "%s.elem" (ccodegen shape)
   | DerivedPatterns.SpecificCall <@ cardinality.width @> (_, [tp], args) ->
     sprintf "width_%s(%s)" (ccodegenType tp) (ccodegenArgs args)
   | DerivedPatterns.SpecificCall <@ corelang.get_s @> (_, [tp1; tp2], [st; arr; idx; arr_c; idx_c]) ->
