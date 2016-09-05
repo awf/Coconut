@@ -183,17 +183,6 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
     match e with
     | Patterns.Call (None, op, elist) -> 
       match op.Name with
-      | "vectorAllocCPS" -> 
-        let size = 
-          match elist.[0] with
-          | Patterns.Let(x, _, Patterns.Var(x2)) as sizeExpr when x = x2 -> fst (ccodegenStatements "\t" sizeExpr None)
-          | sizeExpr -> ccodegen sizeExpr
-        let (Patterns.Lambda(i, body)) = elist.[1]
-        let tp = ccodegenType typeof<Vector>
-        let storageVar = i.Name 
-        let (bodyCode, bodyClosures) = ccodegenStatements "\t" body None
-        (sprintf "%s %s = vector_alloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyCode storageVar,
-          bodyClosures, true)
       | "iterateNumber" ->
         let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[0]
         let idxCode = idx.Name
@@ -335,6 +324,22 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s" 
                       arrTp stgCode var.Name (elemsNoStg.Length) args
           (rhs, [], false)
+        | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, [tres], [sizeExpr; cont]) ->
+          let size = 
+            match sizeExpr with
+            | Patterns.Let(x, _, Patterns.Var(x2)) as sizeExpr when x = x2 -> fst (ccodegenStatements "\t" sizeExpr None)
+            | sizeExpr -> ccodegen sizeExpr
+          let (Patterns.Lambda(i, body)) = cont
+          let tp = ccodegenType typeof<Vector>
+          let storageVar = i.Name 
+          let (bodyCode, bodyClosures) = ccodegenStatements "\t" body None
+          let bodyAssignment =
+            if tres = typeof<unit> then
+              bodyCode
+            else 
+              sprintf "%s %s;%s" (ccodegenType tres) var.Name bodyCode
+          (sprintf "%s %s = vector_alloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyAssignment storageVar,
+            bodyClosures, true)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name
       | _ ->
