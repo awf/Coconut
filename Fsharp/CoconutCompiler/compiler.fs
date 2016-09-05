@@ -60,10 +60,12 @@ let compileModule (moduleName: string) (dependentModules: string List) (opt: boo
                   (List.filter (fun (x: System.Reflection.MethodInfo) -> 
                     x.DeclaringType.Name = moduleName) 
                     (List.ofArray (assembly.GetType(moduleName).GetMethods())))
+  let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
   let generatedMethods = compileSeveral moduleName methods opt storaged
-  let depModulesString = List.map (fun m -> sprintf "#include \"%s.h\"" m) dependentModules
-  let moduleMacroName = sprintf "__%s_H__" (moduleName.ToUpper())
-  let fileName = if storaged then sprintf "%s_storaged.h" moduleName else sprintf "%s.h" moduleName 
+  let moduleNameWithPostfix = nameWithPostfix moduleName
+  let depModulesString = dependentModules |> List.map nameWithPostfix |> List.map (fun m -> sprintf "#include \"%s.h\"" m) 
+  let moduleMacroName = sprintf "__%s_H__" (moduleNameWithPostfix.ToUpper())
+  let fileName = sprintf "%s.h" moduleNameWithPostfix
   let header = sprintf """#ifndef %s 
 #define %s 
 #include "runtime/fsharp.h"
