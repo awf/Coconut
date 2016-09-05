@@ -51,6 +51,7 @@ let compile_modules () =
 
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
+    compiler.compileModule "linalgtests" ["linalg"] false true
     //compiler.compile "linalg" "matrixMap" false true
     ()
 
@@ -432,8 +433,8 @@ let test_card () =
 [<EntryPoint>]
 let main argv = 
     // test_ba argv
-    compile_modules ()
-    // compile_modules_storaged ()
+    // compile_modules ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()

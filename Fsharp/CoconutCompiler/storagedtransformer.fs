@@ -53,7 +53,7 @@ let rec simplifyStoraged (exp: Expr): Expr =
   match exp with
   | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, [t], [width; Patterns.Lambda(st, body)]) ->
     if width = ZERO_CARD || not (body.GetFreeVars() |> Seq.exists(fun v -> v = st)) then
-      body.Substitute(fun v -> if st = v then Some(Expr.Var(EMPTY_STORAGE)) else None)
+      simplifyStoraged (body.Substitute(fun v -> if st = v then Some(Expr.Var(EMPTY_STORAGE)) else None))
     else 
       MakeCall <@@ corelang.vectorAllocCPS @@> [width; Expr.Lambda(st, simplifyStoraged body)] [t]
   | ExprShape.ShapeLambda(x, body)       -> Expr.Lambda(x, simplifyStoraged body)
@@ -156,9 +156,21 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     // TODO requires number of column information in the matrixRead construct
     let s = Expr.Var(outputStorage)
     <@@ corelang.matrixRead_s %%s %%name %%start %%rows @@>
-  | Patterns.Value(v, tp) when tp = typeof<Double> || tp = typeof<Index> || tp = typeof<Cardinality> ->
+  | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) ->
+    // TODO
+    exp
+  | DerivedPatterns.SpecificCall <@ corelang.vectorPrint @> (_, _, args) ->
+    // TODO
+    exp
+  | DerivedPatterns.SpecificCall <@ corelang.matrixPrint @> (_, _, args) ->
+    // TODO
+    exp
+  | Patterns.Value(v, tp) when tp = typeof<Double> || 
+      tp = typeof<Index> || tp = typeof<Cardinality> || tp = typeof<Unit> ->
     exp
   | CardConstructor c ->
     exp
+  | Patterns.Sequential(e1, e2) ->
+    Expr.Sequential(S e1 O, S e2 outputStorage)
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 

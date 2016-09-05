@@ -304,6 +304,7 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
             | Patterns.Let(x1, Patterns.NewArray(_, elems), Patterns.Var(x2)) when x1 = x2 -> elems
             | Patterns.NewArray(_, elems) -> elems
             | _ -> failwithf "Cannot generate C code for newArray_s with elems `%A`" arr
+          // TODO handle the case of newArray_s of newArray_s
           let stgCode = ccodegen stg
           let elemsNoStg = elems |> List.map (fun (Patterns.Lambda(s, body)) -> body)
           let args = String.concat "\n\t" (elemsNoStg |> List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))

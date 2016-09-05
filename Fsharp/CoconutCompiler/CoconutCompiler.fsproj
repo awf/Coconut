@@ -66,6 +66,7 @@
     <Compile Include="utils.fs" />
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
+    <Compile Include="linalgtests.fs" />
     <Compile Include="usecases.fs" />
     <Compile Include="programs.fs" />
     <Compile Include="ccodegentests.fs" />

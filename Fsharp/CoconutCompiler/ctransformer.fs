@@ -12,7 +12,7 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
   | Patterns.Let(x, e1, e2) when not letRhs -> Expr.Let(x, anfConversion true e1, anfConversion false e2)
   | Patterns.Value(v, tp) -> e
   | Patterns.Lambda (x, body) -> Expr.Lambda(x, anfConversion false body)
-  | Patterns.NewArray(tp, elems) when not letRhs -> 
+  | Patterns.NewArray(tp, elems) when not letRhs && not (tp.Name = typeof<_ -> _>.Name)  -> 
     let variable = new Var(newVar "array", e.Type)
     Expr.Let(variable, Expr.NewArray(tp, List.map (anfConversion false) elems), Expr.Var(variable))
   | Patterns.IfThenElse(cond, e1, e2) when not letRhs ->
