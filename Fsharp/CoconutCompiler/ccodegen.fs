@@ -254,14 +254,29 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
           let stType = ccodegenType st.Type
           let elemType = ccodegenType body.Type
           let lengthCode = ccodegen elist.[1]
+          let stLocation = 
+            if ta = typeof<Number> then
+              sprintf "%s" resultName
+            elif ta = typeof<Vector> || ta = typeof<Matrix> then
+              sprintf "((char*)%s + MATRIX_HEADER_BYTES(%s))" resultName lengthCode
+            else
+              failwithf "Does not know how to generate build_s for the type `%A`" ta
+          let stOffset = 
+            if ta = typeof<Number> then
+              sprintf "sizeof(%s)" (ccodegenType ta)
+            elif ta = typeof<Vector> || ta = typeof<Matrix> then
+              sprintf "VECTOR_ALL_BYTES(%s->arr[%s]->length)" resultName idxCode
+            else
+              failwithf "Does not know how to generate build_s for the type `%A`" ta
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
-          (sprintf "%s %s = (%s)%s;\n\t\t%s->length=%s;\n\t\t%s->arr=(%s*)((char*)%s + VECTOR_HEADER_BYTES);\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s %s = &%s->arr[%s];\n\t\t\t%s\n\t\t}"
+          (sprintf "%s %s = (%s)%s;\n\t\t%s->length=%s;\n\t\t%s->arr=(%s*)((char*)%s + VECTOR_HEADER_BYTES);\n\t\t%s %s = %s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t\t%s = (char*)%s + %s;\n\t\t}"
              resultType resultName resultType storage 
              resultName lengthCode
              resultName elemType resultName
+             stType stCode stLocation
              idxCode idxCode resultName idxCode
-             stType stCode resultName idxCode
              bodyCode
+             stCode stCode stOffset
              , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], _) ->
           let (Patterns.Lambda(acc, Patterns.Lambda(cur, body))) = elist.[0]

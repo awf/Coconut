@@ -31,25 +31,20 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
        if(opt) then 
          printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
      let functionName = methodVariableName methodName moduleName
-     let generatedCode = 
+     if storaged then
+       let se = 
+         storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty
+       let sse = storagedtransformer.simplifyStoraged se
+       let sFunctionName = storagedtransformer.storagedName functionName
+       let ce = cardinfer.inferCardinality optimized Map.empty
+       if(debug) then 
+         printfn "/* Storaged code:\n%A\n*/\n" (prettyprint se)
+         printfn "/* Simplified Storaged code:\n%A\n*/\n" (prettyprint sse)
+       let cFunctionName = cardinfer.cardName functionName
+       ccodegenTopLevel ce cFunctionName debug + "\n\n" + 
+         ccodegenTopLevel sse sFunctionName debug
+     else
        ccodegenTopLevel optimized functionName debug
-       //""
-     let generatedStoragedCode = 
-       if storaged then
-         let se = 
-           storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty
-         let sse = storagedtransformer.simplifyStoraged se
-         let sFunctionName = storagedtransformer.storagedName functionName
-         let ce = cardinfer.inferCardinality optimized Map.empty
-         if(debug) then 
-           printfn "/* Storaged code:\n%A\n*/\n" (prettyprint se)
-           printfn "/* Simplified Storaged code:\n%A\n*/\n" (prettyprint sse)
-         let cFunctionName = cardinfer.cardName functionName
-         ccodegenTopLevel ce cFunctionName debug +
-           ccodegenTopLevel sse sFunctionName debug
-       else
-         ""
-     generatedCode + generatedStoragedCode
 
 let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) (storaged: bool) =
   List.map (fun m -> 
