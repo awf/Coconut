@@ -33,7 +33,7 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
      let functionName = methodVariableName methodName moduleName
      if storaged then
        let se = 
-         storagedtransformer.transformStoraged optimized storagedtransformer.EMPTY_STORAGE Map.empty
+         storagedtransformer.transformStoraged optimized transformer.EMPTY_STORAGE Map.empty
        let sse = storagedtransformer.simplifyStoraged se
        let sFunctionName = storagedtransformer.storagedName functionName
        let ce = cardinfer.inferCardinality optimized Map.empty

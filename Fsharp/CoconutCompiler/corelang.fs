@@ -103,7 +103,7 @@ let vectorCopy (storage: Storage) (v: Vector) =
 
 /// Allocates storage needed for a Vector. 
 /// This storage is available only in the `cont` scope.
-[<CMirror("vector_alloc_cps")>]
+// [<CMirror("vector_alloc_cps")>]
 [<CMacro()>]
 let vectorAllocCPS (size: Cardinality) (cont: Storage -> 'a): 'a =
   let storage = vectorAlloc(size)
