@@ -61,7 +61,7 @@ let rec simplifyStoraged (exp: Expr): Expr =
   | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map simplifyStoraged)
 
 let AllocNWithVar (bindings: (Var * Expr) list, funExpr: Expr): Expr = 
-  (funExpr, bindings) ||> List.fold (fun acc (v, s) -> AllocWithVar s v (Expr.Lambda(v, acc)))
+  (funExpr, bindings |> List.rev) ||> List.fold (fun acc (v, s) -> AllocWithVar s v (Expr.Lambda(v, acc)))
 
 (* Lifts memory allocations to top-level statements *)
 let allocLifting (e: Expr): Expr = 
@@ -147,12 +147,12 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
       //     Some(C e)
       // , e)
       (es, sevars, ces) |||> List.map3 (fun e s c ->
-        let se = S e s
-        let allocPart = 
+        let (passingStorage, allocPart) = 
           if isScalarType e.Type then
-            None
+            EMPTY_STORAGE, None
           else
-            Some(Width c, s)
+            s, Some(Width c, s)
+        let se = S e passingStorage
         allocPart, se
       )
 
