@@ -132,11 +132,7 @@ value_t lambda115(env_t_115* env108, number_t x) {
 	res.array_number_t_value = one_feat107;
 	return res;
 }
-array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn) {
-	array_number_t nmp = TOP_LEVEL_linalg_vectorRead(fn, 0);
-	card_t n = (int)(nmp->arr[0]);
-	card_t m = (int)(nmp->arr[1]);
-	card_t p = (int)(nmp->arr[2]);
+array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, card_t p) {
 	card_t oneCard = 1;
 	array_number_t one_cam = TOP_LEVEL_linalg_vectorRead(fn, 1);
 	array_array_number_t macroDef101 = (array_array_number_t)malloc(sizeof(int) * 2);

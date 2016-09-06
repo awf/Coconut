@@ -63,11 +63,7 @@ let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): M
     let range = vectorRange (Card 0) (p .- (Card 1))
     vectorMapToMatrix (fun i -> compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
 
-let run_ba_from_file (fn: string) = 
-    let nmp = vectorRead fn 0
-    let n = Card (int nmp.[0])
-    let m = Card (int nmp.[1])
-    let p = Card (int nmp.[2])
+let run_ba_from_file (fn: string) (n: Cardinality) (m: Cardinality) (p: Cardinality)= 
     let oneCard = Card 1
     let one_cam = vectorRead fn 1
     let cam = //vectorMapToMatrix (fun x -> one_cam)  (vectorRange oneCard n)

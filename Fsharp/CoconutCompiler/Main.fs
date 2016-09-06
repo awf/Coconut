@@ -16,8 +16,11 @@ let test_ba (argv: string[]) =
     let nruns_J = (Int32.Parse argv.[4])
     let replicate_point = 
         (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
-
-    let res = usecases_ba.run_ba_from_file (dir_in + fn + ".txt")
+    let nmp = vectorRead fn 0
+    let n = Card (int nmp.[0])
+    let m = Card (int nmp.[1])
+    let p = Card (int nmp.[2])
+    let res = usecases_ba.run_ba_from_file (dir_in + fn + ".txt") n m p
     matrixPrint res
  
 let test_ruleengine () = 

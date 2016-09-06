@@ -7,7 +7,11 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	char* file = argv[1];
-	TOP_LEVEL_usecases_ba_run_ba_from_file(file);
+	array_number_t nmp = TOP_LEVEL_linalg_vectorRead(file, 0);
+	card_t n = (int)(nmp->arr[0]);
+	card_t m = (int)(nmp->arr[1]);
+	card_t p = (int)(nmp->arr[2]);
+	TOP_LEVEL_usecases_ba_run_ba_from_file(file, n, m, p);
 	float milliseconds = (float)(benchmarked_time) * 1000.0 / CLOCKS_PER_SEC;
 	printf("Profiled Time: %d ms\n", (int)milliseconds);
 	// printf("memory of closure: %d\n", closure_mem);
