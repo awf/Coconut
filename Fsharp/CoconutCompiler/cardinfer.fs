@@ -51,10 +51,7 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
       | MethodVariable(mdl, mtd) -> CVNew v
       | _            -> failwithf "There is no cardinality variable associated with `%A`" v
   match exp with
-  | _ when exp.Type = typeof<Number> -> ZERO_CARD
-  | _ when exp.Type = typeof<Index>  -> ZERO_CARD
-  | _ when exp.Type = typeof<bool>   -> ZERO_CARD
-  | _ when exp.Type = typeof<Unit>   -> ZERO_CARD
+  | _ when isScalarType exp.Type     -> ZERO_CARD
   | AllAppN(e0, es)                  -> AppN(C e0, es |> List.map C)
   | LambdaN(xs, e)                   -> 
     let nxs = xs |> List.map CVNew

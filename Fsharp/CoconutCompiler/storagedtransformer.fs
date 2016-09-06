@@ -11,7 +11,6 @@ let storagedName (name: string): string = sprintf "%s_s" name
 
 type StorageOutput = Var
 
-let EMPTY_STORAGE: StorageOutput = Var.Global("empty_storage", typeof<Storage>)
 let O: StorageOutput = EMPTY_STORAGE
 
 let (|Alloc|_|) (e: Expr): (Expr * Var * Expr) option = 
@@ -115,9 +114,8 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   let CEnv = inferCardinality
   let rec ST (t: Type) = 
     match t with
-    | _ when t = typeof<Index> || t = typeof<Cardinality> ||
-        t = typeof<bool> || t = typeof<Number> || 
-        t = typeof<string>                                  -> t
+    | _ when isScalarType t                                 -> t
+    | _ when t = typeof<Cardinality>                        -> t
     | _ when t = typeof<Vector> || t = typeof<Matrix> || 
         t = typeof<Matrix3D>                                -> t
     | FunctionType(inputs, o)                               -> 
@@ -232,5 +230,7 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     exp
   | Patterns.Sequential(e1, e2) ->
     Expr.Sequential(S e1 O, S e2 outputStorage)
+  | DerivedPatterns.SpecificCall <@ utils.tic @> (_, _, _) 
+  | DerivedPatterns.SpecificCall <@ utils.toc @> (_, _, _) -> exp
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 

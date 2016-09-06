@@ -6,14 +6,6 @@ type Matrix = Vector array
 type Matrix3D = Matrix array
 type Index = int
 
-
-let isScalarType (t: System.Type): bool =
-  t = typeof<Index> || 
-  t = typeof<bool> || 
-  t = typeof<Number> || 
-  t = typeof<string> ||
-  t = typeof<unit>
-
 type Storage = VS of Vector
              | MS of Matrix
 
@@ -63,3 +55,11 @@ type CMacro() =
 type CMonomorphicMacro() =
     inherit CMacro()
     override this.ShouldLetBind () = false
+
+let isScalarType (t: System.Type): bool =
+  t = typeof<Index> || 
+  t = typeof<bool> || 
+  t = typeof<Number> || 
+  t = typeof<string> ||
+  t = typeof<unit> ||
+  t = typeof<Timer>
