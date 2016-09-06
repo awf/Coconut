@@ -26,50 +26,86 @@ array_array_number_t TOP_LEVEL_programs_matrix_add3(array_array_number_t m1, arr
 }
 
 void TOP_LEVEL_programs_hoistingExample(array_number_t v) {
-	number_t macroDef276 = 0;
+	number_t macroDef240 = 0;
 	for(int idx = 0; idx <= 9; idx++){
 		array_number_t tmp = array_slice(v, idx, (idx) + (9));
-		macroDef276 = (macroDef276) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_add_vec(tmp, tmp)));
+		macroDef240 = (macroDef240) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_add_vec(tmp, tmp)));;
 	}
-	number_t sum = macroDef276;
+	number_t sum = macroDef240;
 	number_print(sum);
 	return ;
 }
 
 void TOP_LEVEL_programs_explicitMallocExample1(array_number_t v) {
-	array_number_t storage1 = vector_alloc(10);
-	number_t macroDef279 = 0;
+	array_number_t storage1 = malloc(width_vector_shape_t(nested_shape_card_t(0, 10)));
+	number_t macroDef243 = 0;
 	for(int idx = 0; idx <= 9; idx++){
-		array_number_t macroDef278 = (array_number_t)storage1;
-		for(int i = 0; i < macroDef278->length; i++){
+		array_number_t macroDef242 = (array_number_t)storage1;
+		macroDef242->length=10;
+		macroDef242->arr=(number_t*)((char*)macroDef242 + VECTOR_HEADER_BYTES);
+		storage_t s = macroDef242;
+		for(int i = 0; i < macroDef242->length; i++){
 			
-			macroDef278->arr[i] = v->arr[(i) + (idx)];
+			macroDef242->arr[i] = v->arr[(i) + (idx)];;
+			s = (char*)s + sizeof(number_t);
 		}
-		array_number_t tmp = macroDef278;
-		macroDef279 = (macroDef279) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_add_vec(tmp, tmp)));
+		array_number_t tmp = macroDef242;
+		macroDef243 = (macroDef243) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_add_vec(tmp, tmp)));;
 	}
-	number_t sum = macroDef279;
+	number_t sum = macroDef243;
 	number_print(sum);
 	free(storage1);
 	;
 	return ;
 }
 
-void TOP_LEVEL_programs_explicitMallocExample2(array_number_t v) {
-	array_number_t storage1 = vector_alloc(10);
-	array_number_t storage2 = vector_alloc(10);
-	number_t macroDef283 = 0;
-	for(int idx = 0; idx <= 9; idx++){
-		array_number_t macroDef282 = (array_number_t)storage1;
-		for(int i = 0; i < macroDef282->length; i++){
+array_number_t TOP_LEVEL_programs_vectorMap2GivenStorage(storage_t storage, closure_t f, array_number_t v1, array_number_t v2) {
+	card_t macroDef246 = v1->length;
+	card_t macroDef247 = v1->length;
+	array_number_t macroDef248 = (array_number_t)storage;
+		macroDef248->length=macroDef246;
+		macroDef248->arr=(number_t*)((char*)macroDef248 + VECTOR_HEADER_BYTES);
+		storage_t s = macroDef248;
+		for(int i = 0; i < macroDef248->length; i++){
 			
-			macroDef282->arr[i] = v->arr[(i) + (idx)];
+			macroDef248->arr[i] = f.lam(f.env, v1->arr[i], v2->arr[i]).number_t_value;;
+			s = (char*)s + sizeof(number_t);
 		}
-		array_number_t tmp = macroDef282;
-		array_number_t tmp2 = TOP_LEVEL_linalg_add_vecGivenStorage(storage2, tmp, tmp);
-		macroDef283 = (macroDef283) + (TOP_LEVEL_linalg_sqnorm(tmp2));
+	return macroDef248;
+}
+typedef empty_env_t env_t_252;
+
+
+value_t lambda252(env_t_252* env249, number_t x, number_t y) {
+	
+	value_t res;
+	res.number_t_value = (x) + (y);
+	return res;
+}
+array_number_t TOP_LEVEL_programs_add_vecGivenStorage(storage_t s, array_number_t x, array_number_t y) {
+	env_t_252 env_t_252_value = make_empty_env(); closure_t closure251 = make_closure(lambda252, &env_t_252_value);
+	return TOP_LEVEL_programs_vectorMap2GivenStorage(s, closure251, x, y);
+}
+
+void TOP_LEVEL_programs_explicitMallocExample2(array_number_t v) {
+	array_number_t storage1 = malloc(width_vector_shape_t(nested_shape_card_t(0, 10)));
+	array_number_t storage2 = malloc(width_vector_shape_t(nested_shape_card_t(0, 10)));
+	number_t macroDef254 = 0;
+	for(int idx = 0; idx <= 9; idx++){
+		array_number_t macroDef253 = (array_number_t)storage1;
+		macroDef253->length=10;
+		macroDef253->arr=(number_t*)((char*)macroDef253 + VECTOR_HEADER_BYTES);
+		storage_t s = macroDef253;
+		for(int i = 0; i < macroDef253->length; i++){
+			
+			macroDef253->arr[i] = v->arr[(i) + (idx)];;
+			s = (char*)s + sizeof(number_t);
+		}
+		array_number_t tmp = macroDef253;
+		array_number_t tmp2 = TOP_LEVEL_programs_add_vecGivenStorage(storage2, tmp, tmp);
+		macroDef254 = (macroDef254) + (TOP_LEVEL_linalg_sqnorm(tmp2));;
 	}
-	number_t sum = macroDef283;
+	number_t sum = macroDef254;
 	number_print(sum);
 	free(storage2);
 	;
@@ -95,25 +131,25 @@ void TOP_LEVEL_programs_storageConvertorExample(card_t s, card_t e) {
 	array_print(v2);
 	return ;
 }
-typedef empty_env_t env_t_294;
+typedef empty_env_t env_t_265;
 
 
-value_t lambda294(env_t_294* env291, array_number_t a, array_number_t b) {
-	card_t macroDef289 = a->length;
-	array_number_t macroDef290 = (array_number_t)malloc(sizeof(int) * 2);
-	macroDef290->length=macroDef289;
-	macroDef290->arr = (number_t*)malloc(sizeof(number_t) * macroDef289);
-		for(int i = 0; i < macroDef290->length; i++){
+value_t lambda265(env_t_265* env262, array_number_t a, array_number_t b) {
+	card_t macroDef260 = a->length;
+	array_number_t macroDef261 = (array_number_t)malloc(sizeof(int) * 2);
+	macroDef261->length=macroDef260;
+	macroDef261->arr = (number_t*)malloc(sizeof(number_t) * macroDef260);
+		for(int i = 0; i < macroDef261->length; i++){
 			
-			macroDef290->arr[i] = (a->arr[i]) + (b->arr[i]);
+			macroDef261->arr[i] = (a->arr[i]) + (b->arr[i]);;
 		}
 	value_t res;
-	res.array_number_t_value = macroDef290;
+	res.array_number_t_value = macroDef261;
 	return res;
 }
 array_number_t TOP_LEVEL_programs_vectorAddExample(number_t dum) {
-	env_t_294 env_t_294_value = make_empty_env(); closure_t closure293 = make_closure(lambda294, &env_t_294_value);
-	closure_t add = closure293;
+	env_t_265 env_t_265_value = make_empty_env(); closure_t closure264 = make_closure(lambda265, &env_t_265_value);
+	closure_t add = closure264;
 	array_number_t vec1 = (array_number_t)malloc(sizeof(int) * 2);
 	vec1->length=3;
 	vec1->arr = (number_t*)malloc(sizeof(number_t) * 3);
@@ -130,13 +166,13 @@ array_number_t TOP_LEVEL_programs_vectorAddExample(number_t dum) {
 }
 
 void TOP_LEVEL_programs_small_tests(number_t dum) {
-	number_t a295 = TOP_LEVEL_programs_test1(2);
-	number_print(a295);
-	number_print(TOP_LEVEL_programs_test2(2, a295));
-	array_number_t v2296 = TOP_LEVEL_linalg_vectorRange(0, 99);
-	TOP_LEVEL_programs_hoistingExample(v2296);
-	TOP_LEVEL_programs_explicitMallocExample1(v2296);
-	TOP_LEVEL_programs_explicitMallocExample2(v2296);
+	number_t a266 = TOP_LEVEL_programs_test1(2);
+	number_print(a266);
+	number_print(TOP_LEVEL_programs_test2(2, a266));
+	array_number_t v2267 = TOP_LEVEL_linalg_vectorRange(0, 99);
+	TOP_LEVEL_programs_hoistingExample(v2267);
+	TOP_LEVEL_programs_explicitMallocExample1(v2267);
+	TOP_LEVEL_programs_explicitMallocExample2(v2267);
 	TOP_LEVEL_programs_stackAllocExample(2, 3, 5);
 	return ;
 }

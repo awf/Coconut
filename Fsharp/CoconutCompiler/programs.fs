@@ -4,6 +4,7 @@ module programs
 open linalg
 open types
 open corelang
+open cardinality
 
 let test1 (x: Number): Number = 
   let a = 1. / x
@@ -78,10 +79,10 @@ let hoistingExample_pass3 (v: Vector) =
 [<DontOptimize>]
 let explicitMallocExample1(v: Vector) = 
   //let storage1 = vectorAlloc 10 
-  vectorAllocCPS (Card 10) (fun storage1 ->
+  vectorAllocCPS (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
     let sum = 
       iterateNumber (fun acc idx ->
-          let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
+          let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
           acc + sqnorm (add_vec tmp tmp)
         ) 0. (Card 0) (Card 9)
     numberPrint sum
@@ -91,7 +92,7 @@ let explicitMallocExample1(v: Vector) =
 
 [<DontOptimize>]
 let vectorMap2GivenStorage (storage: Storage) (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
-  vectorBuildGivenStorage storage (fun i -> f(v1.[i])(v2.[i]))
+  build_s storage (length v1) (fun s i i_c -> f(v1.[i])(v2.[i])) (length v1) (fun c -> c)
 
 [<DontOptimize>]
 let inline add_vecGivenStorage (s: Storage) (x: Vector) (y: Vector) =
@@ -100,11 +101,11 @@ let inline add_vecGivenStorage (s: Storage) (x: Vector) (y: Vector) =
 
 [<DontOptimize>]
 let explicitMallocExample2 (v: Vector) = 
-  vectorAllocCPS (Card 10) (fun storage1 ->
-    vectorAllocCPS (Card 10) (fun storage2 -> 
+  vectorAllocCPS (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
+    vectorAllocCPS (width (nestedShape (Card 0) (Card 10))) (fun storage2 -> 
       let sum = 
         iterateNumber (fun acc idx ->
-            let tmp = vectorBuildGivenStorage storage1 (fun i -> v.[i + idx])
+            let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
             let tmp2 = add_vecGivenStorage storage2 tmp tmp
             acc + sqnorm tmp2
           ) 0. (Card 0) (Card 9)
