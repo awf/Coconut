@@ -7,6 +7,9 @@
 #include <malloc.h>
 
 #define VECTOR_HEADER_BYTES (sizeof(int) * 2)
+#define VECTOR_ALL_BYTES(rows) ((rows) * sizeof(number_t) + VECTOR_HEADER_BYTES)
+#define MATRIX_HEADER_BYTES(rows) (sizeof(int) * (2 + (rows)))
+#define MATRIX_ROWS_OFFSET(rows, cols, row) (MATRIX_HEADER_BYTES(rows) + (VECTOR_ALL_BYTES(cols)) * (row))
 
 // extern int closure_mem = 0;
 
@@ -270,13 +273,13 @@ matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
 }
 
 card_t width_vector_shape_t(vector_shape_t shape) {
-  return shape.card * sizeof(number_t) + VECTOR_HEADER_BYTES;
+  return VECTOR_ALL_BYTES(shape.card);
 }
 
 card_t width_matrix_shape_t(matrix_shape_t shape) {
   card_t rows = shape.card;
   card_t cols = shape.elem.card;
-  return width_vector_shape_t(shape.elem) * rows + VECTOR_HEADER_BYTES;
+  return width_vector_shape_t(shape.elem) * rows + MATRIX_HEADER_BYTES(rows);
 }
 
 #endif
