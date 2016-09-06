@@ -230,7 +230,7 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     exp
   | Patterns.Sequential(e1, e2) ->
     Expr.Sequential(S e1 O, S e2 outputStorage)
-  | DerivedPatterns.SpecificCall <@ utils.tic @> (_, _, _) 
-  | DerivedPatterns.SpecificCall <@ utils.toc @> (_, _, _) -> exp
+  | DerivedPatterns.SpecificCall <@ utils.tic @> (_, _, _)   -> exp
+  | DerivedPatterns.SpecificCall <@ utils.toc @> (_, _, [t]) -> MakeCall <@@ utils.toc @@> [S t O] []
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 
