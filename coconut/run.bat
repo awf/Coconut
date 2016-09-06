@@ -1,7 +1,7 @@
 @echo off
 setLocal EnableDelayedExpansion
 
-test.exe
+:: test.exe
 
 set argfile="../data/ba_instances/benchmark_list.txt"
 :: Reset argfile if supplied.

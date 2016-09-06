@@ -1,5 +1,5 @@
 ﻿[<ReflectedDefinition>]
-module usecases
+module usecases_ht
 
 open corelang
 open linalg

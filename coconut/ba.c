@@ -1,4 +1,4 @@
-#include "usecases.h"
+#include "usecases_ba.h"
 
 int main(int argc, char** argv)
 {
@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	char* file = argv[1];
-	TOP_LEVEL_usecases_run_ba_from_file(file);
+	TOP_LEVEL_usecases_ba_run_ba_from_file(file);
 	float milliseconds = (float)(benchmarked_time) * 1000.0 / CLOCKS_PER_SEC;
 	printf("Profiled Time: %d ms\n", (int)milliseconds);
 	// printf("memory of closure: %d\n", closure_mem);

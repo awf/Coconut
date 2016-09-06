@@ -58,12 +58,12 @@ let compile_modules_storaged () =
     ()
 
 let benchmark_search () =
-    let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
+    let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
     benchmark.benchmark_test_algorithms bundleAdjustmentProject
 
 let test_guided_optimizer () = 
     compiler.compileModule "linalg" [] false false
-    compiler.compileModule "usecases" ["linalg"] false false
+    compiler.compileModule "usecases_ba" ["linalg"] false false
     let comp = ruleengine.compilePatternToRule
       //ruleengine.compilePatternToRule2
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
@@ -155,7 +155,7 @@ let test_guided_optimizer () =
     printfn "storageConvertorExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     // printfn "storageConvertorExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     printfn "code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "storageConvertorExample" false)
-    let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
+    let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
     let baProjectRules = 
         [ rules.vectorSliceToBuild, 0;
           comp <@ rules.comAddIndex_exp @>, 1;
@@ -242,7 +242,7 @@ let test_guided_optimizer () =
     //printfn "usecases_project chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "usecases_project costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
     //printfn "usecases_project code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_project" false)
-    let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases" "reproj_err"
+    let bundleAdjustmentReproj_err = compiler.getMethodExpr "usecases_ba" "reproj_err"
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentReproj_err 
         [ 
@@ -315,7 +315,7 @@ let test_guided_optimizer () =
     //printfn "ba_reproj_err chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "final one: %s" (chains |> List.rev |> List.head |> fun x -> transformer.variableRenaming x [] |> ccodegen.prettyprint)
     //printfn "ba_reproj_err code: %s" (ccodegen.ccodegenTopLevel (List.head (List.rev chains)) "usecases_reproj_err" false)
-    let bundleAdjustmentRodrigues_rotate_point = compiler.getMethodExpr "usecases" "rodrigues_rotate_point"
+    let bundleAdjustmentRodrigues_rotate_point = compiler.getMethodExpr "usecases_ba" "rodrigues_rotate_point"
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentRodrigues_rotate_point 
         [ 
@@ -397,7 +397,7 @@ let test_guided_optimizer () =
     ()
 
 let test_feature () =
-  let bundleAdjustmentProject = compiler.getMethodExpr "usecases" "project"
+  let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
   let comp = ruleengine.compilePatternToRule
   let uniqueRules = 
       [
@@ -430,13 +430,13 @@ let test_card () =
   cardAndStg "linalg" "vectorMap"
   cardAndStg "programs" "vectorAddExample"
   cardAndStg "linalg" "add_vec"
-  cardAndStg "usecases" "project"
+  cardAndStg "usecases_ba" "project"
 
 [<EntryPoint>]
 let main argv = 
     // test_ba argv
-    // compile_modules ()
-    compile_modules_storaged ()
+    compile_modules ()
+    // compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()
