@@ -146,6 +146,14 @@ let closureConversion (e: Expr): Expr =
   let te = lambdaLift {isMacro = false} body
   LambdaN(inputs, te)
 
+let rec letCommuting (e: Expr): Expr = 
+  match e with
+  | Patterns.Let(x, Patterns.Let(y, e1, e2), e3) ->
+    letCommuting (Expr.Let(y, e1, Expr.Let(x, e2, e3)))
+  | ExprShape.ShapeVar(x) -> Expr.Var(x)
+  | ExprShape.ShapeLambda(x, e) -> Expr.Lambda(x, letCommuting e)
+  | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map letCommuting)
+
 (* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
-  letLifting (anfConversion false (closureConversion e))
+  e |> closureConversion |> anfConversion false |> letLifting |> letCommuting
