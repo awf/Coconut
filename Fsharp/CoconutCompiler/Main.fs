@@ -52,6 +52,7 @@ let compile_modules () =
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
     compiler.compileModule "linalgtests" ["linalg"] false true
+    // compiler.compileModule "usecases" ["linalg"] false true
     //compiler.compile "linalg" "matrixMap" false true
     ()
 

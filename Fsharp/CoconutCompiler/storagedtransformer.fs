@@ -60,6 +60,44 @@ let rec simplifyStoraged (exp: Expr): Expr =
   | ExprShape.ShapeVar(x)                -> Expr.Var(x)
   | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map simplifyStoraged)
 
+let AllocNWithVar (bindings: (Var * Expr) list, funExpr: Expr): Expr = 
+  (funExpr, bindings) ||> List.fold (fun acc (v, s) -> AllocWithVar s v (Expr.Lambda(v, acc)))
+
+(* Lifts memory allocations to top-level statements *)
+let allocLifting (e: Expr): Expr = 
+  let rec constructTopLevelAllocs (boundVars: Var List) (exp: Expr): Expr * (Var * Expr) List = 
+    let isSafeToLift (exp: Expr): bool = 
+      let freeVars = getFreeVariables exp
+      let freeNotBoundVars = utils.listDiff freeVars boundVars
+      List.isEmpty freeNotBoundVars
+    match exp with 
+    //| Patterns.Let(x, e1, e2) ->
+    //  let (te1, liftedLets1) = constructTopLevelAllocs boundVars e1
+    //  let canBeLifted = isSafeToLift e1
+    //  let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
+    //  let (te2, liftedLets2) = constructTopLevelAllocs newBoundVars e2
+    //  if (canBeLifted) then
+    //    (te2, List.append liftedLets1 ((x, te1) :: liftedLets2))
+    //  else 
+    //    (Expr.Let(x, te1, te2), List.append liftedLets1 liftedLets2)
+    | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, t, [sz; Patterns.Lambda(st, body)]) ->
+      let canBeLifted = isSafeToLift sz
+      let (tbody, liftedAllocs) = constructTopLevelAllocs (st :: boundVars) body
+      if canBeLifted then
+        (tbody, liftedAllocs @ [st, sz])
+      else
+        (AllocWithVar sz st (Expr.Lambda(st, tbody)), liftedAllocs)
+    | LambdaN (inputs, body) ->
+      let (te, ll) = constructTopLevelAllocs (inputs @ boundVars) body
+      (LambdaN(inputs, AllocNWithVar(ll, te)), [])
+    | ExprShape.ShapeCombination(o, exprs) ->
+      let (tes, lls) = List.unzip (List.map (constructTopLevelAllocs boundVars) exprs)
+      (ExprShape.RebuildShapeCombination(o, tes), List.concat lls)
+    | _ -> (exp, [])
+  let (inputs, body) = match e with TopLevelFunction (i, b) -> (i, b)
+  let (te, ll) = constructTopLevelAllocs inputs body
+  LambdaN(inputs, AllocNWithVar(ll, te))
+
 let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<Var, Var * Var>): Expr =
   let S e s = transformStoraged e s env
   let SEnv = transformStoraged

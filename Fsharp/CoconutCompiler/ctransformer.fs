@@ -156,4 +156,4 @@ let rec letCommuting (e: Expr): Expr =
 
 (* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
-  e |> closureConversion |> anfConversion false |> letLifting |> letCommuting
+  e |> storagedtransformer.allocLifting |> closureConversion |> anfConversion false |> letLifting |> letCommuting
