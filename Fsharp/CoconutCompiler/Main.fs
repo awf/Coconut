@@ -17,7 +17,7 @@ let test_ba (argv: string[]) =
     let replicate_point = 
         (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
 
-    let res = usecases.run_ba_from_file (dir_in + fn + ".txt")
+    let res = usecases_ba.run_ba_from_file (dir_in + fn + ".txt")
     matrixPrint res
  
 let test_ruleengine () = 
@@ -45,15 +45,16 @@ let test_ruleengine () =
 
 let compile_modules () = 
     compiler.compileModule "linalg" [] false false
-    compiler.compileModule "usecases" ["linalg"] false false
+    compiler.compileModule "usecases_ba" ["linalg"] false false
+    compiler.compileModule "usecases_ht" ["linalg"] false false
     compiler.compileModule "programs" ["linalg"] true false
     compiler.compileModule "ccodegentests" [] false false
 
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
-    compiler.compileModule "linalgtests" ["linalg"] false true
-    // compiler.compileModule "usecases" ["linalg"] false true
-    //compiler.compile "linalg" "matrixMap" false true
+    // compiler.compileModule "linalgtests" ["linalg"] false true
+    compiler.compileModule "usecases_ba" ["linalg"] false true
+    // compiler.compile "usecases" "run_ba_from_file" false true
     ()
 
 let benchmark_search () =
