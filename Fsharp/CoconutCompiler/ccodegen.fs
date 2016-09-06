@@ -164,20 +164,20 @@ and ccodegenMonomorphicMacro (e: Expr): string =
     failwithf "Does not know how to generate monomorhpic macro call for the expression `%A`" e
 
 (* C code generation for a statement in the form of `let var = e` *)
-let rec ccodegenStatement (var: Var, e: Expr): string * string List =
+let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * string List =
   let ccodegenStatements (tabs: string) (exp: Expr) (resultVar: string option) = 
     let (stmts, res) = 
       match exp with 
       | LetN(stmts, res) -> stmts, res
       | _ -> [], exp
-    let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement stmts)
+    let (statementsCodeList, closuresList) = List.unzip (List.map (ccodegenStatement true) stmts)
     let statementsCode = (String.concat (sprintf "\n%s" tabs) statementsCodeList)
     let lastStatement = 
       if(res.Type = typeof<unit>) then
         ccodegen res
       else
-        let leftVar = Option.fold (fun _ x -> x) (var.Name) resultVar
-        sprintf "%s = %s" leftVar (ccodegen res)
+        let leftVar = (var, resultVar) ||> Option.fold (fun _ c -> new Var(c, res.Type))
+        fst (ccodegenStatement false (leftVar, res))
     (sprintf "%s\n%s%s;" statementsCode tabs lastStatement, List.concat closuresList) 
   let ccodegenMacro (e: Expr): string * string list * bool = 
     match e with
@@ -425,7 +425,8 @@ let rec ccodegenStatement (var: Var, e: Expr): string * string List =
   else if (e.Type = typeof<Unit>) then
     (sprintf "%s;" rhs, funs)
   else
-    (sprintf "%s %s = %s;" (ccodegenType var.Type) (var.Name) rhs, funs)
+    let typeAnnotation = if withTypeDef then sprintf "%s " (ccodegenType var.Type) else ""
+    (sprintf "%s%s = %s;" typeAnnotation var.Name rhs, funs)
 
 (* C code generation for a function *)
 and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
@@ -435,7 +436,7 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
     | Patterns.Let(x, e1, e2) -> extractHeader e2 curInputs (List.append statements [(x, e1)])
     | _ -> (exp, curInputs, statements)
   let (result, inputs, statements) = extractHeader e [] []
-  let (statementsCodeList, closuresList) = List.unzip (List.map ccodegenStatement statements)
+  let (statementsCodeList, closuresList) = List.unzip (List.map (ccodegenStatement true) statements)
   let statementsCode = (String.concat "\n\t" statementsCodeList)
   let closuresCode = (String.concat "\n" (List.concat closuresList))
   let resultType = if(isForClosure) then "value_t" else ccodegenType(result.Type)
