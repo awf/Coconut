@@ -330,8 +330,10 @@ let rec FunctionType (inputs: Type list) (output: Type): Type =
 
 open utils
 
+let EMPTY_STORAGE: Var = Var.Global("empty_storage", typeof<Storage>)
+
 let getFreeVariables (e: Expr): Var list = 
-  e.GetFreeVars() |> Seq.filter (isMethodVariable >> not) |> List.ofSeq
+  e.GetFreeVars() |> Seq.filter (isMethodVariable >> not) |> Seq.filter (fun x -> not (x = EMPTY_STORAGE)) |> List.ofSeq
 
 let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
   let alreadyExistingVariable(v: Var) = 
