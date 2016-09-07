@@ -558,12 +558,12 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file_s(storage_t stgVar67
 	array_number_t stgVar679 = malloc(width_matrix_shape_t(cam_c));
 	array_array_number_t macroDef785;array_array_number_t macroDef742 = (array_array_number_t)stgVar679;
 		macroDef742->length=n_s;
-		macroDef742->arr=(array_number_t*)((char*)macroDef742 + VECTOR_HEADER_BYTES);
-		storage_t stgVar680 = ((char*)macroDef742 + MATRIX_HEADER_BYTES(n_s));
+		macroDef742->arr=(array_number_t*)(STG_OFFSET(macroDef742, VECTOR_HEADER_BYTES));
+		storage_t stgVar680 = (STG_OFFSET(macroDef742, MATRIX_HEADER_BYTES(n_s)));
 		for(int x_s = 0; x_s < macroDef742->length; x_s++){
 			
 			macroDef742->arr[x_s] = one_cam_s;;
-			stgVar680 = (char*)stgVar680 + VECTOR_ALL_BYTES(macroDef742->arr[x_s]->length);
+			stgVar680 = STG_OFFSET(stgVar680, VECTOR_ALL_BYTES(macroDef742->arr[x_s]->length));
 		}
 	array_array_number_t cam_s = macroDef742;
 	vector_shape_t one_x_c = TOP_LEVEL_linalg_vectorRead_c(0, 0);
@@ -574,12 +574,12 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file_s(storage_t stgVar67
 	array_number_t stgVar684 = malloc(width_matrix_shape_t(x_c));
 	array_array_number_t macroDef783;array_array_number_t macroDef747 = (array_array_number_t)stgVar684;
 		macroDef747->length=m_s;
-		macroDef747->arr=(array_number_t*)((char*)macroDef747 + VECTOR_HEADER_BYTES);
-		storage_t stgVar685 = ((char*)macroDef747 + MATRIX_HEADER_BYTES(m_s));
+		macroDef747->arr=(array_number_t*)(STG_OFFSET(macroDef747, VECTOR_HEADER_BYTES));
+		storage_t stgVar685 = (STG_OFFSET(macroDef747, MATRIX_HEADER_BYTES(m_s)));
 		for(int x_s = 0; x_s < macroDef747->length; x_s++){
 			
 			macroDef747->arr[x_s] = one_x_s;;
-			stgVar685 = (char*)stgVar685 + VECTOR_ALL_BYTES(macroDef747->arr[x_s]->length);
+			stgVar685 = STG_OFFSET(stgVar685, VECTOR_ALL_BYTES(macroDef747->arr[x_s]->length));
 		}
 	array_array_number_t x_s = macroDef747;
 	card_t one_w_c = 0;
@@ -611,16 +611,16 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file_s(storage_t stgVar67
 	array_number_t stgVar704 = malloc(width_matrix_shape_t(obs_c));
 	array_array_number_t macroDef778;array_array_number_t macroDef776 = (array_array_number_t)stgVar704;
 		macroDef776->length=p_s;
-		macroDef776->arr=(array_number_t*)((char*)macroDef776 + VECTOR_HEADER_BYTES);
-		storage_t stgVar705 = ((char*)macroDef776 + MATRIX_HEADER_BYTES(p_s));
+		macroDef776->arr=(array_number_t*)(STG_OFFSET(macroDef776, VECTOR_HEADER_BYTES));
+		storage_t stgVar705 = (STG_OFFSET(macroDef776, MATRIX_HEADER_BYTES(p_s)));
 		for(int x_s = 0; x_s < macroDef776->length; x_s++){
 			array_number_t macroDef775 = (array_number_t)stgVar705;
 	macroDef775->length=2;
-	macroDef775->arr=(number_t*)((char*)stgVar705 + VECTOR_HEADER_BYTES);
+	macroDef775->arr=(number_t*)(STG_OFFSET(stgVar705, VECTOR_HEADER_BYTES));
 	macroDef775->arr[0] = (double)(((int)(x_s)) % ((n_s)));
 	macroDef775->arr[1] = (double)(((int)(x_s)) % ((m_s)));;
 			macroDef776->arr[x_s] = macroDef775;;
-			stgVar705 = (char*)stgVar705 + VECTOR_ALL_BYTES(macroDef776->arr[x_s]->length);
+			stgVar705 = STG_OFFSET(stgVar705, VECTOR_ALL_BYTES(macroDef776->arr[x_s]->length));
 		}
 	array_array_number_t obs_s = macroDef776;
 	card_t t_c = 0;
@@ -663,7 +663,7 @@ void TOP_LEVEL_usecases_ba_test_ba_s(storage_t stgVar797, array_number_t dum_s, 
 	array_number_t stgVar798 = malloc(width_vector_shape_t(a_c));
 	array_number_t macroDef831 = (array_number_t)stgVar798;
 	macroDef831->length=3;
-	macroDef831->arr=(number_t*)((char*)stgVar798 + VECTOR_HEADER_BYTES);
+	macroDef831->arr=(number_t*)(STG_OFFSET(stgVar798, VECTOR_HEADER_BYTES));
 	macroDef831->arr[0] = 1;
 	macroDef831->arr[1] = 2;
 	macroDef831->arr[2] = 3;;
@@ -672,7 +672,7 @@ void TOP_LEVEL_usecases_ba_test_ba_s(storage_t stgVar797, array_number_t dum_s, 
 	array_number_t stgVar802 = malloc(width_vector_shape_t(b_c));
 	array_number_t macroDef832 = (array_number_t)stgVar802;
 	macroDef832->length=3;
-	macroDef832->arr=(number_t*)((char*)stgVar802 + VECTOR_HEADER_BYTES);
+	macroDef832->arr=(number_t*)(STG_OFFSET(stgVar802, VECTOR_HEADER_BYTES));
 	macroDef832->arr[0] = 5;
 	macroDef832->arr[1] = 6;
 	macroDef832->arr[2] = 7;;
@@ -695,7 +695,7 @@ void TOP_LEVEL_usecases_ba_test_ba_s(storage_t stgVar797, array_number_t dum_s, 
 	array_number_t stgVar816 = malloc(width_vector_shape_t(cam_c));
 	array_number_t macroDef833 = (array_number_t)stgVar816;
 	macroDef833->length=11;
-	macroDef833->arr=(number_t*)((char*)stgVar816 + VECTOR_HEADER_BYTES);
+	macroDef833->arr=(number_t*)(STG_OFFSET(stgVar816, VECTOR_HEADER_BYTES));
 	macroDef833->arr[0] = 0;
 	macroDef833->arr[1] = 2;
 	macroDef833->arr[2] = 4;

@@ -258,7 +258,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
             if ta = typeof<Number> then
               sprintf "%s" resultName
             elif ta = typeof<Vector> || ta = typeof<Matrix> then
-              sprintf "((char*)%s + MATRIX_HEADER_BYTES(%s))" resultName lengthCode
+              sprintf "(STG_OFFSET(%s, MATRIX_HEADER_BYTES(%s)))" resultName lengthCode
             else
               failwithf "Does not know how to generate build_s for the type `%A`" ta
           let stOffset = 
@@ -269,7 +269,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
             else
               failwithf "Does not know how to generate build_s for the type `%A`" ta
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
-          (sprintf "%s %s = (%s)%s;\n\t\t%s->length=%s;\n\t\t%s->arr=(%s*)((char*)%s + VECTOR_HEADER_BYTES);\n\t\t%s %s = %s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t\t%s = (char*)%s + %s;\n\t\t}"
+          (sprintf "%s %s = (%s)%s;\n\t\t%s->length=%s;\n\t\t%s->arr=(%s*)(STG_OFFSET(%s, VECTOR_HEADER_BYTES));\n\t\t%s %s = %s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t\t%s = STG_OFFSET(%s, %s);\n\t\t}"
              resultType resultName resultType storage 
              resultName lengthCode
              resultName elemType resultName
@@ -341,7 +341,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let args = String.concat "\n\t" (elemsNoStg |> List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
           let arrTp = ccodegenType (tp.MakeArrayType()) 
           let elemTp = ccodegenType tp
-          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)((char*)%s + VECTOR_HEADER_BYTES);\n\t%s" 
+          let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)(STG_OFFSET(%s, VECTOR_HEADER_BYTES));\n\t%s" 
                       arrTp stgCode 
                       var.Name elemsNoStg.Length
                       var.Name elemTp stgCode

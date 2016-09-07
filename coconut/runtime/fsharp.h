@@ -9,6 +9,7 @@
 #define VECTOR_ALL_BYTES(rows) ((rows) * sizeof(number_t) + VECTOR_HEADER_BYTES)
 #define MATRIX_HEADER_BYTES(rows) (sizeof(int) * (2 + (rows)))
 #define MATRIX_ROWS_OFFSET(rows, cols, row) (MATRIX_HEADER_BYTES(rows) + (VECTOR_ALL_BYTES(cols)) * (row))
+#define STG_OFFSET(stg, offset) (storage_t)(((char*)(stg)) + (offset))
 
 // extern int closure_mem = 0;
 
@@ -201,7 +202,7 @@ array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_l
     }
 	array_array_number_t res = (array_array_number_t)storage;
 	res->length = rows;
-	res->arr = (array_number_t*)((char*)storage + VECTOR_HEADER_BYTES);
+	res->arr = (array_number_t*)STG_OFFSET(storage, VECTOR_HEADER_BYTES);
 	for(int row_index=0; row_index<rows; row_index++) {
 		char cur = 0;
 		int length = 0;
