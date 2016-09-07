@@ -69,16 +69,7 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
-    // TODO rewrite using MakeCall
-    match t with
-    | t when t = typeof<Number> -> 
-      <@@ nestedShape<Cardinality> ((%%ce1: Cardinality -> Cardinality) %%ZERO_CARD) (%%ce0: Cardinality) @@>
-    | t when t = typeof<Vector> ->
-      <@@ nestedShape<VectorShape> ((%%ce1: Cardinality -> VectorShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
-    | t when t = typeof<Matrix> ->
-      <@@ nestedShape<MatrixShape> ((%%ce1: Cardinality -> MatrixShape) %%ZERO_CARD) (%%ce0: Cardinality) @@>
-    | _ ->
-      failwithf "Does not know how to infer cardinality for type `%A`" t
+    MakeCall <@ nestedShape @> [Expr.Application(ce1, ZERO_CARD); ce0] [CT t]
   | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
     // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
     C z
@@ -87,12 +78,7 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
   | ArrayGet(e0, e1) ->
     let ce0 = C e0
-    // TODO rewrite using MakeCall
-    match exp.Type with
-    | t when t = typeof<Number> -> <@@ shapeElem<Cardinality> %%ce0 @@>
-    | t when t = typeof<Vector> -> <@@ shapeElem<VectorShape> %%ce0 @@>
-    | t when t = typeof<Matrix> -> <@@ shapeElem<MatrixShape> %%ce0 @@>
-    | t                         -> failwithf "Does not know how to infer cardinality for array get of type `%A`" t
+    MakeCall <@ shapeElem @> [ce0] [CT exp.Type]
   | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
     // TODO requires number of column information in the matrixRead construct
     <@@ nestedShape<VectorShape> (nestedShape<Cardinality> (Card 0) (Card 10)) (%%rows) @@>

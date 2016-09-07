@@ -55,7 +55,7 @@ let compile_modules () =
 
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
-    // compiler.compileModule "linalgtests" ["linalg"] false true
+    compiler.compileModule "linalgtests" ["linalg"] false true
     compiler.compileModule "usecases_ba" ["linalg"] false true
     // compiler.compile "usecases" "run_ba_from_file" false true
     ()
