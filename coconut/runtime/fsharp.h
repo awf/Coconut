@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <malloc.h>
 
 #define VECTOR_HEADER_BYTES (sizeof(int) * 2)
 #define VECTOR_ALL_BYTES(rows) ((rows) * sizeof(number_t) + VECTOR_HEADER_BYTES)
@@ -128,7 +127,7 @@ void pause_timing() {
 
 storage_t vector_alloc(index_t size) {
 	// start_timing();
-	storage_t area = malloc(VECTOR_HEADER_BYTES + sizeof(number_t) * size);
+	storage_t area = malloc(VECTOR_ALL_BYTES(size));
 	array_number_t boxed_vector = (array_number_t)area;
 	boxed_vector->length = size;
 	boxed_vector->arr = (number_t*)(((int*)area) + 2);
@@ -189,6 +188,7 @@ void matrix_print(array_array_number_t arr) {
 }
 
 array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_line, int rows) {
+	// printf("reading from file `%s` starting line %d, %d rows\n", name, start_line, rows);
 	FILE * fp;
     fp = fopen(name, "r");
     if (fp == NULL) {
@@ -200,6 +200,8 @@ array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_l
     	while(getc(fp) != '\n') {}
     }
 	array_array_number_t res = (array_array_number_t)storage;
+	res->length = rows;
+	res->arr = (array_number_t*)((char*)storage + VECTOR_HEADER_BYTES);
 	for(int row_index=0; row_index<rows; row_index++) {
 		char cur = 0;
 		int length = 0;
@@ -213,13 +215,16 @@ array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_l
 				elems++;
 			length++;
 		}
+
 		fseek(fp, -length-2, SEEK_CUR);
+		// TODO make its memory usage better
 		array_number_t one_row = (array_number_t)vector_alloc(elems);
 		for(int i=0; i<elems; i++) {
 			fscanf(fp, "%lf", &one_row->arr[i]);
 		}
 		res->arr[row_index] = one_row;
 	}
+
 	fclose(fp);
 	return res;
 }
