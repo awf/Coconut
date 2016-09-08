@@ -163,13 +163,15 @@ array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_l
 
 		fseek(fp, -length-2, SEEK_CUR);
 		// TODO make its memory usage better
-		array_number_t one_row = (array_number_t)vector_alloc(elems);
+		array_number_t one_row = malloc(VECTOR_ALL_BYTES(elems));
+		one_row->length = elems;
+		one_row->arr = (number_t*)(((int*)one_row) + 2);
 		for(int i=0; i<elems; i++) {
 			fscanf(fp, "%lf", &one_row->arr[i]);
 		}
 		res->arr[row_index] = one_row;
 	}
-
+	// printf("finished reading!\n");
 	fclose(fp);
 	return res;
 }
