@@ -356,12 +356,19 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let tp = ccodegenType typeof<Vector>
           let storageVar = i.Name 
           let (bodyCode, bodyClosures) = ccodegenStatements "\t" body None
-          let bodyAssignment =
-            if tres = typeof<unit> then
-              bodyCode
-            else 
-              sprintf "%s %s;%s" (ccodegenType tres) var.Name bodyCode
-          (sprintf "%s %s = malloc(%s);\n\t%s\n\tfree(%s);" tp storageVar size bodyAssignment storageVar,
+          let resultCode = 
+            let bodyAssignment =
+              if tres = typeof<unit> then
+                bodyCode
+              else 
+                sprintf "%s %s;%s" (ccodegenType tres) var.Name bodyCode
+            let sizeVar = newVar "size"
+            let sizeTp = ccodegenType typeof<Cardinality>
+            sprintf "%s %s = %s;\n\t%s %s = storage_alloc(%s);\n\t%s\n\tstorage_free(%s, %s);" 
+              sizeTp sizeVar size
+              tp storageVar sizeVar 
+              bodyAssignment storageVar sizeVar
+          (resultCode,
             bodyClosures, true)
         | _ ->
           failwithf "Does not know how to generate C macro code for the method `%s`" name

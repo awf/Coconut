@@ -52,4 +52,10 @@ typedef void* env_t;
 
 typedef int empty_env_t;
 
+typedef struct closure_t {
+	enum Tag t;
+	lambda_t lam;
+	env_t env;
+} closure_t;
+
 typedef unsigned long long int memory_size_t;

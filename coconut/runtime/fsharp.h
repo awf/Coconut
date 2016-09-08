@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "types.h"
+#include "mem_mng.h"
 
 #define VECTOR_HEADER_BYTES (sizeof(int) * 2)
 #define VECTOR_ALL_BYTES(rows) ((rows) * sizeof(number_t) + VECTOR_HEADER_BYTES)
@@ -19,12 +20,6 @@ storage_t empty_storage = (void*)0;
 empty_env_t make_empty_env() {
 	return 0;
 }
-
-typedef struct closure_t {
-	enum Tag t;
-	lambda_t lam;
-	env_t env;
-} closure_t;
 
 closure_t make_closure(lambda_t lam, env_t env) {
 	closure_t c;
