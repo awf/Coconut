@@ -138,3 +138,843 @@ ba_storaged.exe ../data/ba_instances/ba14.txt , 3049, 2921, 3000, 222332, 233296
 ba.exe ../data/ba_instances/ba14.txt , 2931, 2656, 2890, 1300024, 1319600, 1263276
 ba_storaged.exe ../data/ba_instances/ba14.txt , 2976, 2937, 2937, 222344, 233264, 96536
 ba.exe ../data/ba_instances/ba14.txt , 2952, 2640, 2906, 1299896, 1320248, 1263292
+ba.exe ../data/ba_instances/ba1.txt , 120, 62, 78, 30752, 43180, 31820
+ba.exe ../data/ba_instances/ba1.txt , 118, 78, 78, 33860, 65560, 35252
+ba.exe ../data/ba_instances/ba1.txt , 118, 62, 78, 33972, 67544, 35228
+ba.exe ../data/ba_instances/ba1.txt , 116, 62, 62, 30580, 43180, 31692
+ba.exe ../data/ba_instances/ba1.txt , 113, 62, 62, 33928, 66264, 35220
+ba_s.exe ../data/ba_instances/ba1.txt , 119, 78, 93, 6356, 17640, 5204
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 6280, 17036, 4872
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 6288, 17088, 4868
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 6284, 17040, 4860
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 6284, 17092, 4864
+ba_bump.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 34080, 67936, 35656
+ba_bump.exe ../data/ba_instances/ba1.txt , 115, 62, 78, 30640, 43180, 31692
+ba_bump.exe ../data/ba_instances/ba1.txt , 115, 62, 78, 33916, 66648, 35244
+ba_bump.exe ../data/ba_instances/ba1.txt , 116, 62, 78, 30584, 43180, 31700
+ba_bump.exe ../data/ba_instances/ba1.txt , 115, 62, 78, 30316, 43180, 31428
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 73, 31, 31, 11748, 23008, 4688
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11756, 23012, 4772
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11748, 23052, 4744
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11748, 23072, 4720
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11756, 22980, 4768
+ba.exe ../data/ba_instances/ba2.txt , 123, 78, 78, 36096, 59372, 36956
+ba.exe ../data/ba_instances/ba2.txt , 122, 109, 140, 35904, 59372, 36800
+ba.exe ../data/ba_instances/ba2.txt , 123, 78, 78, 36036, 59372, 36960
+ba.exe ../data/ba_instances/ba2.txt , 123, 78, 93, 35588, 59372, 36568
+ba.exe ../data/ba_instances/ba2.txt , 123, 78, 78, 35732, 59372, 36676
+ba_s.exe ../data/ba_instances/ba2.txt , 126, 93, 93, 7348, 18104, 5236
+ba_s.exe ../data/ba_instances/ba2.txt , 128, 93, 93, 7336, 18080, 5216
+ba_s.exe ../data/ba_instances/ba2.txt , 127, 78, 78, 7348, 18104, 5236
+ba_s.exe ../data/ba_instances/ba2.txt , 128, 109, 109, 7340, 18028, 5208
+ba_s.exe ../data/ba_instances/ba2.txt , 125, 93, 93, 7340, 18060, 5232
+ba_bump.exe ../data/ba_instances/ba2.txt , 127, 78, 78, 35392, 59372, 36300
+ba_bump.exe ../data/ba_instances/ba2.txt , 128, 78, 78, 35676, 59372, 36632
+ba_bump.exe ../data/ba_instances/ba2.txt , 123, 78, 109, 35876, 59372, 36832
+ba_bump.exe ../data/ba_instances/ba2.txt , 127, 62, 78, 35384, 59372, 36364
+ba_bump.exe ../data/ba_instances/ba2.txt , 123, 78, 93, 36356, 59372, 37216
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 72, 31, 31, 11752, 22980, 5516
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 71, 31, 31, 11752, 23044, 5504
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 73, 31, 31, 11752, 23020, 5480
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 79, 31, 31, 11748, 23036, 5412
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 71, 31, 46, 11756, 23072, 5508
+ba.exe ../data/ba_instances/ba3.txt , 453, 359, 406, 189516, 220128, 186148
+ba.exe ../data/ba_instances/ba3.txt , 450, 390, 421, 189460, 220028, 186112
+ba.exe ../data/ba_instances/ba3.txt , 453, 343, 406, 189544, 219884, 186060
+ba.exe ../data/ba_instances/ba3.txt , 450, 375, 421, 189324, 219748, 186064
+ba.exe ../data/ba_instances/ba3.txt , 451, 390, 406, 189228, 219528, 186064
+ba_s.exe ../data/ba_instances/ba3.txt , 488, 437, 437, 34028, 45404, 16184
+ba_s.exe ../data/ba_instances/ba3.txt , 471, 421, 437, 34028, 45252, 16172
+ba_s.exe ../data/ba_instances/ba3.txt , 466, 406, 437, 34032, 45332, 16104
+ba_s.exe ../data/ba_instances/ba3.txt , 472, 421, 421, 34024, 45332, 16168
+ba_s.exe ../data/ba_instances/ba3.txt , 466, 437, 453, 34024, 45364, 16112
+ba_bump.exe ../data/ba_instances/ba3.txt , 454, 390, 421, 189484, 221292, 186080
+ba_bump.exe ../data/ba_instances/ba3.txt , 454, 343, 406, 189464, 220648, 186056
+ba_bump.exe ../data/ba_instances/ba3.txt , 450, 343, 406, 189156, 221300, 186064
+ba_bump.exe ../data/ba_instances/ba3.txt , 451, 390, 406, 189332, 220352, 186024
+ba_bump.exe ../data/ba_instances/ba3.txt , 451, 359, 406, 189460, 221396, 186108
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 193, 156, 156, 84796, 102508, 18312
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 197, 140, 156, 84428, 95644, 17528
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 194, 140, 171, 84428, 95724, 17360
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 195, 140, 171, 84424, 95664, 17536
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 193, 140, 156, 84656, 100484, 17824
+ba.exe ../data/ba_instances/ba4.txt , 504, 421, 437, 212580, 237036, 208560
+ba.exe ../data/ba_instances/ba4.txt , 504, 421, 453, 212724, 237704, 208564
+ba.exe ../data/ba_instances/ba4.txt , 505, 390, 453, 212532, 237116, 208580
+ba.exe ../data/ba_instances/ba4.txt , 502, 359, 453, 212544, 237516, 208596
+ba.exe ../data/ba_instances/ba4.txt , 505, 390, 484, 212776, 237496, 208568
+ba_s.exe ../data/ba_instances/ba4.txt , 525, 500, 515, 37584, 48812, 17832
+ba_s.exe ../data/ba_instances/ba4.txt , 521, 484, 484, 37584, 48900, 17792
+ba_s.exe ../data/ba_instances/ba4.txt , 556, 515, 515, 37588, 48912, 17824
+ba_s.exe ../data/ba_instances/ba4.txt , 531, 484, 500, 37584, 48824, 17800
+ba_s.exe ../data/ba_instances/ba4.txt , 521, 468, 484, 37576, 48820, 17808
+ba_bump.exe ../data/ba_instances/ba4.txt , 502, 375, 453, 212656, 238284, 208576
+ba_bump.exe ../data/ba_instances/ba4.txt , 507, 421, 437, 212620, 237348, 208528
+ba_bump.exe ../data/ba_instances/ba4.txt , 526, 390, 453, 212736, 237424, 208596
+ba_bump.exe ../data/ba_instances/ba4.txt , 514, 421, 484, 212576, 237452, 208596
+ba_bump.exe ../data/ba_instances/ba4.txt , 538, 421, 484, 212584, 237512, 208584
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 211, 171, 171, 88208, 99368, 19256
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 218, 171, 171, 88580, 107432, 20144
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 214, 171, 187, 88580, 106260, 20148
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 218, 156, 171, 88572, 105684, 20144
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 213, 171, 171, 88216, 99436, 19304
+ba.exe ../data/ba_instances/ba5.txt , 552, 437, 500, 234852, 255436, 230152
+ba.exe ../data/ba_instances/ba5.txt , 562, 500, 515, 234792, 253680, 230208
+ba.exe ../data/ba_instances/ba5.txt , 563, 484, 515, 234812, 255568, 230128
+ba.exe ../data/ba_instances/ba5.txt , 560, 468, 515, 234844, 253676, 230132
+ba.exe ../data/ba_instances/ba5.txt , 556, 484, 515, 234780, 255516, 230092
+ba_s.exe ../data/ba_instances/ba5.txt , 575, 531, 531, 42608, 53848, 19460
+ba_s.exe ../data/ba_instances/ba5.txt , 574, 531, 531, 42608, 53876, 19472
+ba_s.exe ../data/ba_instances/ba5.txt , 586, 546, 546, 42608, 53932, 19492
+ba_s.exe ../data/ba_instances/ba5.txt , 613, 562, 578, 42608, 53876, 19508
+ba_s.exe ../data/ba_instances/ba5.txt , 584, 531, 546, 42608, 53932, 19492
+ba_bump.exe ../data/ba_instances/ba5.txt , 550, 406, 515, 234868, 255176, 230136
+ba_bump.exe ../data/ba_instances/ba5.txt , 554, 453, 515, 234708, 253636, 230172
+ba_bump.exe ../data/ba_instances/ba5.txt , 549, 453, 500, 234744, 255156, 230104
+ba_bump.exe ../data/ba_instances/ba5.txt , 557, 468, 531, 234972, 254316, 230144
+ba_bump.exe ../data/ba_instances/ba5.txt , 555, 500, 515, 234820, 255316, 230180
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 230, 187, 203, 98792, 115856, 21684
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 226, 171, 187, 98816, 117012, 21840
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 230, 187, 187, 98452, 109660, 21136
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 226, 187, 187, 98792, 115784, 21636
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 226, 187, 187, 98444, 109600, 21256
+ba.exe ../data/ba_instances/ba6.txt , 665, 484, 625, 288120, 304768, 281628
+ba.exe ../data/ba_instances/ba6.txt , 664, 546, 625, 287928, 306052, 281660
+ba.exe ../data/ba_instances/ba6.txt , 674, 546, 640, 287728, 305580, 281576
+ba.exe ../data/ba_instances/ba6.txt , 675, 593, 625, 287972, 304936, 281712
+ba.exe ../data/ba_instances/ba6.txt , 687, 546, 640, 287864, 306340, 281680
+ba_s.exe ../data/ba_instances/ba6.txt , 702, 656, 671, 50876, 62084, 23240
+ba_s.exe ../data/ba_instances/ba6.txt , 701, 656, 656, 50888, 62160, 23268
+ba_s.exe ../data/ba_instances/ba6.txt , 700, 656, 687, 50880, 62148, 23316
+ba_s.exe ../data/ba_instances/ba6.txt , 693, 640, 656, 50884, 62116, 23228
+ba_s.exe ../data/ba_instances/ba6.txt , 698, 656, 656, 50880, 62072, 23264
+ba_bump.exe ../data/ba_instances/ba6.txt , 673, 593, 640, 288108, 305496, 281660
+ba_bump.exe ../data/ba_instances/ba6.txt , 670, 593, 625, 288148, 304464, 281664
+ba_bump.exe ../data/ba_instances/ba6.txt , 666, 546, 656, 287852, 305992, 281632
+ba_bump.exe ../data/ba_instances/ba6.txt , 681, 609, 640, 288212, 304808, 281720
+ba_bump.exe ../data/ba_instances/ba6.txt , 666, 593, 625, 287928, 304436, 281664
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 269, 218, 218, 108092, 126256, 26188
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 274, 218, 234, 107716, 118880, 25468
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 273, 234, 234, 107724, 118916, 25480
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 271, 234, 234, 108084, 126288, 26184
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 276, 234, 234, 107720, 118868, 25356
+ba.exe ../data/ba_instances/ba7.txt , 688, 625, 656, 298488, 322224, 291816
+ba.exe ../data/ba_instances/ba7.txt , 708, 640, 671, 298368, 321604, 291828
+ba.exe ../data/ba_instances/ba7.txt , 688, 609, 656, 298452, 322048, 291880
+ba.exe ../data/ba_instances/ba7.txt , 689, 609, 656, 298624, 321928, 291832
+ba.exe ../data/ba_instances/ba7.txt , 693, 593, 656, 298648, 322940, 291816
+ba_s.exe ../data/ba_instances/ba7.txt , 714, 656, 671, 52124, 63432, 24060
+ba_s.exe ../data/ba_instances/ba7.txt , 712, 671, 671, 52124, 63428, 24060
+ba_s.exe ../data/ba_instances/ba7.txt , 720, 703, 703, 52120, 63492, 24024
+ba_s.exe ../data/ba_instances/ba7.txt , 724, 687, 687, 52124, 63476, 23972
+ba_s.exe ../data/ba_instances/ba7.txt , 726, 687, 687, 52128, 63308, 24056
+ba_bump.exe ../data/ba_instances/ba7.txt , 720, 640, 703, 298544, 321948, 291896
+ba_bump.exe ../data/ba_instances/ba7.txt , 692, 609, 656, 298220, 321960, 291820
+ba_bump.exe ../data/ba_instances/ba7.txt , 703, 546, 656, 298604, 322884, 291808
+ba_bump.exe ../data/ba_instances/ba7.txt , 690, 609, 656, 298568, 322836, 291868
+ba_bump.exe ../data/ba_instances/ba7.txt , 697, 578, 640, 298596, 322420, 291852
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 277, 234, 250, 108116, 119212, 26196
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 275, 234, 234, 108116, 119284, 26192
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 277, 234, 234, 108116, 119268, 26144
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 286, 234, 234, 108480, 127408, 26996
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 282, 234, 234, 108492, 126152, 27008
+ba.exe ../data/ba_instances/ba8.txt , 927, 812, 875, 398116, 422636, 388612
+ba.exe ../data/ba_instances/ba8.txt , 917, 828, 875, 398164, 423040, 388576
+ba.exe ../data/ba_instances/ba8.txt , 914, 828, 875, 398572, 424348, 388628
+ba.exe ../data/ba_instances/ba8.txt , 932, 812, 921, 398376, 424048, 388656
+ba.exe ../data/ba_instances/ba8.txt , 909, 781, 859, 398172, 423916, 388652
+ba_s.exe ../data/ba_instances/ba8.txt , 939, 890, 890, 67872, 79176, 31224
+ba_s.exe ../data/ba_instances/ba8.txt , 934, 890, 921, 67876, 79112, 31140
+ba_s.exe ../data/ba_instances/ba8.txt , 961, 921, 921, 67868, 79144, 31156
+ba_s.exe ../data/ba_instances/ba8.txt , 963, 890, 921, 67872, 79120, 31224
+ba_s.exe ../data/ba_instances/ba8.txt , 946, 875, 906, 67868, 79136, 31144
+ba_bump.exe ../data/ba_instances/ba8.txt , 907, 781, 890, 398548, 424120, 388608
+ba_bump.exe ../data/ba_instances/ba8.txt , 906, 843, 890, 398364, 424200, 388660
+ba_bump.exe ../data/ba_instances/ba8.txt , 905, 796, 875, 398296, 423444, 388616
+ba_bump.exe ../data/ba_instances/ba8.txt , 903, 828, 859, 398300, 423716, 388620
+ba_bump.exe ../data/ba_instances/ba8.txt , 907, 812, 859, 398188, 424176, 388620
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 361, 312, 343, 126976, 144036, 34896
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 358, 296, 328, 126968, 145356, 34928
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 359, 312, 312, 126596, 137816, 33988
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 356, 312, 328, 126600, 137732, 34088
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 356, 312, 312, 126608, 137800, 34136
+ba.exe ../data/ba_instances/ba9.txt , 950, 703, 890, 408684, 440668, 398632
+ba.exe ../data/ba_instances/ba9.txt , 937, 812, 906, 408708, 440012, 398620
+ba.exe ../data/ba_instances/ba9.txt , 933, 812, 890, 408644, 440844, 398588
+ba.exe ../data/ba_instances/ba9.txt , 935, 750, 859, 408736, 440884, 398656
+ba.exe ../data/ba_instances/ba9.txt , 927, 796, 890, 408364, 440028, 398592
+ba_s.exe ../data/ba_instances/ba9.txt , 970, 921, 937, 71728, 82956, 32032
+ba_s.exe ../data/ba_instances/ba9.txt , 973, 921, 937, 71728, 82940, 32052
+ba_s.exe ../data/ba_instances/ba9.txt , 997, 953, 953, 71724, 82940, 32028
+ba_s.exe ../data/ba_instances/ba9.txt , 971, 921, 953, 71724, 82892, 32056
+ba_s.exe ../data/ba_instances/ba9.txt , 972, 937, 937, 71728, 82860, 32040
+ba_bump.exe ../data/ba_instances/ba9.txt , 929, 812, 906, 408480, 440152, 398632
+ba_bump.exe ../data/ba_instances/ba9.txt , 930, 796, 906, 408736, 439624, 398608
+ba_bump.exe ../data/ba_instances/ba9.txt , 935, 796, 890, 408308, 439732, 398600
+ba_bump.exe ../data/ba_instances/ba9.txt , 928, 781, 890, 408480, 439092, 398560
+ba_bump.exe ../data/ba_instances/ba9.txt , 935, 843, 906, 408772, 439952, 398628
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 378, 328, 343, 137192, 148344, 35076
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 369, 312, 328, 137196, 148344, 35064
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 369, 328, 328, 137564, 155916, 35836
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 371, 296, 312, 137564, 154568, 35836
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 362, 328, 328, 137196, 148288, 35112
+ba.exe ../data/ba_instances/ba10.txt , 1313, 1187, 1281, 584676, 609628, 569248
+ba.exe ../data/ba_instances/ba10.txt , 1312, 1140, 1281, 584540, 609192, 569300
+ba.exe ../data/ba_instances/ba10.txt , 1310, 1109, 1281, 584724, 608748, 569316
+ba.exe ../data/ba_instances/ba10.txt , 1319, 1140, 1250, 584432, 609388, 569208
+ba.exe ../data/ba_instances/ba10.txt , 1335, 1156, 1281, 584956, 609728, 569252
+ba_s.exe ../data/ba_instances/ba10.txt , 1354, 1312, 1312, 102412, 113552, 44824
+ba_s.exe ../data/ba_instances/ba10.txt , 1364, 1312, 1328, 102416, 113608, 44776
+ba_s.exe ../data/ba_instances/ba10.txt , 1351, 1312, 1312, 102416, 113560, 44824
+ba_s.exe ../data/ba_instances/ba10.txt , 1363, 1296, 1312, 102412, 113512, 44764
+ba_s.exe ../data/ba_instances/ba10.txt , 1368, 1312, 1343, 102416, 113488, 44824
+ba_bump.exe ../data/ba_instances/ba10.txt , 1338, 1234, 1343, 584548, 610268, 569224
+ba_bump.exe ../data/ba_instances/ba10.txt , 1407, 1265, 1359, 584720, 609268, 569216
+ba_bump.exe ../data/ba_instances/ba10.txt , 1372, 1203, 1312, 584360, 608936, 569216
+ba_bump.exe ../data/ba_instances/ba10.txt , 1337, 1218, 1281, 584440, 609796, 569240
+ba_bump.exe ../data/ba_instances/ba10.txt , 1336, 1156, 1296, 584272, 609356, 569228
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 520, 468, 468, 181308, 192272, 49172
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 511, 468, 468, 181300, 192320, 49128
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 509, 468, 468, 181308, 192308, 49152
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 517, 453, 468, 181308, 192316, 49204
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 504, 453, 468, 181680, 200568, 49920
+ba.exe ../data/ba_instances/ba11.txt , 1667, 1421, 1625, 703584, 728984, 684692
+ba.exe ../data/ba_instances/ba11.txt , 1594, 1421, 1562, 703428, 728472, 684692
+ba.exe ../data/ba_instances/ba11.txt , 1574, 1406, 1531, 703720, 727144, 684736
+ba.exe ../data/ba_instances/ba11.txt , 1568, 1406, 1531, 703320, 728504, 684624
+ba.exe ../data/ba_instances/ba11.txt , 1579, 1375, 1515, 703488, 727292, 684628
+ba_s.exe ../data/ba_instances/ba11.txt , 1666, 1609, 1609, 123628, 134568, 53432
+ba_s.exe ../data/ba_instances/ba11.txt , 1636, 1593, 1593, 123620, 134572, 53408
+ba_s.exe ../data/ba_instances/ba11.txt , 1615, 1546, 1562, 123624, 134532, 53420
+ba_s.exe ../data/ba_instances/ba11.txt , 1652, 1609, 1609, 123624, 134596, 53468
+ba_s.exe ../data/ba_instances/ba11.txt , 1622, 1562, 1593, 123624, 134592, 53404
+ba_bump.exe ../data/ba_instances/ba11.txt , 1605, 1406, 1562, 703604, 729056, 684700
+ba_bump.exe ../data/ba_instances/ba11.txt , 1571, 1453, 1531, 703384, 727908, 684672
+ba_bump.exe ../data/ba_instances/ba11.txt , 1579, 1421, 1515, 703704, 728172, 684692
+ba_bump.exe ../data/ba_instances/ba11.txt , 1577, 1406, 1531, 703144, 727392, 684644
+ba_bump.exe ../data/ba_instances/ba11.txt , 1617, 1406, 1562, 703688, 728060, 684660
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 597, 546, 562, 218680, 229628, 58732
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 600, 546, 562, 219052, 237636, 59476
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 604, 562, 562, 219048, 236712, 59472
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 608, 562, 578, 219044, 236340, 59472
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 628, 593, 609, 218684, 229612, 58776
+ba.exe ../data/ba_instances/ba12.txt , 2108, 1906, 2093, 932292, 964020, 905872
+ba.exe ../data/ba_instances/ba12.txt , 2100, 1859, 2062, 931716, 948212, 905828
+ba.exe ../data/ba_instances/ba12.txt , 2084, 1906, 2046, 931568, 948884, 905840
+ba.exe ../data/ba_instances/ba12.txt , 2069, 1875, 2031, 931928, 963448, 905868
+ba.exe ../data/ba_instances/ba12.txt , 2069, 1828, 2015, 932352, 964364, 905888
+ba_s.exe ../data/ba_instances/ba12.txt , 2164, 2109, 2109, 159516, 170604, 69816
+ba_s.exe ../data/ba_instances/ba12.txt , 2189, 2140, 2140, 159520, 170612, 69860
+ba_s.exe ../data/ba_instances/ba12.txt , 2161, 2109, 2109, 159512, 170648, 69852
+ba_s.exe ../data/ba_instances/ba12.txt , 2207, 2140, 2140, 159512, 170560, 69848
+ba_s.exe ../data/ba_instances/ba12.txt , 2188, 2140, 2156, 159516, 170628, 69860
+ba_bump.exe ../data/ba_instances/ba12.txt , 2103, 1828, 2062, 931340, 948852, 905736
+ba_bump.exe ../data/ba_instances/ba12.txt , 2074, 1875, 2031, 931544, 948080, 905800
+ba_bump.exe ../data/ba_instances/ba12.txt , 2078, 1859, 2046, 931196, 948584, 905772
+ba_bump.exe ../data/ba_instances/ba12.txt , 2088, 1968, 2062, 932080, 964220, 905820
+ba_bump.exe ../data/ba_instances/ba12.txt , 2068, 1875, 2031, 931880, 964572, 905812
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 791, 718, 750, 263944, 274812, 83836
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 796, 734, 765, 264308, 282420, 84604
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 787, 734, 750, 264300, 283020, 84340
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 787, 718, 750, 263948, 274808, 83876
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 802, 750, 765, 263944, 274844, 83852
+ba.exe ../data/ba_instances/ba13.txt , 2551, 2265, 2515, 1130288, 1150884, 1098716
+ba.exe ../data/ba_instances/ba13.txt , 2621, 2375, 2578, 1130132, 1151804, 1098740
+ba.exe ../data/ba_instances/ba13.txt , 2544, 2203, 2500, 1130764, 1150408, 1098716
+ba.exe ../data/ba_instances/ba13.txt , 2523, 2328, 2468, 1130804, 1150976, 1098788
+ba.exe ../data/ba_instances/ba13.txt , 2647, 2359, 2578, 1130228, 1151164, 1098752
+ba_s.exe ../data/ba_instances/ba13.txt , 2619, 2546, 2593, 193516, 204428, 84248
+ba_s.exe ../data/ba_instances/ba13.txt , 2609, 2562, 2562, 193508, 204496, 84236
+ba_s.exe ../data/ba_instances/ba13.txt , 2627, 2562, 2578, 193516, 204488, 84260
+ba_s.exe ../data/ba_instances/ba13.txt , 2617, 2562, 2578, 193512, 204576, 84260
+ba_s.exe ../data/ba_instances/ba13.txt , 2595, 2531, 2546, 193512, 204448, 84260
+ba_bump.exe ../data/ba_instances/ba13.txt , 2515, 2296, 2468, 1130228, 1150808, 1098760
+ba_bump.exe ../data/ba_instances/ba13.txt , 2579, 2187, 2531, 1130024, 1151492, 1098748
+ba_bump.exe ../data/ba_instances/ba13.txt , 2571, 2281, 2531, 1130556, 1150160, 1098776
+ba_bump.exe ../data/ba_instances/ba13.txt , 2536, 2171, 2500, 1130936, 1151216, 1098812
+ba_bump.exe ../data/ba_instances/ba13.txt , 2508, 2187, 2468, 1131020, 1150996, 1098808
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 951, 890, 906, 316068, 333940, 102020
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 941, 890, 906, 316068, 332928, 102016
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 946, 859, 906, 315692, 326356, 101308
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 933, 890, 890, 315692, 326448, 101300
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 932, 859, 890, 316068, 334348, 102016
+ba.exe ../data/ba_instances/ba14.txt , 2910, 2625, 2875, 1300264, 1320824, 1263236
+ba.exe ../data/ba_instances/ba14.txt , 2896, 2484, 2859, 1299336, 1319152, 1263244
+ba.exe ../data/ba_instances/ba14.txt , 2889, 2625, 2843, 1300784, 1319760, 1263316
+ba.exe ../data/ba_instances/ba14.txt , 2928, 2515, 2859, 1299876, 1318856, 1263248
+ba.exe ../data/ba_instances/ba14.txt , 2938, 2625, 2890, 1300592, 1319652, 1263276
+ba_s.exe ../data/ba_instances/ba14.txt , 3025, 2953, 2984, 222336, 233328, 96528
+ba_s.exe ../data/ba_instances/ba14.txt , 3049, 2968, 2984, 222340, 233204, 96516
+ba_s.exe ../data/ba_instances/ba14.txt , 3014, 2968, 2968, 222336, 233308, 96524
+ba_s.exe ../data/ba_instances/ba14.txt , 3029, 2906, 2953, 222336, 233228, 96496
+ba_s.exe ../data/ba_instances/ba14.txt , 3006, 2953, 2968, 222336, 233240, 96520
+ba_bump.exe ../data/ba_instances/ba14.txt , 2886, 2500, 2843, 1300244, 1319252, 1263248
+ba_bump.exe ../data/ba_instances/ba14.txt , 2881, 2593, 2843, 1299864, 1320588, 1263276
+ba_bump.exe ../data/ba_instances/ba14.txt , 2910, 2546, 2875, 1300640, 1320288, 1263292
+ba_bump.exe ../data/ba_instances/ba14.txt , 2932, 2703, 2890, 1300428, 1319928, 1263240
+ba_bump.exe ../data/ba_instances/ba14.txt , 2909, 2609, 2875, 1300652, 1319904, 1263292
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1104, 1015, 1062, 359492, 377320, 116844
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1080, 1031, 1031, 359492, 376544, 116840
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1093, 1000, 1062, 359124, 369828, 116140
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1075, 1015, 1031, 359128, 369736, 116084
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1066, 968, 1015, 359120, 369832, 116144
+ba.exe ../data/ba_instances/ba1.txt , 117, 62, 78, 31180, 43180, 32280
+ba.exe ../data/ba_instances/ba1.txt , 113, 62, 78, 31668, 43180, 32688
+ba.exe ../data/ba_instances/ba1.txt , 114, 78, 78, 30988, 43180, 32096
+ba.exe ../data/ba_instances/ba1.txt , 113, 62, 78, 32148, 43180, 33164
+ba.exe ../data/ba_instances/ba1.txt , 115, 78, 78, 30832, 43180, 31956
+ba_s.exe ../data/ba_instances/ba1.txt , 118, 78, 78, 6288, 17020, 4880
+ba_s.exe ../data/ba_instances/ba1.txt , 119, 78, 78, 6280, 17036, 4856
+ba_s.exe ../data/ba_instances/ba1.txt , 118, 62, 93, 6284, 17024, 4876
+ba_s.exe ../data/ba_instances/ba1.txt , 120, 78, 78, 6284, 17076, 4860
+ba_s.exe ../data/ba_instances/ba1.txt , 118, 78, 78, 6288, 17148, 4880
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 15, 31, 27148, 38444, 26408
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 27148, 38428, 26788
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 27152, 38444, 27096
+ba_bump.exe ../data/ba_instances/ba1.txt , 67, 15, 31, 27144, 38432, 25140
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 15, 31, 27144, 38440, 26908
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 69, 31, 31, 11752, 23020, 4760
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11752, 23080, 4756
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 71, 31, 31, 12120, 29248, 5700
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11752, 23012, 4756
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 69, 31, 31, 11752, 22956, 4776
+ba.exe ../data/ba_instances/ba2.txt , 125, 78, 78, 36560, 59372, 37508
+ba.exe ../data/ba_instances/ba2.txt , 126, 93, 93, 36768, 59372, 37636
+ba.exe ../data/ba_instances/ba2.txt , 124, 62, 93, 37240, 59372, 38160
+ba.exe ../data/ba_instances/ba2.txt , 126, 78, 78, 36236, 59372, 37004
+ba.exe ../data/ba_instances/ba2.txt , 124, 78, 93, 36940, 59372, 37756
+ba_s.exe ../data/ba_instances/ba2.txt , 129, 93, 93, 7340, 19684, 5232
+ba_s.exe ../data/ba_instances/ba2.txt , 127, 78, 78, 7336, 18096, 5232
+ba_s.exe ../data/ba_instances/ba2.txt , 126, 93, 109, 7336, 18084, 5132
+ba_s.exe ../data/ba_instances/ba2.txt , 131, 93, 93, 7336, 18064, 5200
+ba_s.exe ../data/ba_instances/ba2.txt , 131, 93, 93, 7340, 18108, 5216
+ba_bump.exe ../data/ba_instances/ba2.txt , 71, 31, 31, 59332, 78332, 36668
+ba_bump.exe ../data/ba_instances/ba2.txt , 71, 31, 31, 59324, 77052, 36664
+ba_bump.exe ../data/ba_instances/ba2.txt , 73, 31, 46, 59328, 77096, 36668
+ba_bump.exe ../data/ba_instances/ba2.txt , 76, 31, 31, 58956, 70112, 34440
+ba_bump.exe ../data/ba_instances/ba2.txt , 73, 15, 15, 59316, 78084, 36660
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 72, 31, 31, 12120, 29404, 6072
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 71, 31, 31, 12116, 30396, 6212
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 81, 31, 31, 11748, 22976, 5364
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 85, 31, 46, 11748, 22984, 5408
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 75, 15, 15, 11748, 22992, 5484
+ba.exe ../data/ba_instances/ba3.txt , 457, 390, 421, 189300, 219856, 186116
+ba.exe ../data/ba_instances/ba3.txt , 456, 406, 421, 189408, 219352, 186060
+ba.exe ../data/ba_instances/ba3.txt , 472, 406, 421, 189328, 219896, 186048
+ba.exe ../data/ba_instances/ba3.txt , 459, 375, 406, 189272, 219628, 186044
+ba.exe ../data/ba_instances/ba3.txt , 452, 375, 406, 189772, 221084, 186080
+ba_s.exe ../data/ba_instances/ba3.txt , 471, 421, 421, 34020, 45308, 16156
+ba_s.exe ../data/ba_instances/ba3.txt , 483, 437, 453, 34024, 45380, 16184
+ba_s.exe ../data/ba_instances/ba3.txt , 468, 421, 437, 34028, 45280, 16156
+ba_s.exe ../data/ba_instances/ba3.txt , 467, 421, 421, 34024, 45296, 16184
+ba_s.exe ../data/ba_instances/ba3.txt , 468, 437, 437, 34024, 45352, 16136
+ba_bump.exe ../data/ba_instances/ba3.txt , 191, 93, 156, 254272, 271296, 170492
+ba_bump.exe ../data/ba_instances/ba3.txt , 188, 125, 140, 254268, 271744, 170492
+ba_bump.exe ../data/ba_instances/ba3.txt , 191, 125, 140, 254272, 271908, 170492
+ba_bump.exe ../data/ba_instances/ba3.txt , 191, 140, 156, 254276, 271208, 170496
+ba_bump.exe ../data/ba_instances/ba3.txt , 194, 93, 171, 254268, 271748, 170492
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 190, 156, 171, 84428, 95588, 17524
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 193, 156, 156, 84432, 95676, 17488
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 205, 156, 171, 84792, 102240, 18312
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 192, 156, 156, 84424, 95656, 17500
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 193, 156, 156, 84436, 95576, 17396
+ba.exe ../data/ba_instances/ba4.txt , 502, 421, 453, 212532, 236680, 208512
+ba.exe ../data/ba_instances/ba4.txt , 509, 375, 453, 212756, 237836, 208540
+ba.exe ../data/ba_instances/ba4.txt , 504, 406, 468, 212620, 237996, 208576
+ba.exe ../data/ba_instances/ba4.txt , 505, 406, 468, 212640, 237744, 208540
+ba.exe ../data/ba_instances/ba4.txt , 502, 421, 468, 212676, 237884, 208592
+ba_s.exe ../data/ba_instances/ba4.txt , 556, 515, 515, 37584, 48888, 17800
+ba_s.exe ../data/ba_instances/ba4.txt , 522, 468, 484, 37580, 48860, 17828
+ba_s.exe ../data/ba_instances/ba4.txt , 526, 484, 484, 37580, 48864, 17780
+ba_s.exe ../data/ba_instances/ba4.txt , 527, 500, 500, 37580, 48864, 17824
+ba_s.exe ../data/ba_instances/ba4.txt , 523, 484, 484, 37584, 48856, 17828
+ba_bump.exe ../data/ba_instances/ba4.txt , 222, 156, 187, 254272, 272292, 191052
+ba_bump.exe ../data/ba_instances/ba4.txt , 209, 109, 171, 254272, 271708, 191052
+ba_bump.exe ../data/ba_instances/ba4.txt , 215, 125, 171, 254264, 271864, 191044
+ba_bump.exe ../data/ba_instances/ba4.txt , 213, 140, 171, 254268, 271768, 191044
+ba_bump.exe ../data/ba_instances/ba4.txt , 208, 156, 171, 254268, 272428, 191048
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 211, 156, 171, 88216, 99392, 19424
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 215, 171, 171, 88584, 106364, 20148
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 212, 171, 171, 88216, 99352, 19448
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 222, 187, 187, 88208, 99400, 19440
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 207, 171, 171, 88444, 103980, 19664
+ba.exe ../data/ba_instances/ba5.txt , 587, 421, 546, 234852, 253928, 230180
+ba.exe ../data/ba_instances/ba5.txt , 557, 453, 515, 234868, 253724, 230176
+ba.exe ../data/ba_instances/ba5.txt , 567, 484, 531, 234764, 255180, 230116
+ba.exe ../data/ba_instances/ba5.txt , 554, 437, 515, 234876, 253944, 230176
+ba.exe ../data/ba_instances/ba5.txt , 555, 453, 500, 235044, 255332, 230176
+ba_s.exe ../data/ba_instances/ba5.txt , 592, 546, 546, 42604, 53952, 19424
+ba_s.exe ../data/ba_instances/ba5.txt , 577, 531, 531, 42608, 53872, 19420
+ba_s.exe ../data/ba_instances/ba5.txt , 578, 578, 578, 42608, 53960, 19508
+ba_s.exe ../data/ba_instances/ba5.txt , 584, 531, 546, 42604, 53896, 19464
+ba_s.exe ../data/ba_instances/ba5.txt , 575, 515, 531, 42604, 53852, 19508
+ba_bump.exe ../data/ba_instances/ba5.txt , 226, 156, 187, 254272, 271224, 210800
+ba_bump.exe ../data/ba_instances/ba5.txt , 225, 125, 187, 254276, 272856, 210804
+ba_bump.exe ../data/ba_instances/ba5.txt , 229, 156, 187, 254276, 271336, 210804
+ba_bump.exe ../data/ba_instances/ba5.txt , 269, 203, 234, 254276, 272256, 210804
+ba_bump.exe ../data/ba_instances/ba5.txt , 227, 140, 187, 254276, 272392, 210804
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 233, 203, 203, 98812, 116228, 21964
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 231, 187, 187, 98820, 117152, 21968
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 229, 187, 187, 98444, 109596, 21056
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 229, 187, 218, 98820, 116468, 21968
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 228, 187, 187, 98448, 109564, 21056
+ba.exe ../data/ba_instances/ba6.txt , 673, 578, 640, 287928, 306168, 281628
+ba.exe ../data/ba_instances/ba6.txt , 668, 546, 625, 288132, 306436, 281680
+ba.exe ../data/ba_instances/ba6.txt , 666, 578, 625, 288084, 305080, 281604
+ba.exe ../data/ba_instances/ba6.txt , 702, 593, 656, 287952, 306024, 281640
+ba.exe ../data/ba_instances/ba6.txt , 673, 578, 625, 287908, 305472, 281620
+ba_s.exe ../data/ba_instances/ba6.txt , 711, 671, 671, 50876, 62108, 23288
+ba_s.exe ../data/ba_instances/ba6.txt , 705, 656, 656, 50880, 62044, 23316
+ba_s.exe ../data/ba_instances/ba6.txt , 698, 656, 656, 50876, 62184, 23256
+ba_s.exe ../data/ba_instances/ba6.txt , 694, 656, 656, 50876, 62168, 23312
+ba_s.exe ../data/ba_instances/ba6.txt , 695, 656, 656, 50880, 62128, 23276
+ba_bump.exe ../data/ba_instances/ba6.txt , 270, 203, 234, 515904, 533840, 257948
+ba_bump.exe ../data/ba_instances/ba6.txt , 270, 171, 234, 515904, 533788, 257952
+ba_bump.exe ../data/ba_instances/ba6.txt , 268, 218, 234, 515904, 533152, 257948
+ba_bump.exe ../data/ba_instances/ba6.txt , 269, 156, 234, 515904, 533588, 257948
+ba_bump.exe ../data/ba_instances/ba6.txt , 277, 140, 234, 515904, 533764, 257948
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 268, 218, 218, 107720, 118928, 25480
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 275, 234, 250, 107720, 118928, 25356
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 302, 234, 265, 107720, 118816, 25336
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 273, 234, 234, 107720, 118864, 25376
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 295, 250, 250, 107724, 118928, 25396
+ba.exe ../data/ba_instances/ba7.txt , 698, 593, 656, 298504, 322584, 291856
+ba.exe ../data/ba_instances/ba7.txt , 688, 609, 656, 298808, 323080, 291864
+ba.exe ../data/ba_instances/ba7.txt , 688, 593, 656, 298608, 322300, 291864
+ba.exe ../data/ba_instances/ba7.txt , 691, 593, 656, 298644, 321664, 291864
+ba.exe ../data/ba_instances/ba7.txt , 700, 609, 656, 298560, 322336, 291856
+ba_s.exe ../data/ba_instances/ba7.txt , 712, 671, 703, 52120, 63384, 24056
+ba_s.exe ../data/ba_instances/ba7.txt , 719, 671, 671, 52120, 63472, 24060
+ba_s.exe ../data/ba_instances/ba7.txt , 724, 687, 687, 52120, 63372, 24060
+ba_s.exe ../data/ba_instances/ba7.txt , 728, 671, 703, 52120, 63328, 24016
+ba_s.exe ../data/ba_instances/ba7.txt , 765, 718, 718, 52120, 63472, 24060
+ba_bump.exe ../data/ba_instances/ba7.txt , 281, 187, 265, 515900, 532552, 267276
+ba_bump.exe ../data/ba_instances/ba7.txt , 276, 187, 234, 515912, 533616, 267284
+ba_bump.exe ../data/ba_instances/ba7.txt , 279, 187, 234, 515904, 532772, 267276
+ba_bump.exe ../data/ba_instances/ba7.txt , 276, 171, 250, 515908, 533444, 267280
+ba_bump.exe ../data/ba_instances/ba7.txt , 288, 234, 250, 515904, 533200, 267276
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 284, 250, 250, 108120, 119300, 26192
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 281, 234, 234, 108116, 119244, 26084
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 277, 234, 234, 108484, 126048, 27000
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 279, 234, 234, 108112, 119252, 26280
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 278, 234, 265, 108476, 126068, 26996
+ba.exe ../data/ba_instances/ba8.txt , 915, 703, 859, 398376, 423708, 388644
+ba.exe ../data/ba_instances/ba8.txt , 915, 828, 890, 398260, 422636, 388640
+ba.exe ../data/ba_instances/ba8.txt , 916, 796, 875, 398364, 423648, 388692
+ba.exe ../data/ba_instances/ba8.txt , 903, 796, 859, 398148, 423404, 388684
+ba.exe ../data/ba_instances/ba8.txt , 916, 765, 875, 397928, 423996, 388636
+ba_s.exe ../data/ba_instances/ba8.txt , 959, 921, 921, 67876, 79156, 31224
+ba_s.exe ../data/ba_instances/ba8.txt , 946, 906, 906, 67872, 79100, 31196
+ba_s.exe ../data/ba_instances/ba8.txt , 951, 906, 921, 67868, 79132, 31196
+ba_s.exe ../data/ba_instances/ba8.txt , 956, 890, 906, 67868, 79108, 31152
+ba_s.exe ../data/ba_instances/ba8.txt , 938, 890, 906, 67872, 79144, 31172
+ba_bump.exe ../data/ba_instances/ba8.txt , 361, 234, 328, 522552, 539628, 355844
+ba_bump.exe ../data/ba_instances/ba8.txt , 357, 265, 328, 522560, 540136, 355848
+ba_bump.exe ../data/ba_instances/ba8.txt , 359, 265, 312, 522556, 539652, 355848
+ba_bump.exe ../data/ba_instances/ba8.txt , 358, 203, 312, 522560, 539524, 355848
+ba_bump.exe ../data/ba_instances/ba8.txt , 357, 250, 328, 522556, 539812, 355844
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 367, 328, 328, 126968, 145508, 34932
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 360, 312, 328, 126596, 137712, 34184
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 365, 312, 328, 126968, 144876, 34932
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 361, 312, 312, 126596, 137784, 34176
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 362, 328, 328, 126596, 137624, 34156
+ba.exe ../data/ba_instances/ba9.txt , 929, 812, 906, 408400, 440852, 398596
+ba.exe ../data/ba_instances/ba9.txt , 961, 875, 921, 408800, 439244, 398632
+ba.exe ../data/ba_instances/ba9.txt , 933, 796, 890, 408812, 438944, 398572
+ba.exe ../data/ba_instances/ba9.txt , 929, 796, 890, 408440, 438960, 398576
+ba.exe ../data/ba_instances/ba9.txt , 948, 843, 906, 408496, 439640, 398572
+ba_s.exe ../data/ba_instances/ba9.txt , 994, 953, 968, 71728, 82876, 32044
+ba_s.exe ../data/ba_instances/ba9.txt , 977, 937, 937, 71724, 82864, 32052
+ba_s.exe ../data/ba_instances/ba9.txt , 965, 937, 937, 71724, 83012, 31988
+ba_s.exe ../data/ba_instances/ba9.txt , 968, 890, 906, 71728, 82884, 32036
+ba_s.exe ../data/ba_instances/ba9.txt , 968, 906, 921, 71732, 82948, 32044
+ba_bump.exe ../data/ba_instances/ba9.txt , 381, 250, 328, 523116, 539596, 364992
+ba_bump.exe ../data/ba_instances/ba9.txt , 376, 265, 328, 523108, 541000, 364984
+ba_bump.exe ../data/ba_instances/ba9.txt , 367, 312, 343, 523116, 540640, 364988
+ba_bump.exe ../data/ba_instances/ba9.txt , 368, 203, 312, 523116, 540400, 364992
+ba_bump.exe ../data/ba_instances/ba9.txt , 362, 234, 312, 523120, 540836, 364988
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 363, 296, 312, 137196, 148296, 34976
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 367, 312, 328, 137568, 155632, 35840
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 373, 312, 328, 137196, 148380, 34904
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 381, 328, 343, 137200, 148288, 34928
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 374, 312, 328, 137196, 148272, 35016
+ba.exe ../data/ba_instances/ba10.txt , 1426, 1296, 1390, 584384, 608748, 569288
+ba.exe ../data/ba_instances/ba10.txt , 1427, 1203, 1375, 584228, 608316, 569248
+ba.exe ../data/ba_instances/ba10.txt , 1374, 1203, 1328, 584392, 608872, 569224
+ba.exe ../data/ba_instances/ba10.txt , 1311, 1171, 1265, 584492, 608252, 569232
+ba.exe ../data/ba_instances/ba10.txt , 1325, 1125, 1265, 584352, 609620, 569224
+ba_s.exe ../data/ba_instances/ba10.txt , 1361, 1312, 1328, 102420, 113472, 44824
+ba_s.exe ../data/ba_instances/ba10.txt , 1430, 1390, 1390, 102412, 113460, 44824
+ba_s.exe ../data/ba_instances/ba10.txt , 1415, 1375, 1375, 102408, 113500, 44824
+ba_s.exe ../data/ba_instances/ba10.txt , 1367, 1312, 1328, 102408, 113432, 44776
+ba_s.exe ../data/ba_instances/ba10.txt , 1389, 1343, 1343, 102404, 113484, 44824
+ba_bump.exe ../data/ba_instances/ba10.txt , 504, 343, 453, 532424, 548976, 521160
+ba_bump.exe ../data/ba_instances/ba10.txt , 516, 343, 437, 532432, 549184, 521160
+ba_bump.exe ../data/ba_instances/ba10.txt , 503, 359, 453, 532424, 550136, 521156
+ba_bump.exe ../data/ba_instances/ba10.txt , 510, 406, 484, 532428, 548664, 521156
+ba_bump.exe ../data/ba_instances/ba10.txt , 505, 343, 468, 532436, 549600, 521160
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 576, 531, 531, 181676, 199484, 49920
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 517, 437, 453, 181304, 192296, 49068
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 507, 453, 453, 181308, 192296, 49204
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 505, 468, 468, 181676, 199736, 49924
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 506, 468, 468, 181676, 199292, 49928
+ba.exe ../data/ba_instances/ba11.txt , 1584, 1484, 1546, 703692, 728604, 684712
+ba.exe ../data/ba_instances/ba11.txt , 1632, 1421, 1578, 703508, 728652, 684656
+ba.exe ../data/ba_instances/ba11.txt , 1586, 1437, 1546, 703508, 729080, 684680
+ba.exe ../data/ba_instances/ba11.txt , 1604, 1437, 1562, 703580, 728688, 684624
+ba.exe ../data/ba_instances/ba11.txt , 1620, 1437, 1578, 703468, 728284, 684640
+ba_s.exe ../data/ba_instances/ba11.txt , 1640, 1593, 1593, 123624, 134624, 53444
+ba_s.exe ../data/ba_instances/ba11.txt , 1638, 1562, 1593, 123624, 134540, 53412
+ba_s.exe ../data/ba_instances/ba11.txt , 1652, 1578, 1593, 123624, 134572, 53468
+ba_s.exe ../data/ba_instances/ba11.txt , 1663, 1625, 1625, 123620, 134684, 53468
+ba_s.exe ../data/ba_instances/ba11.txt , 1640, 1531, 1562, 123620, 134652, 53468
+ba_bump.exe ../data/ba_instances/ba11.txt , 596, 421, 562, 1074728, 1090104, 626828
+ba_bump.exe ../data/ba_instances/ba11.txt , 594, 453, 562, 1074732, 1091680, 626824
+ba_bump.exe ../data/ba_instances/ba11.txt , 598, 406, 562, 1074740, 1091264, 626832
+ba_bump.exe ../data/ba_instances/ba11.txt , 595, 484, 546, 1074736, 1090104, 626832
+ba_bump.exe ../data/ba_instances/ba11.txt , 597, 406, 546, 1074740, 1089984, 626832
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 601, 546, 562, 218680, 229676, 58680
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 627, 562, 578, 219040, 237148, 59468
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 644, 593, 593, 218676, 229632, 58724
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 677, 609, 625, 219048, 237672, 59472
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 640, 562, 562, 218676, 229656, 58700
+ba.exe ../data/ba_instances/ba12.txt , 2159, 1937, 2109, 931720, 947660, 905808
+ba.exe ../data/ba_instances/ba12.txt , 2102, 1796, 2062, 931904, 965248, 905820
+ba.exe ../data/ba_instances/ba12.txt , 2106, 1890, 2078, 931652, 948260, 905820
+ba.exe ../data/ba_instances/ba12.txt , 2216, 1890, 2171, 931760, 948952, 905776
+ba.exe ../data/ba_instances/ba12.txt , 2082, 1828, 2031, 931508, 948400, 905848
+ba_s.exe ../data/ba_instances/ba12.txt , 2182, 2093, 2140, 159508, 170568, 69860
+ba_s.exe ../data/ba_instances/ba12.txt , 2155, 2109, 2109, 159512, 170508, 69800
+ba_s.exe ../data/ba_instances/ba12.txt , 2178, 2093, 2140, 159512, 170568, 69824
+ba_s.exe ../data/ba_instances/ba12.txt , 2167, 2093, 2125, 159508, 170632, 69860
+ba_s.exe ../data/ba_instances/ba12.txt , 2192, 2125, 2140, 159516, 170540, 69816
+ba_bump.exe ../data/ba_instances/ba12.txt , 781, 562, 734, 1100612, 1116032, 829204
+ba_bump.exe ../data/ba_instances/ba12.txt , 789, 593, 750, 1100616, 1117728, 829204
+ba_bump.exe ../data/ba_instances/ba12.txt , 786, 578, 750, 1100612, 1116196, 829200
+ba_bump.exe ../data/ba_instances/ba12.txt , 833, 656, 796, 1100620, 1116900, 829208
+ba_bump.exe ../data/ba_instances/ba12.txt , 779, 562, 734, 1100612, 1116296, 829200
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 791, 734, 750, 264312, 281668, 84608
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 788, 734, 750, 264312, 282064, 84604
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 825, 765, 781, 263952, 274808, 83904
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 790, 734, 750, 264324, 282192, 84616
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 792, 750, 750, 264316, 281684, 84608
+ba.exe ../data/ba_instances/ba13.txt , 2578, 2328, 2546, 1130640, 1150748, 1098772
+ba.exe ../data/ba_instances/ba13.txt , 2532, 2265, 2500, 1130596, 1151080, 1098780
+ba.exe ../data/ba_instances/ba13.txt , 2544, 2234, 2437, 1130328, 1150060, 1098708
+ba.exe ../data/ba_instances/ba13.txt , 2559, 2187, 2500, 1130380, 1151328, 1098784
+ba.exe ../data/ba_instances/ba13.txt , 2516, 2156, 2468, 1130344, 1151628, 1098740
+ba_s.exe ../data/ba_instances/ba13.txt , 2603, 2546, 2562, 193512, 204492, 84260
+ba_s.exe ../data/ba_instances/ba13.txt , 2651, 2609, 2609, 193512, 204560, 84260
+ba_s.exe ../data/ba_instances/ba13.txt , 2607, 2593, 2625, 193508, 204476, 84260
+ba_s.exe ../data/ba_instances/ba13.txt , 2626, 2562, 2578, 193512, 204564, 84260
+ba_s.exe ../data/ba_instances/ba13.txt , 2622, 2578, 2578, 193512, 204520, 84260
+ba_bump.exe ../data/ba_instances/ba13.txt , 941, 640, 890, 1123184, 1139696, 1005800
+ba_bump.exe ../data/ba_instances/ba13.txt , 936, 734, 906, 1123192, 1139848, 1005804
+ba_bump.exe ../data/ba_instances/ba13.txt , 966, 812, 921, 1123188, 1138968, 1005800
+ba_bump.exe ../data/ba_instances/ba13.txt , 946, 765, 890, 1123188, 1138936, 1005804
+ba_bump.exe ../data/ba_instances/ba13.txt , 942, 718, 906, 1123188, 1139508, 1005804
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 994, 921, 937, 316068, 334460, 102020
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 940, 890, 890, 315700, 326404, 101264
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 957, 906, 906, 315696, 326440, 101268
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 950, 875, 937, 316072, 334240, 102016
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 947, 859, 890, 316064, 332976, 102020
+ba.exe ../data/ba_instances/ba14.txt , 2911, 2546, 2843, 1300016, 1319204, 1263200
+ba.exe ../data/ba_instances/ba14.txt , 2952, 2625, 2875, 1300508, 1319440, 1263312
+ba.exe ../data/ba_instances/ba14.txt , 2909, 2640, 2875, 1300128, 1319944, 1263168
+ba.exe ../data/ba_instances/ba14.txt , 2904, 2625, 2859, 1300444, 1319420, 1263272
+ba.exe ../data/ba_instances/ba14.txt , 2936, 2609, 2843, 1300280, 1319652, 1263244
+ba_s.exe ../data/ba_instances/ba14.txt , 3014, 2953, 2968, 222336, 233244, 96528
+ba_s.exe ../data/ba_instances/ba14.txt , 3019, 2906, 2984, 222336, 233236, 96528
+ba_s.exe ../data/ba_instances/ba14.txt , 3051, 2984, 3015, 222328, 233248, 96528
+ba_s.exe ../data/ba_instances/ba14.txt , 2984, 2906, 2953, 222340, 233180, 96528
+ba_s.exe ../data/ba_instances/ba14.txt , 3009, 2921, 2968, 222332, 233232, 96512
+ba_bump.exe ../data/ba_instances/ba14.txt , 1074, 828, 1015, 1142424, 1157836, 1140268
+ba_bump.exe ../data/ba_instances/ba14.txt , 1063, 781, 1015, 1142424, 1157900, 1140264
+ba_bump.exe ../data/ba_instances/ba14.txt , 1062, 718, 1031, 1142432, 1158020, 1140276
+ba_bump.exe ../data/ba_instances/ba14.txt , 1086, 750, 1015, 1142432, 1158100, 1140272
+ba_bump.exe ../data/ba_instances/ba14.txt , 1057, 765, 1015, 1142428, 1157952, 1140272
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1089, 1046, 1046, 359492, 376776, 116844
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1109, 1015, 1062, 359468, 375920, 116508
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1078, 1015, 1031, 359496, 377780, 116844
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1070, 1015, 1031, 359492, 377204, 116848
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1074, 1015, 1031, 359496, 377672, 116844
+ba.exe ../data/ba_instances/ba1.txt , 114, 62, 78, 31272, 43180, 32364, 0
+ba.exe ../data/ba_instances/ba1.txt , 113, 78, 93, 31004, 43180, 32084, 0
+ba.exe ../data/ba_instances/ba1.txt , 116, 46, 78, 33900, 67224, 35260, 0
+ba.exe ../data/ba_instances/ba1.txt , 113, 62, 78, 30760, 43180, 31808, 0
+ba.exe ../data/ba_instances/ba1.txt , 117, 62, 78, 30744, 43180, 31872, 0
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 62, 62, 6288, 18596, 4880, 0
+ba_s.exe ../data/ba_instances/ba1.txt , 118, 78, 78, 6284, 17096, 4860, 0
+ba_s.exe ../data/ba_instances/ba1.txt , 117, 78, 78, 6284, 17032, 4876, 0
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 6288, 18340, 4876, 0
+ba_s.exe ../data/ba_instances/ba1.txt , 116, 78, 78, 6288, 18020, 4880, 0
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 0, 31, 27140, 38408, 25576, 0
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 15, 31, 27148, 38436, 26352, 0
+ba_bump.exe ../data/ba_instances/ba1.txt , 69, 15, 31, 27148, 38348, 25892, 0
+ba_bump.exe ../data/ba_instances/ba1.txt , 67, 15, 31, 27144, 38432, 26888, 0
+ba_bump.exe ../data/ba_instances/ba1.txt , 68, 15, 15, 27148, 38400, 26924, 0
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 46, 11756, 22996, 4784, 0
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 67, 31, 46, 11752, 22992, 4800, 0
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 66, 31, 31, 11752, 22980, 4816, 0
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 68, 31, 31, 11756, 23024, 4800, 0
+ba_s_bump.exe ../data/ba_instances/ba1.txt , 67, 31, 31, 11748, 23060, 4796, 0
+ba.exe ../data/ba_instances/ba2.txt , 125, 78, 78, 36840, 59372, 37752, 0
+ba.exe ../data/ba_instances/ba2.txt , 124, 78, 78, 36740, 59372, 37648, 0
+ba.exe ../data/ba_instances/ba2.txt , 124, 78, 93, 36032, 59372, 36972, 0
+ba.exe ../data/ba_instances/ba2.txt , 124, 78, 78, 35612, 59372, 36504, 0
+ba.exe ../data/ba_instances/ba2.txt , 128, 78, 93, 35512, 59372, 36444, 0
+ba_s.exe ../data/ba_instances/ba2.txt , 127, 93, 93, 7336, 19236, 5232, 0
+ba_s.exe ../data/ba_instances/ba2.txt , 127, 78, 78, 7340, 18120, 5232, 0
+ba_s.exe ../data/ba_instances/ba2.txt , 130, 93, 109, 7340, 18104, 5128, 0
+ba_s.exe ../data/ba_instances/ba2.txt , 129, 93, 93, 7336, 18016, 5224, 0
+ba_s.exe ../data/ba_instances/ba2.txt , 146, 109, 125, 7336, 18660, 5232, 0
+ba_bump.exe ../data/ba_instances/ba2.txt , 97, 0, 31, 59108, 73120, 36112, 0
+ba_bump.exe ../data/ba_instances/ba2.txt , 77, 31, 31, 59324, 77168, 36664, 0
+ba_bump.exe ../data/ba_instances/ba2.txt , 72, 0, 31, 59320, 78236, 36664, 0
+ba_bump.exe ../data/ba_instances/ba2.txt , 75, 31, 31, 59288, 76296, 36288, 0
+ba_bump.exe ../data/ba_instances/ba2.txt , 79, 31, 62, 58952, 70164, 32036, 0
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 74, 31, 31, 11752, 23056, 5488, 0
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 78, 31, 31, 11756, 23016, 5484, 0
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 73, 31, 31, 11752, 22976, 5508, 0
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 72, 31, 46, 11752, 23056, 5500, 0
+ba_s_bump.exe ../data/ba_instances/ba2.txt , 72, 31, 31, 11800, 23820, 5572, 0
+ba.exe ../data/ba_instances/ba3.txt , 463, 406, 421, 189668, 219464, 186096, 0
+ba.exe ../data/ba_instances/ba3.txt , 468, 359, 437, 189608, 219360, 186084, 0
+ba.exe ../data/ba_instances/ba3.txt , 482, 421, 437, 189344, 220532, 186132, 0
+ba.exe ../data/ba_instances/ba3.txt , 456, 390, 406, 189496, 220152, 186092, 0
+ba.exe ../data/ba_instances/ba3.txt , 455, 406, 421, 189624, 221312, 186096, 0
+ba_s.exe ../data/ba_instances/ba3.txt , 483, 437, 437, 34028, 45336, 16100, 0
+ba_s.exe ../data/ba_instances/ba3.txt , 483, 437, 437, 34032, 45304, 16084, 0
+ba_s.exe ../data/ba_instances/ba3.txt , 473, 437, 437, 34024, 45320, 16160, 0
+ba_s.exe ../data/ba_instances/ba3.txt , 482, 437, 437, 34028, 45392, 16148, 0
+ba_s.exe ../data/ba_instances/ba3.txt , 476, 437, 437, 34024, 45388, 16148, 0
+ba_bump.exe ../data/ba_instances/ba3.txt , 194, 109, 156, 254272, 272004, 170492, 0
+ba_bump.exe ../data/ba_instances/ba3.txt , 191, 125, 156, 254272, 271100, 170492, 0
+ba_bump.exe ../data/ba_instances/ba3.txt , 195, 109, 156, 254264, 271028, 170488, 0
+ba_bump.exe ../data/ba_instances/ba3.txt , 196, 109, 156, 254272, 272012, 170492, 0
+ba_bump.exe ../data/ba_instances/ba3.txt , 189, 125, 140, 254264, 271764, 170488, 0
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 190, 156, 156, 84432, 95644, 17452, 0
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 198, 156, 156, 84432, 95644, 17556, 0
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 197, 156, 156, 84428, 95568, 17332, 0
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 190, 140, 140, 84432, 95592, 17468, 0
+ba_s_bump.exe ../data/ba_instances/ba3.txt , 197, 156, 156, 84428, 95612, 17376, 0
+ba.exe ../data/ba_instances/ba4.txt , 512, 421, 468, 212660, 236740, 208568, 0
+ba.exe ../data/ba_instances/ba4.txt , 507, 406, 468, 212644, 237760, 208580, 0
+ba.exe ../data/ba_instances/ba4.txt , 508, 437, 468, 212584, 237368, 208512, 0
+ba.exe ../data/ba_instances/ba4.txt , 504, 421, 453, 212708, 237652, 208624, 0
+ba.exe ../data/ba_instances/ba4.txt , 501, 375, 484, 212468, 238228, 208552, 0
+ba_s.exe ../data/ba_instances/ba4.txt , 528, 468, 500, 37576, 48848, 17760, 0
+ba_s.exe ../data/ba_instances/ba4.txt , 532, 484, 484, 37576, 48756, 17820, 0
+ba_s.exe ../data/ba_instances/ba4.txt , 523, 468, 484, 37580, 48820, 17808, 0
+ba_s.exe ../data/ba_instances/ba4.txt , 519, 468, 468, 37584, 48904, 17796, 0
+ba_s.exe ../data/ba_instances/ba4.txt , 524, 468, 484, 37584, 48932, 17780, 0
+ba_bump.exe ../data/ba_instances/ba4.txt , 210, 125, 171, 254268, 271632, 191044, 0
+ba_bump.exe ../data/ba_instances/ba4.txt , 207, 109, 171, 254272, 271592, 191048, 0
+ba_bump.exe ../data/ba_instances/ba4.txt , 208, 109, 171, 254272, 273004, 191048, 0
+ba_bump.exe ../data/ba_instances/ba4.txt , 208, 156, 171, 254268, 271476, 191048, 0
+ba_bump.exe ../data/ba_instances/ba4.txt , 208, 140, 171, 254276, 272728, 191048, 0
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 214, 156, 156, 88212, 99376, 19232, 0
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 216, 171, 171, 88220, 99428, 19256, 0
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 213, 171, 187, 88216, 99388, 19348, 0
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 212, 171, 171, 88208, 99416, 19296, 0
+ba_s_bump.exe ../data/ba_instances/ba4.txt , 214, 171, 171, 88212, 99392, 19288, 0
+ba.exe ../data/ba_instances/ba5.txt , 560, 453, 531, 234828, 254756, 230152, 0
+ba.exe ../data/ba_instances/ba5.txt , 554, 468, 515, 234876, 255480, 230136, 0
+ba.exe ../data/ba_instances/ba5.txt , 560, 437, 484, 234880, 254456, 230096, 0
+ba.exe ../data/ba_instances/ba5.txt , 560, 484, 515, 234848, 255112, 230132, 0
+ba.exe ../data/ba_instances/ba5.txt , 560, 468, 515, 234948, 254596, 230136, 0
+ba_s.exe ../data/ba_instances/ba5.txt , 572, 515, 531, 42608, 53864, 19508, 0
+ba_s.exe ../data/ba_instances/ba5.txt , 582, 531, 546, 42608, 53840, 19452, 0
+ba_s.exe ../data/ba_instances/ba5.txt , 584, 546, 546, 42608, 53844, 19508, 0
+ba_s.exe ../data/ba_instances/ba5.txt , 574, 562, 562, 42604, 53856, 19508, 0
+ba_s.exe ../data/ba_instances/ba5.txt , 580, 531, 546, 42608, 53868, 19484, 0
+ba_bump.exe ../data/ba_instances/ba5.txt , 226, 125, 187, 254280, 272248, 210804, 0
+ba_bump.exe ../data/ba_instances/ba5.txt , 229, 156, 187, 254268, 272276, 210796, 0
+ba_bump.exe ../data/ba_instances/ba5.txt , 230, 156, 187, 254268, 272972, 210800, 0
+ba_bump.exe ../data/ba_instances/ba5.txt , 225, 156, 187, 254264, 271356, 210800, 0
+ba_bump.exe ../data/ba_instances/ba5.txt , 232, 171, 187, 254272, 272684, 210800, 0
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 228, 187, 218, 98816, 116440, 21968, 0
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 277, 234, 234, 98444, 109536, 21116, 0
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 230, 171, 187, 98456, 109588, 21000, 0
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 227, 171, 187, 98448, 109620, 21028, 0
+ba_s_bump.exe ../data/ba_instances/ba5.txt , 230, 187, 203, 98816, 116756, 21972, 0
+ba.exe ../data/ba_instances/ba6.txt , 669, 562, 625, 287716, 305804, 281676, 0
+ba.exe ../data/ba_instances/ba6.txt , 668, 578, 625, 287684, 304912, 281620, 0
+ba.exe ../data/ba_instances/ba6.txt , 669, 562, 625, 287860, 304620, 281576, 0
+ba.exe ../data/ba_instances/ba6.txt , 676, 562, 625, 288056, 306468, 281676, 0
+ba.exe ../data/ba_instances/ba6.txt , 689, 593, 640, 287808, 304392, 281668, 0
+ba_s.exe ../data/ba_instances/ba6.txt , 701, 656, 656, 50880, 62088, 23316, 0
+ba_s.exe ../data/ba_instances/ba6.txt , 697, 656, 656, 50876, 62156, 23248, 0
+ba_s.exe ../data/ba_instances/ba6.txt , 688, 640, 656, 50884, 62056, 23304, 0
+ba_s.exe ../data/ba_instances/ba6.txt , 695, 656, 656, 50880, 62056, 23248, 0
+ba_s.exe ../data/ba_instances/ba6.txt , 696, 656, 656, 50884, 62040, 23280, 0
+ba_bump.exe ../data/ba_instances/ba6.txt , 271, 171, 234, 515908, 534200, 257952, 0
+ba_bump.exe ../data/ba_instances/ba6.txt , 272, 203, 234, 515900, 533300, 257948, 0
+ba_bump.exe ../data/ba_instances/ba6.txt , 273, 234, 250, 515908, 533488, 257956, 0
+ba_bump.exe ../data/ba_instances/ba6.txt , 268, 171, 218, 515912, 534176, 257956, 0
+ba_bump.exe ../data/ba_instances/ba6.txt , 284, 203, 234, 515908, 532672, 257956, 0
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 275, 218, 234, 107724, 118880, 25204, 0
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 270, 234, 234, 107724, 118820, 25352, 0
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 271, 234, 234, 107728, 118868, 25284, 0
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 270, 218, 234, 107728, 118864, 25336, 0
+ba_s_bump.exe ../data/ba_instances/ba6.txt , 269, 203, 218, 107720, 118840, 25292, 0
+ba.exe ../data/ba_instances/ba7.txt , 695, 593, 656, 298576, 322100, 291824, 0
+ba.exe ../data/ba_instances/ba7.txt , 694, 593, 656, 298196, 322472, 291840, 0
+ba.exe ../data/ba_instances/ba7.txt , 689, 593, 656, 298504, 322248, 291848, 0
+ba.exe ../data/ba_instances/ba7.txt , 696, 625, 656, 298208, 321820, 291808, 0
+ba.exe ../data/ba_instances/ba7.txt , 695, 640, 656, 298540, 322472, 291784, 0
+ba_s.exe ../data/ba_instances/ba7.txt , 724, 671, 687, 52120, 63428, 24060, 0
+ba_s.exe ../data/ba_instances/ba7.txt , 725, 671, 671, 52116, 63352, 23964, 0
+ba_s.exe ../data/ba_instances/ba7.txt , 736, 687, 687, 52116, 63388, 24052, 0
+ba_s.exe ../data/ba_instances/ba7.txt , 737, 687, 687, 52120, 63340, 24060, 0
+ba_s.exe ../data/ba_instances/ba7.txt , 724, 671, 687, 52116, 63504, 24060, 0
+ba_bump.exe ../data/ba_instances/ba7.txt , 276, 218, 250, 515904, 533080, 267280, 0
+ba_bump.exe ../data/ba_instances/ba7.txt , 284, 203, 265, 515908, 533360, 267280, 0
+ba_bump.exe ../data/ba_instances/ba7.txt , 281, 156, 234, 515912, 533916, 267280, 0
+ba_bump.exe ../data/ba_instances/ba7.txt , 274, 203, 234, 515916, 532356, 267288, 0
+ba_bump.exe ../data/ba_instances/ba7.txt , 276, 156, 234, 515904, 532472, 267284, 0
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 278, 250, 265, 108116, 119248, 26160, 0
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 282, 218, 250, 108116, 119276, 26200, 0
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 280, 234, 234, 108112, 119296, 26252, 0
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 283, 265, 265, 108116, 119312, 26108, 0
+ba_s_bump.exe ../data/ba_instances/ba7.txt , 280, 234, 250, 108116, 119248, 26268, 0
+ba.exe ../data/ba_instances/ba8.txt , 915, 781, 875, 398232, 423200, 388656, 0
+ba.exe ../data/ba_instances/ba8.txt , 913, 812, 859, 398272, 424404, 388684, 0
+ba.exe ../data/ba_instances/ba8.txt , 956, 875, 937, 398276, 424068, 388656, 0
+ba.exe ../data/ba_instances/ba8.txt , 912, 796, 890, 398036, 423824, 388600, 0
+ba.exe ../data/ba_instances/ba8.txt , 917, 812, 875, 398668, 424368, 388660, 0
+ba_s.exe ../data/ba_instances/ba8.txt , 946, 875, 906, 67872, 79144, 31188, 0
+ba_s.exe ../data/ba_instances/ba8.txt , 937, 906, 921, 67864, 79172, 31168, 0
+ba_s.exe ../data/ba_instances/ba8.txt , 949, 906, 906, 67868, 79076, 31224, 0
+ba_s.exe ../data/ba_instances/ba8.txt , 946, 906, 906, 67868, 79124, 31224, 0
+ba_s.exe ../data/ba_instances/ba8.txt , 970, 906, 921, 67872, 78980, 31152, 0
+ba_bump.exe ../data/ba_instances/ba8.txt , 357, 250, 328, 522560, 540584, 355848, 0
+ba_bump.exe ../data/ba_instances/ba8.txt , 363, 265, 328, 522556, 540512, 355844, 0
+ba_bump.exe ../data/ba_instances/ba8.txt , 350, 265, 312, 522548, 539552, 355840, 0
+ba_bump.exe ../data/ba_instances/ba8.txt , 358, 281, 328, 522552, 539924, 355844, 0
+ba_bump.exe ../data/ba_instances/ba8.txt , 351, 250, 312, 522556, 539580, 355840, 0
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 378, 328, 343, 126600, 137664, 34004, 0
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 360, 312, 312, 126604, 137676, 34156, 0
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 370, 375, 390, 126604, 137652, 34216, 0
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 359, 312, 328, 126600, 137684, 34112, 0
+ba_s_bump.exe ../data/ba_instances/ba8.txt , 362, 312, 312, 126600, 137740, 34044, 0
+ba.exe ../data/ba_instances/ba9.txt , 944, 812, 890, 408516, 439456, 398628, 0
+ba.exe ../data/ba_instances/ba9.txt , 931, 781, 890, 408808, 439240, 398648, 0
+ba.exe ../data/ba_instances/ba9.txt , 933, 843, 890, 408660, 439912, 398596, 0
+ba.exe ../data/ba_instances/ba9.txt , 932, 828, 890, 408488, 440964, 398660, 0
+ba.exe ../data/ba_instances/ba9.txt , 937, 843, 890, 408364, 440424, 398672, 0
+ba_s.exe ../data/ba_instances/ba9.txt , 968, 921, 937, 71732, 82944, 32012, 0
+ba_s.exe ../data/ba_instances/ba9.txt , 971, 921, 921, 71728, 82908, 32032, 0
+ba_s.exe ../data/ba_instances/ba9.txt , 969, 921, 953, 71724, 82904, 32008, 0
+ba_s.exe ../data/ba_instances/ba9.txt , 965, 921, 953, 71724, 82908, 32056, 0
+ba_s.exe ../data/ba_instances/ba9.txt , 971, 906, 921, 71732, 82900, 32012, 0
+ba_bump.exe ../data/ba_instances/ba9.txt , 365, 234, 312, 523112, 540052, 364984, 0
+ba_bump.exe ../data/ba_instances/ba9.txt , 369, 203, 328, 523116, 540528, 364988, 0
+ba_bump.exe ../data/ba_instances/ba9.txt , 359, 234, 328, 523112, 539852, 364984, 0
+ba_bump.exe ../data/ba_instances/ba9.txt , 365, 218, 328, 523112, 540148, 364984, 0
+ba_bump.exe ../data/ba_instances/ba9.txt , 359, 250, 312, 523116, 540992, 364992, 0
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 380, 343, 359, 137200, 148288, 35092, 0
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 364, 328, 328, 137196, 148348, 34952, 0
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 367, 312, 328, 137556, 155556, 35832, 0
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 372, 328, 359, 137200, 148268, 35112, 0
+ba_s_bump.exe ../data/ba_instances/ba9.txt , 380, 312, 343, 137560, 155440, 35836, 0
+ba.exe ../data/ba_instances/ba10.txt , 1366, 1203, 1328, 584576, 608852, 569244, 0
+ba.exe ../data/ba_instances/ba10.txt , 1320, 1171, 1296, 584204, 608780, 569168, 0
+ba.exe ../data/ba_instances/ba10.txt , 1332, 1000, 1265, 584912, 608620, 569252, 0
+ba.exe ../data/ba_instances/ba10.txt , 1326, 1156, 1281, 584280, 609384, 569184, 0
+ba.exe ../data/ba_instances/ba10.txt , 1333, 1203, 1296, 584740, 608516, 569312, 0
+ba_s.exe ../data/ba_instances/ba10.txt , 1380, 1328, 1343, 102412, 113480, 44804, 0
+ba_s.exe ../data/ba_instances/ba10.txt , 1371, 1328, 1328, 102408, 113500, 44824, 0
+ba_s.exe ../data/ba_instances/ba10.txt , 1370, 1328, 1328, 102416, 113516, 44824, 0
+ba_s.exe ../data/ba_instances/ba10.txt , 1363, 1312, 1312, 102412, 113508, 44824, 0
+ba_s.exe ../data/ba_instances/ba10.txt , 1369, 1328, 1328, 102412, 113492, 44792, 0
+ba_bump.exe ../data/ba_instances/ba10.txt , 500, 375, 453, 532420, 548616, 521156, 0
+ba_bump.exe ../data/ba_instances/ba10.txt , 505, 390, 453, 532432, 548756, 521156, 0
+ba_bump.exe ../data/ba_instances/ba10.txt , 499, 359, 453, 532432, 549788, 521160, 0
+ba_bump.exe ../data/ba_instances/ba10.txt , 509, 343, 484, 532440, 550168, 521164, 0
+ba_bump.exe ../data/ba_instances/ba10.txt , 528, 359, 453, 532428, 549184, 521164, 0
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 516, 453, 453, 181304, 192312, 49128, 0
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 528, 484, 484, 181304, 192332, 49056, 0
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 516, 453, 484, 181304, 192276, 49208, 0
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 507, 453, 468, 181680, 200140, 49924, 0
+ba_s_bump.exe ../data/ba_instances/ba10.txt , 514, 453, 468, 181672, 199332, 49920, 0
+ba.exe ../data/ba_instances/ba11.txt , 1608, 1390, 1562, 703864, 728968, 684696, 0
+ba.exe ../data/ba_instances/ba11.txt , 1622, 1484, 1578, 703728, 728520, 684648, 0
+ba.exe ../data/ba_instances/ba11.txt , 1608, 1406, 1593, 703512, 728768, 684704, 0
+ba.exe ../data/ba_instances/ba11.txt , 1614, 1453, 1593, 703572, 728928, 684656, 0
+ba.exe ../data/ba_instances/ba11.txt , 1580, 1359, 1531, 703532, 727324, 684728, 0
+ba_s.exe ../data/ba_instances/ba11.txt , 1628, 1562, 1593, 123620, 134636, 53468, 0
+ba_s.exe ../data/ba_instances/ba11.txt , 1659, 1609, 1625, 123628, 134612, 53468, 0
+ba_s.exe ../data/ba_instances/ba11.txt , 1641, 1609, 1609, 123620, 134620, 53464, 0
+ba_s.exe ../data/ba_instances/ba11.txt , 1647, 1593, 1609, 123624, 134636, 53468, 0
+ba_s.exe ../data/ba_instances/ba11.txt , 1639, 1593, 1593, 123624, 134628, 53468, 0
+ba_bump.exe ../data/ba_instances/ba11.txt , 596, 437, 562, 1074740, 1091328, 626832, 0
+ba_bump.exe ../data/ba_instances/ba11.txt , 596, 468, 562, 1074740, 1090756, 626836, 0
+ba_bump.exe ../data/ba_instances/ba11.txt , 600, 437, 562, 1074728, 1089876, 626824, 0
+ba_bump.exe ../data/ba_instances/ba11.txt , 599, 453, 562, 1074732, 1091804, 626824, 0
+ba_bump.exe ../data/ba_instances/ba11.txt , 595, 421, 578, 1074736, 1090492, 626828, 0
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 636, 578, 593, 218680, 229624, 58764, 0
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 607, 546, 562, 219048, 236516, 59476, 0
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 606, 562, 562, 218684, 229668, 58636, 0
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 622, 562, 593, 219052, 236756, 59476, 0
+ba_s_bump.exe ../data/ba_instances/ba11.txt , 606, 562, 562, 218680, 229620, 58692, 0
+ba.exe ../data/ba_instances/ba12.txt , 2072, 1828, 2031, 932116, 964808, 905868, 0
+ba.exe ../data/ba_instances/ba12.txt , 2083, 1765, 2046, 932328, 963996, 905784, 0
+ba.exe ../data/ba_instances/ba12.txt , 2085, 1796, 2062, 930824, 948256, 905900, 0
+ba.exe ../data/ba_instances/ba12.txt , 2104, 1937, 2062, 931408, 948988, 905788, 0
+ba.exe ../data/ba_instances/ba12.txt , 2086, 1828, 2015, 931472, 947520, 905776, 0
+ba_s.exe ../data/ba_instances/ba12.txt , 2149, 2078, 2093, 159508, 170552, 69816, 0
+ba_s.exe ../data/ba_instances/ba12.txt , 2188, 2125, 2140, 159512, 170520, 69820, 0
+ba_s.exe ../data/ba_instances/ba12.txt , 2144, 2078, 2109, 159516, 170564, 69816, 0
+ba_s.exe ../data/ba_instances/ba12.txt , 2175, 2109, 2140, 159512, 170588, 69820, 0
+ba_s.exe ../data/ba_instances/ba12.txt , 2181, 2125, 2140, 159504, 170556, 69820, 0
+ba_bump.exe ../data/ba_instances/ba12.txt , 788, 531, 734, 1100616, 1116272, 829208, 0
+ba_bump.exe ../data/ba_instances/ba12.txt , 774, 593, 734, 1100616, 1116960, 829204, 0
+ba_bump.exe ../data/ba_instances/ba12.txt , 774, 562, 734, 1100612, 1116452, 829204, 0
+ba_bump.exe ../data/ba_instances/ba12.txt , 775, 593, 734, 1100620, 1116336, 829204, 0
+ba_bump.exe ../data/ba_instances/ba12.txt , 784, 562, 734, 1100620, 1116552, 829204, 0
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 789, 734, 734, 264284, 280972, 84292, 0
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 801, 734, 750, 264312, 281612, 84608, 0
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 789, 734, 750, 263948, 274792, 83888, 0
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 789, 734, 750, 263948, 274764, 83820, 0
+ba_s_bump.exe ../data/ba_instances/ba12.txt , 793, 734, 750, 264320, 282860, 84612, 0
+ba.exe ../data/ba_instances/ba13.txt , 2517, 2171, 2500, 1130272, 1150772, 1098712, 0
+ba.exe ../data/ba_instances/ba13.txt , 2518, 2140, 2484, 1130756, 1150560, 1098736, 0
+ba.exe ../data/ba_instances/ba13.txt , 2516, 2328, 2484, 1130328, 1151428, 1098820, 0
+ba.exe ../data/ba_instances/ba13.txt , 2569, 2234, 2515, 1130140, 1150912, 1098736, 0
+ba.exe ../data/ba_instances/ba13.txt , 2526, 2234, 2453, 1130684, 1149820, 1098748, 0
+ba_s.exe ../data/ba_instances/ba13.txt , 2627, 2562, 2593, 193512, 204476, 84260, 0
+ba_s.exe ../data/ba_instances/ba13.txt , 2622, 2562, 2578, 193508, 204508, 84260, 0
+ba_s.exe ../data/ba_instances/ba13.txt , 2612, 2531, 2593, 193512, 204564, 84260, 0
+ba_s.exe ../data/ba_instances/ba13.txt , 2611, 2531, 2578, 193516, 204472, 84260, 0
+ba_s.exe ../data/ba_instances/ba13.txt , 2626, 2546, 2578, 193516, 204556, 84228, 0
+ba_bump.exe ../data/ba_instances/ba13.txt , 939, 734, 890, 1123180, 1138876, 1005800, 0
+ba_bump.exe ../data/ba_instances/ba13.txt , 935, 656, 890, 1123192, 1140100, 1005804, 0
+ba_bump.exe ../data/ba_instances/ba13.txt , 936, 687, 796, 1123192, 1139048, 1005808, 0
+ba_bump.exe ../data/ba_instances/ba13.txt , 926, 718, 875, 1123196, 1140228, 1005804, 0
+ba_bump.exe ../data/ba_instances/ba13.txt , 926, 703, 875, 1123192, 1138508, 1005808, 0
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 948, 875, 906, 315700, 326472, 101312, 0
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 950, 906, 906, 316068, 334592, 102016, 0
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 958, 859, 937, 316064, 334308, 102016, 0
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 948, 890, 906, 316060, 332628, 102012, 0
+ba_s_bump.exe ../data/ba_instances/ba13.txt , 939, 875, 890, 316072, 334308, 102020, 0
+ba.exe ../data/ba_instances/ba14.txt , 2951, 2640, 2906, 1300020, 1320304, 1263312, 0
+ba.exe ../data/ba_instances/ba14.txt , 2913, 2640, 2859, 1300364, 1320156, 1263256, 0
+ba.exe ../data/ba_instances/ba14.txt , 2899, 2515, 2828, 1299688, 1319232, 1263228, 0
+ba.exe ../data/ba_instances/ba14.txt , 2884, 2500, 2843, 1300500, 1320580, 1263316, 0
+ba.exe ../data/ba_instances/ba14.txt , 2913, 2609, 2875, 1300704, 1319156, 1263280, 0
+ba_s.exe ../data/ba_instances/ba14.txt , 2978, 2921, 2937, 222340, 233256, 96524, 0
+ba_s.exe ../data/ba_instances/ba14.txt , 3015, 2937, 2984, 222336, 233176, 96516, 0
+ba_s.exe ../data/ba_instances/ba14.txt , 3010, 2968, 2968, 222332, 233256, 96524, 0
+ba_s.exe ../data/ba_instances/ba14.txt , 3014, 2921, 2984, 222332, 233244, 96528, 0
+ba_s.exe ../data/ba_instances/ba14.txt , 3004, 2921, 2953, 222336, 233292, 96528, 0
+ba_bump.exe ../data/ba_instances/ba14.txt , 1056, 750, 1015, 1142432, 1159028, 1140268, 1
+ba_bump.exe ../data/ba_instances/ba14.txt , 1063, 750, 1000, 1142436, 1159240, 1140272, 1
+ba_bump.exe ../data/ba_instances/ba14.txt , 1049, 796, 1000, 1142428, 1159052, 1140268, 1
+ba_bump.exe ../data/ba_instances/ba14.txt , 1059, 796, 1015, 1142420, 1157692, 1140268, 1
+ba_bump.exe ../data/ba_instances/ba14.txt , 1058, 750, 1015, 1142420, 1157424, 1140264, 1
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1075, 1000, 1031, 359488, 377492, 116844, 0
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1075, 1015, 1031, 359504, 376464, 116856, 0
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1072, 984, 1031, 359488, 376188, 116840, 0
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1070, 1015, 1031, 359500, 377892, 116844, 0
+ba_s_bump.exe ../data/ba_instances/ba14.txt , 1081, 1000, 1046, 359124, 369764, 116136, 0
