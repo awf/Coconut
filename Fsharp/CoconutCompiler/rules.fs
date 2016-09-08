@@ -27,12 +27,15 @@ let assocSubSubIndex_exp   = <@ (%i - %j) - %k             <==>   %i - (%j + %k)
 let subSameIndex_exp       = <@ %i - %i                    <==>   0                   @>
 let constFold0Index_exp    = <@ %i + 0                     <==>   %i                  @>
 let constFoldN0Index_exp   = <@ %i - 0                     <==>   %i                  @>
+let constFoldCardAdd_exp   = <@ (Card %i) .+ (Card %j)     <==>   Card (%i + %j)      @>
+let constFoldCardSub_exp   = <@ (Card %i) .- (Card %j)     <==>   Card (%i - %j)      @>
 let dce_exp                = <@ ( let x = %E1 in %E2: T1 ) <==>   %E2                 @>
 let vectorFoldBuildToFoldOnRange_exp = 
                              <@ fold<Number, Number> %F %a (build<Number> %c1 %G)
                                                            <==>
                                 linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
                                                                                       @>
+
 let vectorBuildToStorage_exp = 
                              <@ build<Number> (%c1) (%F)      
                                                            <==>
@@ -48,6 +51,18 @@ let letVectorBuildLength_exp =
                              <@ ( let x = (build<Number> %c1 %F) in ((%B1) (length x) x): T1 )
                                                            <==>
                                 ( let x = (build<Number> %c1 %F) in (%B1) %c1 x )
+                                                                                      @>
+
+let letVectorBuildGet_exp = 
+                             <@ ( let x = (build<Number> %c1 %F) in ((%B1) (x.[%i]) x): T1 )
+                                                           <==>
+                                ( let x = (build<Number> %c1 %F) in (%B1) ((%F) %i) x )
+                                                                                      @>
+
+let letBuild_exp = 
+                             <@ ( let x = (build<Number> %c1 %F) in ((%B1) x): T1 )
+                                                           <==>
+                                ( (%B1) (build<Number> %c1 %F) )
                                                                                       @>
 
 let letInliner_exp         = <@ ((let x = %E1 in (%B1) x): T1)
@@ -113,6 +128,8 @@ let letFloatOutwards_exp = <@
 
 
 let letVectorBuildLength: Rule = compilePatternWithNameToRule letVectorBuildLength_exp "letVectorBuildLength"
+
+let letVectorBuildGet: Rule = compilePatternWithNameToRule letVectorBuildGet_exp "letVectorBuildGet"
 
 let letInliner: Rule = compilePatternWithNameToRule letInliner_exp "letInliner"
 
