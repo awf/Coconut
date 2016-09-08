@@ -236,7 +236,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let arrTp = ccodegenType (ta.MakeArrayType()) 
           let elemTp = (ccodegenType ta)
           let arrayInit = 
-            sprintf "%s %s = (%s)malloc(sizeof(int) * 2);\n\t%s->length=%s;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %s)" 
+            sprintf "%s %s = (%s)storage_alloc(sizeof(int) * 2);\n\t%s->length=%s;\n\t%s->arr = (%s*)storage_alloc(sizeof(%s) * %s)" 
                   arrTp resultName arrTp resultName lengthCode resultName elemTp elemTp lengthCode
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t\t" body (Some(sprintf "%s->arr[%s]" resultName idxCode))
           (sprintf "%s;\n\t\tfor(int %s = 0; %s < %s->length; %s++){\n\t\t\t%s\n\t\t}"
@@ -380,7 +380,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
       let args = String.concat "\n\t" (List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)) elems)
       let arrTp = ccodegenType (tp.MakeArrayType()) 
       let elemTp = (ccodegenType tp)
-      let rhs = sprintf "(%s)malloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)malloc(sizeof(%s) * %d);\n\t%s" 
+      let rhs = sprintf "(%s)storage_alloc(sizeof(int) * 2);\n\t%s->length=%d;\n\t%s->arr = (%s*)storage_alloc(sizeof(%s) * %d);\n\t%s" 
                   arrTp var.Name (List.length elems)  var.Name elemTp elemTp (List.length elems) args
       (rhs, [], false)
     | MakeClosure(envVar, lamBody, fields) ->

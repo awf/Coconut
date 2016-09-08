@@ -6,9 +6,9 @@
 
 array_number_t TOP_LEVEL_linalg_vectorMap(closure_t f, array_number_t v) {
 	card_t macroDef1 = v->length;
-	array_number_t macroDef2 = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t macroDef2 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef2->length=macroDef1;
-	macroDef2->arr = (number_t*)malloc(sizeof(number_t) * macroDef1);
+	macroDef2->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef1);
 		for(int i = 0; i < macroDef2->length; i++){
 			
 			macroDef2->arr[i] = f.lam(f.env, v->arr[i]).number_t_value;;
@@ -17,9 +17,9 @@ array_number_t TOP_LEVEL_linalg_vectorMap(closure_t f, array_number_t v) {
 }
 
 array_number_t TOP_LEVEL_linalg_vectorRange(card_t s, card_t e) {
-	array_number_t macroDef3 = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t macroDef3 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef3->length=((e) - (s)) + (1);
-	macroDef3->arr = (number_t*)malloc(sizeof(number_t) * ((e) - (s)) + (1));
+	macroDef3->arr = (number_t*)storage_alloc(sizeof(number_t) * ((e) - (s)) + (1));
 		for(int i = 0; i < macroDef3->length; i++){
 			
 			macroDef3->arr[i] = (double)(((s)) + (i));;
@@ -28,9 +28,9 @@ array_number_t TOP_LEVEL_linalg_vectorRange(card_t s, card_t e) {
 }
 
 array_number_t TOP_LEVEL_linalg_vectorSlice(card_t size, index_t offset, array_number_t v) {
-	array_number_t macroDef4 = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t macroDef4 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef4->length=size;
-	macroDef4->arr = (number_t*)malloc(sizeof(number_t) * size);
+	macroDef4->arr = (number_t*)storage_alloc(sizeof(number_t) * size);
 		for(int i = 0; i < macroDef4->length; i++){
 			
 			macroDef4->arr[i] = v->arr[(i) + (offset)];;
@@ -40,9 +40,9 @@ array_number_t TOP_LEVEL_linalg_vectorSlice(card_t size, index_t offset, array_n
 
 array_array_number_t TOP_LEVEL_linalg_matrixMap(closure_t f, array_array_number_t m) {
 	card_t macroDef5 = m->length;
-	array_array_number_t macroDef6 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef6 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef6->length=macroDef5;
-	macroDef6->arr = (array_number_t*)malloc(sizeof(array_number_t) * macroDef5);
+	macroDef6->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * macroDef5);
 		for(int i = 0; i < macroDef6->length; i++){
 			
 			macroDef6->arr[i] = f.lam(f.env, m->arr[i]).array_number_t_value;;
@@ -52,9 +52,9 @@ array_array_number_t TOP_LEVEL_linalg_matrixMap(closure_t f, array_array_number_
 
 array_number_t TOP_LEVEL_linalg_vectorMap2(closure_t f, array_number_t v1, array_number_t v2) {
 	card_t macroDef7 = v1->length;
-	array_number_t macroDef8 = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t macroDef8 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef8->length=macroDef7;
-	macroDef8->arr = (number_t*)malloc(sizeof(number_t) * macroDef7);
+	macroDef8->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef7);
 		for(int i = 0; i < macroDef8->length; i++){
 			
 			macroDef8->arr[i] = f.lam(f.env, v1->arr[i], v2->arr[i]).number_t_value;;
@@ -64,9 +64,9 @@ array_number_t TOP_LEVEL_linalg_vectorMap2(closure_t f, array_number_t v1, array
 
 array_array_number_t TOP_LEVEL_linalg_matrixMap2(closure_t f, array_array_number_t m1, array_array_number_t m2) {
 	card_t macroDef9 = m1->length;
-	array_array_number_t macroDef10 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef10 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef10->length=macroDef9;
-	macroDef10->arr = (array_number_t*)malloc(sizeof(array_number_t) * macroDef9);
+	macroDef10->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * macroDef9);
 		for(int i = 0; i < macroDef10->length; i++){
 			
 			macroDef10->arr[i] = f.lam(f.env, m1->arr[i], m2->arr[i]).array_number_t_value;;
@@ -76,9 +76,9 @@ array_array_number_t TOP_LEVEL_linalg_matrixMap2(closure_t f, array_array_number
 
 array_array_array_number_t TOP_LEVEL_linalg_matrix3DMap2(closure_t f, array_array_array_number_t m1, array_array_array_number_t m2) {
 	card_t macroDef11 = m1->length;
-	array_array_array_number_t macroDef12 = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_array_number_t macroDef12 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef12->length=macroDef11;
-	macroDef12->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * macroDef11);
+	macroDef12->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * macroDef11);
 		for(int i = 0; i < macroDef12->length; i++){
 			
 			macroDef12->arr[i] = f.lam(f.env, m1->arr[i], m2->arr[i]).array_array_number_t_value;;
@@ -88,9 +88,9 @@ array_array_array_number_t TOP_LEVEL_linalg_matrix3DMap2(closure_t f, array_arra
 
 array_array_number_t TOP_LEVEL_linalg_vectorMapToMatrix(closure_t f, array_number_t arr) {
 	card_t macroDef13 = arr->length;
-	array_array_number_t macroDef14 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef14 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef14->length=macroDef13;
-	macroDef14->arr = (array_number_t*)malloc(sizeof(array_number_t) * macroDef13);
+	macroDef14->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * macroDef13);
 		for(int i = 0; i < macroDef14->length; i++){
 			
 			macroDef14->arr[i] = f.lam(f.env, arr->arr[i]).array_number_t_value;;
@@ -100,9 +100,9 @@ array_array_number_t TOP_LEVEL_linalg_vectorMapToMatrix(closure_t f, array_numbe
 
 array_array_array_number_t TOP_LEVEL_linalg_vectorMapToMatrix3D(closure_t f, array_number_t arr) {
 	card_t macroDef15 = arr->length;
-	array_array_array_number_t macroDef16 = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_array_number_t macroDef16 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef16->length=macroDef15;
-	macroDef16->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * macroDef15);
+	macroDef16->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * macroDef15);
 		for(int i = 0; i < macroDef16->length; i++){
 			
 			macroDef16->arr[i] = f.lam(f.env, arr->arr[i]).array_array_number_t_value;;
@@ -197,9 +197,9 @@ array_number_t TOP_LEVEL_linalg_mult_by_scalar(array_number_t x, number_t y) {
 }
 
 array_number_t TOP_LEVEL_linalg_cross(array_number_t a, array_number_t b) {
-	array_number_t array29 = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t array29 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	array29->length=3;
-	array29->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	array29->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
 	array29->arr[0] = ((a->arr[1]) * (b->arr[2])) - ((a->arr[2]) * (b->arr[1]));
 	array29->arr[1] = ((a->arr[2]) * (b->arr[0])) - ((a->arr[0]) * (b->arr[2]));
 	array29->arr[2] = ((a->arr[0]) * (b->arr[1])) - ((a->arr[1]) * (b->arr[0]));;
@@ -322,13 +322,13 @@ array_array_number_t TOP_LEVEL_linalg_matrixFillFromVector(card_t rows, array_nu
 }
 
 array_array_number_t TOP_LEVEL_linalg_matrixFill(card_t rows, card_t cols, number_t value) {
-	array_array_number_t macroDef64 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef64 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef64->length=rows;
-	macroDef64->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+	macroDef64->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * rows);
 		for(int r = 0; r < macroDef64->length; r++){
-			array_number_t macroDef63 = (array_number_t)malloc(sizeof(int) * 2);
+			array_number_t macroDef63 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef63->length=cols;
-	macroDef63->arr = (number_t*)malloc(sizeof(number_t) * cols);
+	macroDef63->arr = (number_t*)storage_alloc(sizeof(number_t) * cols);
 		for(int c = 0; c < macroDef63->length; c++){
 			
 			macroDef63->arr[c] = value;;
@@ -343,13 +343,13 @@ array_array_number_t TOP_LEVEL_linalg_matrixTranspose(array_array_number_t m) {
 	card_t rows = macroDef65;
 	card_t macroDef66 = m->arr[0]->length;
 	card_t cols = macroDef66;
-	array_array_number_t macroDef68 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef68 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef68->length=cols;
-	macroDef68->arr = (array_number_t*)malloc(sizeof(array_number_t) * cols);
+	macroDef68->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * cols);
 		for(int i = 0; i < macroDef68->length; i++){
-			array_number_t macroDef67 = (array_number_t)malloc(sizeof(int) * 2);
+			array_number_t macroDef67 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef67->length=rows;
-	macroDef67->arr = (number_t*)malloc(sizeof(number_t) * rows);
+	macroDef67->arr = (number_t*)storage_alloc(sizeof(number_t) * rows);
 		for(int j = 0; j < macroDef67->length; j++){
 			
 			macroDef67->arr[j] = m->arr[j]->arr[i];;
@@ -369,13 +369,13 @@ array_array_number_t TOP_LEVEL_linalg_matrixMult(array_array_number_t m1, array_
 	card_t macroDef72 = m2->length;
 	card_t r2 = macroDef72;
 	array_array_number_t m2T = TOP_LEVEL_linalg_matrixTranspose(m2);
-	array_array_number_t macroDef74 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef74 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef74->length=r1;
-	macroDef74->arr = (array_number_t*)malloc(sizeof(array_number_t) * r1);
+	macroDef74->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * r1);
 		for(int r = 0; r < macroDef74->length; r++){
-			array_number_t macroDef73 = (array_number_t)malloc(sizeof(int) * 2);
+			array_number_t macroDef73 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef73->length=c2;
-	macroDef73->arr = (number_t*)malloc(sizeof(number_t) * c2);
+	macroDef73->arr = (number_t*)storage_alloc(sizeof(number_t) * c2);
 		for(int c = 0; c < macroDef73->length; c++){
 			
 			macroDef73->arr[c] = TOP_LEVEL_linalg_dot_prod(m1->arr[r], m2T->arr[c]);;
@@ -391,9 +391,9 @@ array_array_number_t TOP_LEVEL_linalg_matrixConcat(array_array_number_t m1, arra
 	card_t rows = (macroDef75) + (macroDef76);
 	card_t macroDef77 = m1->length;
 	index_t m1Rows = (macroDef77);
-	array_array_number_t macroDef78 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef78 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef78->length=rows;
-	macroDef78->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+	macroDef78->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * rows);
 		for(int r = 0; r < macroDef78->length; r++){
 			array_number_t ite79 = 0;
 	if((r) < (m1Rows)) {
@@ -420,9 +420,9 @@ array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat(array_array_array_num
 	card_t rows = (macroDef80) + (macroDef81);
 	card_t macroDef82 = m1->length;
 	index_t m1Rows = (macroDef82);
-	array_array_array_number_t macroDef83 = (array_array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_array_number_t macroDef83 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef83->length=rows;
-	macroDef83->arr = (array_array_number_t*)malloc(sizeof(array_array_number_t) * rows);
+	macroDef83->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * rows);
 		for(int r = 0; r < macroDef83->length; r++){
 			array_array_number_t ite84 = 0;
 	if((r) < (m1Rows)) {

@@ -135,18 +135,18 @@ value_t lambda115(env_t_115* env108, number_t x) {
 array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, card_t p) {
 	card_t oneCard = 1;
 	array_number_t one_cam = TOP_LEVEL_linalg_vectorRead(fn, 1);
-	array_array_number_t macroDef101 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef101 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef101->length=n;
-	macroDef101->arr = (array_number_t*)malloc(sizeof(array_number_t) * n);
+	macroDef101->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
 		for(int x = 0; x < macroDef101->length; x++){
 			
 			macroDef101->arr[x] = one_cam;;
 		}
 	array_array_number_t cam = macroDef101;
 	array_number_t one_x = TOP_LEVEL_linalg_vectorRead(fn, 2);
-	array_array_number_t macroDef102 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef102 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef102->length=m;
-	macroDef102->arr = (array_number_t*)malloc(sizeof(array_number_t) * m);
+	macroDef102->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * m);
 		for(int x = 0; x < macroDef102->length; x++){
 			
 			macroDef102->arr[x] = one_x;;
@@ -158,13 +158,13 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 	array_number_t one_feat = TOP_LEVEL_linalg_vectorRead(fn, 4);
 	env_t_115 env_t_115_value = make_env_t_115(one_feat); closure_t closure110 = make_closure(lambda115, &env_t_115_value);
 	array_array_number_t feat = TOP_LEVEL_linalg_vectorMapToMatrix(closure110, TOP_LEVEL_linalg_vectorRange(oneCard, p));
-	array_array_number_t macroDef111 = (array_array_number_t)malloc(sizeof(int) * 2);
+	array_array_number_t macroDef111 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef111->length=p;
-	macroDef111->arr = (array_number_t*)malloc(sizeof(array_number_t) * p);
+	macroDef111->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * p);
 		for(int x = 0; x < macroDef111->length; x++){
-			array_number_t array112 = (array_number_t)malloc(sizeof(int) * 2);
+			array_number_t array112 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	array112->length=2;
-	array112->arr = (number_t*)malloc(sizeof(number_t) * 2);
+	array112->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
 	array112->arr[0] = (double)(((int)(x)) % ((n)));
 	array112->arr[1] = (double)(((int)(x)) % ((m)));;
 			macroDef111->arr[x] = array112;;
@@ -177,15 +177,15 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 }
 
 void TOP_LEVEL_usecases_ba_test_ba(array_number_t dum) {
-	array_number_t a = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t a = (array_number_t)storage_alloc(sizeof(int) * 2);
 	a->length=3;
-	a->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	a->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
 	a->arr[0] = 1;
 	a->arr[1] = 2;
 	a->arr[2] = 3;;
-	array_number_t b = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t b = (array_number_t)storage_alloc(sizeof(int) * 2);
 	b->length=3;
-	b->arr = (number_t*)malloc(sizeof(number_t) * 3);
+	b->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
 	b->arr[0] = 5;
 	b->arr[1] = 6;
 	b->arr[2] = 7;;
@@ -197,9 +197,9 @@ void TOP_LEVEL_usecases_ba_test_ba(array_number_t dum) {
 	array_print(k);
 	array_number_t l = array_slice(k, 1, 2);
 	array_print(l);
-	array_number_t cam = (array_number_t)malloc(sizeof(int) * 2);
+	array_number_t cam = (array_number_t)storage_alloc(sizeof(int) * 2);
 	cam->length=11;
-	cam->arr = (number_t*)malloc(sizeof(number_t) * 11);
+	cam->arr = (number_t*)storage_alloc(sizeof(number_t) * 11);
 	cam->arr[0] = 0;
 	cam->arr[1] = 2;
 	cam->arr[2] = 4;
