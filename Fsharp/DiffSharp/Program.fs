@@ -86,35 +86,35 @@ let test_gmm fn_in fn_out nruns_f nruns_J replicate_point =
 #endif
 
 #if DO_BA
-let compute_ba_J (cams:_[][]) (X:_[][]) (w:_[]) (obs:int[][]) (feats:float[][]) =
-    let n = cams.Length
-    let m = X.Length
-    let p = w.Length
-
-    let compute_reproj_err_J_block (cam:_[]) (X:_[]) (w:_) (feat:float[]) =
-        let compute_reproj_err_wrapper_ parameters = 
-            ba.compute_reproj_err_wrapper parameters feat
-        let err_D, J_D = (jacobian' compute_reproj_err_wrapper_ (ba.vectorize cam X w))
-        let err = Array.map (float) err_D
-        let J = Array2D.map (float) J_D
-        err, J
-    let compute_w_err_d = 
-        diff' ba.compute_zach_weight_error_
-
-    let reproj_err_val_J = 
-        [|for i=0 to p-1 do 
-            yield compute_reproj_err_J_block cams.[obs.[i].[0]] X.[obs.[i].[1]] w.[i] feats.[i]|]
-    let w_err_val_J = Array.map compute_w_err_d w
-    
-    let reproj_err, reproj_err_d = Array.unzip reproj_err_val_J
-    let w_err, w_err_d = Array.unzip w_err_val_J
-    
-    let J = ba.create_sparse_J m n p obs reproj_err_d w_err_d
-
-    (reproj_err, w_err), J
+// let compute_ba_J (cams:_[][]) (X:_[][]) (w:_[]) (obs:int[][]) (feats:float[][]) =
+//     let n = cams.Length
+//     let m = X.Length
+//     let p = w.Length
+// 
+//     let compute_reproj_err_J_block (cam:_[]) (X:_[]) (w:_) (feat:float[]) =
+//         let compute_reproj_err_wrapper_ parameters = 
+//             ba.compute_reproj_err_wrapper parameters feat
+//         let err_D, J_D = (jacobian' compute_reproj_err_wrapper_ (ba.vectorize cam X w))
+//         let err = Array.map (float) err_D
+//         let J = Array2D.map (float) J_D
+//         err, J
+//     let compute_w_err_d = 
+//         diff' ba.compute_zach_weight_error_
+// 
+//     let reproj_err_val_J = 
+//         [|for i=0 to p-1 do 
+//             yield compute_reproj_err_J_block cams.[obs.[i].[0]] X.[obs.[i].[1]] w.[i] feats.[i]|]
+//     let w_err_val_J = Array.map compute_w_err_d w
+//     
+//     let reproj_err, reproj_err_d = Array.unzip reproj_err_val_J
+//     let w_err, w_err_d = Array.unzip w_err_val_J
+//     
+//     let J = ba.create_sparse_J m n p obs reproj_err_d w_err_d
+// 
+//     (reproj_err, w_err), J
 
 let test_ba fn_in fn_out nruns_f nruns_J = 
-    let cams_float, X_float, w_float, obs, feat = ba.read_ba_instance (fn_in + ".txt")
+    let cams_float, X_float, w_float, obs, feat = ba.read_ba_instance fn_in
 #if MODE_AD
     let cams = Array.map (Array.map D) cams_float 
     let X = Array.map (Array.map D) X_float 
@@ -128,7 +128,7 @@ let test_ba fn_in fn_out nruns_f nruns_J =
 
     let obj_stop_watch = Stopwatch.StartNew()
     let err = ba.ba_objective cams_float X_float w_float obs feat
-    for i = 1 to nruns_f-1 do
+    for i = 1 to nruns_f do
         ba.ba_objective cams_float X_float w_float obs feat
     obj_stop_watch.Stop()
 
@@ -138,24 +138,25 @@ let test_ba fn_in fn_out nruns_f nruns_J =
     let name = "DiffSharp_R"
   #endif
 
-    let n = cams.Length
-    let m = X.Length
-    let p = obs.Length
-
-    printfn "Doing BA"
-
-    let jac_stop_watch = Stopwatch.StartNew()
-    if nruns_J>0 then   
-        let err2, J = compute_ba_J cams X w obs feat
-        for i = 1 to nruns_J-1 do
-            compute_ba_J cams X w obs feat
-        jac_stop_watch.Stop()
-
-        //ba.write_J (fn_out + "_J_" + name + ".txt") gradient   
-        
-    let tf = ((float obj_stop_watch.ElapsedMilliseconds) / 1000.) / (float nruns_f)
-    let tJ = ((float jac_stop_watch.ElapsedMilliseconds) / 1000.) / (float nruns_J)
-    write_times (fn_out + "_times_" + name + ".txt") tf tJ
+    // let n = cams.Length
+    // let m = X.Length
+    // let p = obs.Length
+    // 
+    // printfn "Doing BA"
+    // 
+    // let jac_stop_watch = Stopwatch.StartNew()
+    // if nruns_J>0 then   
+    //     let err2, J = compute_ba_J cams X w obs feat
+    //     for i = 1 to nruns_J-1 do
+    //         compute_ba_J cams X w obs feat
+    //     jac_stop_watch.Stop()
+    // 
+    //     //ba.write_J (fn_out + "_J_" + name + ".txt") gradient   
+    //     
+    let tf = ((float obj_stop_watch.ElapsedMilliseconds)) / (float nruns_f)
+    // let tJ = ((float jac_stop_watch.ElapsedMilliseconds) / 1000.) / (float nruns_J)
+    // write_times (fn_out + "_times_" + name + ".txt") tf tJ
+    printfn "Time (ms): %d" (int tf)
 #endif
 
 #if DO_HAND
@@ -260,19 +261,20 @@ let test_hand model_dir fn_in fn_out nruns_f nruns_J =
 
 [<EntryPoint>]
 let main argv = 
-    let dir_in = argv.[0]
-    let dir_out = argv.[1]
-    let fn = argv.[2]
-    let nruns_f = (Int32.Parse argv.[3])
-    let nruns_J = (Int32.Parse argv.[4])
-    let replicate_point = 
-        (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
+    // let dir_in = argv.[0]
+    // let dir_out = argv.[1]
+    // let fn = argv.[2]
+    // let nruns_f = (Int32.Parse argv.[3])
+    // let nruns_J = (Int32.Parse argv.[4])
+    // let replicate_point = 
+    //     (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
 
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif
 #if DO_BA
-    test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
+    // test_ba (dir_in + fn) (dir_out + fn) nruns_f nruns_J
+    test_ba (argv.[0]) "" 1 0
 #endif
 #if DO_HAND || DO_HAND_COMPLICATED
     test_hand (dir_in + "hand_instances\\simple_big\\model\\") (dir_in + fn) (dir_out + fn) nruns_f nruns_J

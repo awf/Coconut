@@ -35,12 +35,12 @@
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\Release\DiffSharp\</OutputPath>
-    <DefineConstants>TRACE;MODE_AD;DO_COMPILE</DefineConstants>
+    <DefineConstants>TRACE;DO_BA</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\DiffSharp.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\ ..\..\ ba 1 1</StartArguments>
+    <StartArguments>..\..\data\ba_instances\ba14.txt</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

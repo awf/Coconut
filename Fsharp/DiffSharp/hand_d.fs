@@ -15,6 +15,7 @@ let D (x:float) =
   DiffSharp.AD.Specialized.Forward1.D (x,0.)
 #endif
 #endif
+#if MODE_AD || MODE_F
 
 open FsAlg.Generic
 
@@ -272,3 +273,4 @@ let write_J (fn:string) (J:float[,]) =
 
   let lines = [|line1; line2|]
   File.WriteAllLines(fn,lines)
+#endif
