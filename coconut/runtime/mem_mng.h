@@ -63,3 +63,19 @@ void bulk_free(storage_t storage, memory_size_t size) {
   // if(heapObject.free_index < 0)
   // 	heapObject.free_index = 0;
 }
+
+storage_t storage_alloc(memory_size_t size) {
+#ifdef BUMP
+	return bulk_alloc(size);
+#else
+	return malloc(size);
+#endif
+}
+
+void storage_free(storage_t storage, memory_size_t size) {
+#ifdef BUMP
+	bulk_free(storage, size);
+#else
+	free(storage);
+#endif
+}
