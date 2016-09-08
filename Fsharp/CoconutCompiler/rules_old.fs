@@ -46,85 +46,64 @@ let letMerging_old (e: Expr): Expr option =
     Some(Expr.Let(x, e1, e3.Substitute(fun v -> if v = y then Some(Expr.Var(x)) else None)))
   | _ -> None
 
-let letVectorBuildLength_old = 
-  (fun e ->
-    match e with
-    | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ build @> (_, _, [size; f]) as buildExpr), e2) -> 
-      let rec findLength(exp: Expr): (Expr * (Expr -> Expr)) option = 
-        match exp with
-        | ArrayLength(arr) when arr = Expr.Var(x) -> 
-          Some(size, fun i -> i)
-        | ExprShape.ShapeLambda(input, body) ->
-          findLength body
-          |> Option.map (fun (l, f) -> l, fun i -> Expr.Lambda(input, f(i)))
-        | ExprShape.ShapeVar(v) -> None
-        | ExprShape.ShapeCombination(op, args) ->
-          let transformedArg = 
-            args 
-            |> List.mapi (fun idx arg ->
-                 findLength(arg)
-                 |> Option.map (fun (e, f) -> idx, e, f)
-               )
-            |> List.tryPick id
-          transformedArg 
-          |> Option.map (fun (idx, e, f) ->         
-               e, (fun i -> 
-                    let transformedArgs = 
-                      args
-                      |> List.mapi (fun idx2 arg ->
-                           if(idx2 = idx) then
-                             f(i)
-                           else
-                             arg
-                         )
-                    ExprShape.RebuildShapeCombination(op, transformedArgs)
-                  )
+let letExtractAnyRule ((|PatRhs|_|): Expr -> Expr option) 
+   ((|PatInside|_|): Expr -> (Expr list) option) (factoryInside: Expr list -> Expr) (e: Expr): Expr list = 
+  match e with
+  | Patterns.Let (x, (PatRhs(insideExpr) as rhsExpr), e2) -> 
+    let rec findInsideTerm(exp: Expr): (Expr * (Expr -> Expr)) option = 
+      match exp with
+      | PatInside(args) when (args |> List.head) = Expr.Var(x) -> 
+        Some(factoryInside (insideExpr :: (args |> List.tail)), fun i -> i)
+      | ExprShape.ShapeLambda(input, body) ->
+        findInsideTerm body
+        |> Option.map (fun (l, f) -> l, fun i -> Expr.Lambda(input, f(i)))
+      | ExprShape.ShapeVar(v) -> None
+      | ExprShape.ShapeCombination(op, args) ->
+        let transformedArg = 
+          args 
+          |> List.mapi (fun idx arg ->
+               findInsideTerm arg
+               |> Option.map (fun (e, f) -> idx, e, f)
              )
-      findLength(e2)
-      |> Option.map (fun (te, tf) ->
-           Expr.Let (x, buildExpr, tf(te))
-         ) |> Option.toList
-    | _ -> []), "letBuildLength"
+          |> List.tryPick id
+        transformedArg 
+        |> Option.map (fun (idx, e, f) ->         
+             e, (fun i -> 
+                  let transformedArgs = 
+                    args
+                    |> List.mapi (fun idx2 arg ->
+                         if(idx2 = idx) then
+                           f(i)
+                         else
+                           arg
+                       )
+                  ExprShape.RebuildShapeCombination(op, transformedArgs)
+                )
+           )
+    findInsideTerm e2
+    |> Option.map (fun (te, tf) ->
+         Expr.Let (x, rhsExpr, tf te)
+       ) |> Option.toList
+  | _ -> []
+
+let letVectorBuildLength_old = 
+  (fun (e: Expr) ->
+    letExtractAnyRule (fun exp -> 
+        DerivedPatterns.(|SpecificCall|_|) <@ build @> exp
+          |> Option.map (fun (_, _, args) -> args |> List.head)
+      ) (
+        (|ArrayLength|_|) >> Option.map (fun arr -> [arr])
+      ) (fun args -> args |> List.head) e
+  ), "letBuildLength"
 
 let letVectorBuildGet_old = 
   (fun e ->
-    match e with
-    | Patterns.Let (x, (DerivedPatterns.SpecificCall <@ build @> (_, _, [size; f]) as buildExpr), e2) -> 
-      let rec findGet(exp: Expr): (Expr * (Expr -> Expr)) option = 
-        match exp with
-        | ArrayGet(arr, idx) when arr = Expr.Var(x) -> 
-          Some(Expr.Application(f, idx), fun i -> i)
-        | ExprShape.ShapeLambda(input, body) ->
-          findGet body
-          |> Option.map (fun (l, f) -> l, fun i -> Expr.Lambda(input, f(i)))
-        | ExprShape.ShapeVar(v) -> None
-        | ExprShape.ShapeCombination(op, args) ->
-          let transformedArg = 
-            args 
-            |> List.mapi (fun idx arg ->
-                 findGet arg
-                 |> Option.map (fun (e, f) -> idx, e, f)
-               )
-            |> List.tryPick id
-          transformedArg 
-          |> Option.map (fun (idx, e, f) ->         
-               e, (fun i -> 
-                    let transformedArgs = 
-                      args
-                      |> List.mapi (fun idx2 arg ->
-                           if(idx2 = idx) then
-                             f(i)
-                           else
-                             arg
-                         )
-                    ExprShape.RebuildShapeCombination(op, transformedArgs)
-                  )
-             )
-      findGet e2
-      |> Option.map (fun (te, tf) ->
-           Expr.Let (x, buildExpr, tf(te))
-         ) |> Option.toList
-    | _ -> []), "letBuildGet"
+    letExtractAnyRule (fun exp -> 
+        DerivedPatterns.(|SpecificCall|_|) <@ build @> exp
+          |> Option.map (fun (_, _, [_; f]) -> f)
+      ) ((|ArrayGet|_|) >> Option.map (fun (a, b) -> [a; b]))
+        (fun [f; idx] -> Expr.Application(f, idx)) e
+  ), "letBuildGet"
 
 let allocToCPS_old (e: Expr): Expr option = 
   match e with
