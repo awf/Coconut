@@ -83,7 +83,6 @@ let rec ccodegenType (t: System.Type): string =
   | _ ->
     failwith (sprintf "does not know how to generate code for the type `%s` with name `%s`" (t.ToString()) (t.Name))
 
-
 (* C code generation for an expression *)
 let rec ccodegen (e:Expr): string =
   match e with
@@ -125,9 +124,36 @@ let rec ccodegen (e:Expr): string =
     
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
-  | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
-    let (Card(card)) = unbox<Cardinality>(v)
-    sprintf "%d" card
+  // | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
+  //   let (Card(card)) = unbox<Cardinality>(v)
+  //   sprintf "%d" card
+  // | Patterns.Value(v, tp) when tp.Name = typeof<NestedShape<_>>.Name -> 
+  //   let (Card(card)) = unbox<Cardinality>(v)
+  //   sprintf "%d" card
+  | Patterns.Value(value, tp) when tp = typeof<Cardinality> || tp.Name = typeof<NestedShape<_>>.Name -> 
+    let printCard (c: Cardinality): string = 
+      let (Card(card)) = c
+      sprintf "%d" card
+    let printVectorShape (vs: VectorShape): string = 
+      let (NestedShape(Card(elem), Card(card))) = vs
+      sprintf "nested_shape_%s(%d, %d)" (ccodegenType typeof<Cardinality>) elem card
+    let printMatrixShape (ms: MatrixShape): string = 
+      let (NestedShape(elem, Card(card))) = ms
+      sprintf "nested_shape_%s(%s, %d)" (ccodegenType typeof<VectorShape>) (printVectorShape elem) card
+    let printMatrix3DShape (m3s: Matrix3DShape): string = 
+      let (NestedShape(elem, Card(card))) = m3s
+      sprintf "nested_shape_%s(%s, %d)" (ccodegenType typeof<MatrixShape>) (printMatrixShape elem) card
+    match value.GetType() with
+    | t when t = typeof<Cardinality> -> 
+      printCard (unbox<Cardinality>(value))
+    | t when t = typeof<VectorShape> -> 
+      printVectorShape (unbox<VectorShape>(value))
+    | t when t = typeof<MatrixShape> ->
+      printMatrixShape (unbox<MatrixShape>(value))
+    | t when t = typeof<Matrix3DShape> ->
+      printMatrix3DShape (unbox<Matrix3DShape>(value))
+    | _ ->
+      failwithf "Does not know how to generate value of type `%A`" tp
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | CardConstructor c -> 
     (ccodegen c)
@@ -459,7 +485,7 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
   sprintf "%s\n%s %s(%s) {\n\t%s\n\t%s\n}" closuresCode resultType name parameters statementsCode finalStatement
 
 let ccodegenTopLevel (e: Expr) (name: string) (debug: bool): string = 
-  let preprocessed = (ctransformer.cpreprocess) e
+  let preprocessed = ctransformer.cpreprocess e
   if debug then printfn "/* Preprocessed code:\n%A\n*/\n" (prettyprint preprocessed)
   let generated = ccodegenFunction preprocessed name false
   if debug then printfn "// Generated C code for %s:\n\n%s" name generated

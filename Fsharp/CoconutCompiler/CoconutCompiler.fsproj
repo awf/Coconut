@@ -40,7 +40,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\CoconutCompiler.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\ ..\..\ ba 1 1</StartArguments>
+    <StartArguments>..\..\data\ba_instances\ba14.txt</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -73,8 +73,6 @@
     <Compile Include="ccodegentests.fs" />
     <Compile Include="cruntime.fs" />
     <Compile Include="transformer.fs" />
-    <Compile Include="cardinfer.fs" />
-    <Compile Include="storagedtransformer.fs" />
     <Compile Include="ctransformer.fs" />
     <Compile Include="ccodegen.fs" />
     <Compile Include="cost.fs" />
@@ -83,6 +81,8 @@
     <Compile Include="rules.fs" />
     <Compile Include="search.fs" />
     <Compile Include="optimizer.fs" />
+    <Compile Include="cardinfer.fs" />
+    <Compile Include="storagedtransformer.fs" />
     <Compile Include="compiler.fs" />
     <Compile Include="benchmark.fs" />
     <Compile Include="Main.fs" />
