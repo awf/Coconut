@@ -9,7 +9,15 @@ open rules
 open cost
 open search
 
-let recursiveTransformer (e: Expr) (rs: Rule List): Expr = 
+let rec fixPoint (times: int) (f: Expr -> Expr): Expr -> Expr = fun e ->
+  let ne = f e
+  if times <= 0 || ne = e then
+    printfn "STOPPED in %d" times
+    ne
+  else
+    fixPoint (times - 1) f ne
+
+let recursiveTransformer (rs: Rule List) (e: Expr): Expr = 
   let rec rcr(exp: Expr): Expr = 
     match exp with 
     | ApplicableRule rs rule -> rcr(applyRule rule exp |> List.head)
@@ -117,7 +125,7 @@ let optimize (e: Expr): Expr =
   // let best = inliner(e)
   let debug = false
   let rs = letInliner (*:: methodDefToLambda :: lambdaAppToLet*) :: algebraicRulesScalar
-  (*recursiveTransformer e rs*)
+  (*recursiveTransformer rs e*)
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (ccodegen.prettyprint) debugger
   let t = tic()

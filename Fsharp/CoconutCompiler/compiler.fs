@@ -37,11 +37,12 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
        let sse = storagedtransformer.simplifyStoraged se
        let sFunctionName = storagedtransformer.storagedName functionName
        let ce = cardinfer.inferCardinality optimized Map.empty
+       let sce = cardinfer.simplifyCardinality ce
        if(debug) then 
          printfn "/* Storaged code:\n%A\n*/\n" (prettyprint se)
          printfn "/* Simplified Storaged code:\n%A\n*/\n" (prettyprint sse)
        let cFunctionName = cardinfer.cardName functionName
-       ccodegenTopLevel ce cFunctionName debug + "\n\n" + 
+       ccodegenTopLevel sce cFunctionName debug + "\n\n" + 
          ccodegenTopLevel sse sFunctionName debug
      else
        ccodegenTopLevel optimized functionName debug
