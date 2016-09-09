@@ -124,30 +124,19 @@ let rec ccodegen (e:Expr): string =
     
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
-  // | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
-  //   let (Card(card)) = unbox<Cardinality>(v)
-  //   sprintf "%d" card
-  // | Patterns.Value(v, tp) when tp.Name = typeof<NestedShape<_>>.Name -> 
-  //   let (Card(card)) = unbox<Cardinality>(v)
-  //   sprintf "%d" card
   | Patterns.Value(value, tp) when tp = typeof<Cardinality> || tp.Name = typeof<NestedShape<_>>.Name -> 
     let printCard (c: Cardinality): string = 
       let (Card(card)) = c
       sprintf "%d" card
-    let printVectorShape (vs: VectorShape): string = 
-      let (NestedShape(Card(elem), Card(card))) = vs
-      sprintf "nested_shape_%s(%d, %d)" (ccodegenType typeof<Cardinality>) elem card
     let printMatrixShape (ms: MatrixShape): string = 
       let (NestedShape(elem, Card(card))) = ms
-      sprintf "nested_shape_%s(%s, %d)" (ccodegenType typeof<VectorShape>) (printVectorShape elem) card
+      sprintf "nested_shape_%s(%s, %d)" (ccodegenType typeof<VectorShape>) (printCard elem) card
     let printMatrix3DShape (m3s: Matrix3DShape): string = 
       let (NestedShape(elem, Card(card))) = m3s
       sprintf "nested_shape_%s(%s, %d)" (ccodegenType typeof<MatrixShape>) (printMatrixShape elem) card
     match value.GetType() with
     | t when t = typeof<Cardinality> -> 
       printCard (unbox<Cardinality>(value))
-    | t when t = typeof<VectorShape> -> 
-      printVectorShape (unbox<VectorShape>(value))
     | t when t = typeof<MatrixShape> ->
       printMatrixShape (unbox<MatrixShape>(value))
     | t when t = typeof<Matrix3DShape> ->
@@ -321,7 +310,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
              elementType curCode rangeCode idxCode
              bodyCode
              , bodyClosures, true)
-        | DerivedPatterns.SpecificCall <@ corelang.fold_s @> (_, [ta; tb; tac; tbc], _) ->
+        | DerivedPatterns.SpecificCall <@ corelang.fold_s @> (_, [ta; tb; tac; tanc; tbc], _) ->
           // TODO not memory safe yet
           let storage = ccodegen (elist.[0])
           let (LambdaN([st;acc;cur; acc_c; cur_c], body)) = elist.[1]

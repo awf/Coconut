@@ -125,10 +125,10 @@ let build_s<'a, 's> (storage: Storage)
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
 
 [<CMacro()>]
-let fold_s<'a, 'b, 'ac, 'bc> (storage: Storage) 
+let fold_s<'a, 'b, 'ac, 'nac, 'bc> (storage: Storage) 
   (f: Storage -> 'b -> 'a -> 'bc -> 'ac -> 'b) (z: 'b) (range: array<'a>)
-  (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: NestedShape<'ac>): 'b = 
-  Array.fold (fun acc cur -> f storage acc cur z_c (shapeElem range_c)) z range
+  (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: 'nac): 'b = 
+  failwith "fold_s is not implemented"
 
 [<CMonomorphicMacro()>]
 let get_s<'a, 's> (storage: Storage) 

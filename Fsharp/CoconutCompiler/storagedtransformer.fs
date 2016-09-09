@@ -167,22 +167,6 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     LambdaN(s2 :: sxs @ cxs, SEnv e s2 nenv)
   | Patterns.Var(v)                  -> Expr.Var(SV v)
   | Patterns.Let(x, e1, e2)          -> 
-    // let x_c = CVNew x
-    // Expr.Let(x_c, C e1,
-    //   let alloc cont = 
-    //     cont ( fun s2 ->
-    //       let x_s = SVNew x
-    //       Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage (env.Add(x, (x_s, x_c))))
-    //     )
-    //   if isScalarType x.Type then
-    //     alloc (fun func -> Alloc (Width (Expr.Var(x_c))) (fun s2 -> func s2))
-    //   else
-    //     alloc (fun func -> func O)
-    //   // Alloc (Width (Expr.Var(x_c))) (fun s2 ->
-    //   //   let x_s = SVNew x
-    //   //   Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage (env.Add(x, (x_s, x_c))))
-    //   // )
-    // )
     let x_c = CVNew x
     let x_s = SVNew x
     let newEnv = env.Add(x, (x_s, x_c))
@@ -217,7 +201,12 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     let s1 = Expr.Var(outputStorage)
     let tac = CT ta
     let tbc = CT tb
-    MakeCall <@ corelang.fold_s @> [s1; sf; sz; sr; cf; cz; cr] [ta; tb; tac; tbc]
+    let tanc = 
+      if ta = typeof<Vector> then
+        CT typeof<Vector>
+      else
+        CT (ta.MakeArrayType())
+    MakeCall <@ corelang.fold_s @> [s1; sf; sz; sr; cf; cz; cr] [ta; tb; tac; tanc; tbc]
   | ArrayLength(e0) ->
     Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)

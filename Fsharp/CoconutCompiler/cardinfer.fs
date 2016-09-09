@@ -69,23 +69,35 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   | Patterns.NewArray(tp, es)        -> 
     let ce1 = C es.[0]
     let N = Expr.Value(Card es.Length, typeof<Cardinality>)
-    MakeCall <@@ nestedShape @@> ([ce1; N]) ([CT tp])
+    if tp = typeof<Number> then
+      N
+    else 
+      MakeCall <@@ nestedShape @@> ([ce1; N]) ([CT tp])
   | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
-    MakeCall <@ nestedShape @> [Expr.Application(ce1, ZERO_CARD); ce0] [CT t]
+    if t = typeof<Number> then
+      ce0
+    else
+      MakeCall <@ nestedShape @> [Expr.Application(ce1, ZERO_CARD); ce0] [CT t]
   | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
     // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
     C z
   | ArrayLength(e0) ->
     let ce0 = C e0
-    MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
+    if ce0.Type = typeof<VectorShape> then
+      ce0
+    else
+      MakeCall(<@@ shapeCard @@>)([ce0])([ce0.Type.GenericTypeArguments.[0]])
   | ArrayGet(e0, e1) ->
     let ce0 = C e0
-    MakeCall <@ shapeElem @> [ce0] [CT exp.Type]
+    if ce0.Type = typeof<VectorShape> then
+      ZERO_CARD
+    else 
+      MakeCall <@ shapeElem @> [ce0] [CT exp.Type]
   | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
     // TODO requires number of column information in the matrixRead construct
-    <@@ nestedShape<VectorShape> (nestedShape<Cardinality> (Card 0) (Card 10)) (%%rows) @@>
+    <@@ nestedShape<VectorShape> (Card 10) (%%rows) @@>
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
   | DerivedPatterns.SpecificCall <@ (.+) @> (_, _, [e0; e1]) ->
     let ce0 = Expr.Cast<Cardinality>(C e0)

@@ -16,7 +16,7 @@ type Shape = FlatShape   of Cardinality
            | VectorShape of Shape * Cardinality
 *)
 type NestedShape<'S> = | NestedShape of 'S * Cardinality
-type VectorShape   = NestedShape<Cardinality>
+type VectorShape   = Cardinality
 type MatrixShape   = NestedShape<VectorShape>
 type Matrix3DShape = NestedShape<MatrixShape>
 
