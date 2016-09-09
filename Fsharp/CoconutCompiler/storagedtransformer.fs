@@ -109,7 +109,8 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
       | MethodVariable(mdl, mtd) -> CVNew v
       | _            -> failwithf "There is no cardinality variable associated with `%A`" v
   let CT = cardTransformType
-  let cardEnv = (env |> Map.map (fun k (v1, v2) -> v2))
+  let toCardEnv stEnv = (stEnv |> Map.map (fun k (v1, v2) -> v2))
+  let cardEnv = env |> toCardEnv
   let C e = inferCardinality e cardEnv
   let CEnv = inferCardinality
   let rec ST (t: Type) = 
@@ -166,11 +167,29 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     LambdaN(s2 :: sxs @ cxs, SEnv e s2 nenv)
   | Patterns.Var(v)                  -> Expr.Var(SV v)
   | Patterns.Let(x, e1, e2)          -> 
+    // let x_c = CVNew x
+    // Expr.Let(x_c, C e1,
+    //   let alloc cont = 
+    //     cont ( fun s2 ->
+    //       let x_s = SVNew x
+    //       Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage (env.Add(x, (x_s, x_c))))
+    //     )
+    //   if isScalarType x.Type then
+    //     alloc (fun func -> Alloc (Width (Expr.Var(x_c))) (fun s2 -> func s2))
+    //   else
+    //     alloc (fun func -> func O)
+    //   // Alloc (Width (Expr.Var(x_c))) (fun s2 ->
+    //   //   let x_s = SVNew x
+    //   //   Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage (env.Add(x, (x_s, x_c))))
+    //   // )
+    // )
     let x_c = CVNew x
+    let x_s = SVNew x
+    let newEnv = env.Add(x, (x_s, x_c))
+    let newEnvCard = newEnv |> toCardEnv
     Expr.Let(x_c, C e1,
-      Alloc (Width (Expr.Var(x_c))) (fun s2 ->
-        let x_s = SVNew x
-        Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage (env.Add(x, (x_s, x_c))))
+      Alloc (WidthCard (Expr.Var(x)) newEnvCard) (fun s2 ->
+        Expr.Let(x_s, S e1 s2, SEnv e2 outputStorage newEnv)
       )
     )
   | Patterns.IfThenElse(e1, e2, e3)  -> Expr.IfThenElse(S e1 O, S e2 outputStorage, S e3 outputStorage)

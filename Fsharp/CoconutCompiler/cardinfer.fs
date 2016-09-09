@@ -102,9 +102,10 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   | _ -> failwithf "Does not know how to compute cardinality for the expression `%A`" exp
 
 let Width (cardExp: Expr): Expr =
-  if (cardExp.Type = typeof<Cardinality>) then
+  (*if (cardExp.Type = typeof<Cardinality>) then
     cardExp
-  elif (cardExp.Type.Name = typeof<_ -> _>.Name) then
+  el*)
+  if (cardExp.Type.Name = typeof<_ -> _>.Name) then
     ZERO_CARD
   else
     MakeCall(<@@ width @@>)([cardExp])([cardExp.Type])
