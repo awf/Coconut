@@ -23,4 +23,10 @@ for /f "tokens=*" %%G in (%argfile%) do (
   for /L %%i in (1,1,5) do (
     call runapp.exe ba_s_bump.exe "../data/ba_instances/%%G" >> results/mem.txt
   )
+  for /L %%i in (1,1,5) do (
+    call runapp.exe fsharpn.exe "../data/ba_instances/%%G" >> results/mem.txt
+  )
+  for /L %%i in (1,1,5) do (
+    call runapp.exe fsharpo.exe "../data/ba_instances/%%G" >> results/mem.txt
+  )
 )
