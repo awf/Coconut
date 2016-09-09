@@ -202,20 +202,13 @@ array_number_t vector_build_given_storage(storage_t storage, closure_t closure) 
 
 // cardinality related methods
 
-vector_shape_t nested_shape_card_t(card_t elem, card_t card) {
-	vector_shape_t res;
-	res.elem = elem;
-	res.card = card;
-	return res;
-}
-
-
-matrix_shape_t nested_shape_vector_shape_t(vector_shape_t elem, card_t card) {
+matrix_shape_t nested_shape_card_t(card_t elem, card_t card) {
 	matrix_shape_t res;
 	res.elem = elem;
 	res.card = card;
 	return res;
 }
+
 
 matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
 	matrix3d_shape_t res;
@@ -224,14 +217,14 @@ matrix3d_shape_t nested_shape_matrix_shape_t(matrix_shape_t elem, card_t card) {
 	return res;
 }
 
-card_t width_vector_shape_t(vector_shape_t shape) {
-  return VECTOR_ALL_BYTES(shape.card);
+card_t width_card_t(card_t shape) {
+  return VECTOR_ALL_BYTES(shape);
 }
 
 card_t width_matrix_shape_t(matrix_shape_t shape) {
   card_t rows = shape.card;
-  card_t cols = shape.elem.card;
-  return width_vector_shape_t(shape.elem) * rows + MATRIX_HEADER_BYTES(rows);
+  card_t cols = shape.elem;
+  return width_card_t(cols) * rows + MATRIX_HEADER_BYTES(rows);
 }
 
 #endif
