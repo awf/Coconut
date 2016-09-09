@@ -78,8 +78,7 @@ let hoistingExample_pass3 (v: Vector) =
 
 [<DontOptimize>]
 let explicitMallocExample1(v: Vector) = 
-  //let storage1 = vectorAlloc 10 
-  vectorAllocCPS (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
+  alloc (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
     let sum = 
       iterateNumber (fun acc idx ->
           let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
@@ -101,8 +100,8 @@ let inline add_vecGivenStorage (s: Storage) (x: Vector) (y: Vector) =
 
 [<DontOptimize>]
 let explicitMallocExample2 (v: Vector) = 
-  vectorAllocCPS (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
-    vectorAllocCPS (width (nestedShape (Card 0) (Card 10))) (fun storage2 -> 
+  alloc (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
+    alloc (width (nestedShape (Card 0) (Card 10))) (fun storage2 -> 
       let sum = 
         iterateNumber (fun acc idx ->
             let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)

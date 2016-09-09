@@ -108,7 +108,7 @@ let allocToCPS_exp =
     )
     <==>
     (
-      vectorAllocCPS %c1 (fun s -> (%B1) s)
+      alloc %c1 (fun s -> (%B1) s)
     )
   @>
 

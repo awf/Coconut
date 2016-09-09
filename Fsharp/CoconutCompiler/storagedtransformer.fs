@@ -15,7 +15,7 @@ let O: StorageOutput = EMPTY_STORAGE
 
 let (|Alloc|_|) (e: Expr): (Expr * Var * Expr) option = 
   match e with
-  | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, _, [size; Patterns.Lambda(stgVar, body)]) ->
+  | DerivedPatterns.SpecificCall <@ corelang.alloc @> (_, _, [size; Patterns.Lambda(stgVar, body)]) ->
     Some(size, stgVar, body)
   | _ -> None
 
@@ -27,7 +27,7 @@ let (|StripedAlloc|) (e: Expr): (Expr * Var) option * Expr =
 let newStgVar (): Var = new Var(utils.newVar "stgVar", typeof<Storage>)
 
 let AllocWithVar (size: Expr) (stgVar: Var) (funExpr: Expr): Expr = 
-  MakeCall (<@@ corelang.vectorAllocCPS @@>)
+  MakeCall (<@@ corelang.alloc @@>)
     ([size; funExpr])
     ([funExpr.Type.GetGenericArguments() |> Array.rev |> fun x -> x.[0]])
 
@@ -50,11 +50,11 @@ let NewArrayS (stg: Var) (es: Expr list): Expr =
 
 let rec simplifyStoraged (exp: Expr): Expr =
   match exp with
-  | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, [t], [width; Patterns.Lambda(st, body)]) ->
+  | DerivedPatterns.SpecificCall <@ corelang.alloc @> (_, [t], [width; Patterns.Lambda(st, body)]) ->
     if width = ZERO_CARD || not (body.GetFreeVars() |> Seq.exists(fun v -> v = st)) then
       simplifyStoraged (body.Substitute(fun v -> if st = v then Some(Expr.Var(EMPTY_STORAGE)) else None))
     else 
-      MakeCall <@@ corelang.vectorAllocCPS @@> [width; Expr.Lambda(st, simplifyStoraged body)] [t]
+      MakeCall <@@ corelang.alloc @@> [width; Expr.Lambda(st, simplifyStoraged body)] [t]
   | ExprShape.ShapeLambda(x, body)       -> Expr.Lambda(x, simplifyStoraged body)
   | ExprShape.ShapeVar(x)                -> Expr.Var(x)
   | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map simplifyStoraged)
@@ -79,7 +79,7 @@ let allocLifting (e: Expr): Expr =
     //    (te2, List.append liftedLets1 ((x, te1) :: liftedLets2))
     //  else 
     //    (Expr.Let(x, te1, te2), List.append liftedLets1 liftedLets2)
-    | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, t, [sz; Patterns.Lambda(st, body)]) ->
+    | DerivedPatterns.SpecificCall <@ corelang.alloc @> (_, t, [sz; Patterns.Lambda(st, body)]) ->
       let canBeLifted = isSafeToLift sz
       let (tbody, liftedAllocs) = constructTopLevelAllocs (st :: boundVars) body
       if canBeLifted then

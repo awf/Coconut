@@ -347,7 +347,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
                       var.Name elemTp stgCode
                       args
           (rhs, [], false)
-        | DerivedPatterns.SpecificCall <@ corelang.vectorAllocCPS @> (_, [tres], [sizeExpr; cont]) ->
+        | DerivedPatterns.SpecificCall <@ corelang.alloc @> (_, [tres], [sizeExpr; cont]) ->
           let size = 
             match sizeExpr with
             | Patterns.Let(x, _, Patterns.Var(x2)) as sizeExpr when x = x2 -> fst (ccodegenStatements "\t" sizeExpr None)

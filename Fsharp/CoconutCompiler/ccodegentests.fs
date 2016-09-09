@@ -15,15 +15,15 @@ let closure_bug3 (m1: Matrix) (m2: Matrix): Matrix =
   build (Card 10) (fun i -> build (Card 20) (fun j -> double(i + j) * n))
 
 let valloc_cps_feature1 (dum: Vector): unit =
-  vectorAllocCPS (Card 10) (fun s -> 
+  alloc (Card 10) (fun s -> 
     vectorPrint dum
     vectorPrint dum
   )
   ()
 
 let valloc_cps_feature2 (dum: Vector): unit =
-  vectorAllocCPS (Card 10) (fun s -> 
-    vectorAllocCPS (Card 10) (fun s2 -> 
+  alloc (Card 10) (fun s -> 
+    alloc (Card 10) (fun s2 -> 
       vectorPrint dum
       vectorPrint dum
     )

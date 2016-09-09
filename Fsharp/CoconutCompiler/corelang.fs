@@ -101,12 +101,11 @@ let vectorAllocOnStack (size: Cardinality): Storage =
 let vectorCopy (storage: Storage) (v: Vector) =
   v
 
-/// Allocates storage needed for a Vector. 
+/// Allocates storage needed for a Vector or Matrix. 
 /// This storage is available only in the `cont` scope.
-// [<CMirror("vector_alloc_cps")>]
 [<CMacro()>]
-let vectorAllocCPS (size: Cardinality) (cont: Storage -> 'a): 'a =
-  let storage = vectorAlloc(size)
+let alloc (size: Cardinality) (cont: Storage -> 'a): 'a =
+  let storage = vectorAlloc size
   cont(storage)
 
 // TODO needs size parameter
