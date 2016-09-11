@@ -52,7 +52,8 @@ type RulePosition = int
 
 type InputMetaData = RulePosition
 
-type MetaData = InputMetaData * Rule
+type Positioned<'r> = InputMetaData * 'r
+type MetaData = Positioned<Rule>
 
 let private zeroMetaData: InputMetaData = 0
 
@@ -62,7 +63,7 @@ let rec exprSize (exp: Expr): int =
   | ExprShape.ShapeVar(v)                -> 1 + 1
   | ExprShape.ShapeCombination(o, exprs) -> 1 + (exprs |> List.map exprSize |> List.sum)
 
-let examineAllRulesMetaData (rs: Rule List) (e: Expr): MetaData List = 
+let examineAllRulesPositioned (rs: Rule List) (e: Expr): MetaData List = 
   let rec rcr (exp: Expr) (meta: InputMetaData): MetaData List = 
     let immediatelyConstructedExpressions = rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta, r)) 
     let constructedExpressionsByChildren =
@@ -90,6 +91,46 @@ let applyRuleAtParticularPosition (e: Expr) (rule: MetaData): Expr =
           let exprsExpressions = (([], meta + 1), exprs) ||> List.fold (fun (ms, idx) e  -> (rcr e idx) :: ms, idx + exprSize e)
           ExprShape.RebuildShapeCombination(o, fst exprsExpressions |> List.rev)
   rcr e zeroMetaData
+
+type RuleWeight = double // should be normalized between 0 and 1
+type RuleFeature = RuleWeight
+
+let ZERO_FEATURE = 0.
+
+let heuristicOptimizer (threshold: int) (rs: (Rule * RuleFeature) list) (initProgram: Expr): Expr = 
+  let rand = new System.Random()
+  let ruleFeaturesMap = rs |> List.map (fun (r, f) -> snd r, f) |> Map.ofList
+  let filteredRules = rs |> List.filter (fun (r, f) -> f <> ZERO_FEATURE) |> List.map fst
+  let tapp = tic()
+  tapp.Stop()
+  let tmatch = tic()
+  tmatch.Stop()
+  let mainLoop (currentProgram: Expr) (rule: MetaData): Expr = 
+    tapp.Start()
+    let result = applyRuleAtParticularPosition currentProgram rule
+    tapp.Stop()
+    result
+  let chooseRule (currentProgram: Expr): MetaData option = 
+    tmatch.Start()
+    let allApplicablePositionedRules = examineAllRulesPositioned filteredRules currentProgram 
+    let rulesCount = allApplicablePositionedRules |> List.length
+    tmatch.Stop()
+    // TODO use weigths to make it weighted random selection, however the prefiltering based on
+    // zero weights seems to be sufficient for the moment.
+    if rulesCount = 0 then
+      None
+    else
+      let randomIndex = rand.Next(rulesCount)
+      Some (allApplicablePositionedRules.[randomIndex])
+  let result = 
+    fixPoint threshold (fun currentProgram -> 
+      match chooseRule currentProgram with
+      | Some(rule) -> mainLoop currentProgram rule
+      | None       -> currentProgram
+    ) initProgram
+  toc tapp
+  toc tmatch
+  result
 
 let rec inliner (exp: Expr): Expr = 
   match exp with 
