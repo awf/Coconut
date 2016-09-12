@@ -25,7 +25,7 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
            e
        else 
          e
-     let debug = true
+     let debug = false
      if(debug) then 
        printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
        if(opt) then 

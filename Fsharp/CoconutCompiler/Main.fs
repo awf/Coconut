@@ -9,19 +9,14 @@ open FSharp.Quotations
 open types
 
 let test_ba (argv: string[]) = 
-    let dir_in = argv.[0]
-    let dir_out = argv.[1]
-    let fn = argv.[2]
-    let nruns_f = (Int32.Parse argv.[3])
-    let nruns_J = (Int32.Parse argv.[4])
-    let replicate_point = 
-        (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
-    let nmp = vectorRead fn 0
+    let fileName = argv.[0]
+    let nmp = vectorRead fileName 0
     let n = Card (int nmp.[0])
     let m = Card (int nmp.[1])
     let p = Card (int nmp.[2])
-    let res = usecases_ba.run_ba_from_file (dir_in + fn + ".txt") n m p
-    matrixPrint res
+    let res = usecases_ba.run_ba_from_file fileName n m p
+    //matrixPrint res
+    ()
  
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
@@ -63,6 +58,41 @@ let compile_modules_storaged () =
 let benchmark_search () =
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
     benchmark.benchmark_test_algorithms bundleAdjustmentProject
+
+let test_phase_based_optimizer () = 
+    compiler.compileModule "linalg" [] false false
+    compiler.compileModule "usecases_ba" ["linalg"] false false
+    let bundleAdjustmentReprojErr = compiler.getMethodExpr "usecases_ba" "reproj_err"
+    let recTrans rs = optimizer.recursiveTransformer rs |> optimizer.fixPoint 10
+    let hurTrans rs = optimizer.heuristicOptimizer 1000 (rs |> List.map (fun r -> r, 1.0))
+    let trans rs exp = 
+      let t = tic()
+      let e = hurTrans rs exp
+      toc t
+      e
+    let time = tic()
+    let opt = 
+      bundleAdjustmentReprojErr 
+        |> trans [rules.methodDefToLambda; rules.lambdaAppToLet] 
+        |> trans [rules.vectorSliceToBuild] 
+        |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        |> trans [rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old]
+        // // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
+        // // |> trans [ruleengine.compilePatternToRule <@ rules.vectorBuildGet_exp @>; 
+        // //           ruleengine.compilePatternToRule <@ rules.vectorBuildLength_exp @>]
+        |> trans [rules.lambdaAppToLet] 
+        |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        |> trans [rules_old.dce_old]
+        |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
+        |> trans [ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
+        |> trans [rules.lambdaAppToLet] 
+        |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
+                     ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>] 
+        |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>] 
+        |> fun x -> transformer.variableRenaming x []
+    toc time
+    printfn "pretty code: %s" (ccodegen.prettyprint opt)
+    // printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_reproj_err_opt" false)
 
 let test_guided_optimizer () = 
     compiler.compileModule "linalg" [] false false
@@ -418,7 +448,7 @@ let test_feature () =
         rules.letCommutingConversion;
         rules.letInliner;
       ]
-  let firstLevelApplicableRules = optimizer.examineAllRulesMetaData uniqueRules bundleAdjustmentProject
+  let firstLevelApplicableRules = optimizer.examineAllRulesPositioned uniqueRules bundleAdjustmentProject
   let lastRule = firstLevelApplicableRules |> List.rev |> List.head
   printfn "%A" (firstLevelApplicableRules |> List.map (optimizer.applyRuleAtParticularPosition bundleAdjustmentProject) |> List.map ccodegen.prettyprint )
   ()
@@ -439,7 +469,8 @@ let test_card () =
 let main argv = 
     // test_ba argv
     // compile_modules ()
-    compile_modules_storaged ()
+    test_phase_based_optimizer ()
+    // compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()
