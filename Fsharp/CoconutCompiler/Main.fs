@@ -66,15 +66,29 @@ let test_phase_based_optimizer () =
     let recTrans rs = optimizer.recursiveTransformer rs |> optimizer.fixPoint 10
     let hurTrans rs = optimizer.heuristicOptimizer 1000 (rs |> List.map (fun r -> r, 1.0))
     let trans rs exp = 
-      let t = tic()
-      let e = hurTrans rs exp
-      toc t
+      // let t = tic()
+      let e = recTrans rs exp
+      // toc t
       e
-    let time = tic()
+    let generateCodeForAllPhases (prog: Expr) (phases: ruleengine.Rule list list): unit = 
+      let generateCodeUpToPhase (subPhases: ruleengine.Rule list list): unit = 
+        let numPhases = subPhases |> List.length
+        let headerName = sprintf "usecases_ba_%d" numPhases
+        let methodName = sprintf "TOP_LEVEL_usecases_ba_reproj_err_%d" numPhases
+        let transformed = 
+          (prog, subPhases) ||> List.fold (fun acc rules -> trans rules acc)
+        let result = transformed // |> fun x -> transformer.variableRenaming x []
+        compiler.compileToHeaderFile headerName ["linalg"; "usecases_ba"] ([ccodegen.ccodegenTopLevel result methodName false])
+      ([], phases) ||> List.fold (fun acc cur -> let nacc = acc @ [cur] in generateCodeUpToPhase nacc; nacc )
+      // generateCodeUpToPhase phases
+      ()
+      
+    // let time = tic()
     let opt = 
       bundleAdjustmentReprojErr 
-        |> trans [rules.methodDefToLambda; rules.lambdaAppToLet] 
-        |> trans [rules.vectorSliceToBuild] 
+        // |> trans [rules.methodDefToLambda; rules.lambdaAppToLet] 
+        // |> trans [rules.vectorSliceToBuild] 
+        |> trans [rules.methodDefToLambda; rules.lambdaAppToLet; rules.vectorSliceToBuild] 
         |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         |> trans [rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old]
         // // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
@@ -83,16 +97,50 @@ let test_phase_based_optimizer () =
         |> trans [rules.lambdaAppToLet] 
         |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         |> trans [rules_old.dce_old]
-        |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
-        |> trans [ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
+        |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>; 
+                  ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
         |> trans [rules.lambdaAppToLet] 
         |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
                      ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>] 
         |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>] 
+        // |> trans [rules.methodDefToLambda; rules.lambdaAppToLet; rules.vectorSliceToBuild] 
+        // |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.vectorBuildGet_exp @>; 
+        //           ruleengine.compilePatternToRule <@ rules.vectorBuildLength_exp @>;
+        //           ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
+        // |> trans [rules.lambdaAppToLet]
+        // |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        // |> trans [rules_old.dce_old]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
+        //           ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>] 
+        // |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>]
         |> fun x -> transformer.variableRenaming x []
-    toc time
-    printfn "pretty code: %s" (ccodegen.prettyprint opt)
-    // printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_reproj_err_opt" false)
+    let phases = 
+      [
+        [rules.methodDefToLambda; rules.lambdaAppToLet; rules.vectorSliceToBuild]; 
+        [rules_old.letCommutingConversion_old; rules_old.letNormalization_old];
+        // [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>];
+        // [ruleengine.compilePatternToRule <@ rules.vectorBuildGet_exp @>; 
+        //  ruleengine.compilePatternToRule <@ rules.vectorBuildLength_exp @>;
+        //  ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>];
+        [rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old];
+        [rules.lambdaAppToLet];
+        [rules_old.letCommutingConversion_old; rules_old.letNormalization_old];
+        [rules_old.dce_old];
+        [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>; 
+         ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>];
+        [rules.lambdaAppToLet];
+        [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
+         ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>]; 
+        [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>];
+      ]
+    generateCodeForAllPhases bundleAdjustmentReprojErr phases
+    // // toc time
+    // printfn "pretty code: %s" (ccodegen.prettyprint opt)
+    printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_reproj_err_opt" false)
 
 let test_guided_optimizer () = 
     compiler.compileModule "linalg" [] false false

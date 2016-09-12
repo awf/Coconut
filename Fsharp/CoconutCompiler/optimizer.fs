@@ -101,20 +101,22 @@ let heuristicOptimizer (threshold: int) (rs: (Rule * RuleFeature) list) (initPro
   let rand = new System.Random()
   let ruleFeaturesMap = rs |> List.map (fun (r, f) -> snd r, f) |> Map.ofList
   let filteredRules = rs |> List.filter (fun (r, f) -> f <> ZERO_FEATURE) |> List.map fst
-  let tapp = tic()
-  tapp.Stop()
-  let tmatch = tic()
-  tmatch.Stop()
+  let mutable total_progs = 0
+  // let tapp = tic()
+  // tapp.Stop()
+  // let tmatch = tic()
+  // tmatch.Stop()
   let mainLoop (currentProgram: Expr) (rule: MetaData): Expr = 
-    tapp.Start()
+    // tapp.Start()
     let result = applyRuleAtParticularPosition currentProgram rule
-    tapp.Stop()
+    // tapp.Stop()
     result
   let chooseRule (currentProgram: Expr): MetaData option = 
-    tmatch.Start()
+    // tmatch.Start()
     let allApplicablePositionedRules = examineAllRulesPositioned filteredRules currentProgram 
     let rulesCount = allApplicablePositionedRules |> List.length
-    tmatch.Stop()
+    total_progs <- total_progs + rulesCount
+    // tmatch.Stop()
     // TODO use weigths to make it weighted random selection, however the prefiltering based on
     // zero weights seems to be sufficient for the moment.
     if rulesCount = 0 then
@@ -128,8 +130,9 @@ let heuristicOptimizer (threshold: int) (rs: (Rule * RuleFeature) list) (initPro
       | Some(rule) -> mainLoop currentProgram rule
       | None       -> currentProgram
     ) initProgram
-  toc tapp
-  toc tmatch
+  printfn "%d" total_progs
+  // toc tapp
+  // toc tmatch
   result
 
 let rec inliner (exp: Expr): Expr = 
