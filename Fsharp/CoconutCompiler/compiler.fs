@@ -53,18 +53,10 @@ let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) (
     compile moduleName m opt storaged
   ) methodNames
 
-
-let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool) = 
-  let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
-                  (List.filter (fun (x: System.Reflection.MethodInfo) -> 
-                    x.DeclaringType.Name = moduleName) 
-                    (List.ofArray (assembly.GetType(moduleName).GetMethods())))
-  let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
-  let generatedMethods = compileSeveral moduleName methods opt storaged
-  let moduleNameWithPostfix = nameWithPostfix moduleName
-  let depModulesString = dependentModules |> List.map nameWithPostfix |> List.map (fun m -> sprintf "#include \"%s.h\"" m) 
-  let moduleMacroName = sprintf "__%s_H__" (moduleNameWithPostfix.ToUpper())
-  let fileName = sprintf "%s.h" moduleNameWithPostfix
+let compileToHeaderFile (headerName: string) (dependentHeaders: string List) (content: string List): unit =
+  let depModulesString = dependentHeaders |> List.map (fun m -> sprintf "#include \"%s.h\"" m) 
+  let moduleMacroName = sprintf "__%s_H__" (headerName.ToUpper())
+  let fileName = sprintf "%s.h" headerName
   let header = sprintf """#ifndef %s 
 #define %s 
 #include "runtime/fsharp.h"
@@ -73,5 +65,17 @@ let compileModule (moduleName: string) (dependentModules: string List) (opt: boo
   let footer = "#endif"
   System.IO.File.WriteAllLines 
     ("../../coconut/" + fileName, 
-      List.append (header :: (List.append depModulesString generatedMethods)) ([footer]))
+      List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
+
+
+let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
+  let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
+                  (List.filter (fun (x: System.Reflection.MethodInfo) -> 
+                    x.DeclaringType.Name = moduleName) 
+                    (List.ofArray (assembly.GetType(moduleName).GetMethods())))
+  let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
+  let generatedMethods = compileSeveral moduleName methods opt storaged
+  let moduleNameWithPostfix = nameWithPostfix moduleName
+  let depModulesString = dependentModules |> List.map nameWithPostfix
+  compileToHeaderFile moduleNameWithPostfix depModulesString generatedMethods
