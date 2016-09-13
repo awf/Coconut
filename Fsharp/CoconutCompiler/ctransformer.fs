@@ -158,6 +158,7 @@ let rec letCommuting (e: Expr): Expr =
 let cpreprocess (e: Expr): Expr = 
   e 
   (*|> storagedtransformer.allocLifting*) 
+  |> fun x -> variableRenaming x []
   |> closureConversion 
   |> anfConversion false 
   |> letLifting 

@@ -336,26 +336,34 @@ let getFreeVariables (e: Expr): Var list =
   e.GetFreeVars() |> Seq.filter (isMethodVariable >> not) |> Seq.filter (fun x -> not (x = EMPTY_STORAGE)) |> List.ofSeq
 
 let rec variableRenaming (e: Expr) (renamings: (Var * Var) list): Expr =
-  let alreadyExistingVariable(v: Var) = 
-    renamings |> List.exists (fun (v1, v2) -> v1.Name = v.Name || v2.Name = v.Name)
+  let allNames = renamings |> List.collect (fun (v1, v2) -> [v1.Name; v2.Name]) |> Set.ofList
+  let alreadyExistingVariableName (name: string) = 
+    allNames |> Set.contains name
+  let getOrRenameVar(v: Var) = 
+    if alreadyExistingVariableName v.Name then
+      let rec findAppendId (id: int): int = 
+        let newName = sprintf "%s%d" v.Name id
+        if alreadyExistingVariableName newName then
+          findAppendId (id + 1)
+        else
+          id
+      let newId = findAppendId 0
+      let newName = sprintf "%s%d" v.Name newId
+      new Var(newName, v.Type)
+    else
+      v
   match e with 
   | Patterns.Let(v, e1, e2) ->
     let ne1 = variableRenaming e1 renamings
     let (nv, newRenamings) = 
-      if alreadyExistingVariable v then
-        let nv = new Var(newVar (v.Name), v.Type)
-        nv, (v, nv) :: renamings
-      else
-        v, (v, v) :: renamings
+      let nv = getOrRenameVar v
+      nv, (v, nv) :: renamings
     let ne2 = variableRenaming e2 newRenamings
     Expr.Let(nv, ne1, ne2)
   | ExprShape.ShapeLambda(x, e) ->
     let (nx, newRenamings) = 
-      if alreadyExistingVariable x then
-        let nx = new Var(newVar (x.Name), x.Type)
-        nx, (x, nx) :: renamings
-      else
-        x, (x, x) :: renamings
+      let nx = getOrRenameVar x
+      nx, (x, nx) :: renamings
     let ne = variableRenaming e newRenamings
     Expr.Lambda(nx, ne)
   | ExprShape.ShapeVar(x) ->
