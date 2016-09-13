@@ -208,10 +208,10 @@ array_number_t TOP_LEVEL_linalg_cross(array_number_t a, array_number_t b) {
 typedef empty_env_t env_t_33;
 
 
-value_t lambda33(env_t_33* env30, number_t x, number_t y) {
+value_t lambda33(env_t_33* env30, number_t x0, number_t y0) {
 	
 	value_t res;
-	res.number_t_value = (x) + (y);
+	res.number_t_value = (x0) + (y0);
 	return res;
 }
 array_number_t TOP_LEVEL_linalg_add_vec(array_number_t x, array_number_t y) {
@@ -221,10 +221,10 @@ array_number_t TOP_LEVEL_linalg_add_vec(array_number_t x, array_number_t y) {
 typedef empty_env_t env_t_37;
 
 
-value_t lambda37(env_t_37* env34, number_t x, number_t y) {
+value_t lambda37(env_t_37* env34, number_t x0, number_t y0) {
 	
 	value_t res;
-	res.number_t_value = (x) * (y);
+	res.number_t_value = (x0) * (y0);
 	return res;
 }
 array_number_t TOP_LEVEL_linalg_mult_vec_elementwise(array_number_t x, array_number_t y) {
@@ -239,10 +239,10 @@ array_number_t TOP_LEVEL_linalg_add_vec3(array_number_t x, array_number_t y, arr
 typedef empty_env_t env_t_41;
 
 
-value_t lambda41(env_t_41* env38, number_t x, number_t y) {
+value_t lambda41(env_t_41* env38, number_t x0, number_t y0) {
 	
 	value_t res;
-	res.number_t_value = (x) - (y);
+	res.number_t_value = (x0) - (y0);
 	return res;
 }
 array_number_t TOP_LEVEL_linalg_sub_vec(array_number_t x, array_number_t y) {
@@ -252,10 +252,10 @@ array_number_t TOP_LEVEL_linalg_sub_vec(array_number_t x, array_number_t y) {
 typedef empty_env_t env_t_45;
 
 
-value_t lambda45(env_t_45* env42, array_number_t x, array_number_t y) {
+value_t lambda45(env_t_45* env42, array_number_t x0, array_number_t y0) {
 	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_add_vec(x, y);
+	res.array_number_t_value = TOP_LEVEL_linalg_add_vec(x0, y0);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixAdd(array_array_number_t x, array_array_number_t y) {
@@ -265,10 +265,10 @@ array_array_number_t TOP_LEVEL_linalg_matrixAdd(array_array_number_t x, array_ar
 typedef empty_env_t env_t_49;
 
 
-value_t lambda49(env_t_49* env46, array_number_t x, array_number_t y) {
+value_t lambda49(env_t_49* env46, array_number_t x0, array_number_t y0) {
 	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise(x, y);
+	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise(x0, y0);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixMultElementwise(array_array_number_t x, array_array_number_t y) {
@@ -291,10 +291,10 @@ number_t TOP_LEVEL_linalg_sqnorm(array_number_t x) {
 typedef empty_env_t env_t_57;
 
 
-value_t lambda57(env_t_57* env54, number_t x, number_t y) {
+value_t lambda57(env_t_57* env54, number_t x0, number_t y0) {
 	
 	value_t res;
-	res.number_t_value = (x) * (y);
+	res.number_t_value = (x0) * (y0);
 	return res;
 }
 number_t TOP_LEVEL_linalg_dot_prod(array_number_t x, array_number_t y) {

@@ -54,7 +54,7 @@ timer_t tic() {
 void toc(timer_t t) {
 	clock_t end = clock();
 	float milliseconds = (float)(end - t.start) * 1000.0 / CLOCKS_PER_SEC;
-	printf("Time: %d ms\n", (int)milliseconds);
+	printf("%d (ms)\n", (int)milliseconds);
 }
 
 clock_t benchmarked_time = 0;

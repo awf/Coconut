@@ -56,10 +56,10 @@ number_t TOP_LEVEL_usecases_ba_compute_zach_weight_error(number_t w) {
 typedef empty_env_t env_t_89;
 
 
-value_t lambda89(env_t_89* env86, number_t w) {
+value_t lambda89(env_t_89* env86, number_t w0) {
 	
 	value_t res;
-	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error(w);
+	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error(w0);
 	return res;
 }
 array_number_t TOP_LEVEL_usecases_ba_w_err(array_number_t w) {
@@ -111,7 +111,7 @@ env_t_114 make_env_t_114(number_t one_w) {
 	return env;
 }
 
-value_t lambda114(env_t_114* env104, number_t x) {
+value_t lambda114(env_t_114* env104, number_t x0) {
 	number_t one_w103 = env104->one_w;
 	value_t res;
 	res.number_t_value = one_w103;
@@ -126,7 +126,7 @@ env_t_115 make_env_t_115(array_number_t one_feat) {
 	return env;
 }
 
-value_t lambda115(env_t_115* env108, number_t x) {
+value_t lambda115(env_t_115* env108, number_t x0) {
 	array_number_t one_feat107 = env108->one_feat;
 	value_t res;
 	res.array_number_t_value = one_feat107;
@@ -161,13 +161,13 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 	array_array_number_t macroDef111 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef111->length=p;
 	macroDef111->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * p);
-		for(int x = 0; x < macroDef111->length; x++){
+		for(int x0 = 0; x0 < macroDef111->length; x0++){
 			array_number_t array112 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	array112->length=2;
 	array112->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
-	array112->arr[0] = (double)(((int)(x)) % ((n)));
-	array112->arr[1] = (double)(((int)(x)) % ((m)));;
-			macroDef111->arr[x] = array112;;
+	array112->arr[0] = (double)(((int)(x0)) % ((n)));
+	array112->arr[1] = (double)(((int)(x0)) % ((m)));;
+			macroDef111->arr[x0] = array112;;
 		}
 	array_array_number_t obs = macroDef111;
 	timer_t t = tic();

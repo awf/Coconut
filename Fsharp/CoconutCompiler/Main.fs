@@ -79,6 +79,7 @@ let test_phase_based_optimizer () =
           (prog, subPhases) ||> List.fold (fun acc rules -> trans rules acc)
         let result = transformed // |> fun x -> transformer.variableRenaming x []
         compiler.compileToHeaderFile headerName ["linalg"; "usecases_ba"] ([ccodegen.ccodegenTopLevel result methodName false])
+      generateCodeUpToPhase []
       ([], phases) ||> List.fold (fun acc cur -> let nacc = acc @ [cur] in generateCodeUpToPhase nacc; nacc )
       // generateCodeUpToPhase phases
       ()
