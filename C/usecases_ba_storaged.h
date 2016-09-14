@@ -186,7 +186,7 @@ number_t TOP_LEVEL_usecases_ba_compute_zach_weight_error_s(storage_t stgVar839, 
 typedef empty_env_t env_t_848;
 
 
-value_t lambda848(env_t_848* env845, card_t w_c) {
+value_t lambda848(env_t_848* env845, card_t w_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -200,16 +200,16 @@ card_t TOP_LEVEL_usecases_ba_w_err_c(card_t w_c) {
 typedef empty_env_t env_t_855;
 
 
-value_t lambda855(env_t_855* env849, storage_t stgVar843, number_t w_s, card_t w_c) {
+value_t lambda855(env_t_855* env849, storage_t stgVar843, number_t w_s0, card_t w_c0) {
 	
 	value_t res;
-	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error_s(stgVar843, w_s, 0);
+	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error_s(stgVar843, w_s0, 0);
 	return res;
 }
 typedef empty_env_t env_t_856;
 
 
-value_t lambda856(env_t_856* env852, card_t w_c) {
+value_t lambda856(env_t_856* env852, card_t w_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -402,7 +402,7 @@ value_t lambda1158(env_t_1158* env1114, card_t x_c) {
 typedef empty_env_t env_t_1159;
 
 
-value_t lambda1159(env_t_1159* env1118, card_t x_c) {
+value_t lambda1159(env_t_1159* env1118, card_t x_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -417,7 +417,7 @@ env_t_1160 make_env_t_1160(number_t one_w_s) {
 	return env;
 }
 
-value_t lambda1160(env_t_1160* env1122, storage_t stgVar945, number_t x_s, card_t x_c) {
+value_t lambda1160(env_t_1160* env1122, storage_t stgVar945, number_t x_s0, card_t x_c0) {
 	number_t one_w_s1121 = env1122->one_w_s;
 	value_t res;
 	res.number_t_value = one_w_s1121;
@@ -426,7 +426,7 @@ value_t lambda1160(env_t_1160* env1122, storage_t stgVar945, number_t x_s, card_
 typedef empty_env_t env_t_1161;
 
 
-value_t lambda1161(env_t_1161* env1125, card_t x_c) {
+value_t lambda1161(env_t_1161* env1125, card_t x_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -441,7 +441,7 @@ env_t_1163 make_env_t_1163(card_t one_feat_c) {
 	return env;
 }
 
-value_t lambda1163(env_t_1163* env1130, card_t x_c) {
+value_t lambda1163(env_t_1163* env1130, card_t x_c0) {
 	card_t one_feat_c1129 = env1130->one_feat_c;
 	value_t res;
 	res.card_t_value = one_feat_c1129;
@@ -456,7 +456,7 @@ env_t_1164 make_env_t_1164(array_number_t one_feat_s) {
 	return env;
 }
 
-value_t lambda1164(env_t_1164* env1134, storage_t stgVar954, number_t x_s, card_t x_c) {
+value_t lambda1164(env_t_1164* env1134, storage_t stgVar954, number_t x_s0, card_t x_c0) {
 	array_number_t one_feat_s1133 = env1134->one_feat_s;
 	value_t res;
 	res.array_number_t_value = one_feat_s1133;
@@ -471,7 +471,7 @@ env_t_1165 make_env_t_1165(card_t one_feat_c) {
 	return env;
 }
 
-value_t lambda1165(env_t_1165* env1138, card_t x_c) {
+value_t lambda1165(env_t_1165* env1138, card_t x_c0) {
 	card_t one_feat_c1137 = env1138->one_feat_c;
 	value_t res;
 	res.card_t_value = one_feat_c1137;
@@ -480,7 +480,7 @@ value_t lambda1165(env_t_1165* env1138, card_t x_c) {
 typedef empty_env_t env_t_1167;
 
 
-value_t lambda1167(env_t_1167* env1142, card_t x_c) {
+value_t lambda1167(env_t_1167* env1142, card_t x_c0) {
 	
 	value_t res;
 	res.card_t_value = 2;
@@ -561,14 +561,14 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file_s(storage_t stgVar92
 		macroDef1146->length=p_s;
 		macroDef1146->arr=(array_number_t*)(STG_OFFSET(macroDef1146, VECTOR_HEADER_BYTES));
 		storage_t stgVar958 = (STG_OFFSET(macroDef1146, MATRIX_HEADER_BYTES(p_s)));
-		for(int x_s = 0; x_s < macroDef1146->length; x_s++){
+		for(int x_s0 = 0; x_s0 < macroDef1146->length; x_s0++){
 			array_number_t macroDef1145 = (array_number_t)stgVar958;
 	macroDef1145->length=2;
 	macroDef1145->arr=(number_t*)(STG_OFFSET(stgVar958, VECTOR_HEADER_BYTES));
-	macroDef1145->arr[0] = (double)(((int)(x_s)) % ((n_s)));
-	macroDef1145->arr[1] = (double)(((int)(x_s)) % ((m_s)));;
-			macroDef1146->arr[x_s] = macroDef1145;;
-			stgVar958 = STG_OFFSET(stgVar958, VECTOR_ALL_BYTES(macroDef1146->arr[x_s]->length));
+	macroDef1145->arr[0] = (double)(((int)(x_s0)) % ((n_s)));
+	macroDef1145->arr[1] = (double)(((int)(x_s0)) % ((m_s)));;
+			macroDef1146->arr[x_s0] = macroDef1145;;
+			stgVar958 = STG_OFFSET(stgVar958, VECTOR_ALL_BYTES(macroDef1146->arr[x_s0]->length));
 		}
 	array_array_number_t obs_s = macroDef1146;
 	card_t t_c = 0;

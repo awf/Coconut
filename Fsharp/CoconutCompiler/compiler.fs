@@ -64,7 +64,7 @@ let compileToHeaderFile (headerName: string) (dependentHeaders: string List) (co
 #include <math.h>""" moduleMacroName moduleMacroName
   let footer = "#endif"
   System.IO.File.WriteAllLines 
-    ("../../coconut/" + fileName, 
+    ("../../C/" + fileName, 
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 

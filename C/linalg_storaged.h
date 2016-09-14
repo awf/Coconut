@@ -378,7 +378,7 @@ array_number_t TOP_LEVEL_linalg_cross_s(storage_t stgVar125, array_number_t a_s,
 typedef empty_env_t env_t_150;
 
 
-value_t lambda150(env_t_150* env147, card_t x_c, card_t y_c) {
+value_t lambda150(env_t_150* env147, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -392,16 +392,16 @@ card_t TOP_LEVEL_linalg_add_vec_c(card_t x_c, card_t y_c) {
 typedef empty_env_t env_t_157;
 
 
-value_t lambda157(env_t_157* env151, storage_t stgVar146, number_t x_s, number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda157(env_t_157* env151, storage_t stgVar146, number_t x_s0, number_t y_s0, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.number_t_value = (x_s) + (y_s);
+	res.number_t_value = (x_s0) + (y_s0);
 	return res;
 }
 typedef empty_env_t env_t_158;
 
 
-value_t lambda158(env_t_158* env154, card_t x_c, card_t y_c) {
+value_t lambda158(env_t_158* env154, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -415,7 +415,7 @@ array_number_t TOP_LEVEL_linalg_add_vec_s(storage_t stgVar142, array_number_t x_
 typedef empty_env_t env_t_167;
 
 
-value_t lambda167(env_t_167* env164, card_t x_c, card_t y_c) {
+value_t lambda167(env_t_167* env164, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -429,16 +429,16 @@ card_t TOP_LEVEL_linalg_mult_vec_elementwise_c(card_t x_c, card_t y_c) {
 typedef empty_env_t env_t_174;
 
 
-value_t lambda174(env_t_174* env168, storage_t stgVar163, number_t x_s, number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda174(env_t_174* env168, storage_t stgVar163, number_t x_s0, number_t y_s0, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.number_t_value = (x_s) * (y_s);
+	res.number_t_value = (x_s0) * (y_s0);
 	return res;
 }
 typedef empty_env_t env_t_175;
 
 
-value_t lambda175(env_t_175* env171, card_t x_c, card_t y_c) {
+value_t lambda175(env_t_175* env171, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -467,7 +467,7 @@ array_number_t TOP_LEVEL_linalg_add_vec3_s(storage_t stgVar176, array_number_t x
 typedef empty_env_t env_t_191;
 
 
-value_t lambda191(env_t_191* env188, card_t x_c, card_t y_c) {
+value_t lambda191(env_t_191* env188, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -481,16 +481,16 @@ card_t TOP_LEVEL_linalg_sub_vec_c(card_t x_c, card_t y_c) {
 typedef empty_env_t env_t_198;
 
 
-value_t lambda198(env_t_198* env192, storage_t stgVar187, number_t x_s, number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda198(env_t_198* env192, storage_t stgVar187, number_t x_s0, number_t y_s0, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.number_t_value = (x_s) - (y_s);
+	res.number_t_value = (x_s0) - (y_s0);
 	return res;
 }
 typedef empty_env_t env_t_199;
 
 
-value_t lambda199(env_t_199* env195, card_t x_c, card_t y_c) {
+value_t lambda199(env_t_199* env195, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -504,10 +504,10 @@ array_number_t TOP_LEVEL_linalg_sub_vec_s(storage_t stgVar183, array_number_t x_
 typedef empty_env_t env_t_210;
 
 
-value_t lambda210(env_t_210* env207, card_t x_c, card_t y_c) {
+value_t lambda210(env_t_210* env207, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.card_t_value = TOP_LEVEL_linalg_add_vec_c(x_c, y_c);
+	res.card_t_value = TOP_LEVEL_linalg_add_vec_c(x_c0, y_c0);
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixAdd_c(matrix_shape_t x_c, matrix_shape_t y_c) {
@@ -518,19 +518,19 @@ matrix_shape_t TOP_LEVEL_linalg_matrixAdd_c(matrix_shape_t x_c, matrix_shape_t y
 typedef empty_env_t env_t_217;
 
 
-value_t lambda217(env_t_217* env211, storage_t stgVar204, array_number_t x_s, array_number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda217(env_t_217* env211, storage_t stgVar204, array_number_t x_s0, array_number_t y_s0, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_add_vec_s(stgVar204, x_s, y_s, x_c, y_c);
+	res.array_number_t_value = TOP_LEVEL_linalg_add_vec_s(stgVar204, x_s0, y_s0, x_c0, y_c0);
 	return res;
 }
 typedef empty_env_t env_t_218;
 
 
-value_t lambda218(env_t_218* env214, card_t x_c, card_t y_c) {
+value_t lambda218(env_t_218* env214, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.card_t_value = TOP_LEVEL_linalg_add_vec_c(x_c, y_c);
+	res.card_t_value = TOP_LEVEL_linalg_add_vec_c(x_c0, y_c0);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixAdd_s(storage_t stgVar200, array_array_number_t x_s, array_array_number_t y_s, matrix_shape_t x_c, matrix_shape_t y_c) {
@@ -541,10 +541,10 @@ array_array_number_t TOP_LEVEL_linalg_matrixAdd_s(storage_t stgVar200, array_arr
 typedef empty_env_t env_t_229;
 
 
-value_t lambda229(env_t_229* env226, card_t x_c, card_t y_c) {
+value_t lambda229(env_t_229* env226, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.card_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c(x_c, y_c);
+	res.card_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c(x_c0, y_c0);
 	return res;
 }
 matrix_shape_t TOP_LEVEL_linalg_matrixMultElementwise_c(matrix_shape_t x_c, matrix_shape_t y_c) {
@@ -555,19 +555,19 @@ matrix_shape_t TOP_LEVEL_linalg_matrixMultElementwise_c(matrix_shape_t x_c, matr
 typedef empty_env_t env_t_236;
 
 
-value_t lambda236(env_t_236* env230, storage_t stgVar223, array_number_t x_s, array_number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda236(env_t_236* env230, storage_t stgVar223, array_number_t x_s0, array_number_t y_s0, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_s(stgVar223, x_s, y_s, x_c, y_c);
+	res.array_number_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_s(stgVar223, x_s0, y_s0, x_c0, y_c0);
 	return res;
 }
 typedef empty_env_t env_t_237;
 
 
-value_t lambda237(env_t_237* env233, card_t x_c, card_t y_c) {
+value_t lambda237(env_t_237* env233, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.card_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c(x_c, y_c);
+	res.card_t_value = TOP_LEVEL_linalg_mult_vec_elementwise_c(x_c0, y_c0);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixMultElementwise_s(storage_t stgVar219, array_array_number_t x_s, array_array_number_t y_s, matrix_shape_t x_c, matrix_shape_t y_c) {
@@ -637,7 +637,7 @@ card_t TOP_LEVEL_linalg_dot_prod_c(card_t x_c, card_t y_c) {
 typedef empty_env_t env_t_280;
 
 
-value_t lambda280(env_t_280* env267, card_t x_c, card_t y_c) {
+value_t lambda280(env_t_280* env267, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -646,16 +646,16 @@ value_t lambda280(env_t_280* env267, card_t x_c, card_t y_c) {
 typedef empty_env_t env_t_281;
 
 
-value_t lambda281(env_t_281* env270, storage_t stgVar266, number_t x_s, number_t y_s, card_t x_c, card_t y_c) {
+value_t lambda281(env_t_281* env270, storage_t stgVar266, number_t x_s0, number_t y_s0, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
-	res.number_t_value = (x_s) * (y_s);
+	res.number_t_value = (x_s0) * (y_s0);
 	return res;
 }
 typedef empty_env_t env_t_282;
 
 
-value_t lambda282(env_t_282* env273, card_t x_c, card_t y_c) {
+value_t lambda282(env_t_282* env273, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;
@@ -664,7 +664,7 @@ value_t lambda282(env_t_282* env273, card_t x_c, card_t y_c) {
 typedef empty_env_t env_t_283;
 
 
-value_t lambda283(env_t_283* env276, card_t x_c, card_t y_c) {
+value_t lambda283(env_t_283* env276, card_t x_c0, card_t y_c0) {
 	
 	value_t res;
 	res.card_t_value = 0;

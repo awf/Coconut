@@ -37,7 +37,7 @@ void TOP_LEVEL_programs_hoistingExample(array_number_t v) {
 }
 
 void TOP_LEVEL_programs_explicitMallocExample1(array_number_t v) {
-	card_t size246 = width_vector_shape_t(nested_shape_card_t(0, 10));
+	card_t size246 = width_matrix_shape_t(nested_shape_card_t(0, 10));
 	array_number_t storage1 = storage_alloc(size246);
 	number_t macroDef243 = 0;
 	for(int idx = 0; idx <= 9; idx++){
@@ -77,10 +77,10 @@ array_number_t TOP_LEVEL_programs_vectorMap2GivenStorage(storage_t storage, clos
 typedef empty_env_t env_t_253;
 
 
-value_t lambda253(env_t_253* env250, number_t x, number_t y) {
+value_t lambda253(env_t_253* env250, number_t x0, number_t y0) {
 	
 	value_t res;
-	res.number_t_value = (x) + (y);
+	res.number_t_value = (x0) + (y0);
 	return res;
 }
 array_number_t TOP_LEVEL_programs_add_vecGivenStorage(storage_t s, array_number_t x, array_number_t y) {
@@ -89,9 +89,9 @@ array_number_t TOP_LEVEL_programs_add_vecGivenStorage(storage_t s, array_number_
 }
 
 void TOP_LEVEL_programs_explicitMallocExample2(array_number_t v) {
-	card_t size260 = width_vector_shape_t(nested_shape_card_t(0, 10));
+	card_t size260 = width_matrix_shape_t(nested_shape_card_t(0, 10));
 	array_number_t storage1 = storage_alloc(size260);
-	card_t size259 = width_vector_shape_t(nested_shape_card_t(0, 10));
+	card_t size259 = width_matrix_shape_t(nested_shape_card_t(0, 10));
 	array_number_t storage2 = storage_alloc(size259);
 	number_t macroDef255 = 0;
 	for(int idx = 0; idx <= 9; idx++){
