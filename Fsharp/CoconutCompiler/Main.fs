@@ -516,9 +516,9 @@ let test_card () =
 
 [<EntryPoint>]
 let main argv = 
-    // test_ba argv
+    test_ba argv
     // compile_modules ()
-    test_phase_based_optimizer ()
+    // test_phase_based_optimizer ()
     // compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()

@@ -24,7 +24,7 @@ let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix =
   build (length m) (fun i -> f(m.[i]))
 
 [<DontInline>]
-let vectorMap2 (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
+let inline vectorMap2 (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
   build (length v1) (fun i -> f(v1.[i])(v2.[i]))
 
 [<DontInline>]
@@ -67,7 +67,7 @@ let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Cardina
   fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
 [<DontInline>]
-let arraySum (arr: Vector): Number = 
+let inline arraySum (arr: Vector): Number = 
   fold (fun acc cur -> acc + cur) 0.0 arr
 
 [<DontInline>]
