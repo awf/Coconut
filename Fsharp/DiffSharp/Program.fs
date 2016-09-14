@@ -156,7 +156,7 @@ let test_ba fn_in fn_out nruns_f nruns_J =
     let tf = ((float obj_stop_watch.ElapsedMilliseconds)) / (float nruns_f)
     // let tJ = ((float jac_stop_watch.ElapsedMilliseconds) / 1000.) / (float nruns_J)
     // write_times (fn_out + "_times_" + name + ".txt") tf tJ
-    printfn "Time (ms): %d" (int tf)
+    printfn "%d (ms)" (int tf)
 #endif
 
 #if DO_HAND
