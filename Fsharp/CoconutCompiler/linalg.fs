@@ -9,7 +9,7 @@ open cardinality
 (** Extensions to the core language **)
 
 let vectorMap (f: Number -> Number) (v: Vector): Vector = 
-  build (length v) (fun i -> f(v.[i]))
+  build (length v) (fun i -> f v.[i])
 
 let vectorRange (s: Cardinality) (e: Cardinality): Vector = 
   build (e .- s .+ (Card 1)) (fun i -> double (cardToInt s + i))
@@ -18,22 +18,22 @@ let vectorSlice (size: Cardinality) (offset: Index) (v: Vector): Vector =
   build size (fun i -> v.[i + offset])
 
 let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 
-  build (length m) (fun i -> f(m.[i]))
+  build (length m) (fun i -> f m.[i])
 
 let vectorMap2 (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
-  build (length v1) (fun i -> f(v1.[i])(v2.[i]))
+  build (length v1) (fun i -> f v1.[i] v2.[i])
 
 let matrixMap2 (f: Vector -> Vector -> Vector) (m1: Matrix) (m2: Matrix): Matrix = 
-  build (length m1) (fun i -> f(m1.[i])(m2.[i]))
+  build (length m1) (fun i -> f m1.[i] m2.[i])
 
 let matrix3DMap2 (f: Matrix -> Matrix -> Matrix) (m1: Matrix[]) (m2: Matrix[]): Matrix[] = 
-  build (length m1) (fun i -> f(m1.[i])(m2.[i]))
+  build (length m1) (fun i -> f m1.[i] m2.[i])
 
 let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix = 
-  build (length arr) (fun i -> f(arr.[i]))
+  build (length arr) (fun i -> f arr.[i])
 
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
-  build (length arr) (fun i -> f(arr.[i]))
+  build (length arr) (fun i -> f arr.[i])
 
 (*
 let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): unit = 
@@ -60,10 +60,14 @@ let arrayMax (arr: Vector): Number =
   fold (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) arr
 
 let mult_by_scalar (x: Vector) (y: Number): Vector =
-    vectorMap (fun a -> a*y) x
+    vectorMap (fun a -> a * y) x
 
 let cross (a: Vector) (b: Vector) =
-    [| a.[1]*b.[2] - a.[2]*b.[1]; a.[2]*b.[0] - a.[0]*b.[2]; a.[0]*b.[1] - a.[1]*b.[0]; |]
+    [| 
+      a.[1] * b.[2] - a.[2] * b.[1];
+      a.[2] * b.[0] - a.[0] * b.[2];
+      a.[0] * b.[1] - a.[1] * b.[0];
+    |]
 
 let add_vec (x: Vector) (y: Vector) =
     vectorMap2 (+) x y
@@ -84,7 +88,7 @@ let matrixMultElementwise (x: Matrix) (y: Matrix) =
     matrixMap2 mult_vec_elementwise x y
 
 let sqnorm (x: Vector) =
-    arraySum (vectorMap (fun x1 -> x1*x1) x)
+    arraySum (vectorMap (fun x1 -> x1 * x1) x)
 
 let dot_prod (x: Vector) (y: Vector) =
     arraySum (vectorMap2 (*) x y)
@@ -93,8 +97,6 @@ let matrixFillFromVector (rows: Cardinality) (row: Vector): Matrix =
   vectorMapToMatrix (fun r -> row) (vectorRange (Card 1) rows)
 
 let matrixFill (rows: Cardinality) (cols: Cardinality) (value: Number): Matrix = 
-  //let row = vectorMap (fun c -> value) (vectorRange (Card 1) cols)
-  //matrixFillFromVector rows row
   build rows (fun r ->
     build cols (fun c ->
       value

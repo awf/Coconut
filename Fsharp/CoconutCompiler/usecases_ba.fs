@@ -66,17 +66,14 @@ let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): M
 let run_ba_from_file (fn: string) (n: Cardinality) (m: Cardinality) (p: Cardinality)= 
     let oneCard = Card 1
     let one_cam = vectorRead fn 1
-    let cam = //vectorMapToMatrix (fun x -> one_cam)  (vectorRange oneCard n)
-      build n (fun x -> one_cam)
+    let cam = build n (fun x -> one_cam)
     let one_x = vectorRead fn 2
-    let x = //vectorMapToMatrix (fun x -> one_x)  (vectorRange oneCard m)
-      build m (fun x -> one_x)
+    let x = build m (fun x -> one_x)
     let one_w = numberRead fn 3
     let w = vectorMap (fun x -> one_w)  (vectorRange oneCard p)
     let one_feat = vectorRead fn 4
     let feat = vectorMapToMatrix (fun x -> one_feat)  (vectorRange oneCard p)
-    let obs = //vectorMapToMatrix (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )  (vectorRange (Card 0) (p .- oneCard))
-      build p (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )
+    let obs = build p (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )
     let t = tic()
     let res = reproj_err cam x w obs feat
     toc(t)
