@@ -42,7 +42,7 @@ let vectorBuildToStorage =
                                 (let s = vectorAlloc (%c1) in vectorBuildGivenStorage s (%F))
                                                                                       @>
 
-let vectorAddToStorage = <@ linalg.add_vec %U %V       
+let vectorAddToStorage = <@ linalg.vectorAdd %U %V       
                                                            <==>
                                 (let s2 = vectorAlloc (length %U) in programs.add_vecGivenStorage s2 %U %V)
                                                                                       @>

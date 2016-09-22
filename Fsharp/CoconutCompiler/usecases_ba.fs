@@ -26,9 +26,9 @@ let rodrigues_rotate_point (rot: Vector) (x: Vector) =
       let tmp = (dot_prod w x) * (1. - costheta)
       let v1 = mult_by_scalar x costheta
       let v2 = mult_by_scalar w_cross_X sintheta 
-      add_vec (add_vec v1 v2) (mult_by_scalar w tmp)
+      vectorAdd (vectorAdd v1 v2) (mult_by_scalar w tmp)
     else 
-      add_vec x (cross rot x)
+      vectorAdd x (cross rot x)
 
 let project (cam: Vector) (x: Vector) =
     (* Should be changed to global constant variables *)
@@ -40,16 +40,16 @@ let project (cam: Vector) (x: Vector) =
     let RAD_IDX = 9
     let Xcam = rodrigues_rotate_point 
                   cam.[ROT_IDX..(ROT_IDX+2)]  
-                  (sub_vec x cam.[CENTER_IDX..(CENTER_IDX+2)])
+                  (vectorSub x cam.[CENTER_IDX..(CENTER_IDX+2)])
     let distorted = radial_distort 
                       cam.[RAD_IDX..(RAD_IDX+1)] 
                       (mult_by_scalar Xcam.[0..1] (1./Xcam.[2]))
-    add_vec 
+    vectorAdd 
         cam.[X0_IDX..(X0_IDX+1)] 
         (mult_by_scalar distorted cam.[FOCAL_IDX])
 
 let compute_reproj_err (cam: Vector) (x: Vector) (w: Number) (feat: Vector) =
-    mult_by_scalar (sub_vec (project cam x) feat) w
+    mult_by_scalar (vectorSub (project cam x) feat) w
 
 let compute_zach_weight_error w =
     1. - w*w

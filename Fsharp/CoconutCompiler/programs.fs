@@ -14,7 +14,7 @@ let test2 (x: Number) (b: Number): Number =
   (x + b) - b
 
 let vector_add3 (v1: Vector) (v2: Vector) (v3: Vector): Vector = 
-  add_vec v1 (add_vec v2 v3)
+  vectorAdd v1 (vectorAdd v2 v3)
 
 let matrix_add3 (m1: Matrix) (m2: Matrix) (m3: Matrix): Matrix = 
   matrixAdd m1 (matrixAdd m2 m3)
@@ -27,7 +27,7 @@ let hoistingExample (v: Vector) =
   let sum = 
     iterateNumber (fun acc idx ->
         let tmp = v.[idx..(idx+9)]  // First, let's desugar this to GetArraySlice/array_slice as F# does...
-        acc + sqnorm (add_vec tmp tmp)
+        acc + sqnorm (vectorAdd tmp tmp)
     ) 0. (Card 0) (Card 9)
   numberPrint sum
   ()
@@ -82,7 +82,7 @@ let explicitMallocExample1(v: Vector) =
     let sum = 
       iterateNumber (fun acc idx ->
           let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
-          acc + sqnorm (add_vec tmp tmp)
+          acc + sqnorm (vectorAdd tmp tmp)
         ) 0. (Card 0) (Card 9)
     numberPrint sum
   )
@@ -116,7 +116,7 @@ let explicitMallocExample2 (v: Vector) =
 [<DontOptimize>]
 let stackAllocExample (x: Number) (y: Number) (z: Number) =
   let v = [| x; y; z |]
-  let v2 = add_vec v v
+  let v2 = vectorAdd v v
   vectorPrint v2
   ()
 

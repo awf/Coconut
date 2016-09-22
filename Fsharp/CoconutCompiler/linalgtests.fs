@@ -18,11 +18,11 @@ let test1 (dum: Vector) =
   vectorPrint c
   let d = mult_by_scalar c 15.0
   vectorPrint d
-  let e = add_vec a b
+  let e = vectorAdd a b
   vectorPrint e
-  let f = sub_vec a b
+  let f = vectorSub a b
   vectorPrint f
-  let g = add_vec3 a b c
+  let g = vectorAdd3 a b c
   vectorPrint g
   let h = sqnorm a
   numberPrint h

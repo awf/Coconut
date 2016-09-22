@@ -53,11 +53,11 @@ let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Cardinality) (e
 let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Cardinality) (e: Cardinality): Matrix[] = 
   fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
 
-let arraySum (arr: Vector): Number = 
-  fold (fun acc cur -> acc + cur) 0.0 arr
+let vectorSum (v: Vector): Number = 
+  fold (fun acc cur -> acc + cur) 0.0 v
 
-let arrayMax (arr: Vector): Number = 
-  fold (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) arr
+let vectorMax (v: Vector): Number = 
+  fold (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) v
 
 let mult_by_scalar (x: Vector) (y: Number): Vector =
     vectorMap (fun a -> a * y) x
@@ -69,29 +69,29 @@ let cross (a: Vector) (b: Vector) =
       a.[0] * b.[1] - a.[1] * b.[0];
     |]
 
-let add_vec (x: Vector) (y: Vector) =
+let vectorAdd (x: Vector) (y: Vector) =
     vectorMap2 (+) x y
 
 let mult_vec_elementwise (x: Vector) (y: Vector) =
     vectorMap2 (*) x y
 
-let add_vec3 (x: Vector) (y: Vector) (z: Vector) =
-    add_vec (add_vec x y) z
+let vectorAdd3 (x: Vector) (y: Vector) (z: Vector) =
+    vectorAdd (vectorAdd x y) z
 
-let sub_vec (x: Vector) (y: Vector) =
+let vectorSub (x: Vector) (y: Vector) =
     vectorMap2 (-) x y
 
 let matrixAdd (x: Matrix) (y: Matrix) =
-    matrixMap2 add_vec x y
+    matrixMap2 vectorAdd x y
 
 let matrixMultElementwise (x: Matrix) (y: Matrix) =
     matrixMap2 mult_vec_elementwise x y
 
 let sqnorm (x: Vector) =
-    arraySum (vectorMap (fun x1 -> x1 * x1) x)
+    vectorSum (vectorMap (fun x1 -> x1 * x1) x)
 
 let dot_prod (x: Vector) (y: Vector) =
-    arraySum (vectorMap2 (*) x y)
+    vectorSum (vectorMap2 (*) x y)
 
 let matrixFillFromVector (rows: Cardinality) (row: Vector): Matrix = 
   vectorMapToMatrix (fun r -> row) (vectorRange (Card 1) rows)
