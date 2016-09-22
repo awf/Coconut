@@ -8,83 +8,83 @@ open types
 open cardinality
 
 
-let divide2Mult_exp        = <@ (%a / %b) / %c             <==>   %a / (%b * %c)      @>
-let distrMult_exp          = <@ %a * (%b + %c)             <==>   %a * %b + %a * %c   @>
-let constFold0_exp         = <@ %a + 0.                    <==>   %a                  @>
-let constFold1_exp         = <@ %a * 1.                    <==>   %a                  @>
-let subSame_exp            = <@ %a - %a                    <==>   0.0                 @>
-let multDivide_exp         = <@ %a * (%b / %a)             <==>   %b                  @>
-let assocAddSub_exp        = <@ (%a + %b) - %c             <==>   %a + (%b - %c)      @>
-let assocAddAdd_exp        = <@ (%a + %b) + %c             <==>   %a + (%b + %c)      @>
-let assocSubSub_exp        = <@ (%a - %b) - %c             <==>   %a - (%b + %c)      @>
-let indexToDoubleToInt_exp = <@ int (double %k)            <==>   %k                  @>
-let vectorBuildGet_exp     = <@ (build<Number> %c1 %F).[%i]   <==>   (%F) %i             @>
-let vectorBuildLength_exp  = <@ (build<Number> %c2 %F).Length <==>   %k                  @>
-let comAddIndex_exp        = <@ %i + %j                    <==>   %j + %i             @>
-let assocAddSubIndex_exp   = <@ (%i + %j) - %k             <==>   %i + (%j - %k)      @>
-let assocSubAddIndex_exp   = <@ (%i - %j) + %k             <==>   %i - (%j - %k)      @>
-let assocSubSubIndex_exp   = <@ (%i - %j) - %k             <==>   %i - (%j + %k)      @>
-let subSameIndex_exp       = <@ %i - %i                    <==>   0                   @>
-let constFold0Index_exp    = <@ %i + 0                     <==>   %i                  @>
-let constFoldN0Index_exp   = <@ %i - 0                     <==>   %i                  @>
-let constFoldCardAdd_exp   = <@ (Card %i) .+ (Card %j)     <==>   Card (%i + %j)      @>
-let constFoldCardSub_exp   = <@ (Card %i) .- (Card %j)     <==>   Card (%i - %j)      @>
-let dce_exp                = <@ ( let x = %E1 in %E2: T1 ) <==>   %E2                 @>
-let vectorFoldBuildToFoldOnRange_exp = 
+let divide2Mult        = <@ (%a / %b) / %c                <==>   %a / (%b * %c)      @>
+let distrMult          = <@ %a * (%b + %c)                <==>   %a * %b + %a * %c   @>
+let constFold0         = <@ %a + 0.0                      <==>   %a                  @>
+let constFold1         = <@ %a * 1.0                      <==>   %a                  @>
+let subSame            = <@ %a - %a                       <==>   0.0                 @>
+let multDivide         = <@ %a * (%b / %a)                <==>   %b                  @>
+let assocAddSub        = <@ (%a + %b) - %c                <==>   %a + (%b - %c)      @>
+let assocAddAdd        = <@ (%a + %b) + %c                <==>   %a + (%b + %c)      @>
+let assocSubSub        = <@ (%a - %b) - %c                <==>   %a - (%b + %c)      @>
+let comAddIndex        = <@ %i + %j                       <==>   %j + %i             @>
+let assocAddSubIndex   = <@ (%i + %j) - %k                <==>   %i + (%j - %k)      @>
+let assocSubAddIndex   = <@ (%i - %j) + %k                <==>   %i - (%j - %k)      @>
+let assocSubSubIndex   = <@ (%i - %j) - %k                <==>   %i - (%j + %k)      @>
+let subSameIndex       = <@ %i - %i                       <==>   0                   @>
+let constFold0Index    = <@ %i + 0                        <==>   %i                  @>
+let constFoldN0Index   = <@ %i - 0                        <==>   %i                  @>
+let constFoldCardAdd   = <@ (Card %i) .+ (Card %j)        <==>   Card (%i + %j)      @>
+let constFoldCardSub   = <@ (Card %i) .- (Card %j)        <==>   Card (%i - %j)      @>
+let indexToDoubleToInt = <@ int (double %k)               <==>   %k                  @>
+let vectorBuildGet     = <@ (build<Number> %c1 %F).[%i]   <==>   (%F) %i             @>
+let vectorBuildLength  = <@ (build<Number> %c2 %F).Length <==>   %k                  @>
+let dce                = <@ ( let x = %E1 in %E2: T1 )    <==>   %E2                 @>
+let vectorFoldBuildToFoldOnRange = 
                              <@ fold<Number, Number> %F %a (build<Number> %c1 %G)
                                                            <==>
                                 linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
                                                                                       @>
 
-let vectorBuildToStorage_exp = 
+let vectorBuildToStorage = 
                              <@ build<Number> (%c1) (%F)      
                                                            <==>
                                 (let s = vectorAlloc (%c1) in vectorBuildGivenStorage s (%F))
                                                                                       @>
 
-let vectorAddToStorage_exp = <@ linalg.add_vec %U %V       
+let vectorAddToStorage = <@ linalg.add_vec %U %V       
                                                            <==>
                                 (let s2 = vectorAlloc (length %U) in programs.add_vecGivenStorage s2 %U %V)
                                                                                       @>
 
-let letVectorBuildLength_exp = 
+let letVectorBuildLength = 
                              <@ ( let x = (build<Number> %c1 %F) in ((%B1) (length x) x): T1 )
                                                            <==>
                                 ( let x = (build<Number> %c1 %F) in (%B1) %c1 x )
                                                                                       @>
 
-let letVectorBuildGet_exp = 
+let letVectorBuildGet = 
                              <@ ( let x = (build<Number> %c1 %F) in ((%B1) (x.[%i]) x): T1 )
                                                            <==>
                                 ( let x = (build<Number> %c1 %F) in (%B1) ((%F) %i) x )
                                                                                       @>
 
-let letBuild_exp = 
+let letBuild = 
                              <@ ( let x = (build<Number> %c1 %F) in ((%B1) x): T1 )
                                                            <==>
                                 ( (%B1) (build<Number> %c1 %F) )
                                                                                       @>
 
-let letInliner_exp         = <@ ((let x = %E1 in (%B1) x): T1)
+let letInliner         = <@ ((let x = %E1 in (%B1) x): T1)
                                                            <==> (%B1) %E1             @>
 
-let letMerging_exp         = <@ ( let x: T1 = %E1 in let y: T1 = %E1 in ((%B1) x y): T2 )
+let letMerging         = <@ ( let x: T1 = %E1 in let y: T1 = %E1 in ((%B1) x y): T2 )
                                                            <==>
                                 let x: T1 = %E1 in (%B1) x x
                                                                                       @>
 
-let letCommutingConversion_exp 
+let letCommutingConversion 
                            = <@ ( let x: T1 = (let y: T2 = %E1 in (%B1) y) in ((%B2) x): T3 )
                                                            <==>
                                 let y: T2 = %E1 in let x: T1 = (%B1) y in (%B2) x
                                                                                       @>
 
-let letReorder_exp         = <@ ( let x: T1 = %E1 in let y: T2 = %E2 in ((%B1) x y): T3 )
+let letReorder         = <@ ( let x: T1 = %E1 in let y: T2 = %E2 in ((%B1) x y): T3 )
                                                            <==>
                                 let y: T2 = %E2 in let x: T1 = %E1 in ((%B1) x y): T3
                                                                                       @>
 
-let copyLet_exp            = <@ ( vectorCopy %stg1 (let x = %E1 in (%B1) x) )
+let copyLet            = <@ ( vectorCopy %stg1 (let x = %E1 in (%B1) x) )
                                                            <==>
                                 ( let x = %E1 in vectorCopy %stg1 ((%B1) x) )
                                                                                       @>
@@ -127,27 +127,14 @@ let letFloatOutwards_exp = <@
 
 
 
-let letVectorBuildLength: Rule = compilePatternWithNameToRule letVectorBuildLength_exp "letVectorBuildLength"
-
-let letVectorBuildGet: Rule = compilePatternWithNameToRule letVectorBuildGet_exp "letVectorBuildGet"
-
-let letInliner: Rule = compilePatternWithNameToRule letInliner_exp "letInliner"
-
-let letMerging: Rule = compilePatternWithNameToRule letMerging_exp "letMerging"
-
-let letCommutingConversion: Rule = compilePatternWithNameToRule letCommutingConversion_exp "letCommutingConversion"
-
-let letReorder: Rule = compilePatternWithNameToRule letReorder_exp "letReorder"
-
 let allocToCPS: Rule = compilePatternWithNameToRule allocToCPS_exp "allocToCPS"
 
-let dce: Rule = compilePatternWithNameToRule dce_exp "dce"
-
-let algebraicRulesScalar_exp = 
-  [ <@ divide2Mult_exp @>; <@ distrMult_exp @>; <@ constFold0_exp @>; <@ constFold1_exp @>; <@subSame_exp@> ; 
-    <@ multDivide_exp @>; <@ assocAddSub_exp @>; <@ assocAddAdd_exp @>; <@ assocSubSub_exp @> ]
-
-let algebraicRulesScalar: Rule List = List.map compilePatternToRule algebraicRulesScalar_exp
+let algebraicRulesScalar = 
+  [ compilePatternToRule <@ divide2Mult @>; compilePatternToRule <@ distrMult @>; 
+  compilePatternToRule <@ constFold0 @>; compilePatternToRule <@ constFold1 @>; 
+  compilePatternToRule <@ subSame @> ; compilePatternToRule <@ multDivide @>; 
+  compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
+  compilePatternToRule <@ assocSubSub @> ]
 
 //let algebraicRulesVector_exp = [ <@ vectorBuildGet_exp @>; <@ vectorSliceToBuild_exp @>]
 

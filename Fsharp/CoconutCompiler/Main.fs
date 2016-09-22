@@ -21,12 +21,12 @@ let test_ba (argv: string[]) =
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
     //let prog = <@ vectorFoldNumber (fun acc cur -> acc) 0.0 (vectorBuild 10 (fun i -> 2.)) @>
-    //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange_exp) prog
+    //let prog' = ruleengine.compilePatternToRule (rules.vectorFoldBuildToFoldOnRange) prog
     //let prog' = prog
     //let prog = <@ let y = 1 * 3 in y * 3 @>
-    //let prog' = ruleengine.compilePatternToRule (rules.letInliner_exp ()) prog
+    //let prog' = ruleengine.compilePatternToRule (rules.letInliner ()) prog
     //let prog = <@ 8.0 - 0.0 - 2.0 @>
-    //let prog' = ruleengine.compilePatternToRule (rules.assocSubSubIndex_exp) prog
+    //let prog' = ruleengine.compilePatternToRule (rules.assocSubSubIndex) prog
     //let prog = <@ let i = 2 in vectorBuild 10 (fun i -> double i) @>
     //let prog' = rules.letInliner_old prog
     //let prog = <@ let i = 2 in let j = 2 in i / j @>
@@ -92,51 +92,51 @@ let test_phase_based_optimizer () =
         |> trans [rules.methodDefToLambda; rules.lambdaAppToLet; rules.vectorSliceToBuild] 
         |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         |> trans [rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old]
-        // // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
-        // // |> trans [ruleengine.compilePatternToRule <@ rules.vectorBuildGet_exp @>; 
-        // //           ruleengine.compilePatternToRule <@ rules.vectorBuildLength_exp @>]
+        // // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild @>]
+        // // |> trans [ruleengine.compilePatternToRule <@ rules.vectorBuildGet @>; 
+        // //           ruleengine.compilePatternToRule <@ rules.vectorBuildLength @>]
         |> trans [rules.lambdaAppToLet] 
         |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         |> trans [rules_old.dce_old]
-        // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
-        // |> trans [ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
-        |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>; 
-                  ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>]
+        |> trans [ruleengine.compilePatternToRule <@ rules.letBuild @>; 
+                  ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>]
         |> trans [rules.lambdaAppToLet] 
-        |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
-                     ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>] 
-        |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>] 
+        |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd @>;
+                     ruleengine.compilePatternToRule <@ rules.constFoldCardSub @>] 
+        |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index @>] 
         // |> trans [rules.methodDefToLambda; rules.lambdaAppToLet; rules.vectorSliceToBuild] 
         // |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
-        // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>]
-        // |> trans [ruleengine.compilePatternToRule <@ rules.vectorBuildGet_exp @>; 
-        //           ruleengine.compilePatternToRule <@ rules.vectorBuildLength_exp @>;
-        //           ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.vectorBuildGet @>; 
+        //           ruleengine.compilePatternToRule <@ rules.vectorBuildLength @>;
+        //           ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>]
         // |> trans [rules.lambdaAppToLet]
         // |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         // |> trans [rules_old.dce_old]
-        // |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
-        //           ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>] 
-        // |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>]
+        // |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd @>;
+        //           ruleengine.compilePatternToRule <@ rules.constFoldCardSub @>] 
+        // |> trans [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index @>]
         |> fun x -> transformer.variableRenaming x []
     let phases = 
       [
         [rules.methodDefToLambda; rules.lambdaAppToLet; rules.vectorSliceToBuild]; 
         [rules_old.letCommutingConversion_old; rules_old.letNormalization_old];
-        // [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>];
-        // [ruleengine.compilePatternToRule <@ rules.vectorBuildGet_exp @>; 
-        //  ruleengine.compilePatternToRule <@ rules.vectorBuildLength_exp @>;
-        //  ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>];
+        // [ruleengine.compilePatternToRule <@ rules.letBuild @>];
+        // [ruleengine.compilePatternToRule <@ rules.vectorBuildGet @>; 
+        //  ruleengine.compilePatternToRule <@ rules.vectorBuildLength @>;
+        //  ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>];
         [rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old];
         [rules.lambdaAppToLet];
         [rules_old.letCommutingConversion_old; rules_old.letNormalization_old];
         [rules_old.dce_old];
-        [ruleengine.compilePatternToRule <@ rules.letBuild_exp @>; 
-         ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange_exp @>];
+        [ruleengine.compilePatternToRule <@ rules.letBuild @>; 
+         ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>];
         [rules.lambdaAppToLet];
-        [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd_exp @>;
-         ruleengine.compilePatternToRule <@ rules.constFoldCardSub_exp @>]; 
-        [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index_exp @>];
+        [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd @>;
+         ruleengine.compilePatternToRule <@ rules.constFoldCardSub @>]; 
+        [rules.constantFold; ruleengine.compilePatternToRule <@ rules.constFold0Index @>];
       ]
     generateCodeForAllPhases bundleAdjustmentReprojErr phases
     // // toc time
@@ -149,58 +149,59 @@ let test_guided_optimizer () =
     let comp = ruleengine.compilePatternToRule
       //ruleengine.compilePatternToRule2
     let vecAdd3 = compiler.getMethodExpr "programs" "vector_add3"
+    let letInliner = comp <@ rules.letInliner @>
     let chains = 
       optimizer.guidedOptimize vecAdd3 
         [ rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.methodDefToLambda, 0; 
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 0;
+          letInliner, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
           ]
     // printfn "vecAdd3 chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     let hoistingExample = compiler.getMethodExpr "programs" "hoistingExample"
     let chains = 
       optimizer.guidedOptimize hoistingExample 
         [ rules.vectorSliceToBuild, 0;
-          comp <@ rules.comAddIndex_exp @>, 1;
-          comp <@ rules.assocAddSubIndex_exp @>, 0;
-          comp <@ rules.subSameIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          comp <@ rules.comAddIndex @>, 1;
+          comp <@ rules.assocAddSubIndex @>, 0;
+          comp <@ rules.subSameIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.constantFold, 0;
-          comp <@ rules.vectorAddToStorage_exp @>, 0;
-          rules.letVectorBuildLength, 0;
+          comp <@ rules.vectorAddToStorage @>, 0;
+          comp <@ rules.letVectorBuildLength @>, 0;
           rules.letFloatOutwards, 0;
-          comp <@ rules.vectorBuildToStorage_exp @>, 0;
-          rules.letCommutingConversion, 0;
+          comp <@ rules.vectorBuildToStorage @>, 0;
+          comp <@ rules.letCommutingConversion @>, 0;
           rules.foldInvariantCodeMotion, 0;
-          rules.letCommutingConversion, 0;
+          comp <@ rules.letCommutingConversion @>, 0;
           rules.allocToCPS, 0;
           rules.letFloatOutwards, 0;
-          rules.letReorder, 0;
+          comp <@ rules.letReorder @>, 0;
           rules.foldInvariantCodeMotion, 0;
-          rules.letCommutingConversion, 0;
+          comp <@ rules.letCommutingConversion @>, 0;
           rules.allocToCPS, 0;
         ]
     // printfn "hoistingExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
@@ -209,15 +210,15 @@ let test_guided_optimizer () =
     let stackExample = compiler.getMethodExpr "programs" "stackAllocExample"
     let chains = 
       optimizer.guidedOptimize stackExample 
-        [ comp <@ rules.vectorAddToStorage_exp @>, 0;
+        [ comp <@ rules.vectorAddToStorage @>, 0;
           rules.letFloatOutwards, 0;
-          rules.letInliner, 0;
+          comp <@ rules.letInliner @>, 0;
           rules.newArrayLength, 0;
           rules.letIntroduction, 2;
           rules.letFloatOutwards, 1;
           rules.letIntroduction, 3;
           rules.letFloatOutwards, 2;
-          rules.letMerging, 0;
+          comp <@ rules.letMerging @>, 0;
           rules.letFloatOutwards, 1;
           rules.allocToAllocOnStack, 0;
         ]
@@ -228,11 +229,11 @@ let test_guided_optimizer () =
     let chains = 
       optimizer.guidedOptimize storageConvertorExample 
         [ rules.methodDefToLambda, 0;
-          comp <@ rules.vectorBuildToStorage_exp @>, 0;
+          comp <@ rules.vectorBuildToStorage @>, 0;
           rules.lambdaAppStoraged, 0;
-          comp <@ rules.copyLet_exp @>, 0;
+          comp <@ rules.copyLet @>, 0;
           rules.copyStoragedElimination, 0;
-          rules.dce, 0;
+          comp <@ rules.dce @>, 0;
         ]
     printfn "storageConvertorExample chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     // printfn "storageConvertorExample costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
@@ -240,83 +241,83 @@ let test_guided_optimizer () =
     let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
     let baProjectRules = 
         [ rules.vectorSliceToBuild, 0;
-          comp <@ rules.comAddIndex_exp @>, 1;
-          comp <@ rules.assocAddSubIndex_exp @>, 0;
-          comp <@ rules.subSameIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          comp <@ rules.comAddIndex @>, 1;
+          comp <@ rules.assocAddSubIndex @>, 0;
+          comp <@ rules.subSameIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.constantFold, 0;
           rules.vectorSliceToBuild, 0;
-          comp <@ rules.comAddIndex_exp @>, 2;
-          comp <@ rules.assocAddSubIndex_exp @>, 0;
-          comp <@ rules.subSameIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          comp <@ rules.comAddIndex @>, 2;
+          comp <@ rules.assocAddSubIndex @>, 0;
+          comp <@ rules.subSameIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.constantFold, 0;
           rules.vectorSliceToBuild, 0;
-          comp <@ rules.comAddIndex_exp @>, 3;
-          comp <@ rules.assocAddSubIndex_exp @>, 0;
-          comp <@ rules.subSameIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          comp <@ rules.comAddIndex @>, 3;
+          comp <@ rules.assocAddSubIndex @>, 0;
+          comp <@ rules.subSameIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.constantFold, 0;
           rules.vectorSliceToBuild, 0;
           rules.constantFold, 0;
           rules.constantFold, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.vectorSliceToBuild, 0;
-          comp <@ rules.comAddIndex_exp @>, 4;
-          comp <@ rules.assocAddSubIndex_exp @>, 0;
-          comp <@ rules.subSameIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          comp <@ rules.comAddIndex @>, 4;
+          comp <@ rules.assocAddSubIndex @>, 0;
+          comp <@ rules.subSameIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.constantFold, 0;
           rules.methodDefInliner, 2;
           rules.methodDefInliner, 3;
           rules.methodDefInliner, 3;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 2;
           rules.methodDefInliner, 2;
           rules.methodDefInliner, 2;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorFoldBuildToFoldOnRange_exp @>, 0;
+          comp <@ rules.vectorFoldBuildToFoldOnRange @>, 0;
           rules.betaReduction, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 4;
           rules.methodDefInliner, 4;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 3;
           rules.methodDefInliner, 3;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 3;
           rules.methodDefInliner, 3;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 3;
           rules.methodDefInliner, 3;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          rules.letCommutingConversion, 0;
-          rules.letCommutingConversion, 0;
-          rules.letInliner, 9;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.letCommutingConversion @>, 0;
+          comp <@ rules.letCommutingConversion @>, 0;
+          comp <@ rules.letInliner @>, 9;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
         ]
     let chains = 
@@ -328,61 +329,61 @@ let test_guided_optimizer () =
     let chains = 
       optimizer.guidedOptimize bundleAdjustmentReproj_err 
         [ 
-          rules.letInliner, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.methodDefInliner, 1;
           rules.methodDefInliner, 0;
           rules.methodDefInliner, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
           rules.methodDefInliner, 3;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          comp <@ rules.indexToDoubleToInt_exp @>, 0;
-          comp <@ rules.comAddIndex_exp @>, 1;
-          comp <@ rules.constFold0Index_exp @>, 0;
-          comp <@ rules.assocSubSubIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
-          comp <@ rules.assocSubAddIndex_exp @>, 0;
+          letInliner, 0;
+          comp <@ rules.indexToDoubleToInt @>, 0;
+          comp <@ rules.comAddIndex @>, 1;
+          comp <@ rules.constFold0Index @>, 0;
+          comp <@ rules.assocSubSubIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
+          comp <@ rules.assocSubAddIndex @>, 0;
           rules.constantFold, 0;
-          comp <@ rules.constFoldN0Index_exp @>, 0;
+          comp <@ rules.constFoldN0Index @>, 0;
           rules.methodDefInliner, 3;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          comp <@ rules.indexToDoubleToInt_exp @>, 0;
-          comp <@ rules.comAddIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          letInliner, 0;
+          comp <@ rules.indexToDoubleToInt @>, 0;
+          comp <@ rules.comAddIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.methodDefInliner, 3;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          comp <@ rules.indexToDoubleToInt_exp @>, 0;
-          comp <@ rules.comAddIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          letInliner, 0;
+          comp <@ rules.indexToDoubleToInt @>, 0;
+          comp <@ rules.comAddIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.methodDefInliner, 3;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          comp <@ rules.indexToDoubleToInt_exp @>, 0;
-          comp <@ rules.comAddIndex_exp @>, 0;
-          comp <@ rules.constFold0Index_exp @>, 0;
+          letInliner, 0;
+          comp <@ rules.indexToDoubleToInt @>, 0;
+          comp <@ rules.comAddIndex @>, 0;
+          comp <@ rules.constFold0Index @>, 0;
           rules.methodDefInliner, 0;
           rules.methodDefInliner, 1;
           rules.methodDefInliner, 1;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          rules.letInliner, 0;
+          letInliner, 0;
+          letInliner, 0;
           rules.methodDefInliner, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
+          letInliner, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
           rules.letIntroduction, 4;
           rules.letFloatOutwards, 0;
           rules.letFloatOutwards, 0;
@@ -392,7 +393,7 @@ let test_guided_optimizer () =
           rules.letFloatOutwards, 0;
           rules.letFloatOutwards, 0;
           rules.letFloatOutwards, 0;
-          rules.letMerging, 0;
+          comp <@ rules.letMerging @>, 0;
         ]
     //printfn "ba_reproj_err chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "final one: %s" (chains |> List.rev |> List.head |> fun x -> transformer.variableRenaming x [] |> ccodegen.prettyprint)
@@ -404,44 +405,43 @@ let test_guided_optimizer () =
           rules.methodDefInliner, 1;
           rules.methodDefInliner, 1;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
-          rules.letInliner, 5;
+          letInliner, 6;
+          letInliner, 5;
           rules.methodDefInliner, 1;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 6;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 6;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 6;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 6;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 6;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 6;
+          letInliner, 6;
           rules.methodDefInliner, 1;
           rules.methodDefInliner, 2;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 7;
-          rules.letInliner, 7;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 7;
+          letInliner, 7;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 7;
+          letInliner, 7;
           rules.methodDefInliner, 1;
-          comp <@ rules.vectorFoldBuildToFoldOnRange_exp @>, 0;
+          comp <@ rules.vectorFoldBuildToFoldOnRange @>, 0;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 7;
+          letInliner, 7;
           rules.lambdaAppToLet, 0;
-          rules.letInliner, 7;
-          rules.letInliner, 7;
-          rules.methodDefInliner, 2;
+          letInliner, 7;
+          letInliner, 7;
           rules.methodDefInliner, 2;
           rules.betaReduction, 0;
           rules.methodDefInliner, 2;
@@ -450,27 +450,27 @@ let test_guided_optimizer () =
           rules.methodDefInliner, 3;
           rules.methodDefInliner, 3;
           rules.betaReduction, 0;
-          rules.letInliner, 7;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          letInliner, 7;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
-          rules.letInliner, 7;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
+          letInliner, 7;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 3;
           rules.methodDefInliner, 3;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
           rules.methodDefInliner, 2;
           rules.methodDefInliner, 2;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildGet_exp @>, 0;
+          comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorBuildLength_exp @>, 0;
+          comp <@ rules.vectorBuildLength @>, 0;
         ]
     //printfn "ba_rodrigues_rotate_point chains: %A" (String.concat "\n*****\n" (List.map ccodegen.prettyprint chains))
     //printfn "usecases_rodrigues_rotate_point costs: %A" (String.concat "\n" (List.map (fun x -> cost.fopCost(x).ToString()) chains))
@@ -484,18 +484,18 @@ let test_feature () =
   let uniqueRules = 
       [
         rules.vectorSliceToBuild;
-        comp <@ rules.comAddIndex_exp @>;
-        comp <@ rules.assocAddSubIndex_exp @>;
-        comp <@ rules.subSameIndex_exp @>;
-        comp <@ rules.constFold0Index_exp @>;
+        comp <@ rules.comAddIndex @>;
+        comp <@ rules.assocAddSubIndex @>;
+        comp <@ rules.subSameIndex @>;
+        comp <@ rules.constFold0Index @>;
         rules.constantFold;
         rules.methodDefInliner;
         rules.betaReduction;
-        comp <@ rules.vectorBuildLength_exp @>;
-        comp <@ rules.vectorBuildGet_exp @>;
-        comp <@ rules.vectorFoldBuildToFoldOnRange_exp @>;
-        rules.letCommutingConversion;
-        rules.letInliner;
+        comp <@ rules.vectorBuildLength @>;
+        comp <@ rules.vectorBuildGet @>;
+        comp <@ rules.vectorFoldBuildToFoldOnRange @>;
+        comp <@ rules.letCommutingConversion @>;
+        comp <@ rules.letInliner @>;
       ]
   let firstLevelApplicableRules = optimizer.examineAllRulesPositioned uniqueRules bundleAdjustmentProject
   let lastRule = firstLevelApplicableRules |> List.rev |> List.head

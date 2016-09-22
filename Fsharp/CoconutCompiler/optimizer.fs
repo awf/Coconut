@@ -168,7 +168,7 @@ let guidedOptimize (e: Expr) (indexedRules: (Rule*int) list): Expr list =
 let optimize (e: Expr): Expr = 
   // let best = inliner(e)
   let debug = false
-  let rs = letInliner (*:: methodDefToLambda :: lambdaAppToLet*) :: algebraicRulesScalar
+  let rs = ruleengine.compilePatternToRule <@ letInliner @> (*:: methodDefToLambda :: lambdaAppToLet*) :: algebraicRulesScalar
   (*recursiveTransformer rs e*)
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (ccodegen.prettyprint) debugger

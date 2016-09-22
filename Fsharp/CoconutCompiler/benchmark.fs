@@ -7,18 +7,18 @@ let benchmark_test_algorithms program =
   let uniqueRules = 
       [
         rules.vectorSliceToBuild;
-        comp <@ rules.comAddIndex_exp @>;
-        comp <@ rules.assocAddSubIndex_exp @>;
-        comp <@ rules.subSameIndex_exp @>;
-        comp <@ rules.constFold0Index_exp @>;
+        comp <@ rules.comAddIndex @>;
+        comp <@ rules.assocAddSubIndex @>;
+        comp <@ rules.subSameIndex @>;
+        comp <@ rules.constFold0Index @>;
         rules.constantFold;
         rules.methodDefInliner;
         rules.betaReduction;
-        comp <@ rules.vectorBuildLength_exp @>;
-        comp <@ rules.vectorBuildGet_exp @>;
-        comp <@ rules.vectorFoldBuildToFoldOnRange_exp @>;
-        rules.letCommutingConversion;
-        rules.letInliner;
+        comp <@ rules.vectorBuildLength @>;
+        comp <@ rules.vectorBuildGet @>;
+        comp <@ rules.vectorFoldBuildToFoldOnRange @>;
+        comp <@ rules.letCommutingConversion @>;
+        comp <@ rules.letInliner @>;
       ]
   let runSearchAlgorithm algorithm name levels () =
     let logger = 

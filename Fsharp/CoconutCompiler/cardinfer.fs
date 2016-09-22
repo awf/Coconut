@@ -40,7 +40,7 @@ type CardEnv = Map<Var, Var>
 
 let simplifyCardinality (exp: Expr): Expr =
   let recTrans rs = optimizer.recursiveTransformer rs |> optimizer.fixPoint 10
-  exp |> recTrans [rules.letInliner; rules.betaReduction; rules.constantFold]
+  exp |> recTrans [ruleengine.compilePatternToRule <@ rules.letInliner @>; rules.betaReduction; rules.constantFold]
 
 let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   let C e = inferCardinality e env
