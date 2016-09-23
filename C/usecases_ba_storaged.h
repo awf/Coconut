@@ -21,7 +21,7 @@ array_number_t TOP_LEVEL_usecases_ba_radial_distort_s(storage_t stgVar567, array
 
 card_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(card_t rot_c, card_t x_c) {
 	
-	return TOP_LEVEL_linalg_add_vec_c(TOP_LEVEL_linalg_add_vec_c(TOP_LEVEL_linalg_mult_by_scalar_c(x_c, 0), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_cross_c(TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0), x_c), 0)), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0), 0));
+	return TOP_LEVEL_linalg_vectorAdd_c(TOP_LEVEL_linalg_vectorAdd_c(TOP_LEVEL_linalg_mult_by_scalar_c(x_c, 0), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_cross_c(TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0), x_c), 0)), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0), 0));
 }
 
 
@@ -58,10 +58,10 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(storage_t stgVar57
 	array_number_t macroDef701;array_number_t v2_s = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar596, w_cross_X_s, sintheta_s, w_cross_X_c, 0);
 	card_t size708 = width_card_t(TOP_LEVEL_linalg_mult_by_scalar_c(w_c, 0));
 	array_number_t stgVar600 = storage_alloc(size708);
-	array_number_t macroDef700;card_t size707 = width_card_t(TOP_LEVEL_linalg_add_vec_c(v1_c, v2_c));
+	array_number_t macroDef700;card_t size707 = width_card_t(TOP_LEVEL_linalg_vectorAdd_c(v1_c, v2_c));
 	array_number_t stgVar599 = storage_alloc(size707);
 	array_number_t macroDef699;
-	macroDef699 = TOP_LEVEL_linalg_add_vec_s(stgVar577, TOP_LEVEL_linalg_add_vec_s(stgVar599, v1_s, v2_s, v1_c, v2_c), TOP_LEVEL_linalg_mult_by_scalar_s(stgVar600, w_s, tmp_s, w_c, 0), TOP_LEVEL_linalg_add_vec_c(v1_c, v2_c), TOP_LEVEL_linalg_mult_by_scalar_c(w_c, 0));;
+	macroDef699 = TOP_LEVEL_linalg_vectorAdd_s(stgVar577, TOP_LEVEL_linalg_vectorAdd_s(stgVar599, v1_s, v2_s, v1_c, v2_c), TOP_LEVEL_linalg_mult_by_scalar_s(stgVar600, w_s, tmp_s, w_c, 0), TOP_LEVEL_linalg_vectorAdd_c(v1_c, v2_c), TOP_LEVEL_linalg_mult_by_scalar_c(w_c, 0));;
 	storage_free(stgVar599, size707);
 	macroDef700 = macroDef699;;
 	storage_free(stgVar600, size708);
@@ -78,7 +78,7 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(storage_t stgVar57
 		card_t size713 = width_card_t(TOP_LEVEL_linalg_cross_c(rot_c, x_c));
 	array_number_t stgVar606 = storage_alloc(size713);
 	array_number_t macroDef705;
-	macroDef705 = TOP_LEVEL_linalg_add_vec_s(stgVar577, x_s, TOP_LEVEL_linalg_cross_s(stgVar606, rot_s, x_s, rot_c, x_c), x_c, TOP_LEVEL_linalg_cross_c(rot_c, x_c));;
+	macroDef705 = TOP_LEVEL_linalg_vectorAdd_s(stgVar577, x_s, TOP_LEVEL_linalg_cross_s(stgVar606, rot_s, x_s, rot_c, x_c), x_c, TOP_LEVEL_linalg_cross_c(rot_c, x_c));;
 	storage_free(stgVar606, size713);
 		ite706 = macroDef705;;
 	}
@@ -87,7 +87,7 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(storage_t stgVar57
 
 card_t TOP_LEVEL_usecases_ba_project_c(card_t cam_c, card_t x_c) {
 	
-	return TOP_LEVEL_linalg_add_vec_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_usecases_ba_radial_distort_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_sub_vec_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)))), 0)), 0));
+	return TOP_LEVEL_linalg_vectorAdd_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_usecases_ba_radial_distort_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)))), 0)), 0));
 }
 
 
@@ -104,19 +104,19 @@ array_number_t TOP_LEVEL_usecases_ba_project_s(storage_t stgVar714, array_number
 	index_t X0_IDX_s = 7;
 	card_t RAD_IDX_c = 0;
 	index_t RAD_IDX_s = 9;
-	card_t Xcam_c = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_sub_vec_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));
+	card_t Xcam_c = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));
 	card_t size827 = width_card_t(Xcam_c);
 	array_number_t stgVar721 = storage_alloc(size827);
-	array_number_t macroDef817;card_t size820 = width_card_t(TOP_LEVEL_linalg_sub_vec_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));
+	array_number_t macroDef817;card_t size820 = width_card_t(TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));
 	array_number_t stgVar723 = storage_alloc(size820);
 	array_number_t macroDef810;card_t size819 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));
 	array_number_t stgVar722 = storage_alloc(size819);
 	array_number_t macroDef809;card_t size818 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));
 	array_number_t stgVar728 = storage_alloc(size818);
 	array_number_t macroDef808;
-	macroDef808 = TOP_LEVEL_linalg_sub_vec_s(stgVar723, x_s, TOP_LEVEL_linalg_vectorSlice_s(stgVar728, 3, CENTER_IDX_s, cam_s, 3, 0, cam_c), x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));;
+	macroDef808 = TOP_LEVEL_linalg_vectorSub_s(stgVar723, x_s, TOP_LEVEL_linalg_vectorSlice_s(stgVar728, 3, CENTER_IDX_s, cam_s, 3, 0, cam_c), x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));;
 	storage_free(stgVar728, size818);
-	macroDef809 = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(stgVar721, TOP_LEVEL_linalg_vectorSlice_s(stgVar722, 3, ROT_IDX_s, cam_s, 3, 0, cam_c), macroDef808, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_sub_vec_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));;
+	macroDef809 = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(stgVar721, TOP_LEVEL_linalg_vectorSlice_s(stgVar722, 3, ROT_IDX_s, cam_s, 3, 0, cam_c), macroDef808, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));;
 	storage_free(stgVar722, size819);
 	macroDef810 = macroDef809;;
 	storage_free(stgVar723, size820);
@@ -143,7 +143,7 @@ array_number_t TOP_LEVEL_usecases_ba_project_s(storage_t stgVar714, array_number
 	array_number_t macroDef815;card_t size824 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c));
 	array_number_t stgVar744 = storage_alloc(size824);
 	array_number_t macroDef814;
-	macroDef814 = TOP_LEVEL_linalg_add_vec_s(stgVar714, TOP_LEVEL_linalg_vectorSlice_s(stgVar744, 2, X0_IDX_s, cam_s, 2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_s(stgVar745, distorted_s, cam_s->arr[FOCAL_IDX_s], distorted_c, 0), TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(distorted_c, 0));;
+	macroDef814 = TOP_LEVEL_linalg_vectorAdd_s(stgVar714, TOP_LEVEL_linalg_vectorSlice_s(stgVar744, 2, X0_IDX_s, cam_s, 2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_s(stgVar745, distorted_s, cam_s->arr[FOCAL_IDX_s], distorted_c, 0), TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(distorted_c, 0));;
 	storage_free(stgVar744, size824);
 	macroDef815 = macroDef814;;
 	storage_free(stgVar745, size825);
@@ -156,19 +156,19 @@ array_number_t TOP_LEVEL_usecases_ba_project_s(storage_t stgVar714, array_number
 
 card_t TOP_LEVEL_usecases_ba_compute_reproj_err_c(card_t cam_c, card_t x_c, card_t w_c, card_t feat_c) {
 	
-	return TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_sub_vec_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c), 0);
+	return TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSub_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c), 0);
 }
 
 
 array_number_t TOP_LEVEL_usecases_ba_compute_reproj_err_s(storage_t stgVar828, array_number_t cam_s, array_number_t x_s, number_t w_s, array_number_t feat_s, card_t cam_c, card_t x_c, card_t w_c, card_t feat_c) {
-	card_t size838 = width_card_t(TOP_LEVEL_linalg_sub_vec_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c));
+	card_t size838 = width_card_t(TOP_LEVEL_linalg_vectorSub_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c));
 	array_number_t stgVar829 = storage_alloc(size838);
 	array_number_t macroDef836;card_t size837 = width_card_t(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c));
 	array_number_t stgVar831 = storage_alloc(size837);
 	array_number_t macroDef835;
-	macroDef835 = TOP_LEVEL_linalg_sub_vec_s(stgVar829, TOP_LEVEL_usecases_ba_project_s(stgVar831, cam_s, x_s, cam_c, x_c), feat_s, TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c);;
+	macroDef835 = TOP_LEVEL_linalg_vectorSub_s(stgVar829, TOP_LEVEL_usecases_ba_project_s(stgVar831, cam_s, x_s, cam_c, x_c), feat_s, TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c);;
 	storage_free(stgVar831, size837);
-	macroDef836 = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar828, macroDef835, w_s, TOP_LEVEL_linalg_sub_vec_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c), 0);;
+	macroDef836 = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar828, macroDef835, w_s, TOP_LEVEL_linalg_vectorSub_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c), 0);;
 	storage_free(stgVar829, size838);
 	return macroDef836;
 }
