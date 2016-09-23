@@ -29,3 +29,9 @@ let valloc_cps_feature2 (dum: Vector): unit =
     )
   )
   ()
+
+let rec numSum (n: Number): Number =
+  if n = 0. then 
+    0.
+  else 
+    numSum (n - 1.) + n

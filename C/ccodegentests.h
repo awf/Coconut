@@ -79,4 +79,16 @@ void TOP_LEVEL_ccodegentests_valloc_cps_feature2(array_number_t dum) {
 	;
 	return ;
 }
+
+number_t TOP_LEVEL_ccodegentests_numSum(number_t n) {
+	number_t ite297 = 0;
+	if((n) == (0)) {
+		
+		ite297 = 0;;
+	} else {
+		
+		ite297 = (TOP_LEVEL_ccodegentests_numSum((n) - (1))) + (n);;
+	}
+	return ite297;
+}
 #endif
