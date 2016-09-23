@@ -282,10 +282,10 @@ value_t lambda420(env_t_420* env412, number_t i) {
 			
 			macroDef317->arr[i0] = f0.lam(f0.env, v->arr[i0]).number_t_value;;
 		}
-	array_number_t arr = macroDef317;
+	array_number_t v0 = macroDef317;
 	number_t macroDef318 = 0;
-	for(int cur_idx = 0; cur_idx < arr->length; cur_idx++){
-		number_t cur = arr->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef318 = (macroDef318) + (cur);;
 	}
@@ -300,14 +300,14 @@ value_t lambda420(env_t_420* env412, number_t i) {
 		number_t y0 = theta_inv;
 		env_t_423 env_t_423_value = make_env_t_423(y0); closure_t closure322 = make_closure(lambda423, &env_t_423_value);
 		closure_t f1 = closure322;
-		array_number_t v0 = x30;
-		card_t macroDef323 = v0->length;
+		array_number_t v3 = x30;
+		card_t macroDef323 = v3->length;
 		array_number_t macroDef324 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef324->length=macroDef323;
 	macroDef324->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef323);
 		for(int i0 = 0; i0 < macroDef324->length; i0++){
 			
-			macroDef324->arr[i0] = f1.lam(f1.env, v0->arr[i0]).number_t_value;;
+			macroDef324->arr[i0] = f1.lam(f1.env, v3->arr[i0]).number_t_value;;
 		}
 		array_number_t w1 = macroDef324;
 		array_number_t a = w1;
@@ -333,10 +333,10 @@ value_t lambda420(env_t_420* env412, number_t i) {
 			
 			macroDef329->arr[i0] = f2.lam(f2.env, v10->arr[i0], v20->arr[i0]).number_t_value;;
 		}
-		array_number_t arr0 = macroDef329;
+		array_number_t v4 = macroDef329;
 		number_t macroDef330 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v4->length; cur_idx++){
+		number_t cur = v4->arr[cur_idx];
 		
 		macroDef330 = (macroDef330) + (cur);;
 	}
@@ -345,28 +345,28 @@ value_t lambda420(env_t_420* env412, number_t i) {
 		number_t y2 = costheta;
 		env_t_425 env_t_425_value = make_env_t_425(y2); closure_t closure334 = make_closure(lambda425, &env_t_425_value);
 		closure_t f3 = closure334;
-		array_number_t v3 = x32;
-		card_t macroDef335 = v3->length;
+		array_number_t v5 = x32;
+		card_t macroDef335 = v5->length;
 		array_number_t macroDef336 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef336->length=macroDef335;
 	macroDef336->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef335);
 		for(int i0 = 0; i0 < macroDef336->length; i0++){
 			
-			macroDef336->arr[i0] = f3.lam(f3.env, v3->arr[i0]).number_t_value;;
+			macroDef336->arr[i0] = f3.lam(f3.env, v5->arr[i0]).number_t_value;;
 		}
 		array_number_t v11 = macroDef336;
 		array_number_t x33 = w_cross_X;
 		number_t y3 = sintheta;
 		env_t_426 env_t_426_value = make_env_t_426(y3); closure_t closure340 = make_closure(lambda426, &env_t_426_value);
 		closure_t f4 = closure340;
-		array_number_t v4 = x33;
-		card_t macroDef341 = v4->length;
+		array_number_t v6 = x33;
+		card_t macroDef341 = v6->length;
 		array_number_t macroDef342 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef342->length=macroDef341;
 	macroDef342->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef341);
 		for(int i0 = 0; i0 < macroDef342->length; i0++){
 			
-			macroDef342->arr[i0] = f4.lam(f4.env, v4->arr[i0]).number_t_value;;
+			macroDef342->arr[i0] = f4.lam(f4.env, v6->arr[i0]).number_t_value;;
 		}
 		array_number_t v21 = macroDef342;
 		array_number_t x34 = v11;
@@ -388,14 +388,14 @@ value_t lambda420(env_t_420* env412, number_t i) {
 		number_t y5 = tmp;
 		env_t_428 env_t_428_value = make_env_t_428(y5); closure_t closure351 = make_closure(lambda428, &env_t_428_value);
 		closure_t f6 = closure351;
-		array_number_t v5 = x4;
-		card_t macroDef352 = v5->length;
+		array_number_t v7 = x4;
+		card_t macroDef352 = v7->length;
 		array_number_t macroDef353 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef353->length=macroDef352;
 	macroDef353->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef352);
 		for(int i0 = 0; i0 < macroDef353->length; i0++){
 			
-			macroDef353->arr[i0] = f6.lam(f6.env, v5->arr[i0]).number_t_value;;
+			macroDef353->arr[i0] = f6.lam(f6.env, v7->arr[i0]).number_t_value;;
 		}
 		array_number_t y6 = macroDef353;
 		env_t_429 env_t_429_value = make_empty_env(); closure_t closure356 = make_closure(lambda429, &env_t_429_value);
@@ -456,32 +456,32 @@ value_t lambda420(env_t_420* env412, number_t i) {
 	number_t y0 = (1) / (Xcam->arr[2]);
 	env_t_431 env_t_431_value = make_env_t_431(y0); closure_t closure369 = make_closure(lambda431, &env_t_431_value);
 	closure_t f1 = closure369;
-	array_number_t v0 = x21;
-	card_t macroDef370 = v0->length;
+	array_number_t v3 = x21;
+	card_t macroDef370 = v3->length;
 	array_number_t macroDef371 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef371->length=macroDef370;
 	macroDef371->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef370);
 		for(int i0 = 0; i0 < macroDef371->length; i0++){
 			
-			macroDef371->arr[i0] = f1.lam(f1.env, v0->arr[i0]).number_t_value;;
+			macroDef371->arr[i0] = f1.lam(f1.env, v3->arr[i0]).number_t_value;;
 		}
 	array_number_t proj = macroDef371;
 	array_number_t x22 = proj;
 	env_t_432 env_t_432_value = make_empty_env(); closure_t closure374 = make_closure(lambda432, &env_t_432_value);
 	closure_t f2 = closure374;
-	array_number_t v3 = x22;
-	card_t macroDef375 = v3->length;
+	array_number_t v4 = x22;
+	card_t macroDef375 = v4->length;
 	array_number_t macroDef376 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef376->length=macroDef375;
 	macroDef376->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef375);
 		for(int i0 = 0; i0 < macroDef376->length; i0++){
 			
-			macroDef376->arr[i0] = f2.lam(f2.env, v3->arr[i0]).number_t_value;;
+			macroDef376->arr[i0] = f2.lam(f2.env, v4->arr[i0]).number_t_value;;
 		}
-	array_number_t arr0 = macroDef376;
+	array_number_t v5 = macroDef376;
 	number_t macroDef377 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v5->length; cur_idx++){
+		number_t cur = v5->arr[cur_idx];
 		
 		macroDef377 = (macroDef377) + (cur);;
 	}
@@ -491,14 +491,14 @@ value_t lambda420(env_t_420* env412, number_t i) {
 	number_t y1 = L;
 	env_t_433 env_t_433_value = make_env_t_433(y1); closure_t closure381 = make_closure(lambda433, &env_t_433_value);
 	closure_t f3 = closure381;
-	array_number_t v4 = x23;
-	card_t macroDef382 = v4->length;
+	array_number_t v6 = x23;
+	card_t macroDef382 = v6->length;
 	array_number_t macroDef383 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef383->length=macroDef382;
 	macroDef383->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef382);
 		for(int i0 = 0; i0 < macroDef383->length; i0++){
 			
-			macroDef383->arr[i0] = f3.lam(f3.env, v4->arr[i0]).number_t_value;;
+			macroDef383->arr[i0] = f3.lam(f3.env, v6->arr[i0]).number_t_value;;
 		}
 	array_number_t distorted = macroDef383;
 	array_number_t macroDef384 = (array_number_t)storage_alloc(sizeof(int) * 2);
@@ -513,14 +513,14 @@ value_t lambda420(env_t_420* env412, number_t i) {
 	number_t y2 = cam0->arr[FOCAL_IDX];
 	env_t_434 env_t_434_value = make_env_t_434(y2); closure_t closure388 = make_closure(lambda434, &env_t_434_value);
 	closure_t f4 = closure388;
-	array_number_t v5 = x30;
-	card_t macroDef389 = v5->length;
+	array_number_t v7 = x30;
+	card_t macroDef389 = v7->length;
 	array_number_t macroDef390 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef390->length=macroDef389;
 	macroDef390->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef389);
 		for(int i0 = 0; i0 < macroDef390->length; i0++){
 			
-			macroDef390->arr[i0] = f4.lam(f4.env, v5->arr[i0]).number_t_value;;
+			macroDef390->arr[i0] = f4.lam(f4.env, v7->arr[i0]).number_t_value;;
 		}
 	array_number_t y3 = macroDef390;
 	env_t_435 env_t_435_value = make_empty_env(); closure_t closure393 = make_closure(lambda435, &env_t_435_value);
@@ -553,14 +553,14 @@ value_t lambda420(env_t_420* env412, number_t i) {
 	number_t y5 = w0;
 	env_t_437 env_t_437_value = make_env_t_437(y5); closure_t closure404 = make_closure(lambda437, &env_t_437_value);
 	closure_t f7 = closure404;
-	array_number_t v6 = x11;
-	card_t macroDef405 = v6->length;
+	array_number_t v8 = x11;
+	card_t macroDef405 = v8->length;
 	array_number_t macroDef406 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef406->length=macroDef405;
 	macroDef406->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef405);
 		for(int i0 = 0; i0 < macroDef406->length; i0++){
 			
-			macroDef406->arr[i0] = f7.lam(f7.env, v6->arr[i0]).number_t_value;;
+			macroDef406->arr[i0] = f7.lam(f7.env, v8->arr[i0]).number_t_value;;
 		}
 	value_t res;
 	res.array_number_t_value = macroDef406;

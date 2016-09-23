@@ -2556,10 +2556,10 @@ value_t lambda1301(env_t_1301* env1293, number_t i0) {
 			env_t_1305 env_t_1305_value = make_env_t_1305(cam); closure_t closure590 = make_closure(lambda1305, &env_t_1305_value);
 			macroDef591->arr[i1] = closure586.lam(closure586.env, closure590.lam(closure590.env, i1).number_t_value).number_t_value;;
 		}
-	array_number_t arr = macroDef591;
+	array_number_t v = macroDef591;
 	number_t macroDef592 = 0;
-	for(int cur_idx = 0; cur_idx < arr->length; cur_idx++){
-		number_t cur = arr->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
 		
 		macroDef592 = (macroDef592) + (cur);;
 	}
@@ -2606,10 +2606,10 @@ value_t lambda1301(env_t_1301* env1293, number_t i0) {
 			env_t_1348 env_t_1348_value = make_env_t_1348(x0,cam); closure_t closure779 = make_closure(lambda1348, &env_t_1348_value);
 			macroDef780->arr[i1] = closure754.lam(closure754.env, closure767.lam(closure767.env, i1).number_t_value, closure779.lam(closure779.env, i1).number_t_value).number_t_value;;
 		}
-		array_number_t arr0 = macroDef780;
+		array_number_t v0 = macroDef780;
 		number_t macroDef781 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef781 = (macroDef781) + (cur);;
 	}
@@ -2728,10 +2728,10 @@ value_t lambda1301(env_t_1301* env1293, number_t i0) {
 			env_t_1414 env_t_1414_value = make_env_t_1414(y0,Xcam); closure_t closure1069 = make_closure(lambda1414, &env_t_1414_value);
 			macroDef1070->arr[i1] = closure1056.lam(closure1056.env, closure1069.lam(closure1069.env, i1).number_t_value).number_t_value;;
 		}
-	array_number_t arr0 = macroDef1070;
+	array_number_t v0 = macroDef1070;
 	number_t macroDef1071 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef1071 = (macroDef1071) + (cur);;
 	}

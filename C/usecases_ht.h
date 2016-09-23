@@ -20,9 +20,9 @@ value_t lambda126(env_t_126* env123, number_t x) {
 	return res;
 }
 number_t TOP_LEVEL_usecases_ht_logsumexp(array_number_t arr) {
-	number_t mx = TOP_LEVEL_linalg_arrayMax(arr);
+	number_t mx = TOP_LEVEL_linalg_vectorMax(arr);
 	env_t_126 env_t_126_value = make_env_t_126(mx); closure_t closure125 = make_closure(lambda126, &env_t_126_value);
-	number_t semx = TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap(closure125, arr));
+	number_t semx = TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_vectorMap(closure125, arr));
 	return (log(semx)) + (mx);
 }
 typedef struct env_t_131 {
@@ -42,7 +42,7 @@ value_t lambda131(env_t_131* env128, number_t j) {
 }
 number_t TOP_LEVEL_usecases_ht_log_gamma_distrib(number_t a, number_t p) {
 	env_t_131 env_t_131_value = make_env_t_131(a); closure_t closure130 = make_closure(lambda131, &env_t_131_value);
-	return (log(pow(3.14159265358979, (0.25) * ((p) * ((p) - (1)))))) + (TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap(closure130, TOP_LEVEL_linalg_vectorRange(1, (int)(p)))));
+	return (log(pow(3.14159265358979, (0.25) * ((p) * ((p) - (1)))))) + (TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_vectorMap(closure130, TOP_LEVEL_linalg_vectorRange(1, (int)(p)))));
 }
 
 array_array_number_t TOP_LEVEL_usecases_ht_new_matrix_test(array_number_t dum) {

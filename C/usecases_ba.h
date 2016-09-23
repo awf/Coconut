@@ -24,10 +24,10 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point(array_number_t rot, 
 		number_t tmp = (TOP_LEVEL_linalg_dot_prod(w, x)) * ((1) - (costheta));
 		array_number_t v1 = TOP_LEVEL_linalg_mult_by_scalar(x, costheta);
 		array_number_t v2 = TOP_LEVEL_linalg_mult_by_scalar(w_cross_X, sintheta);
-		ite85 = TOP_LEVEL_linalg_add_vec(TOP_LEVEL_linalg_add_vec(v1, v2), TOP_LEVEL_linalg_mult_by_scalar(w, tmp));;
+		ite85 = TOP_LEVEL_linalg_vectorAdd(TOP_LEVEL_linalg_vectorAdd(v1, v2), TOP_LEVEL_linalg_mult_by_scalar(w, tmp));;
 	} else {
 		
-		ite85 = TOP_LEVEL_linalg_add_vec(x, TOP_LEVEL_linalg_cross(rot, x));;
+		ite85 = TOP_LEVEL_linalg_vectorAdd(x, TOP_LEVEL_linalg_cross(rot, x));;
 	}
 	return ite85;
 }
@@ -39,14 +39,14 @@ array_number_t TOP_LEVEL_usecases_ba_project(array_number_t cam, array_number_t 
 	index_t FOCAL_IDX = 6;
 	index_t X0_IDX = 7;
 	index_t RAD_IDX = 9;
-	array_number_t Xcam = TOP_LEVEL_usecases_ba_rodrigues_rotate_point(array_slice(cam, ROT_IDX, (ROT_IDX) + (2)), TOP_LEVEL_linalg_sub_vec(x, array_slice(cam, CENTER_IDX, (CENTER_IDX) + (2))));
+	array_number_t Xcam = TOP_LEVEL_usecases_ba_rodrigues_rotate_point(array_slice(cam, ROT_IDX, (ROT_IDX) + (2)), TOP_LEVEL_linalg_vectorSub(x, array_slice(cam, CENTER_IDX, (CENTER_IDX) + (2))));
 	array_number_t distorted = TOP_LEVEL_usecases_ba_radial_distort(array_slice(cam, RAD_IDX, (RAD_IDX) + (1)), TOP_LEVEL_linalg_mult_by_scalar(array_slice(Xcam, 0, 1), (1) / (Xcam->arr[2])));
-	return TOP_LEVEL_linalg_add_vec(array_slice(cam, X0_IDX, (X0_IDX) + (1)), TOP_LEVEL_linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
+	return TOP_LEVEL_linalg_vectorAdd(array_slice(cam, X0_IDX, (X0_IDX) + (1)), TOP_LEVEL_linalg_mult_by_scalar(distorted, cam->arr[FOCAL_IDX]));
 }
 
 array_number_t TOP_LEVEL_usecases_ba_compute_reproj_err(array_number_t cam, array_number_t x, number_t w, array_number_t feat) {
 	
-	return TOP_LEVEL_linalg_mult_by_scalar(TOP_LEVEL_linalg_sub_vec(TOP_LEVEL_usecases_ba_project(cam, x), feat), w);
+	return TOP_LEVEL_linalg_mult_by_scalar(TOP_LEVEL_linalg_vectorSub(TOP_LEVEL_usecases_ba_project(cam, x), feat), w);
 }
 
 number_t TOP_LEVEL_usecases_ba_compute_zach_weight_error(number_t w) {

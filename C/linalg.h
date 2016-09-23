@@ -150,20 +150,20 @@ array_array_array_number_t TOP_LEVEL_linalg_iterateMatrix3D(closure_t f, array_a
 	return macroDef20;
 }
 
-number_t TOP_LEVEL_linalg_arraySum(array_number_t arr) {
+number_t TOP_LEVEL_linalg_vectorSum(array_number_t v) {
 	number_t macroDef21 = 0;
-	for(int cur_idx = 0; cur_idx < arr->length; cur_idx++){
-		number_t cur = arr->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
 		
 		macroDef21 = (macroDef21) + (cur);;
 	}
 	return macroDef21;
 }
 
-number_t TOP_LEVEL_linalg_arrayMax(array_number_t arr) {
+number_t TOP_LEVEL_linalg_vectorMax(array_number_t v) {
 	number_t macroDef22 = -1000;
-	for(int cur_idx = 0; cur_idx < arr->length; cur_idx++){
-		number_t cur = arr->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
 		number_t ite23 = 0;
 	if((macroDef22) > (cur)) {
 		
@@ -214,7 +214,7 @@ value_t lambda33(env_t_33* env30, number_t x0, number_t y0) {
 	res.number_t_value = (x0) + (y0);
 	return res;
 }
-array_number_t TOP_LEVEL_linalg_add_vec(array_number_t x, array_number_t y) {
+array_number_t TOP_LEVEL_linalg_vectorAdd(array_number_t x, array_number_t y) {
 	env_t_33 env_t_33_value = make_empty_env(); closure_t closure32 = make_closure(lambda33, &env_t_33_value);
 	return TOP_LEVEL_linalg_vectorMap2(closure32, x, y);
 }
@@ -232,9 +232,9 @@ array_number_t TOP_LEVEL_linalg_mult_vec_elementwise(array_number_t x, array_num
 	return TOP_LEVEL_linalg_vectorMap2(closure36, x, y);
 }
 
-array_number_t TOP_LEVEL_linalg_add_vec3(array_number_t x, array_number_t y, array_number_t z) {
+array_number_t TOP_LEVEL_linalg_vectorAdd3(array_number_t x, array_number_t y, array_number_t z) {
 	
-	return TOP_LEVEL_linalg_add_vec(TOP_LEVEL_linalg_add_vec(x, y), z);
+	return TOP_LEVEL_linalg_vectorAdd(TOP_LEVEL_linalg_vectorAdd(x, y), z);
 }
 typedef empty_env_t env_t_41;
 
@@ -245,7 +245,7 @@ value_t lambda41(env_t_41* env38, number_t x0, number_t y0) {
 	res.number_t_value = (x0) - (y0);
 	return res;
 }
-array_number_t TOP_LEVEL_linalg_sub_vec(array_number_t x, array_number_t y) {
+array_number_t TOP_LEVEL_linalg_vectorSub(array_number_t x, array_number_t y) {
 	env_t_41 env_t_41_value = make_empty_env(); closure_t closure40 = make_closure(lambda41, &env_t_41_value);
 	return TOP_LEVEL_linalg_vectorMap2(closure40, x, y);
 }
@@ -255,7 +255,7 @@ typedef empty_env_t env_t_45;
 value_t lambda45(env_t_45* env42, array_number_t x0, array_number_t y0) {
 	
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_linalg_add_vec(x0, y0);
+	res.array_number_t_value = TOP_LEVEL_linalg_vectorAdd(x0, y0);
 	return res;
 }
 array_array_number_t TOP_LEVEL_linalg_matrixAdd(array_array_number_t x, array_array_number_t y) {
@@ -286,7 +286,7 @@ value_t lambda53(env_t_53* env50, number_t x1) {
 }
 number_t TOP_LEVEL_linalg_sqnorm(array_number_t x) {
 	env_t_53 env_t_53_value = make_empty_env(); closure_t closure52 = make_closure(lambda53, &env_t_53_value);
-	return TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap(closure52, x));
+	return TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_vectorMap(closure52, x));
 }
 typedef empty_env_t env_t_57;
 
@@ -299,7 +299,7 @@ value_t lambda57(env_t_57* env54, number_t x0, number_t y0) {
 }
 number_t TOP_LEVEL_linalg_dot_prod(array_number_t x, array_number_t y) {
 	env_t_57 env_t_57_value = make_empty_env(); closure_t closure56 = make_closure(lambda57, &env_t_57_value);
-	return TOP_LEVEL_linalg_arraySum(TOP_LEVEL_linalg_vectorMap2(closure56, x, y));
+	return TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_vectorMap2(closure56, x, y));
 }
 typedef struct env_t_62 {
 	array_number_t row;

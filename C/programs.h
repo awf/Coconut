@@ -17,7 +17,7 @@ number_t TOP_LEVEL_programs_test2(number_t x, number_t b) {
 
 array_number_t TOP_LEVEL_programs_vector_add3(array_number_t v1, array_number_t v2, array_number_t v3) {
 	
-	return TOP_LEVEL_linalg_add_vec(v1, TOP_LEVEL_linalg_add_vec(v2, v3));
+	return TOP_LEVEL_linalg_vectorAdd(v1, TOP_LEVEL_linalg_vectorAdd(v2, v3));
 }
 
 array_array_number_t TOP_LEVEL_programs_matrix_add3(array_array_number_t m1, array_array_number_t m2, array_array_number_t m3) {
@@ -29,7 +29,7 @@ void TOP_LEVEL_programs_hoistingExample(array_number_t v) {
 	number_t macroDef240 = 0;
 	for(int idx = 0; idx <= 9; idx++){
 		array_number_t tmp = array_slice(v, idx, (idx) + (9));
-		macroDef240 = (macroDef240) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_add_vec(tmp, tmp)));;
+		macroDef240 = (macroDef240) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorAdd(tmp, tmp)));;
 	}
 	number_t sum = macroDef240;
 	number_print(sum);
@@ -51,7 +51,7 @@ void TOP_LEVEL_programs_explicitMallocExample1(array_number_t v) {
 			s = STG_OFFSET(s, sizeof(number_t));
 		}
 		array_number_t tmp = macroDef242;
-		macroDef243 = (macroDef243) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_add_vec(tmp, tmp)));;
+		macroDef243 = (macroDef243) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorAdd(tmp, tmp)));;
 	}
 	number_t sum = macroDef243;
 	number_print(sum);
@@ -124,7 +124,7 @@ void TOP_LEVEL_programs_stackAllocExample(number_t x, number_t y, number_t z) {
 	v->arr[0] = x;
 	v->arr[1] = y;
 	v->arr[2] = z;;
-	array_number_t v2 = TOP_LEVEL_linalg_add_vec(v, v);
+	array_number_t v2 = TOP_LEVEL_linalg_vectorAdd(v, v);
 	array_print(v2);
 	return ;
 }

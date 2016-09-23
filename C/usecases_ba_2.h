@@ -265,10 +265,10 @@ value_t lambda552(env_t_552* env548, number_t i0) {
 			env_t_554 env_t_554_value = make_empty_env(); closure_t closure452 = make_closure(lambda554, &env_t_554_value);
 			macroDef453->arr[i1] = closure452.lam(closure452.env, rot->arr[i1]).number_t_value;;
 		}
-	array_number_t arr = macroDef453;
+	array_number_t v = macroDef453;
 	number_t macroDef454 = 0;
-	for(int cur_idx = 0; cur_idx < arr->length; cur_idx++){
-		number_t cur = arr->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
 		
 		macroDef454 = (macroDef454) + (cur);;
 	}
@@ -302,10 +302,10 @@ value_t lambda552(env_t_552* env548, number_t i0) {
 			env_t_556 env_t_556_value = make_empty_env(); closure_t closure464 = make_closure(lambda556, &env_t_556_value);
 			macroDef465->arr[i1] = closure464.lam(closure464.env, w1->arr[i1], x1->arr[i1]).number_t_value;;
 		}
-		array_number_t arr0 = macroDef465;
+		array_number_t v0 = macroDef465;
 		number_t macroDef466 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef466 = (macroDef466) + (cur);;
 	}
@@ -406,10 +406,10 @@ value_t lambda552(env_t_552* env548, number_t i0) {
 			env_t_564 env_t_564_value = make_empty_env(); closure_t closure511 = make_closure(lambda564, &env_t_564_value);
 			macroDef512->arr[i1] = closure511.lam(closure511.env, proj->arr[i1]).number_t_value;;
 		}
-	array_number_t arr0 = macroDef512;
+	array_number_t v0 = macroDef512;
 	number_t macroDef513 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef513 = (macroDef513) + (cur);;
 	}

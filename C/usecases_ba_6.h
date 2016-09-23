@@ -27,10 +27,10 @@ array_array_number_t TOP_LEVEL_usecases_ba_reproj_err_6(array_array_number_t cam
 			number_t x1 = cam->arr[(i1) + (0)];
 			macroDef1534->arr[i1] = (x1) * (x1);;
 		}
-			array_number_t arr = macroDef1534;
+			array_number_t v = macroDef1534;
 			number_t macroDef1535 = 0;
-	for(int cur_idx = 0; cur_idx < arr->length; cur_idx++){
-		number_t cur = arr->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
 		
 		macroDef1535 = (macroDef1535) + (cur);;
 	}
@@ -76,10 +76,10 @@ array_array_number_t TOP_LEVEL_usecases_ba_reproj_err_6(array_array_number_t cam
 			number_t y00 = (x2) - (y5);
 			macroDef1536->arr[i1] = (x15) * (y00);;
 		}
-		array_number_t arr0 = macroDef1536;
+		array_number_t v0 = macroDef1536;
 		number_t macroDef1537 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef1537 = (macroDef1537) + (cur);;
 	}
@@ -143,10 +143,10 @@ array_array_number_t TOP_LEVEL_usecases_ba_reproj_err_6(array_array_number_t cam
 			number_t x1 = (a) * (y);
 			macroDef1542->arr[i1] = (x1) * (x1);;
 		}
-			array_number_t arr0 = macroDef1542;
+			array_number_t v0 = macroDef1542;
 			number_t macroDef1543 = 0;
-	for(int cur_idx = 0; cur_idx < arr0->length; cur_idx++){
-		number_t cur = arr0->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < v0->length; cur_idx++){
+		number_t cur = v0->arr[cur_idx];
 		
 		macroDef1543 = (macroDef1543) + (cur);;
 	}
