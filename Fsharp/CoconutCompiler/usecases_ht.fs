@@ -7,24 +7,6 @@ open types
 open utils
 open cardinality
 
-let inline logsumexp (arr: Vector) =
-    let mx = vectorMax arr
-    let semx = vectorSum (vectorMap (fun x -> exp(x-mx)) arr)
-    (log semx) + mx
-
-let inline log_gamma_distrib (a: Number) (p: Number) =
-  log (System.Math.Pow(System.Math.PI,(0.25*(p*(p-1.0))))) + 
-    vectorSum (vectorMap (fun j -> 
-        // TODO use an appropriate GammaLn implementation
-        //MathNet.Numerics.SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))
-        a + 0.5*(1. - (float j))
-      ) 
-      (vectorRange (Card 1) (Card (int p))))
-
-let inline new_matrix_test (dum: Vector): Matrix = 
-  let res = [| [| 0.0; 0.0; 0.0 |] |]
-  res
-
 (** Hand Tracking **)
 
 let inline to_pose_params (theta: Vector) (n_bones: Cardinality): Matrix =

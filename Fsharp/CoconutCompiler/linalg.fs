@@ -20,6 +20,9 @@ let vectorSlice (size: Cardinality) (offset: Index) (v: Vector): Vector =
 let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 
   build (length m) (fun i -> f m.[i])
 
+let matrixMapToVector (f: Vector -> Number) (m: Matrix): Vector = 
+  build (length m) (fun i -> f m.[i])
+
 let vectorMap2 (f: Number -> Number -> Number) (v1: Vector) (v2: Vector): Vector = 
   build (length v1) (fun i -> f v1.[i] v2.[i])
 
@@ -62,6 +65,9 @@ let vectorMax (v: Vector): Number =
 let mult_by_scalar (x: Vector) (y: Number): Vector =
     vectorMap (fun a -> a * y) x
 
+let gaxpy (a:Number) (x: Vector) (y: Number): Vector =
+    vectorMap (fun xi -> a * xi + y) x
+
 let cross (a: Vector) (b: Vector) =
     [| 
       a.[1] * b.[2] - a.[2] * b.[1];
@@ -73,6 +79,9 @@ let vectorAdd (x: Vector) (y: Vector) =
     vectorMap2 (+) x y
 
 let mult_vec_elementwise (x: Vector) (y: Vector) =
+    vectorMap2 (*) x y
+
+let (.*) (x: Vector) (y: Vector) =
     vectorMap2 (*) x y
 
 let vectorAdd3 (x: Vector) (y: Vector) (z: Vector) =
@@ -156,3 +165,6 @@ let vectorRead (fn: string) (startLine: Index): Vector =
 let numberRead (fn: string) (startLine: Index): Number = 
     let vector = vectorRead fn startLine
     vector.[0]
+
+// Fixed-size vector contstructors
+let vec3 (a : Number) (b : Number) (c : Number) = [| a;b;c |]
