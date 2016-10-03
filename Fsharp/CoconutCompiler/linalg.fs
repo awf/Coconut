@@ -63,7 +63,7 @@ let vectorMax (v: Vector): Number =
   fold (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) v
 
 let mult_by_scalar (x: Vector) (y: Number): Vector =
-    vectorMap (fun a -> a * y) x
+    vectorMap (fun xi -> xi * y) x
 
 let gaxpy (a:Number) (x: Vector) (y: Number): Vector =
     vectorMap (fun xi -> a * xi + y) x
@@ -131,6 +131,14 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
     build c2 (fun c ->
       dot_prod m1.[r] m2T.[c]
     )
+  )
+
+let matrixVectorMult (m: Matrix) (v: Vector): Vector = 
+  let r = rows m
+  let c = cols m
+  assert (c = length v)
+  build r (fun i ->
+      dot_prod m.[i] v
   )
 
 let matrixConcat (m1: Matrix) (m2: Matrix): Matrix = 
