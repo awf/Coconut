@@ -38,17 +38,28 @@ let tri n = n * (n+1) / 2
 //   Matrix of vectorized lower triangles of component inverse covariance matrices
 
 // Assemble lower-triangular matrix from log-diagonal and lower triangle and multiply by vector v
+// [ exp(q0)        0        0        0 ]
+// [      l0  exp(q2)        0        0 ]
+// [      l1       l2  exp(q3)        0 ]
+// [      l3       l4       l5  exp(q4) ]
 let Qtimesv (q : Vector) (l : Vector) (v : Vector) =
     build (length v) (fun i ->
-      let li = vectorSlice (Card i) (tri i) l
+      let li = vectorSlice (Card i) (tri (i-1)) l
       let vi = vectorSlice (Card i) 0 v
       vectorSum (li .* vi) + exp(q.[i])*v.[i] 
     )
 
 let Qtimesv_test () =
-  let ans = vec3 5.52585459 24.26424112 -14.61600247 
-  let qv = Qtimesv (vec3 0.1 -1.0 0.3) (vec3 5.0 -2.0 7.1) (vec3 5.0 -2.0 7.1)
+  let q = vec3 0.1 -1.0 0.3
+  let l = vec3 5.0 -2.0 7.1
+  let v = vec3 1.4 -7.0 3.1
+  let ans0 = exp(q.[0]) * v.[0]
+  let ans1 =      l.[0] * v.[0] + exp(q.[1]) * v.[1]
+  let ans2 =      l.[1] * v.[0] +      l.[2] * v.[1] + exp(q.[2]) * v.[2]
+  let ans = vec3 ans0 ans1 ans2
+  let qv = Qtimesv q l v
   assert (sqnorm (vectorSub qv ans) < 0.0001)
+  printfn "PASSED Qtimesv_test"
 
 let gmm_objective (x:Matrix) (alphas:Vector) (means:Matrix) (qs:Matrix) (ls:Matrix) (wishart_gamma:Number) (wishart_m:Number) =
     let n : Cardinality = rows x
