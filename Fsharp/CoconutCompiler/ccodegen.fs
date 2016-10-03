@@ -121,7 +121,7 @@ let rec ccodegen (e:Expr): string =
   | Patterns.NewArray(tp, elems) -> 
     failwith (sprintf "ERROR new array should always be the rhs of a let binding.\n`%A`" e)
   | Patterns.Let(x, e1, e2) -> 
-    
+
     failwith (sprintf "ERROR let bindings should occur ONLY in top level.\n`%A`" e)
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> ""
   | Patterns.Value(value, tp) when tp = typeof<Cardinality> || tp.Name = typeof<NestedShape<_>>.Name -> 

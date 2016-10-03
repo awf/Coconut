@@ -7,7 +7,7 @@ open Microsoft.FSharp.Quotations
 open System
 open cardinfer
 
-let storagedName (name: string): string = sprintf "%s_s" name
+let storagedName (name: string): string = sprintf "%s_dps" name
 
 type StorageOutput = Var
 

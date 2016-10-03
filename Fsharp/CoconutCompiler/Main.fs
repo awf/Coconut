@@ -7,6 +7,7 @@ open linalg
 open corelang
 open FSharp.Quotations
 open types
+open usecases_gmm
 
 let test_ba (argv: string[]) = 
     let fileName = argv.[0]
@@ -51,7 +52,8 @@ let compile_modules () =
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
     compiler.compileModule "linalgtests" ["linalg"] false true
-    compiler.compileModule "usecases_ba" ["linalg"] false true
+    //compiler.compileModule "usecases_ba" ["linalg"] false true
+    compiler.compileModule "usecases_gmm" ["linalg"] false true
     // compiler.compile "usecases" "run_ba_from_file" false true
     ()
 
@@ -78,7 +80,7 @@ let test_phase_based_optimizer () =
         let transformed = 
           (prog, subPhases) ||> List.fold (fun acc rules -> trans rules acc)
         let result = transformed // |> fun x -> transformer.variableRenaming x []
-        compiler.compileToHeaderFile headerName ["linalg"; "usecases_ba"] ([ccodegen.ccodegenTopLevel result methodName false])
+        compiler.writeToHeaderFile headerName ["linalg"; "usecases_ba"] ([ccodegen.ccodegenTopLevel result methodName false])
       generateCodeUpToPhase []
       ([], phases) ||> List.fold (fun acc cur -> let nacc = acc @ [cur] in generateCodeUpToPhase nacc; nacc )
       // generateCodeUpToPhase phases
@@ -516,6 +518,7 @@ let test_card () =
 
 [<EntryPoint>]
 let main argv = 
+    Qtimesv_test ()
     // test_ba argv
     // compile_modules ()
     // test_phase_based_optimizer ()

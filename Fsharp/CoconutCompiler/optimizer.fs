@@ -12,7 +12,7 @@ open search
 let rec fixPoint (times: int) (f: Expr -> Expr): Expr -> Expr = fun e ->
   let ne = f e
   if times <= 0 || ne = e then
-    printfn "STOPPED in %d" times
+    printf "[Fp %d]" times
     ne
   else
     fixPoint (times - 1) f ne

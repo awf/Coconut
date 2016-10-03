@@ -5,8 +5,7 @@ typedef double number_t;
 typedef struct array_number_t_struct {
 	number_t* arr;
 	int length;
-} array_number_t_struct;
-typedef array_number_t_struct* array_number_t;
+}* array_number_t;
 typedef struct array_array_number_t {
 	array_number_t* arr;
 	int length;

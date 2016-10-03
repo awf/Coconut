@@ -15,11 +15,13 @@ let getMethodExpr (moduleName: string) (methodName: string): Expr =
 
 (* The entry point for the compiler which invokes different phases and code generators *)
 let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: bool): string = 
+     printf "compile %s%s.%s: " (if opt then "[optimized] " else "") moduleName methodName
      let e = getMethodExpr moduleName methodName
      let optimized = 
        if(opt) then 
          let optimized = Seq.isEmpty (assembly.GetType(moduleName).GetMethod(methodName).GetCustomAttributes(typeof<types.DontOptimize>, true))
          if(optimized) then
+           printf "O"
            optimize e 
          else 
            e
@@ -27,25 +29,31 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
          e
      let debug = false
      if(debug) then 
-       printfn "/* Oringinal code:\n%A\n*/\n" (prettyprint e)
+       printfn "/* Original code:\n%A\n*/\n" (prettyprint e)
        if(opt) then 
          printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
      let functionName = methodVariableName methodName moduleName
-     if storaged then
-       let se = 
-         storagedtransformer.transformStoraged optimized transformer.EMPTY_STORAGE Map.empty
-       let sse = storagedtransformer.simplifyStoraged se
-       let sFunctionName = storagedtransformer.storagedName functionName
-       let ce = cardinfer.inferCardinality optimized Map.empty
-       let sce = cardinfer.simplifyCardinality ce
-       if(debug) then 
-         printfn "/* Storaged code:\n%A\n*/\n" (prettyprint se)
-         printfn "/* Simplified Storaged code:\n%A\n*/\n" (prettyprint sse)
-       let cFunctionName = cardinfer.cardName functionName
-       ccodegenTopLevel sce cFunctionName debug + "\n\n" + 
-         ccodegenTopLevel sse sFunctionName debug
-     else
-       ccodegenTopLevel optimized functionName debug
+     let s = (if storaged then
+               printf "S"
+               let se = 
+                 storagedtransformer.transformStoraged optimized transformer.EMPTY_STORAGE Map.empty
+               let sse = storagedtransformer.simplifyStoraged se
+               let sFunctionName = storagedtransformer.storagedName functionName
+               let ce = cardinfer.inferCardinality optimized Map.empty
+               let sce = cardinfer.simplifyCardinality ce
+               if(debug) then 
+                 printfn "/* Storaged code:\n%A\n*/\n" (prettyprint se)
+                 printfn "/* Simplified Storaged code:\n%A\n*/\n" (prettyprint sse)
+                 printfn "/* Cardinality code:\n%A\n*/\n" (prettyprint ce)
+                 printfn "/* Simplified Cardinality code:\n%A\n*/\n" (prettyprint sce)
+               let cFunctionName = cardinfer.cardName functionName
+               printf "C"
+               ccodegenTopLevel sce cFunctionName debug + "\n\n" + ccodegenTopLevel sse sFunctionName debug
+             else
+               printf "C"
+               ccodegenTopLevel optimized functionName debug)
+     printfn " done"
+     s
 
 let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) (storaged: bool) =
   List.map (fun m -> 
@@ -53,7 +61,7 @@ let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) (
     compile moduleName m opt storaged
   ) methodNames
 
-let compileToHeaderFile (headerName: string) (dependentHeaders: string List) (content: string List): unit =
+let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (content: string List): unit =
   let depModulesString = dependentHeaders |> List.map (fun m -> sprintf "#include \"%s.h\"" m) 
   let moduleMacroName = sprintf "__%s_H__" (headerName.ToUpper())
   let fileName = sprintf "%s.h" headerName
@@ -68,14 +76,14 @@ let compileToHeaderFile (headerName: string) (dependentHeaders: string List) (co
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 
-
 let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
   let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
                   (List.filter (fun (x: System.Reflection.MethodInfo) -> 
                     x.DeclaringType.Name = moduleName) 
                     (List.ofArray (assembly.GetType(moduleName).GetMethods())))
   let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
-  let generatedMethods = compileSeveral moduleName methods opt storaged
   let moduleNameWithPostfix = nameWithPostfix moduleName
+  printf "Compiling %s.fs [%d methods] to %s.h\n" moduleName (methods.Length) moduleNameWithPostfix 
+  let generatedMethods = compileSeveral moduleName methods opt storaged
   let depModulesString = dependentModules |> List.map nameWithPostfix
-  compileToHeaderFile moduleNameWithPostfix depModulesString generatedMethods
+  writeToHeaderFile moduleNameWithPostfix depModulesString generatedMethods

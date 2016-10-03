@@ -5,10 +5,9 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OutputFiles", "OutputFiles", "{ED40DAFD-D3E8-4DEF-A1E7-A3EBE9EF630A}"
 	ProjectSection(SolutionItems) = preProject
-		coconut\ccodegentests.h = coconut\ccodegentests.h
-		coconut\runtime\fsharp.h = coconut\runtime\fsharp.h
-		coconut\linalg.h = coconut\linalg.h
-		coconut\programs.h = coconut\programs.h
+		C\linalgtests_storaged.h = C\linalgtests_storaged.h
+		C\usecases_ba.h = C\usecases_ba.h
+		C\usecases_ba_storaged.h = C\usecases_ba_storaged.h
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CoconutCompiler", "Fsharp\CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"

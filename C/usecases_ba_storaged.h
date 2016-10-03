@@ -5,681 +5,681 @@
 #include <math.h>
 #include "linalg_storaged.h"
 
-card_t TOP_LEVEL_usecases_ba_radial_distort_c(card_t rad_params_c, card_t proj_c) {
+card_t $_usecases_ba_radial_distort_shp(card_t rad_params_shp, card_t proj_shp) {
 	
-	return TOP_LEVEL_linalg_mult_by_scalar_c(proj_c, 0);
+	return $_linalg_mult_by_scalar_shp(proj_shp, 0);
 }
 
 
-array_number_t TOP_LEVEL_usecases_ba_radial_distort_s(storage_t stgVar567, array_number_t rad_params_s, array_number_t proj_s, card_t rad_params_c, card_t proj_c) {
-	card_t rsq_c = 0;
-	number_t rsq_s = TOP_LEVEL_linalg_sqnorm_s(empty_storage, proj_s, proj_c);
-	card_t L_c = 0;
-	number_t L_s = ((1) + ((rad_params_s->arr[0]) * (rsq_s))) + (((rad_params_s->arr[1]) * (rsq_s)) * (rsq_s));
-	return TOP_LEVEL_linalg_mult_by_scalar_s(stgVar567, proj_s, L_s, proj_c, 0);
+array_number_t $_usecases_ba_radial_distort_dps(storage_t stgVar616, array_number_t rad_params_dps, array_number_t proj_dps, card_t rad_params_shp, card_t proj_shp) {
+	card_t rsq_shp = 0;
+	number_t rsq_dps = $_linalg_sqnorm_dps(empty_storage, proj_dps, proj_shp);
+	card_t L_shp = 0;
+	number_t L_dps = ((1) + ((rad_params_dps->arr[0]) * (rsq_dps))) + (((rad_params_dps->arr[1]) * (rsq_dps)) * (rsq_dps));
+	return $_linalg_mult_by_scalar_dps(stgVar616, proj_dps, L_dps, proj_shp, 0);
 }
 
-card_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(card_t rot_c, card_t x_c) {
+card_t $_usecases_ba_rodrigues_rotate_point_shp(card_t rot_shp, card_t x_shp) {
 	
-	return TOP_LEVEL_linalg_vectorAdd_c(TOP_LEVEL_linalg_vectorAdd_c(TOP_LEVEL_linalg_mult_by_scalar_c(x_c, 0), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_cross_c(TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0), x_c), 0)), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0), 0));
+	return $_linalg_vectorAdd_shp($_linalg_vectorAdd_shp($_linalg_mult_by_scalar_shp(x_shp, 0), $_linalg_mult_by_scalar_shp($_linalg_cross_shp($_linalg_mult_by_scalar_shp(rot_shp, 0), x_shp), 0)), $_linalg_mult_by_scalar_shp($_linalg_mult_by_scalar_shp(rot_shp, 0), 0));
 }
 
 
-array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(storage_t stgVar577, array_number_t rot_s, array_number_t x_s, card_t rot_c, card_t x_c) {
-	card_t sqtheta_c = 0;
-	number_t sqtheta_s = TOP_LEVEL_linalg_sqnorm_s(empty_storage, rot_s, rot_c);
-	array_number_t ite706 = 0;
-	if((sqtheta_s) != (0)) {
-		card_t theta_c = 0;
-		number_t theta_s = sqrt(sqtheta_s);
-		card_t costheta_c = 0;
-		number_t costheta_s = cos(theta_s);
-		card_t sintheta_c = 0;
-		number_t sintheta_s = sin(theta_s);
-		card_t theta_inv_c = 0;
-		number_t theta_inv_s = (1) / (theta_s);
-		card_t w_c = TOP_LEVEL_linalg_mult_by_scalar_c(rot_c, 0);
-		card_t size712 = width_card_t(w_c);
-	array_number_t stgVar584 = storage_alloc(size712);
-	array_number_t macroDef704;array_number_t w_s = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar584, rot_s, theta_inv_s, rot_c, 0);
-	card_t w_cross_X_c = TOP_LEVEL_linalg_cross_c(w_c, x_c);
-	card_t size711 = width_card_t(w_cross_X_c);
-	array_number_t stgVar587 = storage_alloc(size711);
-	array_number_t macroDef703;array_number_t w_cross_X_s = TOP_LEVEL_linalg_cross_s(stgVar587, w_s, x_s, w_c, x_c);
-	card_t tmp_c = 0;
-	number_t tmp_s = (TOP_LEVEL_linalg_dot_prod_s(empty_storage, w_s, x_s, w_c, x_c)) * ((1) - (costheta_s));
-	card_t v1_c = TOP_LEVEL_linalg_mult_by_scalar_c(x_c, 0);
-	card_t size710 = width_card_t(v1_c);
-	array_number_t stgVar593 = storage_alloc(size710);
-	array_number_t macroDef702;array_number_t v1_s = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar593, x_s, costheta_s, x_c, 0);
-	card_t v2_c = TOP_LEVEL_linalg_mult_by_scalar_c(w_cross_X_c, 0);
-	card_t size709 = width_card_t(v2_c);
-	array_number_t stgVar596 = storage_alloc(size709);
-	array_number_t macroDef701;array_number_t v2_s = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar596, w_cross_X_s, sintheta_s, w_cross_X_c, 0);
-	card_t size708 = width_card_t(TOP_LEVEL_linalg_mult_by_scalar_c(w_c, 0));
-	array_number_t stgVar600 = storage_alloc(size708);
-	array_number_t macroDef700;card_t size707 = width_card_t(TOP_LEVEL_linalg_vectorAdd_c(v1_c, v2_c));
-	array_number_t stgVar599 = storage_alloc(size707);
-	array_number_t macroDef699;
-	macroDef699 = TOP_LEVEL_linalg_vectorAdd_s(stgVar577, TOP_LEVEL_linalg_vectorAdd_s(stgVar599, v1_s, v2_s, v1_c, v2_c), TOP_LEVEL_linalg_mult_by_scalar_s(stgVar600, w_s, tmp_s, w_c, 0), TOP_LEVEL_linalg_vectorAdd_c(v1_c, v2_c), TOP_LEVEL_linalg_mult_by_scalar_c(w_c, 0));;
-	storage_free(stgVar599, size707);
-	macroDef700 = macroDef699;;
-	storage_free(stgVar600, size708);
-	macroDef701 = macroDef700;;
-	storage_free(stgVar596, size709);
-	macroDef702 = macroDef701;;
-	storage_free(stgVar593, size710);
-	macroDef703 = macroDef702;;
-	storage_free(stgVar587, size711);
-	macroDef704 = macroDef703;;
-	storage_free(stgVar584, size712);
-		ite706 = macroDef704;;
+array_number_t $_usecases_ba_rodrigues_rotate_point_dps(storage_t stgVar626, array_number_t rot_dps, array_number_t x_dps, card_t rot_shp, card_t x_shp) {
+	card_t sqtheta_shp = 0;
+	number_t sqtheta_dps = $_linalg_sqnorm_dps(empty_storage, rot_dps, rot_shp);
+	array_number_t ite755 = 0;
+	if((sqtheta_dps) != (0)) {
+		card_t theta_shp = 0;
+		number_t theta_dps = sqrt(sqtheta_dps);
+		card_t costheta_shp = 0;
+		number_t costheta_dps = cos(theta_dps);
+		card_t sintheta_shp = 0;
+		number_t sintheta_dps = sin(theta_dps);
+		card_t theta_inv_shp = 0;
+		number_t theta_inv_dps = (1) / (theta_dps);
+		card_t w_shp = $_linalg_mult_by_scalar_shp(rot_shp, 0);
+		card_t size761 = width_card_t(w_shp);
+	array_number_t stgVar633 = storage_alloc(size761);
+	array_number_t macroDef753;array_number_t w_dps = $_linalg_mult_by_scalar_dps(stgVar633, rot_dps, theta_inv_dps, rot_shp, 0);
+	card_t w_cross_X_shp = $_linalg_cross_shp(w_shp, x_shp);
+	card_t size760 = width_card_t(w_cross_X_shp);
+	array_number_t stgVar636 = storage_alloc(size760);
+	array_number_t macroDef752;array_number_t w_cross_X_dps = $_linalg_cross_dps(stgVar636, w_dps, x_dps, w_shp, x_shp);
+	card_t tmp_shp = 0;
+	number_t tmp_dps = ($_linalg_dot_prod_dps(empty_storage, w_dps, x_dps, w_shp, x_shp)) * ((1) - (costheta_dps));
+	card_t v1_shp = $_linalg_mult_by_scalar_shp(x_shp, 0);
+	card_t size759 = width_card_t(v1_shp);
+	array_number_t stgVar642 = storage_alloc(size759);
+	array_number_t macroDef751;array_number_t v1_dps = $_linalg_mult_by_scalar_dps(stgVar642, x_dps, costheta_dps, x_shp, 0);
+	card_t v2_shp = $_linalg_mult_by_scalar_shp(w_cross_X_shp, 0);
+	card_t size758 = width_card_t(v2_shp);
+	array_number_t stgVar645 = storage_alloc(size758);
+	array_number_t macroDef750;array_number_t v2_dps = $_linalg_mult_by_scalar_dps(stgVar645, w_cross_X_dps, sintheta_dps, w_cross_X_shp, 0);
+	card_t size757 = width_card_t($_linalg_mult_by_scalar_shp(w_shp, 0));
+	array_number_t stgVar649 = storage_alloc(size757);
+	array_number_t macroDef749;card_t size756 = width_card_t($_linalg_vectorAdd_shp(v1_shp, v2_shp));
+	array_number_t stgVar648 = storage_alloc(size756);
+	array_number_t macroDef748;
+	macroDef748 = $_linalg_vectorAdd_dps(stgVar626, $_linalg_vectorAdd_dps(stgVar648, v1_dps, v2_dps, v1_shp, v2_shp), $_linalg_mult_by_scalar_dps(stgVar649, w_dps, tmp_dps, w_shp, 0), $_linalg_vectorAdd_shp(v1_shp, v2_shp), $_linalg_mult_by_scalar_shp(w_shp, 0));;
+	storage_free(stgVar648, size756);
+	macroDef749 = macroDef748;;
+	storage_free(stgVar649, size757);
+	macroDef750 = macroDef749;;
+	storage_free(stgVar645, size758);
+	macroDef751 = macroDef750;;
+	storage_free(stgVar642, size759);
+	macroDef752 = macroDef751;;
+	storage_free(stgVar636, size760);
+	macroDef753 = macroDef752;;
+	storage_free(stgVar633, size761);
+		ite755 = macroDef753;;
 	} else {
-		card_t size713 = width_card_t(TOP_LEVEL_linalg_cross_c(rot_c, x_c));
-	array_number_t stgVar606 = storage_alloc(size713);
-	array_number_t macroDef705;
-	macroDef705 = TOP_LEVEL_linalg_vectorAdd_s(stgVar577, x_s, TOP_LEVEL_linalg_cross_s(stgVar606, rot_s, x_s, rot_c, x_c), x_c, TOP_LEVEL_linalg_cross_c(rot_c, x_c));;
-	storage_free(stgVar606, size713);
-		ite706 = macroDef705;;
+		card_t size762 = width_card_t($_linalg_cross_shp(rot_shp, x_shp));
+	array_number_t stgVar655 = storage_alloc(size762);
+	array_number_t macroDef754;
+	macroDef754 = $_linalg_vectorAdd_dps(stgVar626, x_dps, $_linalg_cross_dps(stgVar655, rot_dps, x_dps, rot_shp, x_shp), x_shp, $_linalg_cross_shp(rot_shp, x_shp));;
+	storage_free(stgVar655, size762);
+		ite755 = macroDef754;;
 	}
-	return ite706;
+	return ite755;
 }
 
-card_t TOP_LEVEL_usecases_ba_project_c(card_t cam_c, card_t x_c) {
+card_t $_usecases_ba_project_shp(card_t cam_shp, card_t x_shp) {
 	
-	return TOP_LEVEL_linalg_vectorAdd_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_usecases_ba_radial_distort_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)))), 0)), 0));
+	return $_linalg_vectorAdd_shp($_linalg_vectorSlice_shp(2, 0, cam_shp), $_linalg_mult_by_scalar_shp($_usecases_ba_radial_distort_shp($_linalg_vectorSlice_shp(2, 0, cam_shp), $_linalg_mult_by_scalar_shp($_linalg_vectorSlice_shp(2, 0, $_usecases_ba_rodrigues_rotate_point_shp($_linalg_vectorSlice_shp(3, 0, cam_shp), $_linalg_vectorSub_shp(x_shp, $_linalg_vectorSlice_shp(3, 0, cam_shp)))), 0)), 0));
 }
 
 
-array_number_t TOP_LEVEL_usecases_ba_project_s(storage_t stgVar714, array_number_t cam_s, array_number_t x_s, card_t cam_c, card_t x_c) {
-	card_t N_CAM_PARAMS_c = 0;
-	index_t N_CAM_PARAMS_s = 11;
-	card_t ROT_IDX_c = 0;
-	index_t ROT_IDX_s = 0;
-	card_t CENTER_IDX_c = 0;
-	index_t CENTER_IDX_s = 3;
-	card_t FOCAL_IDX_c = 0;
-	index_t FOCAL_IDX_s = 6;
-	card_t X0_IDX_c = 0;
-	index_t X0_IDX_s = 7;
-	card_t RAD_IDX_c = 0;
-	index_t RAD_IDX_s = 9;
-	card_t Xcam_c = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));
-	card_t size827 = width_card_t(Xcam_c);
-	array_number_t stgVar721 = storage_alloc(size827);
-	array_number_t macroDef817;card_t size820 = width_card_t(TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));
-	array_number_t stgVar723 = storage_alloc(size820);
-	array_number_t macroDef810;card_t size819 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));
-	array_number_t stgVar722 = storage_alloc(size819);
-	array_number_t macroDef809;card_t size818 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));
-	array_number_t stgVar728 = storage_alloc(size818);
-	array_number_t macroDef808;
-	macroDef808 = TOP_LEVEL_linalg_vectorSub_s(stgVar723, x_s, TOP_LEVEL_linalg_vectorSlice_s(stgVar728, 3, CENTER_IDX_s, cam_s, 3, 0, cam_c), x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c));;
-	storage_free(stgVar728, size818);
-	macroDef809 = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(stgVar721, TOP_LEVEL_linalg_vectorSlice_s(stgVar722, 3, ROT_IDX_s, cam_s, 3, 0, cam_c), macroDef808, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c), TOP_LEVEL_linalg_vectorSub_c(x_c, TOP_LEVEL_linalg_vectorSlice_c(3, 0, cam_c)));;
-	storage_free(stgVar722, size819);
-	macroDef810 = macroDef809;;
-	storage_free(stgVar723, size820);
-	array_number_t Xcam_s = macroDef810;
-	card_t distorted_c = TOP_LEVEL_usecases_ba_radial_distort_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, Xcam_c), 0));
-	card_t size826 = width_card_t(distorted_c);
-	array_number_t stgVar732 = storage_alloc(size826);
-	array_number_t macroDef816;card_t size823 = width_card_t(TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, Xcam_c), 0));
-	array_number_t stgVar734 = storage_alloc(size823);
-	array_number_t macroDef813;card_t size822 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c));
-	array_number_t stgVar733 = storage_alloc(size822);
-	array_number_t macroDef812;card_t size821 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(2, 0, Xcam_c));
-	array_number_t stgVar738 = storage_alloc(size821);
-	array_number_t macroDef811;
-	macroDef811 = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar734, TOP_LEVEL_linalg_vectorSlice_s(stgVar738, 2, 0, Xcam_s, 2, 0, Xcam_c), (1) / (Xcam_s->arr[2]), TOP_LEVEL_linalg_vectorSlice_c(2, 0, Xcam_c), 0);;
-	storage_free(stgVar738, size821);
-	macroDef812 = TOP_LEVEL_usecases_ba_radial_distort_s(stgVar732, TOP_LEVEL_linalg_vectorSlice_s(stgVar733, 2, RAD_IDX_s, cam_s, 2, 0, cam_c), macroDef811, TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSlice_c(2, 0, Xcam_c), 0));;
-	storage_free(stgVar733, size822);
-	macroDef813 = macroDef812;;
-	storage_free(stgVar734, size823);
-	array_number_t distorted_s = macroDef813;
-	card_t size825 = width_card_t(TOP_LEVEL_linalg_mult_by_scalar_c(distorted_c, 0));
-	array_number_t stgVar745 = storage_alloc(size825);
-	array_number_t macroDef815;card_t size824 = width_card_t(TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c));
-	array_number_t stgVar744 = storage_alloc(size824);
-	array_number_t macroDef814;
-	macroDef814 = TOP_LEVEL_linalg_vectorAdd_s(stgVar714, TOP_LEVEL_linalg_vectorSlice_s(stgVar744, 2, X0_IDX_s, cam_s, 2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_s(stgVar745, distorted_s, cam_s->arr[FOCAL_IDX_s], distorted_c, 0), TOP_LEVEL_linalg_vectorSlice_c(2, 0, cam_c), TOP_LEVEL_linalg_mult_by_scalar_c(distorted_c, 0));;
-	storage_free(stgVar744, size824);
-	macroDef815 = macroDef814;;
-	storage_free(stgVar745, size825);
-	macroDef816 = macroDef815;;
-	storage_free(stgVar732, size826);
-	macroDef817 = macroDef816;;
-	storage_free(stgVar721, size827);
-	return macroDef817;
+array_number_t $_usecases_ba_project_dps(storage_t stgVar763, array_number_t cam_dps, array_number_t x_dps, card_t cam_shp, card_t x_shp) {
+	card_t N_CAM_PARAMS_shp = 0;
+	index_t N_CAM_PARAMS_dps = 11;
+	card_t ROT_IDX_shp = 0;
+	index_t ROT_IDX_dps = 0;
+	card_t CENTER_IDX_shp = 0;
+	index_t CENTER_IDX_dps = 3;
+	card_t FOCAL_IDX_shp = 0;
+	index_t FOCAL_IDX_dps = 6;
+	card_t X0_IDX_shp = 0;
+	index_t X0_IDX_dps = 7;
+	card_t RAD_IDX_shp = 0;
+	index_t RAD_IDX_dps = 9;
+	card_t Xcam_shp = $_usecases_ba_rodrigues_rotate_point_shp($_linalg_vectorSlice_shp(3, 0, cam_shp), $_linalg_vectorSub_shp(x_shp, $_linalg_vectorSlice_shp(3, 0, cam_shp)));
+	card_t size876 = width_card_t(Xcam_shp);
+	array_number_t stgVar770 = storage_alloc(size876);
+	array_number_t macroDef866;card_t size869 = width_card_t($_linalg_vectorSub_shp(x_shp, $_linalg_vectorSlice_shp(3, 0, cam_shp)));
+	array_number_t stgVar772 = storage_alloc(size869);
+	array_number_t macroDef859;card_t size868 = width_card_t($_linalg_vectorSlice_shp(3, 0, cam_shp));
+	array_number_t stgVar771 = storage_alloc(size868);
+	array_number_t macroDef858;card_t size867 = width_card_t($_linalg_vectorSlice_shp(3, 0, cam_shp));
+	array_number_t stgVar777 = storage_alloc(size867);
+	array_number_t macroDef857;
+	macroDef857 = $_linalg_vectorSub_dps(stgVar772, x_dps, $_linalg_vectorSlice_dps(stgVar777, 3, CENTER_IDX_dps, cam_dps, 3, 0, cam_shp), x_shp, $_linalg_vectorSlice_shp(3, 0, cam_shp));;
+	storage_free(stgVar777, size867);
+	macroDef858 = $_usecases_ba_rodrigues_rotate_point_dps(stgVar770, $_linalg_vectorSlice_dps(stgVar771, 3, ROT_IDX_dps, cam_dps, 3, 0, cam_shp), macroDef857, $_linalg_vectorSlice_shp(3, 0, cam_shp), $_linalg_vectorSub_shp(x_shp, $_linalg_vectorSlice_shp(3, 0, cam_shp)));;
+	storage_free(stgVar771, size868);
+	macroDef859 = macroDef858;;
+	storage_free(stgVar772, size869);
+	array_number_t Xcam_dps = macroDef859;
+	card_t distorted_shp = $_usecases_ba_radial_distort_shp($_linalg_vectorSlice_shp(2, 0, cam_shp), $_linalg_mult_by_scalar_shp($_linalg_vectorSlice_shp(2, 0, Xcam_shp), 0));
+	card_t size875 = width_card_t(distorted_shp);
+	array_number_t stgVar781 = storage_alloc(size875);
+	array_number_t macroDef865;card_t size872 = width_card_t($_linalg_mult_by_scalar_shp($_linalg_vectorSlice_shp(2, 0, Xcam_shp), 0));
+	array_number_t stgVar783 = storage_alloc(size872);
+	array_number_t macroDef862;card_t size871 = width_card_t($_linalg_vectorSlice_shp(2, 0, cam_shp));
+	array_number_t stgVar782 = storage_alloc(size871);
+	array_number_t macroDef861;card_t size870 = width_card_t($_linalg_vectorSlice_shp(2, 0, Xcam_shp));
+	array_number_t stgVar787 = storage_alloc(size870);
+	array_number_t macroDef860;
+	macroDef860 = $_linalg_mult_by_scalar_dps(stgVar783, $_linalg_vectorSlice_dps(stgVar787, 2, 0, Xcam_dps, 2, 0, Xcam_shp), (1) / (Xcam_dps->arr[2]), $_linalg_vectorSlice_shp(2, 0, Xcam_shp), 0);;
+	storage_free(stgVar787, size870);
+	macroDef861 = $_usecases_ba_radial_distort_dps(stgVar781, $_linalg_vectorSlice_dps(stgVar782, 2, RAD_IDX_dps, cam_dps, 2, 0, cam_shp), macroDef860, $_linalg_vectorSlice_shp(2, 0, cam_shp), $_linalg_mult_by_scalar_shp($_linalg_vectorSlice_shp(2, 0, Xcam_shp), 0));;
+	storage_free(stgVar782, size871);
+	macroDef862 = macroDef861;;
+	storage_free(stgVar783, size872);
+	array_number_t distorted_dps = macroDef862;
+	card_t size874 = width_card_t($_linalg_mult_by_scalar_shp(distorted_shp, 0));
+	array_number_t stgVar794 = storage_alloc(size874);
+	array_number_t macroDef864;card_t size873 = width_card_t($_linalg_vectorSlice_shp(2, 0, cam_shp));
+	array_number_t stgVar793 = storage_alloc(size873);
+	array_number_t macroDef863;
+	macroDef863 = $_linalg_vectorAdd_dps(stgVar763, $_linalg_vectorSlice_dps(stgVar793, 2, X0_IDX_dps, cam_dps, 2, 0, cam_shp), $_linalg_mult_by_scalar_dps(stgVar794, distorted_dps, cam_dps->arr[FOCAL_IDX_dps], distorted_shp, 0), $_linalg_vectorSlice_shp(2, 0, cam_shp), $_linalg_mult_by_scalar_shp(distorted_shp, 0));;
+	storage_free(stgVar793, size873);
+	macroDef864 = macroDef863;;
+	storage_free(stgVar794, size874);
+	macroDef865 = macroDef864;;
+	storage_free(stgVar781, size875);
+	macroDef866 = macroDef865;;
+	storage_free(stgVar770, size876);
+	return macroDef866;
 }
 
-card_t TOP_LEVEL_usecases_ba_compute_reproj_err_c(card_t cam_c, card_t x_c, card_t w_c, card_t feat_c) {
+card_t $_usecases_ba_compute_reproj_err_shp(card_t cam_shp, card_t x_shp, card_t w_shp, card_t feat_shp) {
 	
-	return TOP_LEVEL_linalg_mult_by_scalar_c(TOP_LEVEL_linalg_vectorSub_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c), 0);
+	return $_linalg_mult_by_scalar_shp($_linalg_vectorSub_shp($_usecases_ba_project_shp(cam_shp, x_shp), feat_shp), 0);
 }
 
 
-array_number_t TOP_LEVEL_usecases_ba_compute_reproj_err_s(storage_t stgVar828, array_number_t cam_s, array_number_t x_s, number_t w_s, array_number_t feat_s, card_t cam_c, card_t x_c, card_t w_c, card_t feat_c) {
-	card_t size838 = width_card_t(TOP_LEVEL_linalg_vectorSub_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c));
-	array_number_t stgVar829 = storage_alloc(size838);
-	array_number_t macroDef836;card_t size837 = width_card_t(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c));
-	array_number_t stgVar831 = storage_alloc(size837);
-	array_number_t macroDef835;
-	macroDef835 = TOP_LEVEL_linalg_vectorSub_s(stgVar829, TOP_LEVEL_usecases_ba_project_s(stgVar831, cam_s, x_s, cam_c, x_c), feat_s, TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c);;
-	storage_free(stgVar831, size837);
-	macroDef836 = TOP_LEVEL_linalg_mult_by_scalar_s(stgVar828, macroDef835, w_s, TOP_LEVEL_linalg_vectorSub_c(TOP_LEVEL_usecases_ba_project_c(cam_c, x_c), feat_c), 0);;
-	storage_free(stgVar829, size838);
-	return macroDef836;
+array_number_t $_usecases_ba_compute_reproj_err_dps(storage_t stgVar877, array_number_t cam_dps, array_number_t x_dps, number_t w_dps, array_number_t feat_dps, card_t cam_shp, card_t x_shp, card_t w_shp, card_t feat_shp) {
+	card_t size887 = width_card_t($_linalg_vectorSub_shp($_usecases_ba_project_shp(cam_shp, x_shp), feat_shp));
+	array_number_t stgVar878 = storage_alloc(size887);
+	array_number_t macroDef885;card_t size886 = width_card_t($_usecases_ba_project_shp(cam_shp, x_shp));
+	array_number_t stgVar880 = storage_alloc(size886);
+	array_number_t macroDef884;
+	macroDef884 = $_linalg_vectorSub_dps(stgVar878, $_usecases_ba_project_dps(stgVar880, cam_dps, x_dps, cam_shp, x_shp), feat_dps, $_usecases_ba_project_shp(cam_shp, x_shp), feat_shp);;
+	storage_free(stgVar880, size886);
+	macroDef885 = $_linalg_mult_by_scalar_dps(stgVar877, macroDef884, w_dps, $_linalg_vectorSub_shp($_usecases_ba_project_shp(cam_shp, x_shp), feat_shp), 0);;
+	storage_free(stgVar878, size887);
+	return macroDef885;
 }
 
-card_t TOP_LEVEL_usecases_ba_compute_zach_weight_error_c(card_t w_c) {
+card_t $_usecases_ba_compute_zach_weight_error_shp(card_t w_shp) {
 	
 	return 0;
 }
 
 
-number_t TOP_LEVEL_usecases_ba_compute_zach_weight_error_s(storage_t stgVar839, number_t w_s, card_t w_c) {
+number_t $_usecases_ba_compute_zach_weight_error_dps(storage_t stgVar888, number_t w_dps, card_t w_shp) {
 	
-	return (1) - ((w_s) * (w_s));
+	return (1) - ((w_dps) * (w_dps));
 }
-typedef empty_env_t env_t_848;
+typedef empty_env_t env_t_897;
 
 
-value_t lambda848(env_t_848* env845, card_t w_c0) {
-	
-	value_t res;
-	res.card_t_value = 0;
-	return res;
-}
-card_t TOP_LEVEL_usecases_ba_w_err_c(card_t w_c) {
-	env_t_848 env_t_848_value = make_empty_env(); closure_t closure847 = make_closure(lambda848, &env_t_848_value);
-	return TOP_LEVEL_linalg_vectorMap_c(closure847, w_c);
-}
-
-typedef empty_env_t env_t_855;
-
-
-value_t lambda855(env_t_855* env849, storage_t stgVar843, number_t w_s0, card_t w_c0) {
-	
-	value_t res;
-	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error_s(stgVar843, w_s0, 0);
-	return res;
-}
-typedef empty_env_t env_t_856;
-
-
-value_t lambda856(env_t_856* env852, card_t w_c0) {
+value_t lambda897(env_t_897* env894, card_t w_shp0) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-array_number_t TOP_LEVEL_usecases_ba_w_err_s(storage_t stgVar840, array_number_t w_s, card_t w_c) {
-	env_t_855 env_t_855_value = make_empty_env(); closure_t closure851 = make_closure(lambda855, &env_t_855_value);
-	env_t_856 env_t_856_value = make_empty_env(); closure_t closure854 = make_closure(lambda856, &env_t_856_value);
-	return TOP_LEVEL_linalg_vectorMap_s(stgVar840, closure851, w_s, closure854, w_c);
-}
-typedef struct env_t_892 {
-	matrix_shape_t x_c;
-	matrix_shape_t feat_c;
-	matrix_shape_t cams_c;
-} env_t_892;
-env_t_892 make_env_t_892(matrix_shape_t x_c,matrix_shape_t feat_c,matrix_shape_t cams_c) {
-	env_t_892 env;
-	env.x_c = x_c;
-	env.feat_c = feat_c;
-	env.cams_c = cams_c;
-	return env;
+card_t $_usecases_ba_w_err_shp(card_t w_shp) {
+	env_t_897 env_t_897_value = make_empty_env(); closure_t closure896 = make_closure(lambda897, &env_t_897_value);
+	return $_linalg_vectorMap_shp(closure896, w_shp);
 }
 
-value_t lambda892(env_t_892* env889, card_t i_c) {
-	matrix_shape_t x_c888 = env889->x_c;
-	matrix_shape_t feat_c887 = env889->feat_c;
-	matrix_shape_t cams_c886 = env889->cams_c;
+typedef empty_env_t env_t_904;
+
+
+value_t lambda904(env_t_904* env898, storage_t stgVar892, number_t w_dps0, card_t w_shp0) {
+	
 	value_t res;
-	res.card_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err_c(cams_c886.elem, x_c888.elem, 0, feat_c887.elem);
+	res.number_t_value = $_usecases_ba_compute_zach_weight_error_dps(stgVar892, w_dps0, 0);
 	return res;
 }
-matrix_shape_t TOP_LEVEL_usecases_ba_reproj_err_c(matrix_shape_t cams_c, matrix_shape_t x_c, card_t w_c, matrix_shape_t obs_c, matrix_shape_t feat_c) {
-	env_t_892 env_t_892_value = make_env_t_892(x_c,feat_c,cams_c); closure_t closure891 = make_closure(lambda892, &env_t_892_value);
-	return TOP_LEVEL_linalg_vectorMapToMatrix_c(closure891, TOP_LEVEL_linalg_vectorRange_c(0, (w_c) - (1)));
-}
-
-typedef struct env_t_919 {
-	array_array_number_t x_s;
-	matrix_shape_t x_c;
-	array_number_t w_s;
-	array_array_number_t obs_s;
-	matrix_shape_t obs_c;
-	array_array_number_t feat_s;
-	matrix_shape_t feat_c;
-	array_array_number_t cams_s;
-	matrix_shape_t cams_c;
-} env_t_919;
-env_t_919 make_env_t_919(array_array_number_t x_s,matrix_shape_t x_c,array_number_t w_s,array_array_number_t obs_s,matrix_shape_t obs_c,array_array_number_t feat_s,matrix_shape_t feat_c,array_array_number_t cams_s,matrix_shape_t cams_c) {
-	env_t_919 env;
-	env.x_s = x_s;
-	env.x_c = x_c;
-	env.w_s = w_s;
-	env.obs_s = obs_s;
-	env.obs_c = obs_c;
-	env.feat_s = feat_s;
-	env.feat_c = feat_c;
-	env.cams_s = cams_s;
-	env.cams_c = cams_c;
-	return env;
-}
-
-value_t lambda919(env_t_919* env909, storage_t stgVar867, number_t i_s, card_t i_c) {
-	array_array_number_t x_s908 = env909->x_s;
-	matrix_shape_t x_c907 = env909->x_c;
-	array_number_t w_s906 = env909->w_s;
-	array_array_number_t obs_s905 = env909->obs_s;
-	matrix_shape_t obs_c904 = env909->obs_c;
-	array_array_number_t feat_s903 = env909->feat_s;
-	matrix_shape_t feat_c902 = env909->feat_c;
-	array_array_number_t cams_s901 = env909->cams_s;
-	matrix_shape_t cams_c900 = env909->cams_c;
-	card_t size924 = width_card_t(feat_c902.elem);
-	array_number_t stgVar871 = storage_alloc(size924);
-	array_number_t macroDef899;card_t size923 = width_card_t(x_c907.elem);
-	array_number_t stgVar869 = storage_alloc(size923);
-	array_number_t macroDef898;card_t size922 = width_card_t(cams_c900.elem);
-	array_number_t stgVar868 = storage_alloc(size922);
-	array_number_t macroDef897;card_t size920 = width_card_t(obs_c904.elem);
-	array_number_t stgVar873 = storage_alloc(size920);
-	number_t macroDef895;
-	macroDef895 = obs_s905->arr[(int)(i_s)]->arr[0];;
-	storage_free(stgVar873, size920);
-	card_t size921 = width_card_t(obs_c904.elem);
-	array_number_t stgVar876 = storage_alloc(size921);
-	number_t macroDef896;
-	macroDef896 = obs_s905->arr[(int)(i_s)]->arr[1];;
-	storage_free(stgVar876, size921);
-	macroDef897 = TOP_LEVEL_usecases_ba_compute_reproj_err_s(stgVar867, cams_s901->arr[(int)(macroDef895)], x_s908->arr[(int)(macroDef896)], w_s906->arr[(int)(i_s)], feat_s903->arr[(int)(i_s)], cams_c900.elem, x_c907.elem, 0, feat_c902.elem);;
-	storage_free(stgVar868, size922);
-	macroDef898 = macroDef897;;
-	storage_free(stgVar869, size923);
-	macroDef899 = macroDef898;;
-	storage_free(stgVar871, size924);
-	value_t res;
-	res.array_number_t_value = macroDef899;
-	return res;
-}
-typedef struct env_t_925 {
-	matrix_shape_t x_c;
-	matrix_shape_t feat_c;
-	matrix_shape_t cams_c;
-} env_t_925;
-env_t_925 make_env_t_925(matrix_shape_t x_c,matrix_shape_t feat_c,matrix_shape_t cams_c) {
-	env_t_925 env;
-	env.x_c = x_c;
-	env.feat_c = feat_c;
-	env.cams_c = cams_c;
-	return env;
-}
-
-value_t lambda925(env_t_925* env915, card_t i_c) {
-	matrix_shape_t x_c914 = env915->x_c;
-	matrix_shape_t feat_c913 = env915->feat_c;
-	matrix_shape_t cams_c912 = env915->cams_c;
-	value_t res;
-	res.card_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err_c(cams_c912.elem, x_c914.elem, 0, feat_c913.elem);
-	return res;
-}
-array_array_number_t TOP_LEVEL_usecases_ba_reproj_err_s(storage_t stgVar857, array_array_number_t cams_s, array_array_number_t x_s, array_number_t w_s, array_array_number_t obs_s, array_array_number_t feat_s, matrix_shape_t cams_c, matrix_shape_t x_c, card_t w_c, matrix_shape_t obs_c, matrix_shape_t feat_c) {
-	card_t n_c = cams_c.card;
-	card_t macroDef893 = cams_s->length;
-	card_t n_s = macroDef893;
-	card_t p_c = w_c;
-	card_t macroDef894 = w_s->length;
-	card_t p_s = macroDef894;
-	card_t range_c = TOP_LEVEL_linalg_vectorRange_c(0, (p_c) - (1));
-	card_t size926 = width_card_t(range_c);
-	array_number_t stgVar862 = storage_alloc(size926);
-	array_array_number_t macroDef918;array_number_t range_s = TOP_LEVEL_linalg_vectorRange_s(stgVar862, 0, (p_s) - (1), 0, (p_c) - (1));
-	env_t_919 env_t_919_value = make_env_t_919(x_s,x_c,w_s,obs_s,obs_c,feat_s,feat_c,cams_s,cams_c); closure_t closure911 = make_closure(lambda919, &env_t_919_value);
-	env_t_925 env_t_925_value = make_env_t_925(x_c,feat_c,cams_c); closure_t closure917 = make_closure(lambda925, &env_t_925_value);
-	macroDef918 = TOP_LEVEL_linalg_vectorMapToMatrix_s(stgVar857, closure911, range_s, closure917, range_c);;
-	storage_free(stgVar862, size926);
-	return macroDef918;
-}
-typedef empty_env_t env_t_1106;
+typedef empty_env_t env_t_905;
 
 
-value_t lambda1106(env_t_1106* env1100, card_t x_c) {
+value_t lambda905(env_t_905* env901, card_t w_shp0) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef empty_env_t env_t_1107;
-
-
-value_t lambda1107(env_t_1107* env1103, card_t x_c) {
-	
-	value_t res;
-	res.card_t_value = TOP_LEVEL_linalg_vectorRead_c(0, 0);
-	return res;
+array_number_t $_usecases_ba_w_err_dps(storage_t stgVar889, array_number_t w_dps, card_t w_shp) {
+	env_t_904 env_t_904_value = make_empty_env(); closure_t closure900 = make_closure(lambda904, &env_t_904_value);
+	env_t_905 env_t_905_value = make_empty_env(); closure_t closure903 = make_closure(lambda905, &env_t_905_value);
+	return $_linalg_vectorMap_dps(stgVar889, closure900, w_dps, closure903, w_shp);
 }
-matrix_shape_t TOP_LEVEL_usecases_ba_run_ba_from_file_c(card_t fn_c, card_t n_c, card_t m_c, card_t p_c) {
-	env_t_1106 env_t_1106_value = make_empty_env(); closure_t closure1102 = make_closure(lambda1106, &env_t_1106_value);
-	env_t_1107 env_t_1107_value = make_empty_env(); closure_t closure1105 = make_closure(lambda1107, &env_t_1107_value);
-	return TOP_LEVEL_usecases_ba_reproj_err_c(nested_shape_card_t(TOP_LEVEL_linalg_vectorRead_c(0, 0), n_c), nested_shape_card_t(TOP_LEVEL_linalg_vectorRead_c(0, 0), m_c), TOP_LEVEL_linalg_vectorMap_c(closure1102, TOP_LEVEL_linalg_vectorRange_c(1, p_c)), nested_shape_card_t(2, p_c), TOP_LEVEL_linalg_vectorMapToMatrix_c(closure1105, TOP_LEVEL_linalg_vectorRange_c(1, p_c)));
-}
-
-typedef struct env_t_1157 {
-	card_t one_cam_c;
-} env_t_1157;
-env_t_1157 make_env_t_1157(card_t one_cam_c) {
-	env_t_1157 env;
-	env.one_cam_c = one_cam_c;
+typedef struct env_t_941 {
+	matrix_shape_t x_shp;
+	matrix_shape_t feat_shp;
+	matrix_shape_t cams_shp;
+} env_t_941;
+env_t_941 make_env_t_941(matrix_shape_t x_shp,matrix_shape_t feat_shp,matrix_shape_t cams_shp) {
+	env_t_941 env;
+	env.x_shp = x_shp;
+	env.feat_shp = feat_shp;
+	env.cams_shp = cams_shp;
 	return env;
 }
 
-value_t lambda1157(env_t_1157* env1109, card_t x_c) {
-	card_t one_cam_c1108 = env1109->one_cam_c;
+value_t lambda941(env_t_941* env938, card_t i_shp) {
+	matrix_shape_t x_shp937 = env938->x_shp;
+	matrix_shape_t feat_shp936 = env938->feat_shp;
+	matrix_shape_t cams_shp935 = env938->cams_shp;
 	value_t res;
-	res.card_t_value = one_cam_c1108;
+	res.card_t_value = $_usecases_ba_compute_reproj_err_shp(cams_shp935.elem, x_shp937.elem, 0, feat_shp936.elem);
 	return res;
 }
-typedef struct env_t_1158 {
-	card_t one_x_c;
-} env_t_1158;
-env_t_1158 make_env_t_1158(card_t one_x_c) {
-	env_t_1158 env;
-	env.one_x_c = one_x_c;
+matrix_shape_t $_usecases_ba_reproj_err_shp(matrix_shape_t cams_shp, matrix_shape_t x_shp, card_t w_shp, matrix_shape_t obs_shp, matrix_shape_t feat_shp) {
+	env_t_941 env_t_941_value = make_env_t_941(x_shp,feat_shp,cams_shp); closure_t closure940 = make_closure(lambda941, &env_t_941_value);
+	return $_linalg_vectorMapToMatrix_shp(closure940, $_linalg_vectorRange_shp(0, (w_shp) - (1)));
+}
+
+typedef struct env_t_968 {
+	matrix_shape_t x_shp;
+	array_array_number_t x_dps;
+	array_number_t w_dps;
+	matrix_shape_t obs_shp;
+	array_array_number_t obs_dps;
+	matrix_shape_t feat_shp;
+	array_array_number_t feat_dps;
+	matrix_shape_t cams_shp;
+	array_array_number_t cams_dps;
+} env_t_968;
+env_t_968 make_env_t_968(matrix_shape_t x_shp,array_array_number_t x_dps,array_number_t w_dps,matrix_shape_t obs_shp,array_array_number_t obs_dps,matrix_shape_t feat_shp,array_array_number_t feat_dps,matrix_shape_t cams_shp,array_array_number_t cams_dps) {
+	env_t_968 env;
+	env.x_shp = x_shp;
+	env.x_dps = x_dps;
+	env.w_dps = w_dps;
+	env.obs_shp = obs_shp;
+	env.obs_dps = obs_dps;
+	env.feat_shp = feat_shp;
+	env.feat_dps = feat_dps;
+	env.cams_shp = cams_shp;
+	env.cams_dps = cams_dps;
 	return env;
 }
 
-value_t lambda1158(env_t_1158* env1114, card_t x_c) {
-	card_t one_x_c1113 = env1114->one_x_c;
+value_t lambda968(env_t_968* env958, storage_t stgVar916, number_t i_dps, card_t i_shp) {
+	matrix_shape_t x_shp957 = env958->x_shp;
+	array_array_number_t x_dps956 = env958->x_dps;
+	array_number_t w_dps955 = env958->w_dps;
+	matrix_shape_t obs_shp954 = env958->obs_shp;
+	array_array_number_t obs_dps953 = env958->obs_dps;
+	matrix_shape_t feat_shp952 = env958->feat_shp;
+	array_array_number_t feat_dps951 = env958->feat_dps;
+	matrix_shape_t cams_shp950 = env958->cams_shp;
+	array_array_number_t cams_dps949 = env958->cams_dps;
+	card_t size973 = width_card_t(feat_shp952.elem);
+	array_number_t stgVar920 = storage_alloc(size973);
+	array_number_t macroDef948;card_t size972 = width_card_t(x_shp957.elem);
+	array_number_t stgVar918 = storage_alloc(size972);
+	array_number_t macroDef947;card_t size971 = width_card_t(cams_shp950.elem);
+	array_number_t stgVar917 = storage_alloc(size971);
+	array_number_t macroDef946;card_t size969 = width_card_t(obs_shp954.elem);
+	array_number_t stgVar922 = storage_alloc(size969);
+	number_t macroDef944;
+	macroDef944 = obs_dps953->arr[(int)(i_dps)]->arr[0];;
+	storage_free(stgVar922, size969);
+	card_t size970 = width_card_t(obs_shp954.elem);
+	array_number_t stgVar925 = storage_alloc(size970);
+	number_t macroDef945;
+	macroDef945 = obs_dps953->arr[(int)(i_dps)]->arr[1];;
+	storage_free(stgVar925, size970);
+	macroDef946 = $_usecases_ba_compute_reproj_err_dps(stgVar916, cams_dps949->arr[(int)(macroDef944)], x_dps956->arr[(int)(macroDef945)], w_dps955->arr[(int)(i_dps)], feat_dps951->arr[(int)(i_dps)], cams_shp950.elem, x_shp957.elem, 0, feat_shp952.elem);;
+	storage_free(stgVar917, size971);
+	macroDef947 = macroDef946;;
+	storage_free(stgVar918, size972);
+	macroDef948 = macroDef947;;
+	storage_free(stgVar920, size973);
 	value_t res;
-	res.card_t_value = one_x_c1113;
+	res.array_number_t_value = macroDef948;
 	return res;
 }
-typedef empty_env_t env_t_1159;
+typedef struct env_t_974 {
+	matrix_shape_t x_shp;
+	matrix_shape_t feat_shp;
+	matrix_shape_t cams_shp;
+} env_t_974;
+env_t_974 make_env_t_974(matrix_shape_t x_shp,matrix_shape_t feat_shp,matrix_shape_t cams_shp) {
+	env_t_974 env;
+	env.x_shp = x_shp;
+	env.feat_shp = feat_shp;
+	env.cams_shp = cams_shp;
+	return env;
+}
+
+value_t lambda974(env_t_974* env964, card_t i_shp) {
+	matrix_shape_t x_shp963 = env964->x_shp;
+	matrix_shape_t feat_shp962 = env964->feat_shp;
+	matrix_shape_t cams_shp961 = env964->cams_shp;
+	value_t res;
+	res.card_t_value = $_usecases_ba_compute_reproj_err_shp(cams_shp961.elem, x_shp963.elem, 0, feat_shp962.elem);
+	return res;
+}
+array_array_number_t $_usecases_ba_reproj_err_dps(storage_t stgVar906, array_array_number_t cams_dps, array_array_number_t x_dps, array_number_t w_dps, array_array_number_t obs_dps, array_array_number_t feat_dps, matrix_shape_t cams_shp, matrix_shape_t x_shp, card_t w_shp, matrix_shape_t obs_shp, matrix_shape_t feat_shp) {
+	card_t n_shp = cams_shp.card;
+	card_t macroDef942 = cams_dps->length;
+	card_t n_dps = macroDef942;
+	card_t p_shp = w_shp;
+	card_t macroDef943 = w_dps->length;
+	card_t p_dps = macroDef943;
+	card_t range_shp = $_linalg_vectorRange_shp(0, (p_shp) - (1));
+	card_t size975 = width_card_t(range_shp);
+	array_number_t stgVar911 = storage_alloc(size975);
+	array_array_number_t macroDef967;array_number_t range_dps = $_linalg_vectorRange_dps(stgVar911, 0, (p_dps) - (1), 0, (p_shp) - (1));
+	env_t_968 env_t_968_value = make_env_t_968(x_shp,x_dps,w_dps,obs_shp,obs_dps,feat_shp,feat_dps,cams_shp,cams_dps); closure_t closure960 = make_closure(lambda968, &env_t_968_value);
+	env_t_974 env_t_974_value = make_env_t_974(x_shp,feat_shp,cams_shp); closure_t closure966 = make_closure(lambda974, &env_t_974_value);
+	macroDef967 = $_linalg_vectorMapToMatrix_dps(stgVar906, closure960, range_dps, closure966, range_shp);;
+	storage_free(stgVar911, size975);
+	return macroDef967;
+}
+typedef empty_env_t env_t_1155;
 
 
-value_t lambda1159(env_t_1159* env1118, card_t x_c0) {
+value_t lambda1155(env_t_1155* env1149, card_t x_shp) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef struct env_t_1160 {
-	number_t one_w_s;
-} env_t_1160;
-env_t_1160 make_env_t_1160(number_t one_w_s) {
-	env_t_1160 env;
-	env.one_w_s = one_w_s;
+typedef empty_env_t env_t_1156;
+
+
+value_t lambda1156(env_t_1156* env1152, card_t x_shp) {
+	
+	value_t res;
+	res.card_t_value = $_linalg_vectorRead_shp(0, 0);
+	return res;
+}
+matrix_shape_t $_usecases_ba_run_ba_from_file_shp(card_t fn_shp, card_t n_shp, card_t m_shp, card_t p_shp) {
+	env_t_1155 env_t_1155_value = make_empty_env(); closure_t closure1151 = make_closure(lambda1155, &env_t_1155_value);
+	env_t_1156 env_t_1156_value = make_empty_env(); closure_t closure1154 = make_closure(lambda1156, &env_t_1156_value);
+	return $_usecases_ba_reproj_err_shp(nested_shape_card_t($_linalg_vectorRead_shp(0, 0), n_shp), nested_shape_card_t($_linalg_vectorRead_shp(0, 0), m_shp), $_linalg_vectorMap_shp(closure1151, $_linalg_vectorRange_shp(1, p_shp)), nested_shape_card_t(2, p_shp), $_linalg_vectorMapToMatrix_shp(closure1154, $_linalg_vectorRange_shp(1, p_shp)));
+}
+
+typedef struct env_t_1206 {
+	card_t one_cam_shp;
+} env_t_1206;
+env_t_1206 make_env_t_1206(card_t one_cam_shp) {
+	env_t_1206 env;
+	env.one_cam_shp = one_cam_shp;
 	return env;
 }
 
-value_t lambda1160(env_t_1160* env1122, storage_t stgVar945, number_t x_s0, card_t x_c0) {
-	number_t one_w_s1121 = env1122->one_w_s;
+value_t lambda1206(env_t_1206* env1158, card_t x_shp) {
+	card_t one_cam_shp1157 = env1158->one_cam_shp;
 	value_t res;
-	res.number_t_value = one_w_s1121;
+	res.card_t_value = one_cam_shp1157;
 	return res;
 }
-typedef empty_env_t env_t_1161;
+typedef struct env_t_1207 {
+	card_t one_x_shp;
+} env_t_1207;
+env_t_1207 make_env_t_1207(card_t one_x_shp) {
+	env_t_1207 env;
+	env.one_x_shp = one_x_shp;
+	return env;
+}
+
+value_t lambda1207(env_t_1207* env1163, card_t x_shp) {
+	card_t one_x_shp1162 = env1163->one_x_shp;
+	value_t res;
+	res.card_t_value = one_x_shp1162;
+	return res;
+}
+typedef empty_env_t env_t_1208;
 
 
-value_t lambda1161(env_t_1161* env1125, card_t x_c0) {
+value_t lambda1208(env_t_1208* env1167, card_t x_shp0) {
 	
 	value_t res;
 	res.card_t_value = 0;
 	return res;
 }
-typedef struct env_t_1163 {
-	card_t one_feat_c;
-} env_t_1163;
-env_t_1163 make_env_t_1163(card_t one_feat_c) {
-	env_t_1163 env;
-	env.one_feat_c = one_feat_c;
+typedef struct env_t_1209 {
+	number_t one_w_dps;
+} env_t_1209;
+env_t_1209 make_env_t_1209(number_t one_w_dps) {
+	env_t_1209 env;
+	env.one_w_dps = one_w_dps;
 	return env;
 }
 
-value_t lambda1163(env_t_1163* env1130, card_t x_c0) {
-	card_t one_feat_c1129 = env1130->one_feat_c;
+value_t lambda1209(env_t_1209* env1171, storage_t stgVar994, number_t x_dps0, card_t x_shp0) {
+	number_t one_w_dps1170 = env1171->one_w_dps;
 	value_t res;
-	res.card_t_value = one_feat_c1129;
+	res.number_t_value = one_w_dps1170;
 	return res;
 }
-typedef struct env_t_1164 {
-	array_number_t one_feat_s;
-} env_t_1164;
-env_t_1164 make_env_t_1164(array_number_t one_feat_s) {
-	env_t_1164 env;
-	env.one_feat_s = one_feat_s;
+typedef empty_env_t env_t_1210;
+
+
+value_t lambda1210(env_t_1210* env1174, card_t x_shp0) {
+	
+	value_t res;
+	res.card_t_value = 0;
+	return res;
+}
+typedef struct env_t_1212 {
+	card_t one_feat_shp;
+} env_t_1212;
+env_t_1212 make_env_t_1212(card_t one_feat_shp) {
+	env_t_1212 env;
+	env.one_feat_shp = one_feat_shp;
 	return env;
 }
 
-value_t lambda1164(env_t_1164* env1134, storage_t stgVar954, number_t x_s0, card_t x_c0) {
-	array_number_t one_feat_s1133 = env1134->one_feat_s;
+value_t lambda1212(env_t_1212* env1179, card_t x_shp0) {
+	card_t one_feat_shp1178 = env1179->one_feat_shp;
 	value_t res;
-	res.array_number_t_value = one_feat_s1133;
+	res.card_t_value = one_feat_shp1178;
 	return res;
 }
-typedef struct env_t_1165 {
-	card_t one_feat_c;
-} env_t_1165;
-env_t_1165 make_env_t_1165(card_t one_feat_c) {
-	env_t_1165 env;
-	env.one_feat_c = one_feat_c;
+typedef struct env_t_1213 {
+	array_number_t one_feat_dps;
+} env_t_1213;
+env_t_1213 make_env_t_1213(array_number_t one_feat_dps) {
+	env_t_1213 env;
+	env.one_feat_dps = one_feat_dps;
 	return env;
 }
 
-value_t lambda1165(env_t_1165* env1138, card_t x_c0) {
-	card_t one_feat_c1137 = env1138->one_feat_c;
+value_t lambda1213(env_t_1213* env1183, storage_t stgVar1003, number_t x_dps0, card_t x_shp0) {
+	array_number_t one_feat_dps1182 = env1183->one_feat_dps;
 	value_t res;
-	res.card_t_value = one_feat_c1137;
+	res.array_number_t_value = one_feat_dps1182;
 	return res;
 }
-typedef empty_env_t env_t_1167;
+typedef struct env_t_1214 {
+	card_t one_feat_shp;
+} env_t_1214;
+env_t_1214 make_env_t_1214(card_t one_feat_shp) {
+	env_t_1214 env;
+	env.one_feat_shp = one_feat_shp;
+	return env;
+}
+
+value_t lambda1214(env_t_1214* env1187, card_t x_shp0) {
+	card_t one_feat_shp1186 = env1187->one_feat_shp;
+	value_t res;
+	res.card_t_value = one_feat_shp1186;
+	return res;
+}
+typedef empty_env_t env_t_1216;
 
 
-value_t lambda1167(env_t_1167* env1142, card_t x_c0) {
+value_t lambda1216(env_t_1216* env1191, card_t x_shp0) {
 	
 	value_t res;
 	res.card_t_value = 2;
 	return res;
 }
-array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file_s(storage_t stgVar927, string_t fn_s, card_t n_s, card_t m_s, card_t p_s, card_t fn_c, card_t n_c, card_t m_c, card_t p_c) {
-	card_t oneCard_c = 1;
-	card_t oneCard_s = 1;
-	card_t one_cam_c = TOP_LEVEL_linalg_vectorRead_c(0, 0);
-	card_t size1176 = width_card_t(one_cam_c);
-	array_number_t stgVar929 = storage_alloc(size1176);
-	array_array_number_t macroDef1155;array_number_t one_cam_s = TOP_LEVEL_linalg_vectorRead_s(stgVar929, fn_s, 1, 0, 0);
-	env_t_1157 env_t_1157_value = make_env_t_1157(one_cam_c); closure_t closure1111 = make_closure(lambda1157, &env_t_1157_value);
-	matrix_shape_t cam_c = nested_shape_card_t(closure1111.lam(closure1111.env, 0).card_t_value, n_c);
-	card_t size1175 = width_matrix_shape_t(cam_c);
-	array_number_t stgVar932 = storage_alloc(size1175);
-	array_array_number_t macroDef1154;array_array_number_t macroDef1112 = (array_array_number_t)stgVar932;
-		macroDef1112->length=n_s;
-		macroDef1112->arr=(array_number_t*)(STG_OFFSET(macroDef1112, VECTOR_HEADER_BYTES));
-		storage_t stgVar933 = (STG_OFFSET(macroDef1112, MATRIX_HEADER_BYTES(n_s)));
-		for(int x_s = 0; x_s < macroDef1112->length; x_s++){
+array_array_number_t $_usecases_ba_run_ba_from_file_dps(storage_t stgVar976, string_t fn_dps, card_t n_dps, card_t m_dps, card_t p_dps, card_t fn_shp, card_t n_shp, card_t m_shp, card_t p_shp) {
+	card_t oneCard_shp = 1;
+	card_t oneCard_dps = 1;
+	card_t one_cam_shp = $_linalg_vectorRead_shp(0, 0);
+	card_t size1225 = width_card_t(one_cam_shp);
+	array_number_t stgVar978 = storage_alloc(size1225);
+	array_array_number_t macroDef1204;array_number_t one_cam_dps = $_linalg_vectorRead_dps(stgVar978, fn_dps, 1, 0, 0);
+	env_t_1206 env_t_1206_value = make_env_t_1206(one_cam_shp); closure_t closure1160 = make_closure(lambda1206, &env_t_1206_value);
+	matrix_shape_t cam_shp = nested_shape_card_t(closure1160.lam(closure1160.env, 0).card_t_value, n_shp);
+	card_t size1224 = width_matrix_shape_t(cam_shp);
+	array_number_t stgVar981 = storage_alloc(size1224);
+	array_array_number_t macroDef1203;array_array_number_t macroDef1161 = (array_array_number_t)stgVar981;
+		macroDef1161->length=n_dps;
+		macroDef1161->arr=(array_number_t*)(STG_OFFSET(macroDef1161, VECTOR_HEADER_BYTES));
+		storage_t stgVar982 = (STG_OFFSET(macroDef1161, MATRIX_HEADER_BYTES(n_dps)));
+		for(int x_dps = 0; x_dps < macroDef1161->length; x_dps++){
 			
-			macroDef1112->arr[x_s] = one_cam_s;;
-			stgVar933 = STG_OFFSET(stgVar933, VECTOR_ALL_BYTES(macroDef1112->arr[x_s]->length));
+			macroDef1161->arr[x_dps] = one_cam_dps;;
+			stgVar982 = STG_OFFSET(stgVar982, VECTOR_ALL_BYTES(macroDef1161->arr[x_dps]->length));
 		}
-	array_array_number_t cam_s = macroDef1112;
-	card_t one_x_c = TOP_LEVEL_linalg_vectorRead_c(0, 0);
-	card_t size1174 = width_card_t(one_x_c);
-	array_number_t stgVar934 = storage_alloc(size1174);
-	array_array_number_t macroDef1153;array_number_t one_x_s = TOP_LEVEL_linalg_vectorRead_s(stgVar934, fn_s, 2, 0, 0);
-	env_t_1158 env_t_1158_value = make_env_t_1158(one_x_c); closure_t closure1116 = make_closure(lambda1158, &env_t_1158_value);
-	matrix_shape_t x_c = nested_shape_card_t(closure1116.lam(closure1116.env, 0).card_t_value, m_c);
-	card_t size1173 = width_matrix_shape_t(x_c);
-	array_number_t stgVar937 = storage_alloc(size1173);
-	array_array_number_t macroDef1152;array_array_number_t macroDef1117 = (array_array_number_t)stgVar937;
-		macroDef1117->length=m_s;
-		macroDef1117->arr=(array_number_t*)(STG_OFFSET(macroDef1117, VECTOR_HEADER_BYTES));
-		storage_t stgVar938 = (STG_OFFSET(macroDef1117, MATRIX_HEADER_BYTES(m_s)));
-		for(int x_s = 0; x_s < macroDef1117->length; x_s++){
+	array_array_number_t cam_dps = macroDef1161;
+	card_t one_x_shp = $_linalg_vectorRead_shp(0, 0);
+	card_t size1223 = width_card_t(one_x_shp);
+	array_number_t stgVar983 = storage_alloc(size1223);
+	array_array_number_t macroDef1202;array_number_t one_x_dps = $_linalg_vectorRead_dps(stgVar983, fn_dps, 2, 0, 0);
+	env_t_1207 env_t_1207_value = make_env_t_1207(one_x_shp); closure_t closure1165 = make_closure(lambda1207, &env_t_1207_value);
+	matrix_shape_t x_shp = nested_shape_card_t(closure1165.lam(closure1165.env, 0).card_t_value, m_shp);
+	card_t size1222 = width_matrix_shape_t(x_shp);
+	array_number_t stgVar986 = storage_alloc(size1222);
+	array_array_number_t macroDef1201;array_array_number_t macroDef1166 = (array_array_number_t)stgVar986;
+		macroDef1166->length=m_dps;
+		macroDef1166->arr=(array_number_t*)(STG_OFFSET(macroDef1166, VECTOR_HEADER_BYTES));
+		storage_t stgVar987 = (STG_OFFSET(macroDef1166, MATRIX_HEADER_BYTES(m_dps)));
+		for(int x_dps = 0; x_dps < macroDef1166->length; x_dps++){
 			
-			macroDef1117->arr[x_s] = one_x_s;;
-			stgVar938 = STG_OFFSET(stgVar938, VECTOR_ALL_BYTES(macroDef1117->arr[x_s]->length));
+			macroDef1166->arr[x_dps] = one_x_dps;;
+			stgVar987 = STG_OFFSET(stgVar987, VECTOR_ALL_BYTES(macroDef1166->arr[x_dps]->length));
 		}
-	array_array_number_t x_s = macroDef1117;
-	card_t one_w_c = 0;
-	number_t one_w_s = TOP_LEVEL_linalg_numberRead_s(empty_storage, fn_s, 3, 0, 0);
-	env_t_1159 env_t_1159_value = make_empty_env(); closure_t closure1120 = make_closure(lambda1159, &env_t_1159_value);
-	card_t w_c = TOP_LEVEL_linalg_vectorMap_c(closure1120, TOP_LEVEL_linalg_vectorRange_c(oneCard_c, p_c));
-	card_t size1172 = width_card_t(w_c);
-	array_number_t stgVar942 = storage_alloc(size1172);
-	array_array_number_t macroDef1151;card_t size1162 = width_card_t(TOP_LEVEL_linalg_vectorRange_c(oneCard_c, p_c));
-	array_number_t stgVar944 = storage_alloc(size1162);
-	array_number_t macroDef1128;env_t_1160 env_t_1160_value = make_env_t_1160(one_w_s); closure_t closure1124 = make_closure(lambda1160, &env_t_1160_value);
-	env_t_1161 env_t_1161_value = make_empty_env(); closure_t closure1127 = make_closure(lambda1161, &env_t_1161_value);
-	macroDef1128 = TOP_LEVEL_linalg_vectorMap_s(stgVar942, closure1124, TOP_LEVEL_linalg_vectorRange_s(stgVar944, oneCard_s, p_s, oneCard_c, p_c), closure1127, TOP_LEVEL_linalg_vectorRange_c(oneCard_c, p_c));;
-	storage_free(stgVar944, size1162);
-	array_number_t w_s = macroDef1128;
-	card_t one_feat_c = TOP_LEVEL_linalg_vectorRead_c(0, 0);
-	card_t size1171 = width_card_t(one_feat_c);
-	array_number_t stgVar948 = storage_alloc(size1171);
-	array_array_number_t macroDef1150;array_number_t one_feat_s = TOP_LEVEL_linalg_vectorRead_s(stgVar948, fn_s, 4, 0, 0);
-	env_t_1163 env_t_1163_value = make_env_t_1163(one_feat_c); closure_t closure1132 = make_closure(lambda1163, &env_t_1163_value);
-	matrix_shape_t feat_c = TOP_LEVEL_linalg_vectorMapToMatrix_c(closure1132, TOP_LEVEL_linalg_vectorRange_c(oneCard_c, p_c));
-	card_t size1170 = width_matrix_shape_t(feat_c);
-	array_number_t stgVar951 = storage_alloc(size1170);
-	array_array_number_t macroDef1149;card_t size1166 = width_card_t(TOP_LEVEL_linalg_vectorRange_c(oneCard_c, p_c));
-	array_number_t stgVar953 = storage_alloc(size1166);
-	array_array_number_t macroDef1141;env_t_1164 env_t_1164_value = make_env_t_1164(one_feat_s); closure_t closure1136 = make_closure(lambda1164, &env_t_1164_value);
-	env_t_1165 env_t_1165_value = make_env_t_1165(one_feat_c); closure_t closure1140 = make_closure(lambda1165, &env_t_1165_value);
-	macroDef1141 = TOP_LEVEL_linalg_vectorMapToMatrix_s(stgVar951, closure1136, TOP_LEVEL_linalg_vectorRange_s(stgVar953, oneCard_s, p_s, oneCard_c, p_c), closure1140, TOP_LEVEL_linalg_vectorRange_c(oneCard_c, p_c));;
-	storage_free(stgVar953, size1166);
-	array_array_number_t feat_s = macroDef1141;
-	env_t_1167 env_t_1167_value = make_empty_env(); closure_t closure1144 = make_closure(lambda1167, &env_t_1167_value);
-	matrix_shape_t obs_c = nested_shape_card_t(closure1144.lam(closure1144.env, 0).card_t_value, p_c);
-	card_t size1169 = width_matrix_shape_t(obs_c);
-	array_number_t stgVar957 = storage_alloc(size1169);
-	array_array_number_t macroDef1148;array_array_number_t macroDef1146 = (array_array_number_t)stgVar957;
-		macroDef1146->length=p_s;
-		macroDef1146->arr=(array_number_t*)(STG_OFFSET(macroDef1146, VECTOR_HEADER_BYTES));
-		storage_t stgVar958 = (STG_OFFSET(macroDef1146, MATRIX_HEADER_BYTES(p_s)));
-		for(int x_s0 = 0; x_s0 < macroDef1146->length; x_s0++){
-			array_number_t macroDef1145 = (array_number_t)stgVar958;
-	macroDef1145->length=2;
-	macroDef1145->arr=(number_t*)(STG_OFFSET(stgVar958, VECTOR_HEADER_BYTES));
-	macroDef1145->arr[0] = (double)(((int)(x_s0)) % ((n_s)));
-	macroDef1145->arr[1] = (double)(((int)(x_s0)) % ((m_s)));;
-			macroDef1146->arr[x_s0] = macroDef1145;;
-			stgVar958 = STG_OFFSET(stgVar958, VECTOR_ALL_BYTES(macroDef1146->arr[x_s0]->length));
+	array_array_number_t x_dps = macroDef1166;
+	card_t one_w_shp = 0;
+	number_t one_w_dps = $_linalg_numberRead_dps(empty_storage, fn_dps, 3, 0, 0);
+	env_t_1208 env_t_1208_value = make_empty_env(); closure_t closure1169 = make_closure(lambda1208, &env_t_1208_value);
+	card_t w_shp = $_linalg_vectorMap_shp(closure1169, $_linalg_vectorRange_shp(oneCard_shp, p_shp));
+	card_t size1221 = width_card_t(w_shp);
+	array_number_t stgVar991 = storage_alloc(size1221);
+	array_array_number_t macroDef1200;card_t size1211 = width_card_t($_linalg_vectorRange_shp(oneCard_shp, p_shp));
+	array_number_t stgVar993 = storage_alloc(size1211);
+	array_number_t macroDef1177;env_t_1209 env_t_1209_value = make_env_t_1209(one_w_dps); closure_t closure1173 = make_closure(lambda1209, &env_t_1209_value);
+	env_t_1210 env_t_1210_value = make_empty_env(); closure_t closure1176 = make_closure(lambda1210, &env_t_1210_value);
+	macroDef1177 = $_linalg_vectorMap_dps(stgVar991, closure1173, $_linalg_vectorRange_dps(stgVar993, oneCard_dps, p_dps, oneCard_shp, p_shp), closure1176, $_linalg_vectorRange_shp(oneCard_shp, p_shp));;
+	storage_free(stgVar993, size1211);
+	array_number_t w_dps = macroDef1177;
+	card_t one_feat_shp = $_linalg_vectorRead_shp(0, 0);
+	card_t size1220 = width_card_t(one_feat_shp);
+	array_number_t stgVar997 = storage_alloc(size1220);
+	array_array_number_t macroDef1199;array_number_t one_feat_dps = $_linalg_vectorRead_dps(stgVar997, fn_dps, 4, 0, 0);
+	env_t_1212 env_t_1212_value = make_env_t_1212(one_feat_shp); closure_t closure1181 = make_closure(lambda1212, &env_t_1212_value);
+	matrix_shape_t feat_shp = $_linalg_vectorMapToMatrix_shp(closure1181, $_linalg_vectorRange_shp(oneCard_shp, p_shp));
+	card_t size1219 = width_matrix_shape_t(feat_shp);
+	array_number_t stgVar1000 = storage_alloc(size1219);
+	array_array_number_t macroDef1198;card_t size1215 = width_card_t($_linalg_vectorRange_shp(oneCard_shp, p_shp));
+	array_number_t stgVar1002 = storage_alloc(size1215);
+	array_array_number_t macroDef1190;env_t_1213 env_t_1213_value = make_env_t_1213(one_feat_dps); closure_t closure1185 = make_closure(lambda1213, &env_t_1213_value);
+	env_t_1214 env_t_1214_value = make_env_t_1214(one_feat_shp); closure_t closure1189 = make_closure(lambda1214, &env_t_1214_value);
+	macroDef1190 = $_linalg_vectorMapToMatrix_dps(stgVar1000, closure1185, $_linalg_vectorRange_dps(stgVar1002, oneCard_dps, p_dps, oneCard_shp, p_shp), closure1189, $_linalg_vectorRange_shp(oneCard_shp, p_shp));;
+	storage_free(stgVar1002, size1215);
+	array_array_number_t feat_dps = macroDef1190;
+	env_t_1216 env_t_1216_value = make_empty_env(); closure_t closure1193 = make_closure(lambda1216, &env_t_1216_value);
+	matrix_shape_t obs_shp = nested_shape_card_t(closure1193.lam(closure1193.env, 0).card_t_value, p_shp);
+	card_t size1218 = width_matrix_shape_t(obs_shp);
+	array_number_t stgVar1006 = storage_alloc(size1218);
+	array_array_number_t macroDef1197;array_array_number_t macroDef1195 = (array_array_number_t)stgVar1006;
+		macroDef1195->length=p_dps;
+		macroDef1195->arr=(array_number_t*)(STG_OFFSET(macroDef1195, VECTOR_HEADER_BYTES));
+		storage_t stgVar1007 = (STG_OFFSET(macroDef1195, MATRIX_HEADER_BYTES(p_dps)));
+		for(int x_dps0 = 0; x_dps0 < macroDef1195->length; x_dps0++){
+			array_number_t macroDef1194 = (array_number_t)stgVar1007;
+	macroDef1194->length=2;
+	macroDef1194->arr=(number_t*)(STG_OFFSET(stgVar1007, VECTOR_HEADER_BYTES));
+	macroDef1194->arr[0] = (double)(((int)(x_dps0)) % ((n_dps)));
+	macroDef1194->arr[1] = (double)(((int)(x_dps0)) % ((m_dps)));;
+			macroDef1195->arr[x_dps0] = macroDef1194;;
+			stgVar1007 = STG_OFFSET(stgVar1007, VECTOR_ALL_BYTES(macroDef1195->arr[x_dps0]->length));
 		}
-	array_array_number_t obs_s = macroDef1146;
-	card_t t_c = 0;
-	timer_t t_s = tic();
-	matrix_shape_t res_c = TOP_LEVEL_usecases_ba_reproj_err_c(cam_c, x_c, w_c, obs_c, feat_c);
-	card_t size1168 = width_matrix_shape_t(res_c);
-	array_number_t stgVar962 = storage_alloc(size1168);
-	array_array_number_t macroDef1147;array_array_number_t res_s = TOP_LEVEL_usecases_ba_reproj_err_s(stgVar962, cam_s, x_s, w_s, obs_s, feat_s, cam_c, x_c, w_c, obs_c, feat_c);
-	toc(t_s);
-	macroDef1147 = res_s;;
-	storage_free(stgVar962, size1168);
-	macroDef1148 = macroDef1147;;
-	storage_free(stgVar957, size1169);
-	macroDef1149 = macroDef1148;;
-	storage_free(stgVar951, size1170);
-	macroDef1150 = macroDef1149;;
-	storage_free(stgVar948, size1171);
-	macroDef1151 = macroDef1150;;
-	storage_free(stgVar942, size1172);
-	macroDef1152 = macroDef1151;;
-	storage_free(stgVar937, size1173);
-	macroDef1153 = macroDef1152;;
-	storage_free(stgVar934, size1174);
-	macroDef1154 = macroDef1153;;
-	storage_free(stgVar932, size1175);
-	macroDef1155 = macroDef1154;;
-	storage_free(stgVar929, size1176);
-	return macroDef1155;
+	array_array_number_t obs_dps = macroDef1195;
+	card_t t_shp = 0;
+	timer_t t_dps = tic();
+	matrix_shape_t res_shp = $_usecases_ba_reproj_err_shp(cam_shp, x_shp, w_shp, obs_shp, feat_shp);
+	card_t size1217 = width_matrix_shape_t(res_shp);
+	array_number_t stgVar1011 = storage_alloc(size1217);
+	array_array_number_t macroDef1196;array_array_number_t res_dps = $_usecases_ba_reproj_err_dps(stgVar1011, cam_dps, x_dps, w_dps, obs_dps, feat_dps, cam_shp, x_shp, w_shp, obs_shp, feat_shp);
+	toc(t_dps);
+	macroDef1196 = res_dps;;
+	storage_free(stgVar1011, size1217);
+	macroDef1197 = macroDef1196;;
+	storage_free(stgVar1006, size1218);
+	macroDef1198 = macroDef1197;;
+	storage_free(stgVar1000, size1219);
+	macroDef1199 = macroDef1198;;
+	storage_free(stgVar997, size1220);
+	macroDef1200 = macroDef1199;;
+	storage_free(stgVar991, size1221);
+	macroDef1201 = macroDef1200;;
+	storage_free(stgVar986, size1222);
+	macroDef1202 = macroDef1201;;
+	storage_free(stgVar983, size1223);
+	macroDef1203 = macroDef1202;;
+	storage_free(stgVar981, size1224);
+	macroDef1204 = macroDef1203;;
+	storage_free(stgVar978, size1225);
+	return macroDef1204;
 }
 
-card_t TOP_LEVEL_usecases_ba_test_ba_c(card_t dum_c) {
+card_t $_usecases_ba_test_ba_shp(card_t dum_shp) {
 	
 	return 0;
 }
 
 
-void TOP_LEVEL_usecases_ba_test_ba_s(storage_t stgVar1177, array_number_t dum_s, card_t dum_c) {
-	card_t a_c = 3;
-	card_t size1233 = width_card_t(a_c);
-	array_number_t stgVar1178 = storage_alloc(size1233);
-	array_number_t macroDef1211 = (array_number_t)stgVar1178;
-	macroDef1211->length=3;
-	macroDef1211->arr=(number_t*)(STG_OFFSET(stgVar1178, VECTOR_HEADER_BYTES));
-	macroDef1211->arr[0] = 1;
-	macroDef1211->arr[1] = 2;
-	macroDef1211->arr[2] = 3;;
-	array_number_t a_s = macroDef1211;
-	card_t b_c = 3;
-	card_t size1232 = width_card_t(b_c);
-	array_number_t stgVar1182 = storage_alloc(size1232);
-	array_number_t macroDef1212 = (array_number_t)stgVar1182;
-	macroDef1212->length=3;
-	macroDef1212->arr=(number_t*)(STG_OFFSET(stgVar1182, VECTOR_HEADER_BYTES));
-	macroDef1212->arr[0] = 5;
-	macroDef1212->arr[1] = 6;
-	macroDef1212->arr[2] = 7;;
-	array_number_t b_s = macroDef1212;
-	array_print(a_s);
-	array_print(b_s);
-	card_t j_c = TOP_LEVEL_usecases_ba_radial_distort_c(a_c, b_c);
-	card_t size1231 = width_card_t(j_c);
-	array_number_t stgVar1186 = storage_alloc(size1231);
-	array_number_t j_s = TOP_LEVEL_usecases_ba_radial_distort_s(stgVar1186, a_s, b_s, a_c, b_c);
-	array_print(j_s);
-	card_t k_c = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_c(a_c, b_c);
-	card_t size1230 = width_card_t(k_c);
-	array_number_t stgVar1189 = storage_alloc(size1230);
-	array_number_t k_s = TOP_LEVEL_usecases_ba_rodrigues_rotate_point_s(stgVar1189, a_s, b_s, a_c, b_c);
-	array_print(k_s);
-	card_t l_c = TOP_LEVEL_linalg_vectorSlice_c(2, 0, k_c);
-	card_t size1229 = width_card_t(l_c);
-	array_number_t stgVar1192 = storage_alloc(size1229);
-	array_number_t l_s = TOP_LEVEL_linalg_vectorSlice_s(stgVar1192, 2, 1, k_s, 2, 0, k_c);
-	array_print(l_s);
-	card_t cam_c = 11;
-	card_t size1228 = width_card_t(cam_c);
-	array_number_t stgVar1196 = storage_alloc(size1228);
-	array_number_t macroDef1213 = (array_number_t)stgVar1196;
-	macroDef1213->length=11;
-	macroDef1213->arr=(number_t*)(STG_OFFSET(stgVar1196, VECTOR_HEADER_BYTES));
-	macroDef1213->arr[0] = 0;
-	macroDef1213->arr[1] = 2;
-	macroDef1213->arr[2] = 4;
-	macroDef1213->arr[3] = 6;
-	macroDef1213->arr[4] = 8;
-	macroDef1213->arr[5] = 10;
-	macroDef1213->arr[6] = 12;
-	macroDef1213->arr[7] = 14;
-	macroDef1213->arr[8] = 16;
-	macroDef1213->arr[9] = 18;
-	macroDef1213->arr[10] = 20;;
-	array_number_t cam_s = macroDef1213;
-	card_t m_c = TOP_LEVEL_usecases_ba_project_c(cam_c, j_c);
-	card_t size1227 = width_card_t(m_c);
-	array_number_t stgVar1208 = storage_alloc(size1227);
-	array_number_t m_s = TOP_LEVEL_usecases_ba_project_s(stgVar1208, cam_s, j_s, cam_c, j_c);
-	array_print(m_s);
+void $_usecases_ba_test_ba_dps(storage_t stgVar1226, array_number_t dum_dps, card_t dum_shp) {
+	card_t a_shp = 3;
+	card_t size1282 = width_card_t(a_shp);
+	array_number_t stgVar1227 = storage_alloc(size1282);
+	array_number_t macroDef1260 = (array_number_t)stgVar1227;
+	macroDef1260->length=3;
+	macroDef1260->arr=(number_t*)(STG_OFFSET(stgVar1227, VECTOR_HEADER_BYTES));
+	macroDef1260->arr[0] = 1;
+	macroDef1260->arr[1] = 2;
+	macroDef1260->arr[2] = 3;;
+	array_number_t a_dps = macroDef1260;
+	card_t b_shp = 3;
+	card_t size1281 = width_card_t(b_shp);
+	array_number_t stgVar1231 = storage_alloc(size1281);
+	array_number_t macroDef1261 = (array_number_t)stgVar1231;
+	macroDef1261->length=3;
+	macroDef1261->arr=(number_t*)(STG_OFFSET(stgVar1231, VECTOR_HEADER_BYTES));
+	macroDef1261->arr[0] = 5;
+	macroDef1261->arr[1] = 6;
+	macroDef1261->arr[2] = 7;;
+	array_number_t b_dps = macroDef1261;
+	array_print(a_dps);
+	array_print(b_dps);
+	card_t j_shp = $_usecases_ba_radial_distort_shp(a_shp, b_shp);
+	card_t size1280 = width_card_t(j_shp);
+	array_number_t stgVar1235 = storage_alloc(size1280);
+	array_number_t j_dps = $_usecases_ba_radial_distort_dps(stgVar1235, a_dps, b_dps, a_shp, b_shp);
+	array_print(j_dps);
+	card_t k_shp = $_usecases_ba_rodrigues_rotate_point_shp(a_shp, b_shp);
+	card_t size1279 = width_card_t(k_shp);
+	array_number_t stgVar1238 = storage_alloc(size1279);
+	array_number_t k_dps = $_usecases_ba_rodrigues_rotate_point_dps(stgVar1238, a_dps, b_dps, a_shp, b_shp);
+	array_print(k_dps);
+	card_t l_shp = $_linalg_vectorSlice_shp(2, 0, k_shp);
+	card_t size1278 = width_card_t(l_shp);
+	array_number_t stgVar1241 = storage_alloc(size1278);
+	array_number_t l_dps = $_linalg_vectorSlice_dps(stgVar1241, 2, 1, k_dps, 2, 0, k_shp);
+	array_print(l_dps);
+	card_t cam_shp = 11;
+	card_t size1277 = width_card_t(cam_shp);
+	array_number_t stgVar1245 = storage_alloc(size1277);
+	array_number_t macroDef1262 = (array_number_t)stgVar1245;
+	macroDef1262->length=11;
+	macroDef1262->arr=(number_t*)(STG_OFFSET(stgVar1245, VECTOR_HEADER_BYTES));
+	macroDef1262->arr[0] = 0;
+	macroDef1262->arr[1] = 2;
+	macroDef1262->arr[2] = 4;
+	macroDef1262->arr[3] = 6;
+	macroDef1262->arr[4] = 8;
+	macroDef1262->arr[5] = 10;
+	macroDef1262->arr[6] = 12;
+	macroDef1262->arr[7] = 14;
+	macroDef1262->arr[8] = 16;
+	macroDef1262->arr[9] = 18;
+	macroDef1262->arr[10] = 20;;
+	array_number_t cam_dps = macroDef1262;
+	card_t m_shp = $_usecases_ba_project_shp(cam_shp, j_shp);
+	card_t size1276 = width_card_t(m_shp);
+	array_number_t stgVar1257 = storage_alloc(size1276);
+	array_number_t m_dps = $_usecases_ba_project_dps(stgVar1257, cam_dps, j_dps, cam_shp, j_shp);
+	array_print(m_dps);
 	;
-	storage_free(stgVar1208, size1227);
+	storage_free(stgVar1257, size1276);
 	;
-	storage_free(stgVar1196, size1228);
+	storage_free(stgVar1245, size1277);
 	;
-	storage_free(stgVar1192, size1229);
+	storage_free(stgVar1241, size1278);
 	;
-	storage_free(stgVar1189, size1230);
+	storage_free(stgVar1238, size1279);
 	;
-	storage_free(stgVar1186, size1231);
+	storage_free(stgVar1235, size1280);
 	;
-	storage_free(stgVar1182, size1232);
+	storage_free(stgVar1231, size1281);
 	;
-	storage_free(stgVar1178, size1233);
+	storage_free(stgVar1227, size1282);
 	return ;
 }
 #endif

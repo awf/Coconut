@@ -6,7 +6,7 @@ open transformer
 open Microsoft.FSharp.Quotations
 open System
 
-let cardName (name: string): string = sprintf "%s_c" name
+let cardName (name: string): string = sprintf "%s_shp" name
 
 let ZERO_CARD = Expr.Value(Card 0, typeof<Cardinality>)
 let rec ZERO_SHAPE (shapeType: Type) = 
