@@ -8,6 +8,12 @@ open cardinality
 
 (** Extensions to the core language **)
 
+let rows (m: Matrix): Cardinality = 
+  length m
+
+let cols (m: Matrix): Cardinality = 
+  length m.[0]
+
 let vectorMap (f: Number -> Number) (v: Vector): Vector = 
   build (length v) (fun i -> f v.[i])
 
