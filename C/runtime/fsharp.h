@@ -7,9 +7,9 @@
 #include "types.h"
 #include "mem_mng.h"
 
-#define VECTOR_HEADER_BYTES (sizeof(int) * 2)
+#define VECTOR_HEADER_BYTES (sizeof(number_t*) + sizeof(int))
 #define VECTOR_ALL_BYTES(rows) ((rows) * sizeof(number_t) + VECTOR_HEADER_BYTES)
-#define MATRIX_HEADER_BYTES(rows) (sizeof(int) * (2 + (rows)))
+#define MATRIX_HEADER_BYTES(rows) (VECTOR_HEADER_BYTES + (sizeof(array_number_t) * (rows)))
 #define MATRIX_ROWS_OFFSET(rows, cols, row) (MATRIX_HEADER_BYTES(rows) + (VECTOR_ALL_BYTES(cols)) * (row))
 #define STG_OFFSET(stg, offset) (storage_t)(((char*)(stg)) + (offset))
 
@@ -75,7 +75,7 @@ storage_t vector_alloc(index_t size) {
 	storage_t area = storage_alloc(VECTOR_ALL_BYTES(size));
 	array_number_t boxed_vector = (array_number_t)area;
 	boxed_vector->length = size;
-	boxed_vector->arr = (number_t*)(((int*)area) + 2);
+	boxed_vector->arr = (number_t*)(((char*)area) + VECTOR_HEADER_BYTES);
 	// pause_timing();
 	return area;
 }
