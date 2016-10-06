@@ -46,7 +46,12 @@ let Qtimesv (q : Vector) (l : Vector) (v : Vector) =
     build (length v) (fun i ->
       let li = vectorSlice (Card i) (tri (i-1)) l
       let vi = vectorSlice (Card i) 0 v
-      vectorSum (li .* vi) + exp(q.[i])*v.[i] 
+//      let li = l
+//      let vi = v
+//      let s = vectorSum (li .* vi)
+//      s + exp(q.[i])*v.[i] 
+      vectorSum (li .* vi) + exp(q.[i])*v.[i]
+//      vectorSum (li .* li) + 2.0
     )
 
 let Qtimesv_test () =
@@ -58,19 +63,20 @@ let Qtimesv_test () =
   let ans2 =      l.[1] * v.[0] +      l.[2] * v.[1] + exp(q.[2]) * v.[2]
   let ans = vec3 ans0 ans1 ans2
   let qv = Qtimesv q l v
-  assert (sqnorm (vectorSub qv ans) < 0.0001)
-  printfn "PASSED Qtimesv_test"
+  let nrm = sqnorm (vectorSub qv ans)
+  //assert (nrm < 0.0001)
+  numberPrint nrm
 
 let gmm_objective (x:Matrix) (alphas:Vector) (means:Matrix) (qs:Matrix) (ls:Matrix) (wishart_gamma:Number) (wishart_m:Number) =
     let n : Cardinality = rows x
     let d : Cardinality = cols x
     let K : Cardinality = length alphas
-    assert (K = rows means)
-    assert (d = cols means)
-    assert (K = rows qs)
-    assert (d = cols qs)
-    assert (K = rows ls)
-    assert (let di = (cardToInt d) in di*(di-1)/2 = cardToInt (cols ls))
+//    assert (K = rows means)
+//    assert (d = cols means)
+//    assert (K = rows qs)
+//    assert (d = cols qs)
+//    assert (K = rows ls)
+//    assert (let di = (cardToInt d) in di*(di-1)/2 = cardToInt (cols ls))
     vectorSum ( build n (fun i ->
       logsumexp( build K (fun k -> 
         alphas.[k] + vectorSum(qs.[k]) - 0.5 * (sqnorm (Qtimesv qs.[k] ls.[k] (vectorSub x.[i] means.[k])))

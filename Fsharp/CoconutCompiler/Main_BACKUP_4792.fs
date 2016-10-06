@@ -522,7 +522,12 @@ let main argv =
     usecases_ht.test_ht ()
     test_ba argv
     Qtimesv_test ()
+<<<<<<< HEAD
+    // compile_modules ()
+=======
+    // test_ba argv
     compile_modules ()
+>>>>>>> origin/master
     // test_phase_based_optimizer ()
     // compile_modules_storaged ()
     // usecases.test1 [||]
