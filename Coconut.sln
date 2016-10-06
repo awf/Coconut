@@ -14,6 +14,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CoconutCompiler", "Fsharp\C
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DiffSharp", "Fsharp\DiffSharp\DiffSharp.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
 EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "RunCompiledBenchmarks", "RunCompiledBenchmarks\RunCompiledBenchmarks.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{389E169C-620A-4883-B42C-018A62278277}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

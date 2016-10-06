@@ -29,6 +29,7 @@ let inline build<'a> (size: Cardinality) (f: Index -> 'a): array<'a> =
 let length<'a> (v: array<'a>): Cardinality = 
   Card v.Length
 
+
 (** Fold methods **)
 
 [<CMacro()>]

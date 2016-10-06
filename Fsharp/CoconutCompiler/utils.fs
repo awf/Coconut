@@ -12,9 +12,9 @@ let tic(): Timer =
   Stopwatch.StartNew()
 
 [<CMirror("toc")>]
-let toc(t: Timer) = 
+let toc(t: Timer) (s:string) = 
   t.Stop()
-  printfn "Time: %d ms" t.ElapsedMilliseconds
+  printfn "Time[%s]: %d ms" s t.ElapsedMilliseconds
 
 let currentTimeString(): string =
   sprintf "%s_%s" (System.DateTime.Now.ToShortDateString().Replace("/", "-")) (System.DateTime.Now.ToLongTimeString().Replace(":", "-"))

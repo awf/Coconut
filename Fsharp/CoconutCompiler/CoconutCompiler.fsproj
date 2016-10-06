@@ -26,7 +26,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\CoconutCompiler.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\data\ ..\..\ ba 1 1</StartArguments>
+    <StartArguments>
+    </StartArguments>
     <OtherFlags>
     </OtherFlags>
   </PropertyGroup>
@@ -40,7 +41,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\CoconutCompiler.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\data\ba_instances\ba14.txt</StartArguments>
+    <StartArguments>
+    </StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -70,6 +72,7 @@
     <Compile Include="usecases_ba.fs" />
     <Compile Include="usecases_ht.fs" />
     <Compile Include="usecases_gmm.fs" />
+    <Compile Include="usecases_lm.fs" />
     <Compile Include="programs.fs" />
     <Compile Include="ccodegentests.fs" />
     <Compile Include="cruntime.fs" />

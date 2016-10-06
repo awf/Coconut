@@ -172,7 +172,7 @@ let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector
 
 (** Testing **)
 
-let test_ht (dum: Vector) =
+let test_ht () =
   let a = [| 1.0; 2.0; 3.0 |]
   vectorPrint a
   let mat1 = 

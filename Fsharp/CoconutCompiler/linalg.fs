@@ -6,6 +6,12 @@ open types
 open utils
 open cardinality
 
+let rows (m: Matrix): Cardinality = 
+  Card m.Length
+
+let cols (m: Matrix): Cardinality = 
+  Card m.[0].Length
+
 (** Extensions to the core language **)
 
 let rows (m: Matrix): Cardinality = 
@@ -142,7 +148,7 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
 let matrixVectorMult (m: Matrix) (v: Vector): Vector = 
   let r = rows m
   let c = cols m
-//  assert (c = length v)
+  //assert (c = length v)
   build r (fun i ->
       dot_prod m.[i] v
   )
