@@ -21,12 +21,6 @@ let inline build<'a> (size: Cardinality) (f: Index -> 'a): array<'a> =
 let length<'a> (v: array<'a>): Cardinality = 
   Card v.Length
 
-let rows (m: Matrix): Cardinality = 
-  Card m.Length
-
-let cols (m: Matrix): Cardinality = 
-  Card m.[0].Length
-
 (*
 let private arrayRange (s: int) (e: int): Vector = 
   build (Card(e - s + 1)) (fun i -> double (s + i))
