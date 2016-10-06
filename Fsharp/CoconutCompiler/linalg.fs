@@ -6,12 +6,6 @@ open types
 open utils
 open cardinality
 
-let rows (m: Matrix): Cardinality = 
-  Card m.Length
-
-let cols (m: Matrix): Cardinality = 
-  Card m.[0].Length
-
 (** Extensions to the core language **)
 
 let rows (m: Matrix): Cardinality = 

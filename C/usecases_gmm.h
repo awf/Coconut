@@ -4,25 +4,25 @@
 #include <stdio.h>
 #include <math.h>
 #include "linalg.h"
-typedef struct env_t_312 {
+typedef struct env_t_309 {
 	number_t mx;
-} env_t_312;
-env_t_312 make_env_t_312(number_t mx) {
-	env_t_312 env;
+} env_t_309;
+env_t_309 make_env_t_309(number_t mx) {
+	env_t_309 env;
 	env.mx = mx;
 	return env;
 }
 
-value_t lambda312(env_t_312* env309, number_t x) {
-	number_t mx308 = env309->mx;
+value_t lambda309(env_t_309* env306, number_t x) {
+	number_t mx305 = env306->mx;
 	value_t res;
-	res.number_t_value = exp((x) - (mx308));
+	res.number_t_value = exp((x) - (mx305));
 	return res;
 }
 number_t TOP_LEVEL_usecases_gmm_logsumexp(array_number_t arr) {
 	number_t mx = TOP_LEVEL_linalg_vectorMax(arr);
-	env_t_312 env_t_312_value = make_env_t_312(mx); closure_t closure311 = make_closure(lambda312, &env_t_312_value);
-	number_t semx = TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_vectorMap(closure311, arr));
+	env_t_309 env_t_309_value = make_env_t_309(mx); closure_t closure308 = make_closure(lambda309, &env_t_309_value);
+	number_t semx = TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_vectorMap(closure308, arr));
 	return (log(semx)) + (mx);
 }
 
@@ -32,16 +32,16 @@ index_t TOP_LEVEL_usecases_gmm_tri(index_t n) {
 }
 
 array_number_t TOP_LEVEL_usecases_gmm_Qtimesv(array_number_t q, array_number_t l, array_number_t v) {
-	card_t macroDef313 = v->length;
-	array_number_t macroDef314 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef314->length=macroDef313;
-	macroDef314->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef313);
-		for(int i = 0; i < macroDef314->length; i++){
+	card_t macroDef310 = v->length;
+	array_number_t macroDef311 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef311->length=macroDef310;
+	macroDef311->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef310);
+		for(int i = 0; i < macroDef311->length; i++){
 			array_number_t li = TOP_LEVEL_linalg_vectorSlice(i, TOP_LEVEL_usecases_gmm_tri((i) - (1)), l);
 			array_number_t vi = TOP_LEVEL_linalg_vectorSlice(i, 0, v);
-			macroDef314->arr[i] = (TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_op_DotMultiply(li, vi))) + ((exp(q->arr[i])) * (v->arr[i]));;
+			macroDef311->arr[i] = (TOP_LEVEL_linalg_vectorSum(TOP_LEVEL_linalg_op_DotMultiply(li, vi))) + ((exp(q->arr[i])) * (v->arr[i]));;
 		}
-	return macroDef314;
+	return macroDef311;
 }
 
 void TOP_LEVEL_usecases_gmm_Qtimesv_test(void unitVar0) {
@@ -56,10 +56,10 @@ void TOP_LEVEL_usecases_gmm_Qtimesv_test(void unitVar0) {
 	number_t nrm = TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorSub(qv, ans));
 	return number_print(nrm);
 }
-typedef empty_env_t env_t_322;
+typedef empty_env_t env_t_319;
 
 
-value_t lambda322(env_t_322* env317, number_t value) {
+value_t lambda319(env_t_319* env314, number_t value) {
 	
 	value_t res;
 	res.number_t_value = exp(value);
@@ -68,29 +68,29 @@ value_t lambda322(env_t_322* env317, number_t value) {
 number_t TOP_LEVEL_usecases_gmm_gmm_objective(array_array_number_t x, array_number_t alphas, array_array_number_t means, array_array_number_t qs, array_array_number_t ls, number_t wishart_gamma, number_t wishart_m) {
 	card_t n = TOP_LEVEL_linalg_rows(x);
 	card_t d = TOP_LEVEL_linalg_cols(x);
-	card_t macroDef315 = alphas->length;
-	card_t K = macroDef315;
-	array_number_t macroDef321 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef321->length=n;
-	macroDef321->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
-		for(int i = 0; i < macroDef321->length; i++){
-			array_number_t macroDef316 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef316->length=K;
-	macroDef316->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef316->length; k++){
+	card_t macroDef312 = alphas->length;
+	card_t K = macroDef312;
+	array_number_t macroDef318 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef318->length=n;
+	macroDef318->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
+		for(int i = 0; i < macroDef318->length; i++){
+			array_number_t macroDef313 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef313->length=K;
+	macroDef313->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef313->length; k++){
 			
-			macroDef316->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
+			macroDef313->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
 		}
-			array_number_t macroDef320 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef320->length=K;
-	macroDef320->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef320->length; k++){
-			env_t_322 env_t_322_value = make_empty_env(); closure_t closure319 = make_closure(lambda322, &env_t_322_value);
-			macroDef320->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure319, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
+			array_number_t macroDef317 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef317->length=K;
+	macroDef317->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef317->length; k++){
+			env_t_319 env_t_319_value = make_empty_env(); closure_t closure316 = make_closure(lambda319, &env_t_319_value);
+			macroDef317->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure316, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
 		}
-			macroDef321->arr[i] = ((TOP_LEVEL_usecases_gmm_logsumexp(macroDef316)) - (((double)((n))) * (TOP_LEVEL_usecases_gmm_logsumexp(alphas)))) + ((0.5) * (TOP_LEVEL_linalg_vectorSum(macroDef320)));;
+			macroDef318->arr[i] = ((TOP_LEVEL_usecases_gmm_logsumexp(macroDef313)) - (((double)((n))) * (TOP_LEVEL_usecases_gmm_logsumexp(alphas)))) + ((0.5) * (TOP_LEVEL_linalg_vectorSum(macroDef317)));;
 		}
-	return TOP_LEVEL_linalg_vectorSum(macroDef321);
+	return TOP_LEVEL_linalg_vectorSum(macroDef318);
 }
 
 void TOP_LEVEL_usecases_gmm_test_gmm(array_number_t dum) {
@@ -101,30 +101,30 @@ void TOP_LEVEL_usecases_gmm_test_gmm(array_number_t dum) {
 	a->arr[1] = 2;
 	a->arr[2] = 3;;
 	array_print(a);
-	array_number_t array324 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	array324->length=3;
-	array324->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
-	array324->arr[0] = 1;
-	array324->arr[1] = 2;
-	array324->arr[2] = 3;;
-	array_number_t array325 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	array325->length=3;
-	array325->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
-	array325->arr[0] = 4;
-	array325->arr[1] = 5;
-	array325->arr[2] = 6;;
-	array_number_t array326 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	array326->length=3;
-	array326->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
-	array326->arr[0] = 7;
-	array326->arr[1] = 8;
-	array326->arr[2] = 9;;
+	array_number_t array321 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	array321->length=3;
+	array321->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
+	array321->arr[0] = 1;
+	array321->arr[1] = 2;
+	array321->arr[2] = 3;;
+	array_number_t array322 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	array322->length=3;
+	array322->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
+	array322->arr[0] = 4;
+	array322->arr[1] = 5;
+	array322->arr[2] = 6;;
+	array_number_t array323 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	array323->length=3;
+	array323->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
+	array323->arr[0] = 7;
+	array323->arr[1] = 8;
+	array323->arr[2] = 9;;
 	array_array_number_t mat1 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	mat1->length=3;
 	mat1->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 3);
-	mat1->arr[0] = array324;
-	mat1->arr[1] = array325;
-	mat1->arr[2] = array326;;
+	mat1->arr[0] = array321;
+	mat1->arr[1] = array322;
+	mat1->arr[2] = array323;;
 	matrix_print(mat1);
 	return ;
 }

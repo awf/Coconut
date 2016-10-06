@@ -116,6 +116,7 @@ let rec ccodegen (e:Expr): string =
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
     | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])
+    | "Ignore" -> ccodegen elist.[0]
     | _ -> failwith (sprintf "ERROR CALL %s.%s(%s)" op.DeclaringType.Name op.Name (String.concat ", " (List.map ccodegen elist)))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 

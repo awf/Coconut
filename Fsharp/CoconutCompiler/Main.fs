@@ -519,12 +519,12 @@ let test_card () =
 
 [<EntryPoint>]
 let main argv = 
-    usecases_ht.test_ht ()
-    test_ba argv
+    //usecases_ht.test_ht ()
+    //test_ba argv
     Qtimesv_test ()
     compile_modules ()
     // test_phase_based_optimizer ()
-    // compile_modules_storaged ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()

@@ -8,7 +8,7 @@
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
     <Name>RunCompiledBenchmarks</Name>
-    <DebugArguments>arg1 $(SolutionDir)
+    <DebugArguments>.\RunBA.ps1 arg1 C:\dev\GitHub\Coconut\
 </DebugArguments>
     <VariablesToExport>
     </VariablesToExport>
