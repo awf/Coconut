@@ -48,11 +48,12 @@ let compile_modules () =
     compiler.compileModule "usecases_ht" ["linalg"] false false
     compiler.compileModule "programs" ["linalg"] true false
     compiler.compileModule "ccodegentests" [] false false
+    compiler.compileModule "usecases_gmm" ["linalg"] false false
 
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
     compiler.compileModule "linalgtests" ["linalg"] false true
-    //compiler.compileModule "usecases_ba" ["linalg"] false true
+    // compiler.compileModule "usecases_ba" ["linalg"] false true
     compiler.compileModule "usecases_gmm" ["linalg"] false true
     // compiler.compile "usecases" "run_ba_from_file" false true
     ()
@@ -520,9 +521,9 @@ let test_card () =
 let main argv = 
     Qtimesv_test ()
     // test_ba argv
-    // compile_modules ()
+    compile_modules ()
     // test_phase_based_optimizer ()
-    compile_modules_storaged ()
+    // compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()

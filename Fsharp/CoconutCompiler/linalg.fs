@@ -142,7 +142,7 @@ let matrixMult (m1: Matrix) (m2: Matrix): Matrix =
 let matrixVectorMult (m: Matrix) (v: Vector): Vector = 
   let r = rows m
   let c = cols m
-  assert (c = length v)
+//  assert (c = length v)
   build r (fun i ->
       dot_prod m.[i] v
   )
