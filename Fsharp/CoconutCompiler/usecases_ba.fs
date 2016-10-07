@@ -75,9 +75,10 @@ let run_ba_from_file (fn: string) (n: Cardinality) (m: Cardinality) (p: Cardinal
     let feat = vectorMapToMatrix (fun x -> one_feat)  (vectorRange oneCard p)
     let obs = build p (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )
     let t = tic()
-    fold (fun acc cur -> let x = reproj_err cam x w obs feat in ()) () (vectorRange (Card 1) (Card 10))
+    let range = vectorRange (Card 1) (Card 10)
+    fold (fun acc cur -> let x = reproj_err cam x w obs feat in ()) () range
     toc t "BA"
-    reproj_err cam x w obs feat
+    ()
 
 
 (** Testing **)
