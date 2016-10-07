@@ -31,9 +31,15 @@ let test1 (dum: Vector) =
   let r1 = [| 1.0; 2.0; 3.0; |]
   let r2 = [| 4.0; 5.0; 6.0; |]
   let r3 = [| 7.0; 8.0; 9.0; |]
+  let mat0 = 
+    [| 
+       [| 1.0; 2.0; 3.0; |];
+       [| 4.0; 5.0; 6.0; |];
+       [| 7.0; 8.0; 9.0; |]
+    |]
   let mat1 = 
     [| r1; r2; r3 |]
-  let n = matrixMult mat1 mat1
+  let n = matrixMult mat0 mat1
   matrixPrint n
   let o = matrixTranspose n
   matrixPrint o

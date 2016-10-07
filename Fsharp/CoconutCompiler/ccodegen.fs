@@ -368,12 +368,13 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
               let code = String.concat "\n\t" (elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
               (code, [])
             else 
-              let (index, s, elem) = 
-                match elems.Head with
-                | Patterns.Lambda(s, body) -> 0, s, body
-                | _ -> failwith "wrong!"
-              let (bodyCode, bodyClosures) = ccodegenStatements "\n\t" elem (Some(sprintf "%s->arr[%d]" var.Name index))
-              (bodyCode, bodyClosures)
+              elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) ->
+                let (bodyCode, bodyClosures) = ccodegenStatements "\n\t" elem (Some(sprintf "%s->arr[%d]" var.Name index))
+                let stInit = sprintf "%s %s = STG_OFFSET(%s, MATRIX_HEADER_BYTES(%d));" (ccodegenType s.Type) s.Name stgCode elems.Length
+                (stInit + bodyCode, bodyClosures)
+              ) |> List.fold (fun (accCode, accClosure) (code, closure) -> 
+                accCode + code, List.append accClosure closure
+              ) ("", [])
           let arrTp = ccodegenType (tp.MakeArrayType()) 
           let elemTp = ccodegenType tp
           let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)(STG_OFFSET(%s, VECTOR_HEADER_BYTES));\n\t%s" 
