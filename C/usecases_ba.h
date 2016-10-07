@@ -132,7 +132,7 @@ value_t lambda133(env_t_133* env124, number_t x0) {
 	res.array_number_t_value = one_feat123;
 	return res;
 }
-array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, card_t p) {
+void TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, card_t p) {
 	card_t oneCard = 1;
 	array_number_t one_cam = TOP_LEVEL_linalg_vectorRead(fn, 1, 11);
 	array_array_number_t macroDef117 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
@@ -171,15 +171,16 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 		}
 	array_array_number_t obs = macroDef127;
 	timer_t t = tic();
+	array_number_t range = TOP_LEVEL_linalg_vectorRange(1, 10);
 	
-	for(int cur_idx = 0; cur_idx < TOP_LEVEL_linalg_vectorRange(1, 10)->length; cur_idx++){
-		number_t cur = TOP_LEVEL_linalg_vectorRange(1, 10)->arr[cur_idx];
+	for(int cur_idx = 0; cur_idx < range->length; cur_idx++){
+		number_t cur = range->arr[cur_idx];
 		array_array_number_t x0 = TOP_LEVEL_usecases_ba_reproj_err(cam, x, w, obs, feat);
 		;
 	}
 	;
 	toc(t, "BA");
-	return TOP_LEVEL_usecases_ba_reproj_err(cam, x, w, obs, feat);
+	return ;
 }
 
 void TOP_LEVEL_usecases_ba_test_ba(array_number_t dum) {

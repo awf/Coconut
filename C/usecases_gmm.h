@@ -44,7 +44,7 @@ array_number_t TOP_LEVEL_usecases_gmm_Qtimesv(array_number_t q, array_number_t l
 	return macroDef294;
 }
 
-void TOP_LEVEL_usecases_gmm_Qtimesv_test(void unitVar0) {
+void TOP_LEVEL_usecases_gmm_Qtimesv_test() {
 	array_number_t q = TOP_LEVEL_linalg_vec3(0.1, -1, 0.3);
 	array_number_t l = TOP_LEVEL_linalg_vec3(5, -2, 7.1);
 	array_number_t v = TOP_LEVEL_linalg_vec3(1.4, -7, 3.1);

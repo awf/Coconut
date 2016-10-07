@@ -483,7 +483,10 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
   let statementsCode = (String.concat "\n\t" statementsCodeList)
   let closuresCode = (String.concat "\n" (List.concat closuresList))
   let resultType = if(isForClosure) then "value_t" else ccodegenType(result.Type)
-  let parameters = (String.concat ", " (List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) inputs))
+  let parameters = 
+    match inputs with
+    | [unitElem] when unitElem.Type = typeof<unit> -> ""
+    | _ -> inputs |> List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) |> String.concat ", " 
   let finalStatement = 
     if(isForClosure) then 
       if(result.Type = typeof<unit>) then
