@@ -327,7 +327,11 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let rangeType = ccodegenType (elist.[3].Type)
           let resultType = ccodegenType (var.Type)
           let resultName = var.Name
-          let initCode = ccodegen (elist.[2])
+          let initCode = 
+            if tb = typeof<unit> then
+              ""
+            else
+              sprintf "%s %s = %s;" resultType resultName (ccodegen (elist.[2]))
           let rangeCode = ccodegen (elist.[3])
           let lengthCode = sprintf "%s->length" rangeVarCode
           let stCode = st.Name
@@ -341,8 +345,8 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
               else 
                 None
             )) None
-          (sprintf "%s %s = %s;\n\t%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
-             resultType resultName initCode 
+          (sprintf "%s\n\t%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
+             initCode 
              rangeType rangeVarCode rangeCode
              stType stCode storage
              idxCode idxCode lengthCode idxCode

@@ -215,13 +215,14 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     Alloc (WidthCard e0 cardEnv) (fun s2 ->
       GetS outputStorage (S e0 s2) (S e1 O)
     )
-  | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
+  | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows; cols]) ->
     // TODO requires number of column information in the matrixRead construct
     let s = Expr.Var(outputStorage)
     let name_s = S name O
     let start_s = S start O
     let rows_s = S rows O
-    <@@ corelang.matrixRead_s %%s %%name_s %%start_s %%rows_s @@>
+    let cols_s = S cols O
+    <@@ corelang.matrixRead_s %%s %%name_s %%start_s %%rows_s %%cols_s @@>
   | DerivedPatterns.SpecificCall <@ corelang.numberPrint @> (_, _, args) ->
     // TODO
     MakeCall <@@ corelang.numberPrint @@> (args |> List.map (fun x -> S x O)) []
@@ -232,13 +233,13 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     // TODO
     MakeCall <@@ corelang.matrixPrint @@> (args |> List.map (fun x -> S x O)) []
   | Patterns.Value(v, tp) when tp = typeof<Double> || 
-      tp = typeof<Index> || tp = typeof<Cardinality> || tp = typeof<Unit> ->
+      tp = typeof<Index> || tp = typeof<Cardinality> || tp = typeof<Unit> || tp = typeof<string> ->
     exp
   | CardConstructor c ->
     exp
   | Patterns.Sequential(e1, e2) ->
     Expr.Sequential(S e1 O, S e2 outputStorage)
   | DerivedPatterns.SpecificCall <@ utils.tic @> (_, _, _)   -> exp
-  | DerivedPatterns.SpecificCall <@ utils.toc @> (_, _, [t]) -> MakeCall <@@ utils.toc @@> [S t O] []
+  | DerivedPatterns.SpecificCall <@ utils.toc @> (_, _, [t; n]) -> MakeCall <@@ utils.toc @@> [S t O; S n O] []
   | _ -> failwithf "Does not know how to transform into the storaged version for the expression `%A`" exp
 

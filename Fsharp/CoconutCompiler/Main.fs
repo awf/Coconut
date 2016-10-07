@@ -53,7 +53,7 @@ let compile_modules () =
 let compile_modules_storaged () = 
     compiler.compileModule "linalg" [] false true
     compiler.compileModule "linalgtests" ["linalg"] false true
-    // compiler.compileModule "usecases_ba" ["linalg"] false true
+    compiler.compileModule "usecases_ba" ["linalg"] false true
     compiler.compileModule "usecases_gmm" ["linalg"] false true
     // compiler.compile "usecases" "run_ba_from_file" false true
     ()
@@ -522,9 +522,9 @@ let main argv =
     //usecases_ht.test_ht ()
     //test_ba argv
     Qtimesv_test ()
-    compile_modules ()
+    // compile_modules ()
     // test_phase_based_optimizer ()
-    // compile_modules_storaged ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()

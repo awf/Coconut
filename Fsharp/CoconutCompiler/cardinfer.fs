@@ -95,9 +95,10 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
       ZERO_CARD
     else 
       MakeCall <@ shapeElem @> [ce0] [CT exp.Type]
-  | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows]) ->
-    // TODO requires number of column information in the matrixRead construct
-    <@@ nestedShape<VectorShape> (Card 10) (%%rows) @@>
+  | DerivedPatterns.SpecificCall <@ corelang.matrixRead @> (_, _, [name; start; rows; cols]) ->
+    let cols_c = C cols
+    let rows_c = C rows
+    <@@ nestedShape<VectorShape> (%%cols_c) (%%rows_c) @@>
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
   | DerivedPatterns.SpecificCall <@ (.+) @> (_, _, [e0; e1]) ->
     let ce0 = Expr.Cast<Cardinality>(C e0)
