@@ -36,7 +36,7 @@ let letLifting (e: Expr): Expr =
     | Patterns.Let(x, e1, e2) ->
       let (te1, liftedLets1) = constructTopLevelLets boundVars e1
       let canBeLifted = isSafeToLift e1
-      let newBoundVars = if(canBeLifted) then (x :: boundVars) else boundVars
+      let newBoundVars = x :: boundVars
       let (te2, liftedLets2) = constructTopLevelLets newBoundVars e2
       if (canBeLifted) then
         (te2, List.append liftedLets1 ((x, te1) :: liftedLets2))
