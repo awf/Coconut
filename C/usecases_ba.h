@@ -171,14 +171,14 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 		}
 	array_array_number_t obs = macroDef127;
 	timer_t t = tic();
-	void macroDef128 = ;
+	
 	for(int cur_idx = 0; cur_idx < TOP_LEVEL_linalg_vectorRange(1, 10)->length; cur_idx++){
 		number_t cur = TOP_LEVEL_linalg_vectorRange(1, 10)->arr[cur_idx];
 		array_array_number_t x0 = TOP_LEVEL_usecases_ba_reproj_err(cam, x, w, obs, feat);
 		;
 	}
 	;
-	toc(t, BA);
+	toc(t, "BA");
 	return TOP_LEVEL_usecases_ba_reproj_err(cam, x, w, obs, feat);
 }
 

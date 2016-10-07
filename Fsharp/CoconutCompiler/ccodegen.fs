@@ -144,6 +144,7 @@ let rec ccodegen (e:Expr): string =
       printMatrix3DShape (unbox<Matrix3DShape>(value))
     | _ ->
       failwithf "Does not know how to generate value of type `%A`" tp
+  | Patterns.Value(v, tp) when tp = typeof<string> -> sprintf "\"%s\"" (v.ToString())
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | CardConstructor c -> 
     (ccodegen c)
@@ -301,12 +302,16 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let idxCode = sprintf "%s_idx" curCode
           let resultType = ccodegenType (var.Type)
           let resultName = var.Name
-          let initCode = ccodegen (elist.[1])
+          let initCode = 
+            if tb = typeof<unit> then
+              ""
+            else
+              sprintf "%s %s = %s;" resultType resultName (ccodegen (elist.[1]))
           let rangeCode = ccodegen (elist.[2])
           let lengthCode = sprintf "%s->length" rangeCode
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = acc then Some(Expr.Var(var)) else None)) None
-          (sprintf "%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
-             resultType resultName initCode 
+          (sprintf "%s\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
+             initCode 
              idxCode idxCode lengthCode idxCode
              elementType curCode rangeCode idxCode
              bodyCode
