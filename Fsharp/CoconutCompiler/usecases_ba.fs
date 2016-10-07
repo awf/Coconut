@@ -65,13 +65,13 @@ let reproj_err (cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix): M
 
 let run_ba_from_file (fn: string) (n: Cardinality) (m: Cardinality) (p: Cardinality)= 
     let oneCard = Card 1
-    let one_cam = vectorRead fn 1
+    let one_cam = vectorRead fn 1 (Card 11)
     let cam = build n (fun x -> one_cam)
-    let one_x = vectorRead fn 2
+    let one_x = vectorRead fn 2 (Card 3)
     let x = build m (fun x -> one_x)
     let one_w = numberRead fn 3
     let w = vectorMap (fun x -> one_w)  (vectorRange oneCard p)
-    let one_feat = vectorRead fn 4
+    let one_feat = vectorRead fn 4 (Card 2)
     let feat = vectorMapToMatrix (fun x -> one_feat)  (vectorRange oneCard p)
     let obs = build p (fun x -> [| double ((int x) % (cardToInt n)); double ((int x) % (cardToInt m)) |] )
     let t = tic()

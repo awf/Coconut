@@ -53,7 +53,7 @@ let matrixPrint (v: Matrix): Unit =
   printfn "]"
 
 [<CMirror("matrix_read")>]
-let matrixRead (fn: string) (startLine: Index) (rows: Cardinality): Matrix = 
+let matrixRead (fn: string) (startLine: Index) (rows: Cardinality) (cols: Cardinality): Matrix = 
   let string_lines = Array.ofSeq (File.ReadLines(fn))
   let intendedLines = string_lines.[startLine..(startLine+(cardToInt rows)-1)]
   let separators = [|' '|]
@@ -121,5 +121,5 @@ let newArray_s<'a> (storage: Storage) ([<ParamArray>] args: (Storage -> 'a) arra
 
 [<CMirror("matrix_read_s")>]
 let matrixRead_s (storage: Storage) 
-      (fn: string) (startLine: Index) (rows: Cardinality): Matrix = 
-  matrixRead fn startLine rows
+      (fn: string) (startLine: Index) (rows: Cardinality) (cols: Cardinality): Matrix = 
+  matrixRead fn startLine rows cols

@@ -132,7 +132,7 @@ void matrix_print(array_array_number_t arr) {
 	printf("]\n");
 }
 
-array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_line, int rows) {
+array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_line, int rows, int cols) {
 	// printf("reading from file `%s` starting line %d, %d rows\n", name, start_line, rows);
 	FILE * fp;
     fp = fopen(name, "r");
@@ -148,36 +148,40 @@ array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_l
 	res->length = rows;
 	res->arr = (array_number_t*)STG_OFFSET(storage, VECTOR_HEADER_BYTES);
 	for(int row_index=0; row_index<rows; row_index++) {
-		char cur = 0;
-		int length = 0;
-		int elems = 1;
-		while(1) {
-			char prevCur = cur;
-			cur = getc(fp);
-			if(cur == '\n')
-				break;
-			else if(((cur >= '0' && cur <= '9') || cur == '-') && prevCur == ' ')
-				elems++;
-			length++;
-		}
+		// char cur = 0;
+		// int length = 0;
+		// int elems = 1;
+		// while(1) {
+		// 	char prevCur = cur;
+		// 	cur = getc(fp);
+		// 	printf("read character '%c'\n", cur);
+		// 	if(cur == '\n')
+		// 		break;
+		// 	else if(((cur >= '0' && cur <= '9') || cur == '-') && prevCur == ' ')
+		// 		elems++;
+		// 	length++;
+		// }
 
-		fseek(fp, -length-2, SEEK_CUR);
+		// fseek(fp, -length-2, SEEK_CUR);
+		int elems = cols;
 		// TODO make its memory usage better
 		array_number_t one_row = malloc(VECTOR_ALL_BYTES(elems));
 		one_row->length = elems;
-		one_row->arr = (number_t*)(((int*)one_row) + 2);
+		one_row->arr = (number_t*)(((char*)one_row) + VECTOR_HEADER_BYTES);
 		for(int i=0; i<elems; i++) {
 			fscanf(fp, "%lf", &one_row->arr[i]);
 		}
+		// array_print(one_row);
 		res->arr[row_index] = one_row;
 	}
 	// printf("finished reading!\n");
+	// matrix_print(res);
 	fclose(fp);
 	return res;
 }
 
-array_array_number_t matrix_read(string_t name, int start_line, int rows) {
-	return matrix_read_s(matrix_alloc(rows), name, start_line, rows);
+array_array_number_t matrix_read(string_t name, int start_line, int rows, int cols) {
+	return matrix_read_s(matrix_alloc(rows), name, start_line, rows, cols);
 }
 
 number_t gamma_ln(number_t x) {

@@ -11,7 +11,7 @@ open usecases_gmm
 
 let test_ba (argv: string[]) = 
     let fileName = if argv.Length < 1 then "../../data/ba_instances/ba1.txt" else argv.[0] // Much clearer to have the default here rather than in the .fsproj file
-    let nmp = vectorRead fileName 0
+    let nmp = vectorRead fileName 0 (Card 3)
     let n = Card (int nmp.[0])
     let m = Card (int nmp.[1])
     let p = Card (int nmp.[2])
@@ -524,7 +524,7 @@ let main argv =
     Qtimesv_test ()
     compile_modules ()
     // test_phase_based_optimizer ()
-    //compile_modules_storaged ()
+    // compile_modules_storaged ()
     // usecases.test1 [||]
     // test_guided_optimizer ()
     // benchmark_search ()

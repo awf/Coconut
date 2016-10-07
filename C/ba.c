@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	char* file = argv[1];
-	array_number_t nmp = TOP_LEVEL_linalg_vectorRead(file, 0);
+	array_number_t nmp = TOP_LEVEL_linalg_vectorRead(file, 0, 3);
 	card_t n = (int)(nmp->arr[0]);
 	card_t m = (int)(nmp->arr[1]);
 	card_t p = (int)(nmp->arr[2]);

@@ -507,13 +507,13 @@ array_array_array_number_t TOP_LEVEL_linalg_matrix3DConcat(array_array_array_num
 	return macroDef98;
 }
 
-array_number_t TOP_LEVEL_linalg_vectorRead(string_t fn, index_t startLine) {
-	array_array_number_t matrix = matrix_read(fn, startLine, 1);
+array_number_t TOP_LEVEL_linalg_vectorRead(string_t fn, index_t startLine, card_t cols) {
+	array_array_number_t matrix = matrix_read(fn, startLine, 1, cols);
 	return matrix->arr[0];
 }
 
 number_t TOP_LEVEL_linalg_numberRead(string_t fn, index_t startLine) {
-	array_number_t vector = TOP_LEVEL_linalg_vectorRead(fn, startLine);
+	array_number_t vector = TOP_LEVEL_linalg_vectorRead(fn, startLine, 1);
 	return vector->arr[0];
 }
 

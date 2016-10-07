@@ -134,7 +134,7 @@ value_t lambda133(env_t_133* env124, number_t x0) {
 }
 array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, card_t p) {
 	card_t oneCard = 1;
-	array_number_t one_cam = TOP_LEVEL_linalg_vectorRead(fn, 1);
+	array_number_t one_cam = TOP_LEVEL_linalg_vectorRead(fn, 1, 11);
 	array_array_number_t macroDef117 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef117->length=n;
 	macroDef117->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
@@ -143,7 +143,7 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 			macroDef117->arr[x] = one_cam;;
 		}
 	array_array_number_t cam = macroDef117;
-	array_number_t one_x = TOP_LEVEL_linalg_vectorRead(fn, 2);
+	array_number_t one_x = TOP_LEVEL_linalg_vectorRead(fn, 2, 3);
 	array_array_number_t macroDef118 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef118->length=m;
 	macroDef118->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * m);
@@ -155,7 +155,7 @@ array_array_number_t TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t 
 	number_t one_w = TOP_LEVEL_linalg_numberRead(fn, 3);
 	env_t_132 env_t_132_value = make_env_t_132(one_w); closure_t closure122 = make_closure(lambda132, &env_t_132_value);
 	array_number_t w = TOP_LEVEL_linalg_vectorMap(closure122, TOP_LEVEL_linalg_vectorRange(oneCard, p));
-	array_number_t one_feat = TOP_LEVEL_linalg_vectorRead(fn, 4);
+	array_number_t one_feat = TOP_LEVEL_linalg_vectorRead(fn, 4, 2);
 	env_t_133 env_t_133_value = make_env_t_133(one_feat); closure_t closure126 = make_closure(lambda133, &env_t_133_value);
 	array_array_number_t feat = TOP_LEVEL_linalg_vectorMapToMatrix(closure126, TOP_LEVEL_linalg_vectorRange(oneCard, p));
 	array_array_number_t macroDef127 = (array_array_number_t)storage_alloc(sizeof(int) * 2);

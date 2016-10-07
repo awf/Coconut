@@ -172,12 +172,12 @@ let matrix3DConcat (m1: Matrix[]) (m2: Matrix[]): Matrix[] =
       m2.[r - m1Rows]
   )
 
-let vectorRead (fn: string) (startLine: Index): Vector = 
-    let matrix = matrixRead fn startLine (Card 1)
+let vectorRead (fn: string) (startLine: Index) (cols: Cardinality): Vector = 
+    let matrix = matrixRead fn startLine (Card 1) cols
     matrix.[0]
 
 let numberRead (fn: string) (startLine: Index): Number = 
-    let vector = vectorRead fn startLine
+    let vector = vectorRead fn startLine (Card 1)
     vector.[0]
 
 // Fixed-size vector contstructors
