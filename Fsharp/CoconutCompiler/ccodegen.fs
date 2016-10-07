@@ -354,15 +354,25 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           // TODO handle the case of newArray_s of newArray_s
           let stgCode = ccodegen stg
           let elemsNoStg = elems |> List.map (fun (Patterns.Lambda(s, body)) -> body)
-          let args = String.concat "\n\t" (elemsNoStg |> List.mapi (fun index elem -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
+          let (elementsInitCode, closures) = 
+            if tp = typeof<Number> then
+              let code = String.concat "\n\t" (elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
+              (code, [])
+            else 
+              let (index, s, elem) = 
+                match elems.Head with
+                | Patterns.Lambda(s, body) -> 0, s, body
+                | _ -> failwith "wrong!"
+              let (bodyCode, bodyClosures) = ccodegenStatements "\n\t" elem (Some(sprintf "%s->arr[%d]" var.Name index))
+              (bodyCode, bodyClosures)
           let arrTp = ccodegenType (tp.MakeArrayType()) 
           let elemTp = ccodegenType tp
           let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)(STG_OFFSET(%s, VECTOR_HEADER_BYTES));\n\t%s" 
                       arrTp stgCode 
-                      var.Name elemsNoStg.Length
+                      var.Name elems.Length
                       var.Name elemTp stgCode
-                      args
-          (rhs, [], false)
+                      elementsInitCode
+          (rhs, closures, false)
         | DerivedPatterns.SpecificCall <@ corelang.alloc @> (_, [tres], [sizeExpr; cont]) ->
           let size = 
             match sizeExpr with
