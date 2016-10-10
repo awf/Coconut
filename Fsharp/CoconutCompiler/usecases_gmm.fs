@@ -44,14 +44,21 @@ let tri n = n * (n+1) / 2
 // [      l3       l4       l5  exp(q4) ]
 let Qtimesv (q : Vector) (l : Vector) (v : Vector) =
     build (length v) (fun i ->
-      let li = vectorSlice (Card i) (tri (i-1)) l
-      let vi = vectorSlice (Card i) 0 v
-//      let li = l
-//      let vi = v
-//      let s = vectorSum (li .* vi)
-//      s + exp(q.[i])*v.[i] 
-      vectorSum (li .* vi) + exp(q.[i])*v.[i]
-//      vectorSum (li .* li) + 2.0
+      // Not a valid F~ operation.
+      // let li = vectorSlice (Card i) (tri (i-1)) l
+      // let vi = vectorSlice (Card i) 0 v
+      // vectorSum (li .* vi) + exp(q.[i])*v.[i]
+      let tis = tri (i - 1)
+      let sum = 
+        iterateNumber (fun acc idx -> 
+          let j = idx - tis
+          let isInRange = j >= 0 && j < i
+          if (isInRange) then 
+            acc + l.[idx] * v.[j]
+          else 
+            acc
+        ) 0.0 (Card 0) (length l)
+      sum + exp(q.[i]) * v.[i]
     )
 
 let Qtimesv_test () =
