@@ -35,6 +35,7 @@ typedef union value_t {
 	array_array_array_number_t array_array_array_number_t_value;
 } value_t;
 
+typedef int bool_t;
 
 typedef void* storage_t;
 

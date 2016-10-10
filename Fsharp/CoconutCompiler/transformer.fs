@@ -18,6 +18,8 @@ let (|OperatorName|_|) methodName =
     | "op_UnaryNegation" -> Some("-")
     | "op_LessThan" -> Some("<")
     | "op_GreaterThan" -> Some(">")
+    | "op_LessThanOrEqual" -> Some("<=")
+    | "op_GreaterThanOrEqual" -> Some(">=")
     | "op_DotMinus" -> Some("-")
     | "op_DotPlus" -> Some("+")
     | _ -> None

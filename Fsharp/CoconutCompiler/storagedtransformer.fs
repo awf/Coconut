@@ -233,7 +233,8 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     // TODO
     MakeCall <@@ corelang.matrixPrint @@> (args |> List.map (fun x -> S x O)) []
   | Patterns.Value(v, tp) when tp = typeof<Double> || 
-      tp = typeof<Index> || tp = typeof<Cardinality> || tp = typeof<Unit> || tp = typeof<string> ->
+      tp = typeof<Index> || tp = typeof<Cardinality> || tp = typeof<Unit> || 
+      tp = typeof<string> || tp = typeof<bool> ->
     exp
   | CardConstructor c ->
     exp

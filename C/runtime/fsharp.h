@@ -13,6 +13,9 @@
 #define MATRIX_ROWS_OFFSET(rows, cols, row) (MATRIX_HEADER_BYTES(rows) + (VECTOR_ALL_BYTES(cols)) * (row))
 #define STG_OFFSET(stg, offset) (storage_t)(((char*)(stg)) + (offset))
 
+#define false 0
+#define true 1
+
 // extern int closure_mem = 0;
 
 storage_t empty_storage = (void*)0;

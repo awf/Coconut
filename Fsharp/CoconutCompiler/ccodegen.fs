@@ -78,6 +78,7 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t"
   | _ when (t.Name = typeof<_ -> _>.Name) -> "closure_t"
   | _ when (t = typeof<Unit>) -> "void"
+  | _ when (t = typeof<bool>) -> "bool_t"
   | _ when (t.IsGenericParameter) ->
     failwith "does not know how to generate code for a generic type"
   | _ ->
@@ -145,6 +146,7 @@ let rec ccodegen (e:Expr): string =
     | _ ->
       failwithf "Does not know how to generate value of type `%A`" tp
   | Patterns.Value(v, tp) when tp = typeof<string> -> sprintf "\"%s\"" (v.ToString())
+  | Patterns.Value(v, tp) when tp = typeof<bool> -> v.ToString().ToLower()
   | Patterns.Value(v, tp) -> sprintf "%s" (v.ToString())
   | CardConstructor c -> 
     (ccodegen c)
@@ -484,9 +486,14 @@ and ccodegenFunction (e: Expr) (name: string) (isForClosure: bool): string =
   let closuresCode = (String.concat "\n" (List.concat closuresList))
   let resultType = if(isForClosure) then "value_t" else ccodegenType(result.Type)
   let parameters = 
-    match inputs with
-    | [unitElem] when unitElem.Type = typeof<unit> -> ""
-    | _ -> inputs |> List.map (fun (x: Var) -> ccodegenType(x.Type) + " " + x.Name) |> String.concat ", " 
+    inputs |> List.map (fun (x: Var) -> 
+      (
+        if (x.Type = typeof<unit>) then 
+          "int" 
+        else 
+          ccodegenType(x.Type)
+      ) + " " + x.Name
+    ) |> String.concat ", " 
   let finalStatement = 
     if(isForClosure) then 
       if(result.Type = typeof<unit>) then
