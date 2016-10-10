@@ -365,6 +365,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           // TODO handle the case of newArray_s of newArray_s
           let stgCode = ccodegen stg
           let elemsNoStg = elems |> List.map (fun (Patterns.Lambda(s, body)) -> body)
+          let offsetVar = sprintf "%s_offsetVar" stgCode
           let (elementsInitCode, closures) = 
             if tp = typeof<Number> then
               let code = String.concat "\n\t" (elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
@@ -372,11 +373,12 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
             else 
               elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) ->
                 let (bodyCode, bodyClosures) = ccodegenStatements "\n\t" elem (Some(sprintf "%s->arr[%d]" var.Name index))
-                let stInit = sprintf "%s %s = STG_OFFSET(%s, MATRIX_HEADER_BYTES(%d));" (ccodegenType s.Type) s.Name stgCode elems.Length
-                (stInit + bodyCode, bodyClosures)
+                let stInit = sprintf "%s %s = STG_OFFSET(%s, MATRIX_HEADER_BYTES(%d) + %s);" (ccodegenType s.Type) s.Name stgCode elems.Length offsetVar
+                let offsetUpdate = sprintf "%s += VECTOR_ALL_BYTES(%s->arr[%d]->length);" offsetVar var.Name index 
+                (stInit + bodyCode + offsetUpdate, bodyClosures)
               ) |> List.fold (fun (accCode, accClosure) (code, closure) -> 
                 accCode + code, List.append accClosure closure
-              ) ("", [])
+              ) (sprintf "int %s = 0;" offsetVar, [])
           let arrTp = ccodegenType (tp.MakeArrayType()) 
           let elemTp = ccodegenType tp
           let rhs = sprintf "(%s)%s;\n\t%s->length=%d;\n\t%s->arr=(%s*)(STG_OFFSET(%s, VECTOR_HEADER_BYTES));\n\t%s" 

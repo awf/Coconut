@@ -376,28 +376,28 @@ void TOP_LEVEL_usecases_gmm_test_gmm_dps(storage_t stgVar1419, array_number_t du
 	array_array_number_t macroDef1441 = (array_array_number_t)stgVar1424;
 	macroDef1441->length=3;
 	macroDef1441->arr=(array_number_t*)(STG_OFFSET(stgVar1424, VECTOR_HEADER_BYTES));
-	storage_t stgVar1425 = STG_OFFSET(stgVar1424, MATRIX_HEADER_BYTES(3));array_number_t macroDef1438 = (array_number_t)stgVar1425;
+	int stgVar1424_offsetVar = 0;storage_t stgVar1425 = STG_OFFSET(stgVar1424, MATRIX_HEADER_BYTES(3) + stgVar1424_offsetVar);array_number_t macroDef1438 = (array_number_t)stgVar1425;
 	macroDef1438->length=3;
 	macroDef1438->arr=(number_t*)(STG_OFFSET(stgVar1425, VECTOR_HEADER_BYTES));
 	macroDef1438->arr[0] = 1;
 	macroDef1438->arr[1] = 2;
 	macroDef1438->arr[2] = 3;;
 
-	macroDef1441->arr[0] = macroDef1438;;storage_t stgVar1429 = STG_OFFSET(stgVar1424, MATRIX_HEADER_BYTES(3));array_number_t macroDef1439 = (array_number_t)stgVar1429;
+	macroDef1441->arr[0] = macroDef1438;;stgVar1424_offsetVar += VECTOR_ALL_BYTES(macroDef1441->arr[0]->length);storage_t stgVar1429 = STG_OFFSET(stgVar1424, MATRIX_HEADER_BYTES(3) + stgVar1424_offsetVar);array_number_t macroDef1439 = (array_number_t)stgVar1429;
 	macroDef1439->length=3;
 	macroDef1439->arr=(number_t*)(STG_OFFSET(stgVar1429, VECTOR_HEADER_BYTES));
 	macroDef1439->arr[0] = 4;
 	macroDef1439->arr[1] = 5;
 	macroDef1439->arr[2] = 6;;
 
-	macroDef1441->arr[1] = macroDef1439;;storage_t stgVar1433 = STG_OFFSET(stgVar1424, MATRIX_HEADER_BYTES(3));array_number_t macroDef1440 = (array_number_t)stgVar1433;
+	macroDef1441->arr[1] = macroDef1439;;stgVar1424_offsetVar += VECTOR_ALL_BYTES(macroDef1441->arr[1]->length);storage_t stgVar1433 = STG_OFFSET(stgVar1424, MATRIX_HEADER_BYTES(3) + stgVar1424_offsetVar);array_number_t macroDef1440 = (array_number_t)stgVar1433;
 	macroDef1440->length=3;
 	macroDef1440->arr=(number_t*)(STG_OFFSET(stgVar1433, VECTOR_HEADER_BYTES));
 	macroDef1440->arr[0] = 7;
 	macroDef1440->arr[1] = 8;
 	macroDef1440->arr[2] = 9;;
 
-	macroDef1441->arr[2] = macroDef1440;;;
+	macroDef1441->arr[2] = macroDef1440;;stgVar1424_offsetVar += VECTOR_ALL_BYTES(macroDef1441->arr[2]->length);;
 	array_array_number_t mat1_dps = macroDef1441;
 	matrix_print(mat1_dps);
 	;
