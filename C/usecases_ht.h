@@ -609,7 +609,7 @@ value_t lambda246(env_t_246* env236, number_t r) {
 	res.array_number_t_value = TOP_LEVEL_linalg_vectorRange(((int)(r)) * (4), (((int)(r)) * (4)) + (3));
 	return res;
 }
-void TOP_LEVEL_usecases_ht_test_ht() {
+void TOP_LEVEL_usecases_ht_test_ht(int unitVar0) {
 	array_number_t a = (array_number_t)storage_alloc(sizeof(int) * 2);
 	a->length=3;
 	a->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
