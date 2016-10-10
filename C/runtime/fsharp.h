@@ -234,4 +234,10 @@ card_t width_matrix_shape_t(matrix_shape_t shape) {
   return width_card_t(cols) * rows + MATRIX_HEADER_BYTES(rows);
 }
 
+card_t width_matrix3d_shape_t(matrix3d_shape_t shape) {
+  card_t rows = shape.card;
+  matrix_shape_t cols = shape.elem;
+  return width_matrix_shape_t(cols) * rows + MATRIX_HEADER_BYTES(rows);
+}
+
 #endif

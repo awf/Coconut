@@ -9,6 +9,15 @@ open cardinality
 
 (** Hand Tracking **)
 
+let matrix3DUpdate (m: Matrix[]) (s: Index) (e: Index) (nm: Matrix[]): Matrix[] = 
+  build (length m) (fun i ->
+    let isInRange = i >= s && i < e
+    if isInRange then
+      nm.[i - s]
+    else
+      m.[i]
+  )
+
 let inline to_pose_params (theta: Vector) (n_bones: Cardinality): Matrix =
   let row1 = theta.[0..2]
   let row2 = [| 1.0; 1.0; 1.0|]
@@ -99,16 +108,27 @@ let angle_axis_to_rotation_matrix (angle_axis: Vector): Matrix =
        [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
 
 let relatives_to_absolutes (relatives: Matrix[]) (parents: Vector): Matrix[] =
-  let init = [| [| [| |] |] |]
+  // let init = [| [| [| |] |] |]
+  // iterateMatrix3D (fun acc i ->
+  //   if parents.[i] = -1.0 then 
+  //     (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
+  //     let newMatrix = [| relatives.[i] |]
+  //     matrix3DConcat acc newMatrix
+  //   else 
+  //     (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
+  //     let newMatrix = [| matrixMult acc.[int parents.[i]] relatives.[i] |]
+  //     matrix3DConcat acc newMatrix
+  // ) (init) (Card 0) ((length relatives) .- (Card 1))
+  let init = relatives
   iterateMatrix3D (fun acc i ->
     if parents.[i] = -1.0 then 
       (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
       let newMatrix = [| relatives.[i] |]
-      matrix3DConcat acc newMatrix
+      matrix3DUpdate acc i (i + 1) newMatrix
     else 
       (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
       let newMatrix = [| matrixMult acc.[int parents.[i]] relatives.[i] |]
-      matrix3DConcat acc newMatrix
+      matrix3DUpdate acc i (i + 1) newMatrix
   ) (init) (Card 0) ((length relatives) .- (Card 1))
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
@@ -159,15 +179,16 @@ let hand_objective (is_mirrored: Index) (param: Vector) (correspondences: Vector
     get_skinned_vertex_positions is_mirrored n_bones pose_params base_relatives parents
       inverse_base_absolutes base_positions weights
   
-  let n_corr = correspondences.Length
-  let dims = 3
+  
+  let n_corr_card = length correspondences
+  let n_corr = cardToInt n_corr_card
   let err = 
     vectorMap (fun i ->
       let ind = int i
       let r = ind / n_corr
       let c = ind % n_corr
       points.[r].[c] - vertex_positions.[r].[int correspondences.[c]]
-    ) (vectorRange (Card 0) (Card (dims * n_corr - 1))) // TODO violates fixed size behaviour of cardinalities
+    ) (vectorRange (Card 0) (n_corr_card .+ n_corr_card .+ n_corr_card .- (Card 1)))
   err
 
 (** Testing **)
@@ -179,7 +200,12 @@ let test_ht () =
     [| [| 1.0; 2.0; 3.0; |];
        [| 4.0; 5.0; 6.0; |];
        [| 7.0; 8.0; 9.0; |] |]
-  let base_rel = vectorMapToMatrix (fun r -> vectorRange (Card (int r * 4)) (Card (int r * 4 + 3))) (vectorRange (Card 1) (Card 4))
+  let base_rel = 
+    build (Card 4) (fun i ->
+      build (Card 4) (fun j ->
+        double ((i+1) * 4 + j)
+      )
+    )
   let q = make_relative a base_rel
   matrixPrint q
   let r = angle_axis_to_rotation_matrix a
