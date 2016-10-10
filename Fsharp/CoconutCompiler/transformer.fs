@@ -221,18 +221,26 @@ let (|AllAppN|_|) (e: Expr): (Expr * Expr list) Option =
     let v = new Var(methodVariableName mtd mdl, e0.Type)
     Some(Expr.Var(v), es)
   | ArraySlice(e0, st, en) ->
-    let vecSliceExp = <@@ linalg.vectorSlice @@>
-    let op = getMethodInfo vecSliceExp
-    let v = new Var(methodVariableNameMethodInfo op, vecSliceExp.Type)
+    
+    let methodVar = 
+      let sliceMethod = 
+        if e.Type = typeof<Vector> then
+          <@@ linalg.vectorSlice @@>
+        else if e.Type = typeof<Matrix> then
+          <@@ linalg.matrixSlice @@>
+        else
+          failwithf "Does not know how to convert array slice to a method for type `%A`" e.Type
+      let op = getMethodInfo sliceMethod
+      new Var(methodVariableNameMethodInfo op, sliceMethod.Type)
     match (st, en) with
     | Patterns.Value(vs, ts), Patterns.Value(ve, te) when ts = te && ts = typeof<Index> ->
       let vvs = unbox<int>(vs)
       let vve = unbox<int>(ve)
       let cardExp = Expr.Value(Card (vve - vvs + 1), typeof<Cardinality>)      
-      Some(Expr.Var(v), [cardExp; st; e0])
+      Some(Expr.Var(methodVar), [cardExp; st; e0])
     | _, ScalarOperation("+", [e2; Patterns.Value(vsz, tsz)], _) when e2 = st && tsz = typeof<Index> ->
       let cardExp = Expr.Value(Card (unbox<int>(vsz) + 1), typeof<Cardinality>)  
-      Some(Expr.Var(v), [cardExp; st; e0])
+      Some(Expr.Var(methodVar), [cardExp; st; e0])
     | _ ->
       failwithf "Not supported slice operation: `%A`" e
   | _ -> None

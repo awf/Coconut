@@ -67,11 +67,11 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     Expr.Let(nx, C e1, CEnv e2 (env.Add(x, nx)))
   | Patterns.IfThenElse(e1, e2, e3)  -> C e2
   | Patterns.NewArray(tp, es)        -> 
-    let ce1 = C es.[0]
     let N = Expr.Value(Card es.Length, typeof<Cardinality>)
     if tp = typeof<Number> then
       N
     else 
+      let ce1 = C es.[0]
       MakeCall <@@ nestedShape @@> ([ce1; N]) ([CT tp])
   | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let ce0 = C e0

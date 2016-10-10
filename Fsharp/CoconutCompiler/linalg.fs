@@ -23,6 +23,9 @@ let vectorRange (s: Cardinality) (e: Cardinality): Vector =
 let vectorSlice (size: Cardinality) (offset: Index) (v: Vector): Vector =
   build size (fun i -> v.[i + offset])
 
+let matrixSlice (size: Cardinality) (offset: Index) (m: Matrix): Matrix =
+  build size (fun i -> m.[i + offset])
+
 let matrixMap (f: Vector -> Vector) (m: Matrix): Matrix = 
   build (length m) (fun i -> f m.[i])
 
