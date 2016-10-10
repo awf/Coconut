@@ -97,6 +97,12 @@ let allocLifting (e: Expr): Expr =
   let (te, ll) = constructTopLevelAllocs inputs body
   LambdaN(inputs, AllocNWithVar(ll, te))
 
+let isNormalForm (e: Expr): bool = 
+  match e with
+  | Patterns.Value(_, _) -> true
+  | Patterns.Var(_)      -> true
+  | _                    -> false
+
 let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<Var, Var * Var>): Expr =
   let S e s = transformStoraged e s env
   let SEnv = transformStoraged
@@ -191,7 +197,7 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     let s1 = Expr.Var(outputStorage)
     let tc = CT t
     MakeCall <@ corelang.build_s @> [s1; se0; se1; ce0; ce1] [t; tc] 
-  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
+  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) when isNormalForm z && isNormalForm r ->
     let sf = S f O
     let sz = S z O
     let sr = S r O
@@ -207,6 +213,16 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
       else
         CT (ta.MakeArrayType())
     MakeCall <@ corelang.fold_s @> [s1; sf; sz; sr; cf; cz; cr] [ta; tb; tac; tanc; tbc]
+  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
+    let anify (e: Expr) = 
+      if isNormalForm e then 
+        fun k -> k(e) 
+      else 
+        let evar = new Var(utils.newVar("anfvar"), e.Type)
+        fun k ->
+          Expr.Let(evar, e, k(Expr.Var(evar)))
+    let anfFold = anify z (fun zv -> anify r (fun rv -> MakeCall <@ corelang.fold @> [f; zv; rv] [ta; tb]))
+    S anfFold outputStorage
   | ArrayLength(e0) ->
     Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)
