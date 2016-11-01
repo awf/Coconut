@@ -151,7 +151,7 @@ let test_phase_based_optimizer () =
     // printfn "pretty code: %s" (ccodegen.prettyprint opt)
 
     // printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_reproj_err_opt" false)
-    printfn "FSharp code: %s" (fscodegen.fscodegenExpr opt)
+    printfn "FSharp code: %s" (fscodegen.fscodegenTopLevel opt)
 
 let test_feature () =
   let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
