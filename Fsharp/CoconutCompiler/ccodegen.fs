@@ -368,8 +368,13 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let offsetVar = sprintf "%s_offsetVar" stgCode
           let (elementsInitCode, closures) = 
             if tp = typeof<Number> then
-              let code = String.concat "\n\t" (elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
-              (code, [])
+              //let code = String.concat "\n\t" (elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) -> sprintf "%s->arr[%d] = %s;" var.Name index (ccodegen elem)))
+              //(code, [])
+              elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) ->
+                ccodegenStatements "\n\t" elem (Some(sprintf "%s->arr[%d]" var.Name index))
+              ) |> List.fold (fun (accCode, accClosure) (code, closure) -> 
+                   accCode + code, List.append accClosure closure
+              ) ("", [])
             else 
               elems |> List.mapi (fun index (Patterns.Lambda(s, elem)) ->
                 let (bodyCode, bodyClosures) = ccodegenStatements "\n\t" elem (Some(sprintf "%s->arr[%d]" var.Name index))
