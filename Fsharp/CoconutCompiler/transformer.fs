@@ -338,6 +338,12 @@ let rec FunctionType (inputs: Type list) (output: Type): Type =
   | x :: xs -> 
     typeof<_ -> _>.GetGenericTypeDefinition().MakeGenericType(x, FunctionType xs output)
 
+let (|IterateNumberDPS|_|) (e: Expr): (Expr * Expr list) Option =
+  match e with
+  | AppN(Patterns.Var(MethodVariable(mtd, mdl)) as f, elist) when mtd = "iterateNumber_dps" ->
+    Some(f, elist)
+  | _ -> None
+
 open utils
 
 let EMPTY_STORAGE: Var = Var.Global("empty_storage", typeof<Storage>)

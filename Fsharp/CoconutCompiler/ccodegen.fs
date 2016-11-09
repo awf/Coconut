@@ -5,6 +5,7 @@ open cruntime
 open utils
 open types
 open transformer
+open ctransformer
 
 (* Pretty prints the given expression *)
 let rec prettyprint (e:Expr): string =
@@ -83,7 +84,7 @@ let rec ccodegenType (t: System.Type): string =
     failwith "does not know how to generate code for a generic type"
   | _ ->
     failwith (sprintf "does not know how to generate code for the type `%s` with name `%s`" (t.ToString()) (t.Name))
-
+   
 (* C code generation for an expression *)
 let rec ccodegen (e:Expr): string =
   match e with
@@ -112,7 +113,7 @@ let rec ccodegen (e:Expr): string =
                   (List.length elist))
   | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map ccodegen argList))
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
-  | Patterns.Call (None, op, _) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMonomorphicMacro>, true))) -> 
+  | Patterns.Call (None, op, _) when isMonomorphicMacro op -> 
     ccodegenMonomorphicMacro e
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
@@ -464,9 +465,25 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
       let (e2code, e2closures) = ccodegenStatements "\t\t" e2 None
       (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
         (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
-    | Patterns.Call (None, op, elist) when not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))) -> 
-      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true).[0] :?> CMacro
-      if cMacro.ShouldLetBind() then
+    | IterateNumberDPS(f, elist) ->
+        //let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[1]
+        let (LambdaN(inputs, body)) = elist.[1]
+        let num = inputs.[1]
+        let idx = inputs.[2]
+        let idxCode = idx.Name
+        let resultType = ccodegenType (var.Type)
+        let resultName = var.Name
+        let initCode = ccodegen (elist.[2])
+        let startCode = ccodegen (elist.[3])
+        let endCode = ccodegen (elist.[4])
+        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
+        (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+           resultType resultName initCode 
+           idxCode startCode idxCode endCode idxCode
+           bodyCode
+           , bodyClosures, true)
+    | Patterns.Call (None, op, elist) when isMacro op -> 
+      if isLetBoundMacro op then
         ccodegenMacro e
       else
         (ccodegenMonomorphicMacro e, [], false)

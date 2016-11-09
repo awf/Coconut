@@ -69,6 +69,28 @@ let letLifting (e: Expr): Expr =
   printfn "/* After Let Lifting code:\n%A\n*/\n" (prettyprint (LambdaN(inputs, LetN(ll, te))))
   *)
   LambdaN(inputs, LetN(ll, te))
+
+// FIXME is not needed
+let isIterateMethod (op: System.Reflection.MethodInfo) = 
+  op.Name = "TOP_LEVEL_linalg_iterateNumber_dps"
+
+let isMonomorphicMacro (op: System.Reflection.MethodInfo) = 
+  (not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMonomorphicMacro>, true)))) ||
+    isIterateMethod op
+
+let isMacro (op: System.Reflection.MethodInfo) = 
+  (not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true)))) ||
+    isIterateMethod op
+
+let isLetBoundMacro (op: System.Reflection.MethodInfo) =
+  if isMacro op then 
+    if isIterateMethod op then
+      true
+    else
+      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true).[0] :?> CMacro
+      cMacro.ShouldLetBind()
+  else
+    false
   
 
 type ClosureContext = { isMacro: bool }
@@ -127,11 +149,13 @@ let closureConversion (e: Expr): Expr =
     | Patterns.NewArray(tp, elems) -> 
       Expr.NewArray(tp, List.map (lambdaLift ctx) elems)
     | Patterns.Call (None, op, elist) -> 
-      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
-      let isCMacro = cMacro |> Option.isSome
+      //let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
+      //let isCMacro = cMacro |> Option.isSome
+      let isCMacro = isMacro op
       let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
       let callExpr = Expr.Call(op, telist)
-      let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
+      //let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
+      let shouldLetBind = isLetBoundMacro op
       if shouldLetBind then
         let macroVar = new Var(newVar "macroDef", exp.Type)
         Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
@@ -139,6 +163,10 @@ let closureConversion (e: Expr): Expr =
         callExpr
     | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map rcr elist)
     | Patterns.Var (x) -> Expr.Var(x)
+    | IterateNumberDPS(f, elist) ->
+        let macroVar = new Var(newVar "macroDef", exp.Type)
+        let telist = List.map (lambdaLift {isMacro = true}) elist
+        Expr.Let(macroVar, AppN(f, telist), Expr.Var(macroVar))
     | ExprShape.ShapeCombination(o, exprs) ->
         ExprShape.RebuildShapeCombination(o, List.map rcr exprs)
     | _ -> failwith (sprintf "%A not handled yet!" exp)
