@@ -70,7 +70,10 @@ let benchmark_search () =
 let test_phase_based_optimizer () = 
     compiler.compileModule "linalg" [] false false
     compiler.compileModule "usecases_ba" ["linalg"] false false
-    let bundleAdjustmentReprojErr = compiler.getMethodExpr "usecases_ba" "reproj_err"
+//    let bundleAdjustmentReprojErr = compiler.getMethodExpr "usecases_ba" "reproj_err"
+    let bundleAdjustmentReprojErr = compiler.getMethodExpr "usecases_ba" "project"
+//    compiler.compileModule "usecases_gmm" ["linalg"] false false
+//    let bundleAdjustmentReprojErr = compiler.getMethodExpr "usecases_gmm" "gmm_objective"
     let recTrans rs = optimizer.recursiveTransformer rs |> optimizer.fixPoint 10
     let hurTrans rs = optimizer.heuristicOptimizer 1000 (rs |> List.map (fun r -> r, 1.0))
     let trans rs exp = 
@@ -150,8 +153,8 @@ let test_phase_based_optimizer () =
     // // toc time
     // printfn "pretty code: %s" (ccodegen.prettyprint opt)
 
-    // printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_reproj_err_opt" false)
-    printfn "FSharp code: %s" (fscodegen.fscodegenTopLevel opt)
+    printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_project_opt" false)
+//    printfn "FSharp code: %s" (fscodegen.fscodegenTopLevel opt)
 
 let test_feature () =
   let bundleAdjustmentProject = compiler.getMethodExpr "usecases_ba" "project"
