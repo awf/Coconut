@@ -31,14 +31,15 @@
     </OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\Release\DiffSharp\</OutputPath>
-    <DefineConstants>TRACE;DO_BA</DefineConstants>
+    <DefineConstants></DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\DiffSharp.XML</DocumentationFile>
+    <DocumentationFile>..\..\Release\DiffSharp\DiffSharpTests.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <StartArguments>..\..\data\ba_instances\ba14.txt</StartArguments>
   </PropertyGroup>
