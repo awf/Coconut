@@ -88,11 +88,12 @@ let test_phase_based_optimizer () =
     // let time = tic()
     let opt = 
       fusion_optimize bundleAdjustmentReprojErr 
-        |> (fun p -> storagedtransformer.transformStoraged p transformer.EMPTY_STORAGE Map.empty)
+     (*   |> (fun p -> storagedtransformer.transformStoraged p transformer.EMPTY_STORAGE Map.empty)
         |> storagedtransformer.simplifyStoraged 
         |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         |> trans [rules_old.dce_old]
+     *)
 
-    printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_project_opt" true)
-//    printfn "FSharp code: %s" (fscodegen.fscodegenTopLevel opt)
+    //printfn "C code: %s" (ccodegen.ccodegenTopLevel opt "usecases_ba_project_opt" true)
+    printfn "FSharp code: %s" (fscodegen.fscodegenTopLevel opt)
 
