@@ -259,6 +259,19 @@ let test_hand model_dir fn_in fn_out nruns_f nruns_J =
   write_times (fn_out + "_times_" + name + ".txt") tf tJ
 #endif
 
+let benchmark_ba () = 
+    let cam = [| 0.1; 0.1; 0.1; 0.2; 0.1; 0.3; 1.2; 0.01; 0.03; 0.009; 1.2e-4 |]
+    let X = [| 0.03; 0.11; -0.7 |]
+    let N = 1000 * 1000 * 10
+    let mutable total = 0.0
+    let t = Stopwatch.StartNew()
+    for i = 0 to N-1 do
+      X.[0] <- 1.0 / (2.0 + (double)i);
+      cam.[5] <- 1.0 + (double)i * 1e-6;
+      total <- total + ba.sqnorm (ba.project cam X)
+    t.Stop()
+    printfn "total = %f, time = %f" total (float t.ElapsedMilliseconds / (float)N)
+
 [<EntryPoint>]
 let main argv = 
     // let dir_in = argv.[0]
@@ -268,7 +281,7 @@ let main argv =
     // let nruns_J = (Int32.Parse argv.[4])
     // let replicate_point = 
     //     (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
-
+    benchmark_ba ()
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif
