@@ -547,8 +547,11 @@ void TOP_LEVEL_usecases_ba_run_ba_from_file_dps(storage_t stgVar1043, string_t f
 			array_number_t macroDef1128 = (array_number_t)stgVar1077;
 	macroDef1128->length=2;
 	macroDef1128->arr=(number_t*)(STG_OFFSET(stgVar1077, VECTOR_HEADER_BYTES));
-	macroDef1128->arr[0] = (double)(((int)(x_dps0)) % ((n_dps)));
-	macroDef1128->arr[1] = (double)(((int)(x_dps0)) % ((m_dps)));;
+	
+
+	macroDef1128->arr[0] = (double)(((int)(x_dps0)) % ((n_dps)));;
+
+	macroDef1128->arr[1] = (double)(((int)(x_dps0)) % ((m_dps)));;;
 			macroDef1129->arr[x_dps0] = macroDef1128;;
 			stgVar1077 = STG_OFFSET(stgVar1077, VECTOR_ALL_BYTES(macroDef1129->arr[x_dps0]->length));
 		}
@@ -608,9 +611,13 @@ void TOP_LEVEL_usecases_ba_test_ba_dps(storage_t stgVar1164, array_number_t dum_
 	array_number_t macroDef1198 = (array_number_t)stgVar1165;
 	macroDef1198->length=3;
 	macroDef1198->arr=(number_t*)(STG_OFFSET(stgVar1165, VECTOR_HEADER_BYTES));
-	macroDef1198->arr[0] = 1;
-	macroDef1198->arr[1] = 2;
-	macroDef1198->arr[2] = 3;;
+	
+
+	macroDef1198->arr[0] = 1;;
+
+	macroDef1198->arr[1] = 2;;
+
+	macroDef1198->arr[2] = 3;;;
 	array_number_t a_dps = macroDef1198;
 	card_t b_shp = 3;
 	card_t size1219 = width_card_t(b_shp);
@@ -618,9 +625,13 @@ void TOP_LEVEL_usecases_ba_test_ba_dps(storage_t stgVar1164, array_number_t dum_
 	array_number_t macroDef1199 = (array_number_t)stgVar1169;
 	macroDef1199->length=3;
 	macroDef1199->arr=(number_t*)(STG_OFFSET(stgVar1169, VECTOR_HEADER_BYTES));
-	macroDef1199->arr[0] = 5;
-	macroDef1199->arr[1] = 6;
-	macroDef1199->arr[2] = 7;;
+	
+
+	macroDef1199->arr[0] = 5;;
+
+	macroDef1199->arr[1] = 6;;
+
+	macroDef1199->arr[2] = 7;;;
 	array_number_t b_dps = macroDef1199;
 	array_print(a_dps);
 	array_print(b_dps);
@@ -645,17 +656,29 @@ void TOP_LEVEL_usecases_ba_test_ba_dps(storage_t stgVar1164, array_number_t dum_
 	array_number_t macroDef1200 = (array_number_t)stgVar1183;
 	macroDef1200->length=11;
 	macroDef1200->arr=(number_t*)(STG_OFFSET(stgVar1183, VECTOR_HEADER_BYTES));
-	macroDef1200->arr[0] = 0;
-	macroDef1200->arr[1] = 2;
-	macroDef1200->arr[2] = 4;
-	macroDef1200->arr[3] = 6;
-	macroDef1200->arr[4] = 8;
-	macroDef1200->arr[5] = 10;
-	macroDef1200->arr[6] = 12;
-	macroDef1200->arr[7] = 14;
-	macroDef1200->arr[8] = 16;
-	macroDef1200->arr[9] = 18;
-	macroDef1200->arr[10] = 20;;
+	
+
+	macroDef1200->arr[0] = 0;;
+
+	macroDef1200->arr[1] = 2;;
+
+	macroDef1200->arr[2] = 4;;
+
+	macroDef1200->arr[3] = 6;;
+
+	macroDef1200->arr[4] = 8;;
+
+	macroDef1200->arr[5] = 10;;
+
+	macroDef1200->arr[6] = 12;;
+
+	macroDef1200->arr[7] = 14;;
+
+	macroDef1200->arr[8] = 16;;
+
+	macroDef1200->arr[9] = 18;;
+
+	macroDef1200->arr[10] = 20;;;
 	array_number_t cam_dps = macroDef1200;
 	card_t m_shp = TOP_LEVEL_usecases_ba_project_shp(cam_shp, j_shp);
 	card_t size1214 = width_card_t(m_shp);

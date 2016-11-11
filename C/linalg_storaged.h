@@ -509,9 +509,13 @@ array_number_t TOP_LEVEL_linalg_cross_dps(storage_t stgVar181, array_number_t a_
 	array_number_t macroDef197 = (array_number_t)stgVar181;
 	macroDef197->length=3;
 	macroDef197->arr=(number_t*)(STG_OFFSET(stgVar181, VECTOR_HEADER_BYTES));
-	macroDef197->arr[0] = ((a_dps->arr[1]) * (b_dps->arr[2])) - ((a_dps->arr[2]) * (b_dps->arr[1]));
-	macroDef197->arr[1] = ((a_dps->arr[2]) * (b_dps->arr[0])) - ((a_dps->arr[0]) * (b_dps->arr[2]));
-	macroDef197->arr[2] = ((a_dps->arr[0]) * (b_dps->arr[1])) - ((a_dps->arr[1]) * (b_dps->arr[0]));;
+	
+
+	macroDef197->arr[0] = ((a_dps->arr[1]) * (b_dps->arr[2])) - ((a_dps->arr[2]) * (b_dps->arr[1]));;
+
+	macroDef197->arr[1] = ((a_dps->arr[2]) * (b_dps->arr[0])) - ((a_dps->arr[0]) * (b_dps->arr[2]));;
+
+	macroDef197->arr[2] = ((a_dps->arr[0]) * (b_dps->arr[1])) - ((a_dps->arr[1]) * (b_dps->arr[0]));;;
 	return macroDef197;
 }
 typedef empty_env_t env_t_206;
@@ -1216,9 +1220,13 @@ array_number_t TOP_LEVEL_linalg_vec3_dps(storage_t stgVar540, number_t a_dps, nu
 	array_number_t macroDef544 = (array_number_t)stgVar540;
 	macroDef544->length=3;
 	macroDef544->arr=(number_t*)(STG_OFFSET(stgVar540, VECTOR_HEADER_BYTES));
-	macroDef544->arr[0] = a_dps;
-	macroDef544->arr[1] = b_dps;
-	macroDef544->arr[2] = c_dps;;
+	
+
+	macroDef544->arr[0] = a_dps;;
+
+	macroDef544->arr[1] = b_dps;;
+
+	macroDef544->arr[2] = c_dps;;;
 	return macroDef544;
 }
 #endif
