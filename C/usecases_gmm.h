@@ -81,7 +81,7 @@ void TOP_LEVEL_usecases_gmm_Qtimesv_test(int unitVar0) {
 typedef empty_env_t env_t_306;
 
 
-value_t lambda306(env_t_306* env301, number_t value) {
+value_t lambda306(env_t_306* env302, number_t value) {
 	
 	value_t res;
 	res.number_t_value = exp(value);
@@ -92,10 +92,10 @@ number_t TOP_LEVEL_usecases_gmm_gmm_objective(array_array_number_t x, array_numb
 	card_t d = TOP_LEVEL_linalg_cols(x);
 	card_t macroDef299 = alphas->length;
 	card_t K = macroDef299;
-	array_number_t macroDef305 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef305->length=n;
-	macroDef305->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
-		for(int i = 0; i < macroDef305->length; i++){
+	array_number_t macroDef301 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef301->length=n;
+	macroDef301->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
+		for(int i = 0; i < macroDef301->length; i++){
 			array_number_t macroDef300 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef300->length=K;
 	macroDef300->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
@@ -103,16 +103,16 @@ number_t TOP_LEVEL_usecases_gmm_gmm_objective(array_array_number_t x, array_numb
 			
 			macroDef300->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
 		}
-			array_number_t macroDef304 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef304->length=K;
-	macroDef304->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef304->length; k++){
-			env_t_306 env_t_306_value = make_empty_env(); closure_t closure303 = make_closure(lambda306, &env_t_306_value);
-			macroDef304->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure303, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
+			macroDef301->arr[i] = TOP_LEVEL_usecases_gmm_logsumexp(macroDef300);;
 		}
-			macroDef305->arr[i] = ((TOP_LEVEL_usecases_gmm_logsumexp(macroDef300)) - (((double)((n))) * (TOP_LEVEL_usecases_gmm_logsumexp(alphas)))) + ((0.5) * (TOP_LEVEL_linalg_vectorSum(macroDef304)));;
+	array_number_t macroDef305 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef305->length=K;
+	macroDef305->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef305->length; k++){
+			env_t_306 env_t_306_value = make_empty_env(); closure_t closure304 = make_closure(lambda306, &env_t_306_value);
+			macroDef305->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure304, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
 		}
-	return TOP_LEVEL_linalg_vectorSum(macroDef305);
+	return ((TOP_LEVEL_linalg_vectorSum(macroDef301)) - (((double)((n))) * (TOP_LEVEL_usecases_gmm_logsumexp(alphas)))) + ((0.5) * (TOP_LEVEL_linalg_vectorSum(macroDef305)));
 }
 
 void TOP_LEVEL_usecases_gmm_test_gmm(array_number_t dum) {

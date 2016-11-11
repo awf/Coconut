@@ -59,6 +59,15 @@ let rec simplifyStoraged (exp: Expr): Expr =
   | ExprShape.ShapeVar(x)                -> Expr.Var(x)
   | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map simplifyStoraged)
 
+let rec getAliasSimplify (exp: Expr): Expr = 
+  match exp with
+  | DerivedPatterns.SpecificCall <@ corelang.get_s @> (_, [a; s], args) ->
+    let tl = args |> List.tail |> List.map getAliasSimplify
+    MakeCall <@@ corelang.get_s @@> (Expr.Var(EMPTY_STORAGE) :: tl) [a; s]
+  | ExprShape.ShapeLambda(x, body)       -> Expr.Lambda(x, getAliasSimplify body)
+  | ExprShape.ShapeVar(x)                -> Expr.Var(x)
+  | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map getAliasSimplify)
+
 let AllocNWithVar (bindings: (Var * Expr) list, funExpr: Expr): Expr = 
   (funExpr, bindings |> List.rev) ||> List.fold (fun acc (v, s) -> AllocWithVar s v (Expr.Lambda(v, acc)))
 

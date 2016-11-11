@@ -18,9 +18,13 @@ void TOP_LEVEL_linalgtests_test1_dps(storage_t stgVar545, array_number_t dum_dps
 	array_number_t macroDef622 = (array_number_t)stgVar546;
 	macroDef622->length=3;
 	macroDef622->arr=(number_t*)(STG_OFFSET(stgVar546, VECTOR_HEADER_BYTES));
-	macroDef622->arr[0] = 1;
-	macroDef622->arr[1] = 2;
-	macroDef622->arr[2] = 3;;
+	
+
+	macroDef622->arr[0] = 1;;
+
+	macroDef622->arr[1] = 2;;
+
+	macroDef622->arr[2] = 3;;;
 	array_number_t a_dps = macroDef622;
 	card_t b_shp = 3;
 	card_t size681 = width_card_t(b_shp);
@@ -28,9 +32,13 @@ void TOP_LEVEL_linalgtests_test1_dps(storage_t stgVar545, array_number_t dum_dps
 	array_number_t macroDef623 = (array_number_t)stgVar550;
 	macroDef623->length=3;
 	macroDef623->arr=(number_t*)(STG_OFFSET(stgVar550, VECTOR_HEADER_BYTES));
-	macroDef623->arr[0] = 5;
-	macroDef623->arr[1] = 6;
-	macroDef623->arr[2] = 7;;
+	
+
+	macroDef623->arr[0] = 5;;
+
+	macroDef623->arr[1] = 6;;
+
+	macroDef623->arr[2] = 7;;;
 	array_number_t b_dps = macroDef623;
 	array_print(a_dps);
 	array_print(b_dps);
@@ -71,9 +79,13 @@ void TOP_LEVEL_linalgtests_test1_dps(storage_t stgVar545, array_number_t dum_dps
 	array_number_t macroDef624 = (array_number_t)stgVar575;
 	macroDef624->length=3;
 	macroDef624->arr=(number_t*)(STG_OFFSET(stgVar575, VECTOR_HEADER_BYTES));
-	macroDef624->arr[0] = 1;
-	macroDef624->arr[1] = 2;
-	macroDef624->arr[2] = 3;;
+	
+
+	macroDef624->arr[0] = 1;;
+
+	macroDef624->arr[1] = 2;;
+
+	macroDef624->arr[2] = 3;;;
 	array_number_t r1_dps = macroDef624;
 	card_t r2_shp = 3;
 	card_t size674 = width_card_t(r2_shp);
@@ -81,9 +93,13 @@ void TOP_LEVEL_linalgtests_test1_dps(storage_t stgVar545, array_number_t dum_dps
 	array_number_t macroDef625 = (array_number_t)stgVar579;
 	macroDef625->length=3;
 	macroDef625->arr=(number_t*)(STG_OFFSET(stgVar579, VECTOR_HEADER_BYTES));
-	macroDef625->arr[0] = 4;
-	macroDef625->arr[1] = 5;
-	macroDef625->arr[2] = 6;;
+	
+
+	macroDef625->arr[0] = 4;;
+
+	macroDef625->arr[1] = 5;;
+
+	macroDef625->arr[2] = 6;;;
 	array_number_t r2_dps = macroDef625;
 	card_t r3_shp = 3;
 	card_t size673 = width_card_t(r3_shp);
@@ -91,9 +107,13 @@ void TOP_LEVEL_linalgtests_test1_dps(storage_t stgVar545, array_number_t dum_dps
 	array_number_t macroDef626 = (array_number_t)stgVar583;
 	macroDef626->length=3;
 	macroDef626->arr=(number_t*)(STG_OFFSET(stgVar583, VECTOR_HEADER_BYTES));
-	macroDef626->arr[0] = 7;
-	macroDef626->arr[1] = 8;
-	macroDef626->arr[2] = 9;;
+	
+
+	macroDef626->arr[0] = 7;;
+
+	macroDef626->arr[1] = 8;;
+
+	macroDef626->arr[2] = 9;;;
 	array_number_t r3_dps = macroDef626;
 	matrix_shape_t mat0_shp = nested_shape_card_t(3, 3);
 	card_t size672 = width_matrix_shape_t(mat0_shp);
@@ -104,23 +124,35 @@ void TOP_LEVEL_linalgtests_test1_dps(storage_t stgVar545, array_number_t dum_dps
 	int stgVar587_offsetVar = 0;storage_t stgVar588 = STG_OFFSET(stgVar587, MATRIX_HEADER_BYTES(3) + stgVar587_offsetVar);array_number_t macroDef627 = (array_number_t)stgVar588;
 	macroDef627->length=3;
 	macroDef627->arr=(number_t*)(STG_OFFSET(stgVar588, VECTOR_HEADER_BYTES));
-	macroDef627->arr[0] = 1;
-	macroDef627->arr[1] = 2;
-	macroDef627->arr[2] = 3;;
+	
+
+	macroDef627->arr[0] = 1;;
+
+	macroDef627->arr[1] = 2;;
+
+	macroDef627->arr[2] = 3;;;
 
 	macroDef630->arr[0] = macroDef627;;stgVar587_offsetVar += VECTOR_ALL_BYTES(macroDef630->arr[0]->length);storage_t stgVar592 = STG_OFFSET(stgVar587, MATRIX_HEADER_BYTES(3) + stgVar587_offsetVar);array_number_t macroDef628 = (array_number_t)stgVar592;
 	macroDef628->length=3;
 	macroDef628->arr=(number_t*)(STG_OFFSET(stgVar592, VECTOR_HEADER_BYTES));
-	macroDef628->arr[0] = 4;
-	macroDef628->arr[1] = 5;
-	macroDef628->arr[2] = 6;;
+	
+
+	macroDef628->arr[0] = 4;;
+
+	macroDef628->arr[1] = 5;;
+
+	macroDef628->arr[2] = 6;;;
 
 	macroDef630->arr[1] = macroDef628;;stgVar587_offsetVar += VECTOR_ALL_BYTES(macroDef630->arr[1]->length);storage_t stgVar596 = STG_OFFSET(stgVar587, MATRIX_HEADER_BYTES(3) + stgVar587_offsetVar);array_number_t macroDef629 = (array_number_t)stgVar596;
 	macroDef629->length=3;
 	macroDef629->arr=(number_t*)(STG_OFFSET(stgVar596, VECTOR_HEADER_BYTES));
-	macroDef629->arr[0] = 7;
-	macroDef629->arr[1] = 8;
-	macroDef629->arr[2] = 9;;
+	
+
+	macroDef629->arr[0] = 7;;
+
+	macroDef629->arr[1] = 8;;
+
+	macroDef629->arr[2] = 9;;;
 
 	macroDef630->arr[2] = macroDef629;;stgVar587_offsetVar += VECTOR_ALL_BYTES(macroDef630->arr[2]->length);;
 	array_array_number_t mat0_dps = macroDef630;
