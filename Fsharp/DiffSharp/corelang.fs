@@ -20,8 +20,8 @@ let length<'a> (v: array<'a>): Cardinality =
 
 let inline build<'a> (size: Cardinality) (f: Index -> 'a): array<'a> =
   [|for i = 0 to ((cardToInt size) - 1) do yield (f i)|]
-  // let inputLength = cardToInt size
-  // let result = Microsoft.FSharp.Collections.Array.zeroCreate inputLength
-  // System.Threading.Tasks.Parallel.For(0, inputLength, fun i -> 
-  //     result.[i] <- f i) |> ignore 
-  // result 
+   //let inputLength = cardToInt size
+   //let result = Microsoft.FSharp.Collections.Array.zeroCreate inputLength
+   //System.Threading.Tasks.Parallel.For(0, inputLength, fun i -> 
+   //    result.[i] <- f i) |> ignore 
+   //result 

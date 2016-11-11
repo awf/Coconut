@@ -268,9 +268,9 @@ let benchmark_ba () =
     for i = 0 to N-1 do
       X.[0] <- 1.0 / (2.0 + (double)i);
       cam.[5] <- 1.0 + (double)i * 1e-6;
-      total <- total + ba.sqnorm (ba_opt.project cam X)
+      total <- total + ba.sqnorm (ba.project cam X)
     t.Stop()
-    printfn "total = %f, time = %f" total (float t.ElapsedMilliseconds / (float)N)
+    printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
 [<EntryPoint>]
 let main argv = 

@@ -40,6 +40,7 @@
     <DocumentationFile>..\..\Release\DiffSharp\DiffSharpTests.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <StartArguments>..\..\data\ba_instances\ba14.txt</StartArguments>
+    <GenerateTailCalls>true</GenerateTailCalls>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
