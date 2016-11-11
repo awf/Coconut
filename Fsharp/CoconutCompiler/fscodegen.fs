@@ -13,6 +13,14 @@ let fspreprocess (e: Expr): Expr =
   |> ctransformer.letCommuting 
   |> fun x -> variableRenaming x []
 
+let (|FsOperatorName|_|) methodName =
+  match methodName with
+  | "op_Inequality" -> Some("<>")
+  | "Cos"           -> Some("cos")
+  | "Sin"           -> Some("sin")
+  | "Sqrt"          -> Some("sqrt")
+  | OperatorName op -> Some(op)
+  | _               -> None
 
 (* Generates the corresponding fsharp expression *)
 let rec fscodegenExpr (e:Expr) (tabsNumber: int): string =
@@ -23,11 +31,11 @@ let rec fscodegenExpr (e:Expr) (tabsNumber: int): string =
   let tabsInd: string = printTabs (tabsNumber + 1)
   match e with
   | LambdaN (inputs, body) -> sprintf "fun %s -> \n%s%s" (String.concat " " (inputs |> List.map (fun x -> x.Name))) tabsInd (rcrInd body)
-  | Patterns.Let(x, e1, e2) -> sprintf "let %s = (%s) in \n%s%s" (x.Name) (rcrInd e1) tabs (rcr e2)
+  | Patterns.Let(x, e1, e2) -> sprintf "let %s = (\n%s%s) in \n%s%s" (x.Name) tabsInd (rcrInd e1) tabs (rcr e2)
   // | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map fscodegenExpr argList))
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
-      | OperatorName opname -> 
+      | FsOperatorName opname -> 
         if((List.length elist) = 2) then 
           sprintf "((%s) %s (%s))" (rcr elist.[0]) opname (rcr elist.[1]) 
         elif ((List.length elist) = 1) then
@@ -44,6 +52,7 @@ let rec fscodegenExpr (e:Expr) (tabsNumber: int): string =
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
     let (Card(card)) = unbox<Cardinality>(v)
     sprintf "(Card %d)" card
+  | Patterns.Value(v, tp) when tp = typeof<double> -> sprintf "%f" (unbox<double>(v))
   | Patterns.Value(v, tp) -> v.ToString()
   | Patterns.Sequential(e1, e2) -> sprintf "%s;\n%s%s" (rcr e1) tabs (rcr e2)
   | Patterns.NewUnionCase (uci, args) -> 
