@@ -87,10 +87,9 @@ let gmm_objective (x:Matrix) (alphas:Vector) (means:Matrix) (qs:Matrix) (ls:Matr
     vectorSum ( build n (fun i ->
       logsumexp( build K (fun k -> 
         alphas.[k] + vectorSum(qs.[k]) - 0.5 * (sqnorm (Qtimesv qs.[k] ls.[k] (vectorSub x.[i] means.[k])))
-      )) - 
+      )))) - 
       (float (cardToInt n)) * (logsumexp alphas) +
       0.5 * vectorSum ( build K (fun k -> sqnorm (vectorMap exp qs.[k]) + sqnorm (ls.[k])))
-      ))
 
 (** Testing **)
 
