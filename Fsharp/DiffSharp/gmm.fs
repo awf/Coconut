@@ -98,7 +98,7 @@ let log_wishart_prior p (wishart:Wishart) (Qdiags:_[][]) (sum_qs:_[]) (icf:_[][]
                             |> Array.map square
                             |> Array.sum
         out <- out + 0.5*wishart.gamma*wishart.gamma*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
-    out - (float k)*C
+    out// - (float k)*C
         
 let gmm_objective (alphas:float[]) (means:float[][]) (icf:float[][]) (x:float[][]) (wishart:Wishart) =
     let k = alphas.Length
@@ -249,3 +249,9 @@ let gmm_objective_2wrapper d k n (parameters:_[]) (wishart:Wishart) =
     let icf_off = means_off + d*k
     gmm_objective_2 d n parameters.[..(k-1)] (reshape icf_sz k parameters.[icf_off..(icf_off+icf_sz*k-1)]) wishart
 #endif
+
+open corelang
+
+let inline gmm_objective2 (x:Matrix) (alphas:Vector) (means:Matrix) (qs:Matrix) (ls:Matrix) (wishart_gamma:Number) (wishart_m:Number) =
+    let wishart = {gamma = wishart_gamma; m = (int)wishart_m}
+    gmm_objective alphas means ls x wishart

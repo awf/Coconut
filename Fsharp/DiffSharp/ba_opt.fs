@@ -85,27 +85,29 @@ let project = fun (cam: double[]) (x: double[]) ->
             ((x237) * (y240))) in 
           ((acc0) + (cur))) (0.000000) (Card(0)) (Card(2))) * (((1.000000) - (costheta214))))) in 
       corelang.build (corelang.length (x)) (fun i -> 
-        let x243 = (
-          x.[i]) in 
-        let y244 = (
-          cam.[((i) + (3))]) in 
-        let xi245 = (
-          ((x243) - (y244))) in 
-        let x246 = (
-          ((xi245) * (costheta214))) in 
-        let xi247 = (
-          w_cross_X235.[i]) in 
-        let y248 = (
-          ((xi247) * (sintheta215))) in 
-        let x249 = (
-          ((x246) + (y248))) in 
-        let xi250 = (
-          cam.[i]) in 
-        let xi251 = (
-          ((xi250) * (theta_inv216))) in 
-        let y252 = (
-          ((xi251) * (tmp242))) in 
-        ((x249) + (y252)))
+//      [|for i = 0 to (x.Length - 1) do 
+//        yield (
+          let x243 = (
+            x.[i]) in 
+          let y244 = (
+            cam.[((i) + (3))]) in 
+          let xi245 = (
+            ((x243) - (y244))) in 
+          let x246 = (
+            ((xi245) * (costheta214))) in 
+          let xi247 = (
+            w_cross_X235.[i]) in 
+          let y248 = (
+            ((xi247) * (sintheta215))) in 
+          let x249 = (
+            ((x246) + (y248))) in 
+          let xi250 = (
+            cam.[i]) in 
+          let xi251 = (
+            ((xi250) * (theta_inv216))) in 
+          let y252 = (
+            ((xi251) * (tmp242))) in 
+          ((x249) + (y252)))
     else 
       let x253 = (
         x.[2]) in 
@@ -137,15 +139,17 @@ let project = fun (cam: double[]) (x: double[]) ->
           ((((cam.[2]) * (((x257) - (y258))))) - (((cam.[0]) * (((x259) - (y260))))));
           ((((cam.[0]) * (((x261) - (y262))))) - (((cam.[1]) * (((x263) - (y264)))))) |]) in 
       corelang.build (corelang.length (x)) (fun i -> 
-        let x266 = (
-          x.[i]) in 
-        let y267 = (
-          cam.[((i) + (3))]) in 
-        let x268 = (
-          ((x266) - (y267))) in 
-        let y269 = (
-          y265.[i]) in 
-        ((x268) + (y269)))) in 
+//      [|for i = 0 to (x.Length - 1) do 
+//        yield (
+          let x266 = (
+            x.[i]) in 
+          let y267 = (
+            cam.[((i) + (3))]) in 
+          let x268 = (
+            ((x266) - (y267))) in 
+          let y269 = (
+            y265.[i]) in 
+          ((x268) + (y269)))) in 
   let y271 = (
     ((1.000000) / (Xcam270.[2]))) in 
   let rsq275291 = (
@@ -165,16 +169,18 @@ let project = fun (cam: double[]) (x: double[]) ->
     ((((1.000000) + (((cam.[9]) * (rsq275291))))) + (((((cam.[10]) * (rsq275291))) * (rsq275291))))) in 
   let y277293 = (
     cam.[6]) in 
+//  [|for i = 0 to (2 - 1) do 
+//    yield (
   corelang.build (Card(2)) (fun i -> 
-    let x278294 = (
-      cam.[((i) + (7))]) in 
-    let xi279295 = (
-      Xcam270.[i]) in 
-    let xi280296 = (
-      ((xi279295) * (y271))) in 
-    let xi281297 = (
-      ((xi280296) * (L276292))) in 
-    let y282298 = (
-      ((xi281297) * (y277293))) in 
-    ((x278294) + (y282298)))
+      let x278294 = (
+        cam.[((i) + (7))]) in 
+      let xi279295 = (
+        Xcam270.[i]) in 
+      let xi280296 = (
+        ((xi279295) * (y271))) in 
+      let xi281297 = (
+        ((xi280296) * (L276292))) in 
+      let y282298 = (
+        ((xi281297) * (y277293))) in 
+      ((x278294) + (y282298)))
 
