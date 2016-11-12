@@ -19,6 +19,13 @@ let (|FsOperatorName|_|) methodName =
   | "Cos"           -> Some("cos")
   | "Sin"           -> Some("sin")
   | "Sqrt"          -> Some("sqrt")
+  | "Log"           -> Some("log")
+  | "Exp"           -> Some("exp")
+  | "ToDouble"      -> Some("(double)")
+  | "ToInt"         -> Some("(int)")
+  | "cardToInt"     -> Some("cardToInt")
+  | "op_DotMinus"   -> Some(".-")
+  | "op_DotPlus"    -> Some(".+")
   | OperatorName op -> Some(op)
   | _               -> None
 

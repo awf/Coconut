@@ -20,7 +20,7 @@ let generateCodeForAllPhases (prog: Expr) (phases: ruleengine.Rule list list) (h
     let result = transformed // |> fun x -> transformer.variableRenaming x []
     compiler.writeToHeaderFile headerName ["linalg"; "usecases_ba"] ([ccodegen.ccodegenTopLevel result methodName false])
   generateCodeUpToPhase []
-  ([], phases) ||> List.fold (fun acc cur -> let nacc = acc @ [cur] in generateCodeUpToPhase nacc; nacc )
+  ([], phases) ||> List.fold (fun acc cur -> let nacc = acc @ [cur] in generateCodeUpToPhase nacc; nacc ) |> ignore
   // generateCodeUpToPhase phases
   ()
 
