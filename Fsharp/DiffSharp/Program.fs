@@ -259,6 +259,17 @@ let test_hand model_dir fn_in fn_out nruns_f nruns_J =
   write_times (fn_out + "_times_" + name + ".txt") tf tJ
 #endif
 
+let matrix_fill (rows: int) (cols: int) (value: double): double[][] =
+    [| for i=1 to rows do 
+       yield (
+         [| for j=1 to cols do 
+            yield value |]
+       )
+    |]
+
+let vector_fill (rows: int) (value: double): double[] =
+    (matrix_fill 1 rows value).[0];
+
 let benchmark_ba () = 
     let cam = [| 0.1; 0.1; 0.1; 0.2; 0.1; 0.3; 1.2; 0.01; 0.03; 0.009; 1.2e-4 |]
     let X = [| 0.03; 0.11; -0.7 |]
@@ -272,6 +283,42 @@ let benchmark_ba () =
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
+let benchmark_gmm () = 
+    let tri n = n * (n+1) / 2
+    let rng = 42
+    let rand = System.Random(rng)
+    let dist (f: int) = rand.NextDouble()
+    let n = 100;
+    let d = 3;
+    let K = 5;
+    let td = tri d
+    let alphas = vector_fill K 0.
+    let means = matrix_fill K d 0.
+    let qs = matrix_fill K d 0.
+    let ls = matrix_fill K td 0.
+    for k = 0 to K - 1 do 
+      alphas.[k] <- dist(rng)
+      for j = 0 to d - 1 do
+        means.[k].[j] <- dist(rng) - 0.5
+        qs.[k].[j] <- 10.0*dist(rng) - 5.0
+      for j = 0 to ls.[k].Length - 1 do
+        ls.[k].[j] <- dist(rng) - 0.5
+    let xs = matrix_fill n d 0.0
+    for i = 0 to n - 1 do 
+      for j = 0 to d - 1 do
+        xs.[i].[j] <- dist(rng)
+    let N = 1000 * 10
+    let mutable total = 0.0
+    let t = Stopwatch.StartNew()
+    let wishart_m = 2.0
+    for i = 0 to N - 1 do
+      let wishart_gamma = 1.0 / (1.0 + (double)i)
+      total <- total + gmm.gmm_objective2 xs alphas means qs ls wishart_gamma wishart_m
+//      total <- total + gmm_opt.gmm_objective xs alphas means qs ls wishart_gamma wishart_m
+//      total <- total + usecases_gmm.gmm_objective xs alphas means qs ls wishart_gamma wishart_m
+    t.Stop()
+    printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
+
 [<EntryPoint>]
 let main argv = 
     // let dir_in = argv.[0]
@@ -281,7 +328,8 @@ let main argv =
     // let nruns_J = (Int32.Parse argv.[4])
     // let replicate_point = 
     //     (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
-    benchmark_ba ()
+    // benchmark_ba ()
+    benchmark_gmm ()
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif

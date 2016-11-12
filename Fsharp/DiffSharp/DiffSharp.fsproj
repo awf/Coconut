@@ -1,10 +1,10 @@
-﻿<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{389e169c-620a-4883-b42c-018a62278277}</ProjectGuid>
+    <ProjectGuid>{389E169C-620A-4883-B42C-018A62278277}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>DiffSharp</RootNamespace>
     <AssemblyName>DiffSharpTests</AssemblyName>
@@ -16,7 +16,6 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>..\..\Debug\DiffSharp\</OutputPath>
@@ -26,11 +25,9 @@
     <DocumentationFile>bin\Debug\DiffSharp.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <StartArguments>..\..\ ..\..\ ba 1 1</StartArguments>
-    <OtherFlags></OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\Release\DiffSharp\</OutputPath>
@@ -64,6 +61,8 @@
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
     <Compile Include="gmm.fs" />
+    <Compile Include="gmm_opt.fs" />
+    <Compile Include="usecases_gmm.fs" />
     <Compile Include="ba.fs" />
     <Compile Include="ba_opt.fs" />
     <Compile Include="hand.fs" />
@@ -73,31 +72,24 @@
   <ItemGroup>
     <Reference Include="Argu">
       <HintPath>..\..\packages\Argu.2.1\lib\net40\Argu.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="DiffSharp">
       <HintPath>..\..\packages\DiffSharp.0.6.3\lib\DiffSharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="FsAlg">
       <HintPath>..\..\packages\FsAlg.0.5.13\lib\FsAlg.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Quotations.Evaluator">
       <HintPath>..\..\packages\FSharp.Quotations.Evaluator.1.0.6\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\..\packages\MathNet.Numerics.3.7.0\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MathNet.Numerics.FSharp">
       <HintPath>..\..\packages\MathNet.Numerics.FSharp.3.7.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />

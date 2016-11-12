@@ -97,7 +97,8 @@ let log_wishart_prior p (wishart:Wishart) (Qdiags:_[][]) (sum_qs:_[]) (icf:_[][]
         let frobenius2 = icf.[ik].[p..]
                             |> Array.map square
                             |> Array.sum
-        out <- out + 0.5*wishart.gamma*wishart.gamma*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
+//        out <- out + 0.5*wishart.gamma*wishart.gamma*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
+        out <- out + 0.5*(frobenius1+frobenius2)
     out// - (float k)*C
         
 let gmm_objective (alphas:float[]) (means:float[][]) (icf:float[][]) (x:float[][]) (wishart:Wishart) =
@@ -105,7 +106,8 @@ let gmm_objective (alphas:float[]) (means:float[][]) (icf:float[][]) (x:float[][
     let d = means.[0].Length
     let n = x.Length
 
-    let CONSTANT = 1. / (pown (sqrt (2. * Math.PI)) d)
+//    let CONSTANT = 1. / (pown (sqrt (2. * Math.PI)) d)
+    let CONSTANT = 1.
     let Qdiags = [|for curr_icf in icf do yield (Array.map exp curr_icf.[..(d-1)])|]
     let sum_qs = [|for curr_icf in icf do yield (Array.sum curr_icf.[..(d-1)])|]
     
