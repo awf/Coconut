@@ -17,6 +17,7 @@ let D_seed (x:float) = x
 #endif
 #endif
 
+
 let transpose (mtx : _ [,]) = Array2D.init (mtx.GetLength 1) (mtx.GetLength 0) (fun x y -> mtx.[y,x])
 
 let write_times (fn:string) (tf:float) (tJ:float) =
@@ -323,7 +324,16 @@ let benchmark_micro (N: int) =
     let rng = 42
     let rand = System.Random(rng)
     let dist (f: int) = rand.NextDouble()
-    let DIM = 100;
+    let DIM = 
+#if ADD3
+      100
+#else
+#if CROSS
+      3
+#else 
+      1
+#endif 
+#endif 
     let vec1 = vector_fill DIM 0.
     let vec2 = vector_fill DIM 0.
     let vec3 = vector_fill DIM 0.
@@ -337,8 +347,16 @@ let benchmark_micro (N: int) =
     let t = Stopwatch.StartNew()
     for i = 0 to N - 1 do
       vec1.[0] <- 1.0 / (2.0 + vec1.[0])
-      vec2.[10] <- 1.0 / (2.0 + vec2.[10])
+      vec2.[1] <- 1.0 / (2.0 + vec2.[1])
+#if ADD3
       total <- total + Array.sum (Array.map2 (+) (Array.map2 (+) vec1 vec2) vec3)
+#else
+#if CROSS
+      total <- total + Array.sum (linalg.cross vec1 vec2)
+#else 
+      
+#endif
+#endif
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
