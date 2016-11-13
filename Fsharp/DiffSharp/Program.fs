@@ -319,6 +319,29 @@ let benchmark_gmm () =
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
+let benchmark_micro (N: int) = 
+    let rng = 42
+    let rand = System.Random(rng)
+    let dist (f: int) = rand.NextDouble()
+    let DIM = 100;
+    let vec1 = vector_fill DIM 0.
+    let vec2 = vector_fill DIM 0.
+    let vec3 = vector_fill DIM 0.
+
+    for k = 0 to DIM - 1 do 
+      vec1.[k] <- dist(rng)
+      vec2.[k] <- dist(rng)
+      vec3.[k] <- dist(rng)
+
+    let mutable total = 0.0
+    let t = Stopwatch.StartNew()
+    for i = 0 to N - 1 do
+      vec1.[0] <- 1.0 / (2.0 + vec1.[0])
+      vec2.[10] <- 1.0 / (2.0 + vec2.[10])
+      total <- total + Array.sum (Array.map2 (+) (Array.map2 (+) vec1 vec2) vec3)
+    t.Stop()
+    printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
+
 [<EntryPoint>]
 let main argv = 
     // let dir_in = argv.[0]
@@ -329,7 +352,8 @@ let main argv =
     // let replicate_point = 
     //     (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
     //benchmark_ba ()
-    benchmark_gmm ()
+    //benchmark_gmm ()
+    benchmark_micro (Int32.Parse argv.[0])
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif
