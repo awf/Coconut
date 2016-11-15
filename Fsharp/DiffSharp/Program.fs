@@ -320,6 +320,24 @@ let benchmark_gmm () =
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
+let benchmark_ht () = 
+    let rng = 42
+    let rand = System.Random(rng)
+    let dist (f: int) = rand.NextDouble()
+    let angles = vector_fill 3 0.
+    for i = 0 to 2 do
+        angles.[i] <- dist rng
+    let X = [| 0.03; 0.11; -0.7 |]
+    let N = 1000 * 1000 * 10
+    let mutable total = 0.0
+    let t = Stopwatch.StartNew()
+    for i = 0 to N-1 do
+      angles.[0] <- angles.[0] - (double)N;
+      let verts = hand.angle_axis_to_rotation_matrix2 angles
+      total <- total + ba.sqnorm (verts.[0]) 
+    t.Stop()
+    printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
+
 let benchmark_micro (N: int) = 
     let rng = 42
     let rand = System.Random(rng)
@@ -371,7 +389,8 @@ let main argv =
     //     (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
     //benchmark_ba ()
     //benchmark_gmm ()
-    benchmark_micro (Int32.Parse argv.[0])
+    //benchmark_micro (Int32.Parse argv.[0])
+    benchmark_ht ()
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif

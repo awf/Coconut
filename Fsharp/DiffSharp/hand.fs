@@ -91,6 +91,24 @@ let angle_axis_to_rotation_matrix (angle_axis:_[]) =
                   [x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s];
                   [x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c]]
 
+let angle_axis_to_rotation_matrix2 (angle_axis :double[]): double[][] =
+  let n = sqrt(ba.sqnorm angle_axis)
+  if n < 0.0001 then
+    [| [| 1.; 0.; 0. |];
+       [| 0.; 1.; 0. |];
+       [| 0.; 0.; 1. |]; |]
+  else
+    let x = angle_axis.[0] / n
+    let y = angle_axis.[1] / n
+    let z = angle_axis.[2] / n
+
+    let s = sin n
+    let c = cos n
+    
+    [| [| x*x + (1. - x*x)*c; x*y*(1. - c) - z*s; x*z*(1. - c) + y*s |]; 
+       [| x*y*(1. - c) + z*s; y*y + (1. - y*y)*c; y*z*(1. - c) - x*s |];
+       [| x*z*(1. - c) - y*s; z*y*(1. - c) + x*s; z*z + (1. - z*z)*c |] |]
+
 let apply_global_transform (pose_params:_[,]) (positions:Matrix<_>) = 
   let R = angle_axis_to_rotation_matrix pose_params.[0,*]
   let scale = Matrix.ofArray 1 pose_params.[1,*] // 1 row vector
