@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OutputFiles", "OutputFiles"
 		C\usecases_ba_storaged.h = C\usecases_ba_storaged.h
 	EndProjectSection
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "CoconutCompiler", "Fsharp\CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
-EndProject
 Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "RunCompiledBenchmarks", "RunCompiledBenchmarks\RunCompiledBenchmarks.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "CoconutCompiler", "CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "fsharp_DiffSharp", "Examples\fsharp_DiffSharp\fsharp_DiffSharp.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
 EndProject
@@ -22,14 +22,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.ActiveCfg = Release|Any CPU
