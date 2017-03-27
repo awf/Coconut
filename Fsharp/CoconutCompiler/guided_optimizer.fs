@@ -145,7 +145,7 @@ let test_guided_optimizer () =
           rules.betaReduction, 0;
           comp <@ rules.vectorBuildGet @>, 0;
           rules.betaReduction, 0;
-          comp <@ rules.vectorFoldBuildToFoldOnRange @>, 0;
+          //comp <@ rules.vectorFoldBuildToFoldOnRange @>, 0;
           rules.betaReduction, 0;
           rules.betaReduction, 0;
           rules.methodDefInliner, 4;
@@ -293,7 +293,7 @@ let test_guided_optimizer () =
           rules.lambdaAppToLet, 0;
           letInliner, 7;
           rules.methodDefInliner, 1;
-          comp <@ rules.vectorFoldBuildToFoldOnRange @>, 0;
+          //comp <@ rules.vectorFoldBuildToFoldOnRange @>, 0;
           rules.lambdaAppToLet, 0;
           letInliner, 7;
           rules.lambdaAppToLet, 0;

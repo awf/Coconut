@@ -206,32 +206,6 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     let s1 = Expr.Var(outputStorage)
     let tc = CT t
     MakeCall <@ corelang.build_s @> [s1; se0; se1; ce0; ce1] [t; tc] 
-  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) when isNormalForm z && isNormalForm r ->
-    let sf = S f O
-    let sz = S z O
-    let sr = S r O
-    let cf = C f
-    let cz = C z
-    let cr = C r
-    let s1 = Expr.Var(outputStorage)
-    let tac = CT ta
-    let tbc = CT tb
-    let tanc = 
-      if ta = typeof<Vector> then
-        CT typeof<Vector>
-      else
-        CT (ta.MakeArrayType())
-    MakeCall <@ corelang.fold_s @> [s1; sf; sz; sr; cf; cz; cr] [ta; tb; tac; tanc; tbc]
-  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
-    let anify (e: Expr) = 
-      if isNormalForm e then 
-        fun k -> k(e) 
-      else 
-        let evar = new Var(utils.newVar("anfvar"), e.Type)
-        fun k ->
-          Expr.Let(evar, e, k(Expr.Var(evar)))
-    let anfFold = anify z (fun zv -> anify r (fun rv -> MakeCall <@ corelang.fold @> [f; zv; rv] [ta; tb]))
-    S anfFold outputStorage
   | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], [f; z; st; en]) when isNormalForm z && isNormalForm st && isNormalForm en ->
     let sf = S f O
     let sz = S z O

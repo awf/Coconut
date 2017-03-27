@@ -13,7 +13,7 @@ array_number_t TOP_LEVEL_usecases_ba_radial_distort(array_number_t rad_params, a
 
 array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point(array_number_t rot, array_number_t x) {
 	number_t sqtheta = TOP_LEVEL_linalg_sqnorm(rot);
-	array_number_t ite98 = 0;
+	array_number_t ite106 = 0;
 	if((sqtheta) != (0)) {
 		number_t theta = sqrt(sqtheta);
 		number_t costheta = cos(theta);
@@ -24,12 +24,12 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point(array_number_t rot, 
 		number_t tmp = (TOP_LEVEL_linalg_dot_prod(w, x)) * ((1) - (costheta));
 		array_number_t v1 = TOP_LEVEL_linalg_mult_by_scalar(x, costheta);
 		array_number_t v2 = TOP_LEVEL_linalg_mult_by_scalar(w_cross_X, sintheta);
-		ite98 = TOP_LEVEL_linalg_vectorAdd(TOP_LEVEL_linalg_vectorAdd(v1, v2), TOP_LEVEL_linalg_mult_by_scalar(w, tmp));;
+		ite106 = TOP_LEVEL_linalg_vectorAdd(TOP_LEVEL_linalg_vectorAdd(v1, v2), TOP_LEVEL_linalg_mult_by_scalar(w, tmp));;
 	} else {
 		
-		ite98 = TOP_LEVEL_linalg_vectorAdd(x, TOP_LEVEL_linalg_cross(rot, x));;
+		ite106 = TOP_LEVEL_linalg_vectorAdd(x, TOP_LEVEL_linalg_cross(rot, x));;
 	}
-	return ite98;
+	return ite106;
 }
 
 array_number_t TOP_LEVEL_usecases_ba_project(array_number_t cam, array_number_t x) {
@@ -53,28 +53,28 @@ number_t TOP_LEVEL_usecases_ba_compute_zach_weight_error(number_t w) {
 	
 	return (1) - ((w) * (w));
 }
-typedef empty_env_t env_t_102;
+typedef empty_env_t env_t_110;
 
 
-value_t lambda102(env_t_102* env99, number_t w0) {
+value_t lambda110(env_t_110* env107, number_t w0) {
 	
 	value_t res;
 	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error(w0);
 	return res;
 }
 array_number_t TOP_LEVEL_usecases_ba_w_err(array_number_t w) {
-	env_t_102 env_t_102_value = make_empty_env(); closure_t closure101 = make_closure(lambda102, &env_t_102_value);
-	return TOP_LEVEL_linalg_vectorMap(closure101, w);
+	env_t_110 env_t_110_value = make_empty_env(); closure_t closure109 = make_closure(lambda110, &env_t_110_value);
+	return TOP_LEVEL_linalg_vectorMap(closure109, w);
 }
-typedef struct env_t_113 {
+typedef struct env_t_121 {
 	array_array_number_t x;
 	array_number_t w;
 	array_array_number_t obs;
 	array_array_number_t feat;
 	array_array_number_t cams;
-} env_t_113;
-env_t_113 make_env_t_113(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
-	env_t_113 env;
+} env_t_121;
+env_t_121 make_env_t_121(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
+	env_t_121 env;
 	env.x = x;
 	env.w = w;
 	env.obs = obs;
@@ -83,102 +83,125 @@ env_t_113 make_env_t_113(array_array_number_t x,array_number_t w,array_array_num
 	return env;
 }
 
-value_t lambda113(env_t_113* env110, number_t i) {
-	array_array_number_t x109 = env110->x;
-	array_number_t w108 = env110->w;
-	array_array_number_t obs107 = env110->obs;
-	array_array_number_t feat106 = env110->feat;
-	array_array_number_t cams105 = env110->cams;
+value_t lambda121(env_t_121* env118, number_t i) {
+	array_array_number_t x117 = env118->x;
+	array_number_t w116 = env118->w;
+	array_array_number_t obs115 = env118->obs;
+	array_array_number_t feat114 = env118->feat;
+	array_array_number_t cams113 = env118->cams;
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err(cams105->arr[(int)(obs107->arr[(int)(i)]->arr[0])], x109->arr[(int)(obs107->arr[(int)(i)]->arr[1])], w108->arr[(int)(i)], feat106->arr[(int)(i)]);
+	res.array_number_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err(cams113->arr[(int)(obs115->arr[(int)(i)]->arr[0])], x117->arr[(int)(obs115->arr[(int)(i)]->arr[1])], w116->arr[(int)(i)], feat114->arr[(int)(i)]);
 	return res;
 }
 array_array_number_t TOP_LEVEL_usecases_ba_reproj_err(array_array_number_t cams, array_array_number_t x, array_number_t w, array_array_number_t obs, array_array_number_t feat) {
-	card_t macroDef103 = cams->length;
-	card_t n = macroDef103;
-	card_t macroDef104 = w->length;
-	card_t p = macroDef104;
+	card_t macroDef111 = cams->length;
+	card_t n = macroDef111;
+	card_t macroDef112 = w->length;
+	card_t p = macroDef112;
 	array_number_t range = TOP_LEVEL_linalg_vectorRange(0, (p) - (1));
-	env_t_113 env_t_113_value = make_env_t_113(x,w,obs,feat,cams); closure_t closure112 = make_closure(lambda113, &env_t_113_value);
-	return TOP_LEVEL_linalg_vectorMapToMatrix(closure112, range);
+	env_t_121 env_t_121_value = make_env_t_121(x,w,obs,feat,cams); closure_t closure120 = make_closure(lambda121, &env_t_121_value);
+	return TOP_LEVEL_linalg_vectorMapToMatrix(closure120, range);
 }
-typedef struct env_t_129 {
+typedef struct env_t_143 {
 	number_t one_w;
-} env_t_129;
-env_t_129 make_env_t_129(number_t one_w) {
-	env_t_129 env;
+} env_t_143;
+env_t_143 make_env_t_143(number_t one_w) {
+	env_t_143 env;
 	env.one_w = one_w;
 	return env;
 }
 
-value_t lambda129(env_t_129* env117, number_t x0) {
-	number_t one_w116 = env117->one_w;
+value_t lambda143(env_t_143* env125, number_t x0) {
+	number_t one_w124 = env125->one_w;
 	value_t res;
-	res.number_t_value = one_w116;
+	res.number_t_value = one_w124;
 	return res;
 }
-typedef struct env_t_130 {
+typedef struct env_t_144 {
 	array_number_t one_feat;
-} env_t_130;
-env_t_130 make_env_t_130(array_number_t one_feat) {
-	env_t_130 env;
+} env_t_144;
+env_t_144 make_env_t_144(array_number_t one_feat) {
+	env_t_144 env;
 	env.one_feat = one_feat;
 	return env;
 }
 
-value_t lambda130(env_t_130* env121, number_t x0) {
-	array_number_t one_feat120 = env121->one_feat;
+value_t lambda144(env_t_144* env129, number_t x0) {
+	array_number_t one_feat128 = env129->one_feat;
 	value_t res;
-	res.array_number_t_value = one_feat120;
+	res.array_number_t_value = one_feat128;
+	return res;
+}
+typedef struct env_t_145 {
+	array_array_number_t x;
+	array_number_t w;
+	array_array_number_t obs;
+	array_array_number_t feat;
+	array_array_number_t cam;
+} env_t_145;
+env_t_145 make_env_t_145(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cam) {
+	env_t_145 env;
+	env.x = x;
+	env.w = w;
+	env.obs = obs;
+	env.feat = feat;
+	env.cam = cam;
+	return env;
+}
+
+value_t lambda145(env_t_145* env138, number_t acc, number_t cur) {
+	array_array_number_t x137 = env138->x;
+	array_number_t w136 = env138->w;
+	array_array_number_t obs135 = env138->obs;
+	array_array_number_t feat134 = env138->feat;
+	array_array_number_t cam133 = env138->cam;
+	array_array_number_t x0 = TOP_LEVEL_usecases_ba_reproj_err(cam133, x137, w136, obs135, feat134);
+	value_t res;
+	res.number_t_value = acc;
 	return res;
 }
 void TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, card_t p) {
 	card_t oneCard = 1;
 	array_number_t one_cam = TOP_LEVEL_linalg_vectorRead(fn, 1, 11);
-	array_array_number_t macroDef114 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef114->length=n;
-	macroDef114->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
-		for(int x = 0; x < macroDef114->length; x++){
+	array_array_number_t macroDef122 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef122->length=n;
+	macroDef122->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
+		for(int x = 0; x < macroDef122->length; x++){
 			
-			macroDef114->arr[x] = one_cam;;
+			macroDef122->arr[x] = one_cam;;
 		}
-	array_array_number_t cam = macroDef114;
+	array_array_number_t cam = macroDef122;
 	array_number_t one_x = TOP_LEVEL_linalg_vectorRead(fn, 2, 3);
-	array_array_number_t macroDef115 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef115->length=m;
-	macroDef115->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * m);
-		for(int x = 0; x < macroDef115->length; x++){
+	array_array_number_t macroDef123 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef123->length=m;
+	macroDef123->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * m);
+		for(int x = 0; x < macroDef123->length; x++){
 			
-			macroDef115->arr[x] = one_x;;
+			macroDef123->arr[x] = one_x;;
 		}
-	array_array_number_t x = macroDef115;
+	array_array_number_t x = macroDef123;
 	number_t one_w = TOP_LEVEL_linalg_numberRead(fn, 3);
-	env_t_129 env_t_129_value = make_env_t_129(one_w); closure_t closure119 = make_closure(lambda129, &env_t_129_value);
-	array_number_t w = TOP_LEVEL_linalg_vectorMap(closure119, TOP_LEVEL_linalg_vectorRange(oneCard, p));
+	env_t_143 env_t_143_value = make_env_t_143(one_w); closure_t closure127 = make_closure(lambda143, &env_t_143_value);
+	array_number_t w = TOP_LEVEL_linalg_vectorMap(closure127, TOP_LEVEL_linalg_vectorRange(oneCard, p));
 	array_number_t one_feat = TOP_LEVEL_linalg_vectorRead(fn, 4, 2);
-	env_t_130 env_t_130_value = make_env_t_130(one_feat); closure_t closure123 = make_closure(lambda130, &env_t_130_value);
-	array_array_number_t feat = TOP_LEVEL_linalg_vectorMapToMatrix(closure123, TOP_LEVEL_linalg_vectorRange(oneCard, p));
-	array_array_number_t macroDef124 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef124->length=p;
-	macroDef124->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * p);
-		for(int x0 = 0; x0 < macroDef124->length; x0++){
-			array_number_t array126 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	array126->length=2;
-	array126->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
-	array126->arr[0] = (double)(((int)(x0)) % ((n)));
-	array126->arr[1] = (double)(((int)(x0)) % ((m)));;
-			macroDef124->arr[x0] = array126;;
+	env_t_144 env_t_144_value = make_env_t_144(one_feat); closure_t closure131 = make_closure(lambda144, &env_t_144_value);
+	array_array_number_t feat = TOP_LEVEL_linalg_vectorMapToMatrix(closure131, TOP_LEVEL_linalg_vectorRange(oneCard, p));
+	array_array_number_t macroDef132 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef132->length=p;
+	macroDef132->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * p);
+		for(int x0 = 0; x0 < macroDef132->length; x0++){
+			array_number_t array141 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	array141->length=2;
+	array141->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
+	array141->arr[0] = (double)(((int)(x0)) % ((n)));
+	array141->arr[1] = (double)(((int)(x0)) % ((m)));;
+			macroDef132->arr[x0] = array141;;
 		}
-	array_array_number_t obs = macroDef124;
+	array_array_number_t obs = macroDef132;
 	timer_t t = tic();
 	array_number_t range = TOP_LEVEL_linalg_vectorRange(1, 10);
-	
-	for(int cur_idx = 0; cur_idx < range->length; cur_idx++){
-		number_t cur = range->arr[cur_idx];
-		array_array_number_t x0 = TOP_LEVEL_usecases_ba_reproj_err(cam, x, w, obs, feat);
-		;
-	}
-	;
+	env_t_145 env_t_145_value = make_env_t_145(x,w,obs,feat,cam); closure_t closure140 = make_closure(lambda145, &env_t_145_value);
+	number_t tmp = TOP_LEVEL_linalg_vectorFoldNumber(closure140, 0, range);
 	toc(t, "BA");
 	return ;
 }

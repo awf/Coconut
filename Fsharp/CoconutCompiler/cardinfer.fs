@@ -80,9 +80,6 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
       ce0
     else
       MakeCall <@ nestedShape @> [Expr.Application(ce1, ZERO_CARD); ce0] [CT t]
-  | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
-    // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
-    C z
   | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], [f; z; st; en]) ->
     // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
     C z

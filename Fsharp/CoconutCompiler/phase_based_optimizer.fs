@@ -38,7 +38,8 @@ let fusion_optimize (exp: Expr): Expr =
     // |> trans [ruleengine.compilePatternToRule <@ rules.letBuild @>]
     // |> trans [ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>]
     |> trans [ruleengine.compilePatternToRule <@ rules.letBuild @>; 
-              ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>]
+              //ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>
+              ]
     |> trans [rules.lambdaAppToLet] 
     |> trans [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd @>;
                  ruleengine.compilePatternToRule <@ rules.constFoldCardSub @>] 
@@ -70,7 +71,8 @@ let fusion_phases =
     [rules_old.letCommutingConversion_old; rules_old.letNormalization_old];
     [rules_old.dce_old];
     [ruleengine.compilePatternToRule <@ rules.letBuild @>; 
-     ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>];
+     //ruleengine.compilePatternToRule <@ rules.vectorFoldBuildToFoldOnRange @>
+     ];
     [rules.lambdaAppToLet];
     [ruleengine.compilePatternToRule <@ rules.constFoldCardAdd @>;
      ruleengine.compilePatternToRule <@ rules.constFoldCardSub @>]; 

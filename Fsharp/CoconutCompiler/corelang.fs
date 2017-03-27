@@ -33,10 +33,6 @@ let length<'a> (v: array<'a>): Cardinality =
 (** Fold methods **)
 
 [<CMacro()>]
-let fold<'a, 'b> (f: 'b -> 'a -> 'b) (z: 'b) (range: array<'a>): 'b = 
-  Array.fold (fun acc cur -> f acc cur) z range
-
-[<CMacro()>]
 let foldOnRange<'a> (f: 'a -> Index -> 'a) (z: 'a) (s: Cardinality) (e: Cardinality): 'a = 
   let mutable res = z
   for i = (cardToInt s) to ((cardToInt e) - 1) do res <- f res i
@@ -108,12 +104,6 @@ let build_s<'a, 's> (storage: Storage)
   match storage with
   //| VS v -> vectorBuild size (fun i -> f storage i (Card 0))
   | _    -> failwithf "Cannot build a vector by the provided storage `%A`" storage
-
-[<CMacro()>]
-let fold_s<'a, 'b, 'ac, 'nac, 'bc> (storage: Storage) 
-  (f: Storage -> 'b -> 'a -> 'bc -> 'ac -> 'b) (z: 'b) (range: array<'a>)
-  (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: 'nac): 'b = 
-  failwith "fold_s is not implemented"
 
 [<CMacro()>]
 let foldOnRange_dps<'a, 'ac> (storage: Storage) 

@@ -30,11 +30,6 @@ let indexToDoubleToInt = <@ int (double %k)               <==>   %k             
 let vectorBuildGet     = <@ (build<Number> %c1 %F).[%i]   <==>   (%F) %i             @>
 let vectorBuildLength  = <@ (build<Number> %c2 %F).Length <==>   %k                  @>
 let dce                = <@ ( let x = %E1 in %E2: T1 )    <==>   %E2                 @>
-let vectorFoldBuildToFoldOnRange = 
-                             <@ fold<Number, Number> %F %a (build<Number> %c1 %G)
-                                                           <==>
-                                corelang.foldOnRange<Number> (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
-                                                                                      @>
 
 let vectorBuildToStorage = 
                              <@ build<Number> (%c1) (%F)      

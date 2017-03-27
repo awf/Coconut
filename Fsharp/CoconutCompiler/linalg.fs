@@ -47,11 +47,15 @@ let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix =
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
   build (length arr) (fun i -> f arr.[i])
 
+let vectorFoldNumber(f: Number -> Number -> Number) (z: Number) (range: Vector): Number = 
+  let l = length range
+  foldOnRange (fun acc idx -> f acc (range.[idx])) z (Card 0) l
+
 let vectorSum (v: Vector): Number = 
-  fold (fun acc cur -> acc + cur) 0.0 v
+  vectorFoldNumber (fun acc cur -> acc + cur) 0.0 v
 
 let vectorMax (v: Vector): Number = 
-  fold (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) v
+  vectorFoldNumber (fun acc cur -> if(acc > cur) then acc else cur) (-1000.) v
 
 let mult_by_scalar (x: Vector) (y: Number): Vector =
     vectorMap (fun xi -> xi * y) x

@@ -284,27 +284,6 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
              bodyCode
              stCode stCode stOffset
              , bodyClosures, true)
-        | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], _) ->
-          let (Patterns.Lambda(acc, Patterns.Lambda(cur, body))) = elist.[0]
-          let elementType = ccodegenType ta
-          let curCode = cur.Name
-          let idxCode = sprintf "%s_idx" curCode
-          let resultType = ccodegenType (var.Type)
-          let resultName = var.Name
-          let initCode = 
-            if tb = typeof<unit> then
-              ""
-            else
-              sprintf "%s %s = %s;" resultType resultName (ccodegen (elist.[1]))
-          let rangeCode = ccodegen (elist.[2])
-          let lengthCode = sprintf "%s->length" rangeCode
-          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = acc then Some(Expr.Var(var)) else None)) None
-          (sprintf "%s\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
-             initCode 
-             idxCode idxCode lengthCode idxCode
-             elementType curCode rangeCode idxCode
-             bodyCode
-             , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], _) ->
           let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[0]
           let idxCode = idx.Name
@@ -317,43 +296,6 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
              resultType resultName initCode 
              idxCode startCode idxCode endCode idxCode
-             bodyCode
-             , bodyClosures, true)
-        | DerivedPatterns.SpecificCall <@ corelang.fold_s @> (_, [ta; tb; tac; tanc; tbc], _) ->
-          // TODO not memory safe yet
-          let storage = ccodegen (elist.[0])
-          let (LambdaN([st;acc;cur; acc_c; cur_c], body)) = elist.[1]
-          let elementType = ccodegenType ta
-          let curCode = cur.Name
-          let idxCode = sprintf "%s_idx" curCode
-          let rangeVarCode = sprintf "%s_range" curCode
-          let rangeType = ccodegenType (elist.[3].Type)
-          let resultType = ccodegenType (var.Type)
-          let resultName = var.Name
-          let initCode = 
-            if tb = typeof<unit> then
-              ""
-            else
-              sprintf "%s %s = %s;" resultType resultName (ccodegen (elist.[2]))
-          let rangeCode = ccodegen (elist.[3])
-          let lengthCode = sprintf "%s->length" rangeVarCode
-          let stCode = st.Name
-          let stType = ccodegenType st.Type
-          let (bodyCode, bodyClosures) = 
-            ccodegenStatements "\t\t" (body.Substitute(fun v -> 
-              if v = acc then 
-                Some(Expr.Var(var)) 
-              elif v = acc_c then
-                Some(elist.[5])
-              else 
-                None
-            )) None
-          (sprintf "%s\n\t%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = 0; %s < %s; %s++){\n\t\t%s %s = %s->arr[%s];\n\t\t%s\n\t}"
-             initCode 
-             rangeType rangeVarCode rangeCode
-             stType stCode storage
-             idxCode idxCode lengthCode idxCode
-             elementType curCode rangeVarCode idxCode
              bodyCode
              , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.foldOnRange_dps @> (_, [ta; tac], _) ->

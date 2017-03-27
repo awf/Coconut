@@ -5,90 +5,90 @@
 #include <math.h>
 
 array_array_number_t TOP_LEVEL_ccodegentests_closure_bug1(array_array_number_t m1, array_array_number_t m2) {
-	array_array_number_t macroDef298 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef298->length=10;
-	macroDef298->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 10);
-		for(int i = 0; i < macroDef298->length; i++){
-			array_number_t macroDef297 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef297->length=20;
-	macroDef297->arr = (number_t*)storage_alloc(sizeof(number_t) * 20);
-		for(int j = 0; j < macroDef297->length; j++){
+	array_array_number_t macroDef313 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef313->length=10;
+	macroDef313->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 10);
+		for(int i = 0; i < macroDef313->length; i++){
+			array_number_t macroDef312 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef312->length=20;
+	macroDef312->arr = (number_t*)storage_alloc(sizeof(number_t) * 20);
+		for(int j = 0; j < macroDef312->length; j++){
 			
-			macroDef297->arr[j] = (double)(j);;
+			macroDef312->arr[j] = (double)(j);;
 		}
-			macroDef298->arr[i] = macroDef297;;
+			macroDef313->arr[i] = macroDef312;;
 		}
-	return macroDef298;
+	return macroDef313;
 }
 
 array_array_number_t TOP_LEVEL_ccodegentests_closure_bug2(array_array_number_t m1, array_array_number_t m2) {
-	array_array_number_t macroDef300 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef300->length=10;
-	macroDef300->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 10);
-		for(int i = 0; i < macroDef300->length; i++){
-			array_number_t macroDef299 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef299->length=20;
-	macroDef299->arr = (number_t*)storage_alloc(sizeof(number_t) * 20);
-		for(int j = 0; j < macroDef299->length; j++){
+	array_array_number_t macroDef315 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef315->length=10;
+	macroDef315->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 10);
+		for(int i = 0; i < macroDef315->length; i++){
+			array_number_t macroDef314 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef314->length=20;
+	macroDef314->arr = (number_t*)storage_alloc(sizeof(number_t) * 20);
+		for(int j = 0; j < macroDef314->length; j++){
 			
-			macroDef299->arr[j] = (double)((i) + (j));;
+			macroDef314->arr[j] = (double)((i) + (j));;
 		}
-			macroDef300->arr[i] = macroDef299;;
+			macroDef315->arr[i] = macroDef314;;
 		}
-	return macroDef300;
+	return macroDef315;
 }
 
 array_array_number_t TOP_LEVEL_ccodegentests_closure_bug3(array_array_number_t m1, array_array_number_t m2) {
 	number_t n = 3;
-	array_array_number_t macroDef302 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef302->length=10;
-	macroDef302->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 10);
-		for(int i = 0; i < macroDef302->length; i++){
-			array_number_t macroDef301 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef301->length=20;
-	macroDef301->arr = (number_t*)storage_alloc(sizeof(number_t) * 20);
-		for(int j = 0; j < macroDef301->length; j++){
+	array_array_number_t macroDef317 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef317->length=10;
+	macroDef317->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * 10);
+		for(int i = 0; i < macroDef317->length; i++){
+			array_number_t macroDef316 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef316->length=20;
+	macroDef316->arr = (number_t*)storage_alloc(sizeof(number_t) * 20);
+		for(int j = 0; j < macroDef316->length; j++){
 			
-			macroDef301->arr[j] = ((double)((i) + (j))) * (n);;
+			macroDef316->arr[j] = ((double)((i) + (j))) * (n);;
 		}
-			macroDef302->arr[i] = macroDef301;;
+			macroDef317->arr[i] = macroDef316;;
 		}
-	return macroDef302;
+	return macroDef317;
 }
 
 void TOP_LEVEL_ccodegentests_valloc_cps_feature1(array_number_t dum) {
-	card_t size306 = 10;
-	array_number_t s = storage_alloc(size306);
+	card_t size321 = 10;
+	array_number_t s = storage_alloc(size321);
 	array_print(dum);
 	array_print(dum);
-	storage_free(s, size306);
+	storage_free(s, size321);
 	;
 	return ;
 }
 
 void TOP_LEVEL_ccodegentests_valloc_cps_feature2(array_number_t dum) {
-	card_t size312 = 10;
-	array_number_t s = storage_alloc(size312);
-	card_t size311 = 10;
-	array_number_t s2 = storage_alloc(size311);
+	card_t size327 = 10;
+	array_number_t s = storage_alloc(size327);
+	card_t size326 = 10;
+	array_number_t s2 = storage_alloc(size326);
 	array_print(dum);
 	array_print(dum);
-	storage_free(s2, size311);
+	storage_free(s2, size326);
 	;
-	storage_free(s, size312);
+	storage_free(s, size327);
 	;
 	return ;
 }
 
 number_t TOP_LEVEL_ccodegentests_numSum(number_t n) {
-	number_t ite313 = 0;
+	number_t ite328 = 0;
 	if((n) == (0)) {
 		
-		ite313 = 0;;
+		ite328 = 0;;
 	} else {
 		
-		ite313 = (TOP_LEVEL_ccodegentests_numSum((n) - (1))) + (n);;
+		ite328 = (TOP_LEVEL_ccodegentests_numSum((n) - (1))) + (n);;
 	}
-	return ite313;
+	return ite328;
 }
 #endif

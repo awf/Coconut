@@ -16,7 +16,7 @@ let benchmark_test_algorithms program =
         rules.betaReduction;
         comp <@ rules.vectorBuildLength @>;
         comp <@ rules.vectorBuildGet @>;
-        comp <@ rules.vectorFoldBuildToFoldOnRange @>;
+        // <@ rules.vectorFoldBuildToFoldOnRange @>;
         comp <@ rules.letCommutingConversion @>;
         comp <@ rules.letInliner @>;
       ]
