@@ -138,7 +138,7 @@ let heuristicOptimizer (threshold: int) (rs: (Rule * RuleFeature) list) (initPro
 let rec inliner (exp: Expr): Expr = 
   match exp with 
   | ExistingCompiledMethod (methodName, moduleName, argList) ->
-    let methodInfo = assembly.GetType(moduleName).GetMethod(methodName)
+    let methodInfo = currentAssembly.GetType(moduleName).GetMethod(methodName)
     let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
     let isInlined = Seq.isEmpty (methodInfo.GetCustomAttributes(typeof<DontInline>, true))
     let attrs = (methodInfo.GetMethodImplementationFlags())

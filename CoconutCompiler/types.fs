@@ -20,6 +20,8 @@ type VectorShape   = Cardinality
 type MatrixShape   = NestedShape<VectorShape>
 type Matrix3DShape = NestedShape<MatrixShape>
 
+type Timer = System.Diagnostics.Stopwatch
+
 type AnyNumeric = 
   | ZeroD of Number
   | OneD of Vector
@@ -34,8 +36,6 @@ and
     lambda: Environment -> ('a -> 'b);
     env: Environment
   }
-
-type Timer = System.Diagnostics.Stopwatch
 
 type CMirror(Method : string) =
     inherit System.Attribute()
@@ -55,11 +55,3 @@ type CMacro() =
 type CMonomorphicMacro() =
     inherit CMacro()
     override this.ShouldLetBind () = false
-
-let isScalarType (t: System.Type): bool =
-  t = typeof<Index> || 
-  t = typeof<bool> || 
-  t = typeof<Number> || 
-  t = typeof<string> ||
-  t = typeof<unit> ||
-  t = typeof<Timer>

@@ -6,6 +6,16 @@ open System
 
 let assembly = System.Reflection.Assembly.GetExecutingAssembly()
 
+let mutable currentAssembly = System.Reflection.Assembly.GetExecutingAssembly()
+
+let isScalarType (t: System.Type): bool =
+  t = typeof<Index> || 
+  t = typeof<bool> || 
+  t = typeof<Number> || 
+  t = typeof<string> ||
+  t = typeof<unit> ||
+  t = typeof<Timer>
+
 let (|OperatorName|_|) methodName =
   match methodName with
     | "op_Addition" -> Some("+")
@@ -131,7 +141,7 @@ let (|ReflectedMethodCall|_|) (e: Expr): (string * string * Expr * Expr list) Op
     try 
       let moduleName = op.DeclaringType.Name
       let methodName = op.Name
-      let moduleInfo = assembly.GetType(moduleName)
+      let moduleInfo = currentAssembly.GetType(moduleName)
       let methodInfo = moduleInfo.GetMethod(methodName)
       let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
       reflDefnOpt |> Option.map (fun lam -> methodName, moduleName, lam, args)
@@ -153,7 +163,7 @@ let (|ExistingCompiledMethodWithLambda|_|) (e: Expr): (string * string * Expr Li
   match e with
   | ExistingCompiledMethod(methodName, moduleName, args) -> 
     // TODO rewrite using ReflectedMethodCall
-    let moduleInfo = assembly.GetType(moduleName)
+    let moduleInfo = currentAssembly.GetType(moduleName)
     let methodInfo = moduleInfo.GetMethod(methodName)
     let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
     let attrs = (methodInfo.GetMethodImplementationFlags())

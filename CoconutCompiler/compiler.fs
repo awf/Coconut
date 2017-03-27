@@ -7,7 +7,7 @@ open ctransformer
 open optimizer
 
 let getMethodExpr (moduleName: string) (methodName: string): Expr = 
-  let methodInfo = assembly.GetType(moduleName).GetMethod(methodName)
+  let methodInfo = currentAssembly.GetType(moduleName).GetMethod(methodName)
   let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
   match reflDefnOpt with
    | None -> failwith (sprintf "%s failed. It seems you forgot to use [<ReflectedDefinition>]." methodName)
@@ -19,7 +19,7 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
      let e = getMethodExpr moduleName methodName
      let optimized = 
        if(opt) then 
-         let optimized = Seq.isEmpty (assembly.GetType(moduleName).GetMethod(methodName).GetCustomAttributes(typeof<types.DontOptimize>, true))
+         let optimized = Seq.isEmpty (currentAssembly.GetType(moduleName).GetMethod(methodName).GetCustomAttributes(typeof<types.DontOptimize>, true))
          if(optimized) then
            printf "O"
            optimize e 
@@ -72,7 +72,7 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
 #include <math.h>""" moduleMacroName moduleMacroName
   let footer = "#endif"
   System.IO.File.WriteAllLines 
-    ("../../Coconut/C/Outputs/" + fileName, 
+    ("../../../C/Outputs/" + fileName, 
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 
@@ -80,10 +80,27 @@ let compileModule (moduleName: string) (dependentModules: string List) (opt: boo
   let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
                   (List.filter (fun (x: System.Reflection.MethodInfo) -> 
                     x.DeclaringType.Name = moduleName) 
-                    (List.ofArray (assembly.GetType(moduleName).GetMethods())))
+                    (List.ofArray (currentAssembly.GetType(moduleName).GetMethods())))
   let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
   let moduleNameWithPostfix = nameWithPostfix moduleName
   printf "Compiling %s.fs [%d methods] to %s.h\n" moduleName (methods.Length) moduleNameWithPostfix 
   let generatedMethods = compileSeveral moduleName methods opt storaged
   let depModulesString = dependentModules |> List.map nameWithPostfix
   writeToHeaderFile moduleNameWithPostfix depModulesString generatedMethods
+
+open FSharp.Compiler.CodeDom
+open System.CodeDom.Compiler
+
+let compileModuleFromSource (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
+    let provider = new FSharpCodeProvider()
+    let compiler = provider.CreateCompiler()
+    let parameters = new CompilerParameters(GenerateExecutable = false, OutputAssembly = "tmp.dll")
+    utils.tic()
+    let fsmoothRuntimeAssembly = System.Reflection.Assembly.GetEntryAssembly().Location;
+    let timerAssembly = System.Reflection.Assembly.GetAssembly(typeof<types.Timer>).Location;
+    parameters.ReferencedAssemblies.Add(fsmoothRuntimeAssembly)
+    parameters.ReferencedAssemblies.Add(timerAssembly)
+    let fileNames = (moduleName :: dependentModules) |> List.map (fun s -> sprintf "../../%s.fs" s) |> List.rev
+    let results = compiler.CompileAssemblyFromFileBatch(parameters, fileNames |> List.toArray)
+    currentAssembly = results.CompiledAssembly
+    compileModule moduleName dependentModules opt storaged

@@ -108,9 +108,11 @@ let main argv =
     //usecases_ht.test_ht ()
     //test_ba argv
     Qtimesv_test ()
+    compiler.compileModuleFromSource "linalg" [] false false
+    compiler.compileModuleFromSource "usecases_ba" ["linalg"] false false
     // compile_modules ()
     // phase_based_optimizer.test_phase_based_optimizer ()
-    compile_modules_storaged ()
+    // compile_modules_storaged ()
     // usecases.test1 [||]
     // guided_optimizer.test_guided_optimizer()
     // benchmark_search ()
