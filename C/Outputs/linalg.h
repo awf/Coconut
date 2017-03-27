@@ -1,6 +1,6 @@
 #ifndef __LINALG_H__ 
 #define __LINALG_H__ 
-#include "runtime/fsharp.h"
+#include "../runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
 

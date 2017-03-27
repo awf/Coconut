@@ -67,12 +67,12 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
   let fileName = sprintf "%s.h" headerName
   let header = sprintf """#ifndef %s 
 #define %s 
-#include "runtime/fsharp.h"
+#include "../runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>""" moduleMacroName moduleMacroName
   let footer = "#endif"
   System.IO.File.WriteAllLines 
-    ("../../C/" + fileName, 
+    ("../../Coconut/C/Outputs/" + fileName, 
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 

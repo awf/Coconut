@@ -1,6 +1,6 @@
 #ifndef __LINALGTESTS_STORAGED_H__ 
 #define __LINALGTESTS_STORAGED_H__ 
-#include "runtime/fsharp.h"
+#include "../runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
 #include "linalg_storaged.h"
