@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -58,6 +57,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="linalg.fs" />
     <Compile Include="cruntime.fs" />
     <Compile Include="transformer.fs" />
     <Compile Include="ctransformer.fs" />
@@ -75,6 +75,30 @@
     <Compile Include="benchmark.fs" />
     <Compile Include="guided_optimizer.fs" />
     <Compile Include="phase_based_optimizer.fs" />
+    <Compile Include="..\Examples\FSmoothUsecases\ccodegentests.fs">
+      <Link>FSmoothUsecases\ccodegentests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\linalgtests.fs">
+      <Link>FSmoothUsecases\linalgtests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\programs.fs">
+      <Link>FSmoothUsecases\programs.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\simple_tests.fs">
+      <Link>FSmoothUsecases\simple_tests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_ba.fs">
+      <Link>FSmoothUsecases\usecases_ba.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_gmm.fs">
+      <Link>FSmoothUsecases\usecases_gmm.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_ht.fs">
+      <Link>FSmoothUsecases\usecases_ht.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_lm.fs">
+      <Link>FSmoothUsecases\usecases_lm.fs</Link>
+    </Compile>
     <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>

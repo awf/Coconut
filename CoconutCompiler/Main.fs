@@ -110,10 +110,10 @@ let main argv =
     //test_ba argv
     //Qtimesv_test ()
     //compiler.compileModuleFromSource "linalg" [] false false
-    compiler.compileModuleFromSource "simple_tests" [] "Examples/FSmoothUsecases" false false
+    //compiler.compileModuleFromSource "simple_tests" [] "Examples/FSmoothUsecases" false false
     //compiler.compileModuleFromSource "linalg" [] "FSmoothRuntime" false false
     //compiler.compileModuleFromSource "usecases_ba" ["linalg"] "Examples/FSmoothUsecases" false false
-    // compile_modules ()
+    compile_modules ()
     // phase_based_optimizer.test_phase_based_optimizer ()
     // compile_modules_storaged ()
     // usecases.test1 [||]
