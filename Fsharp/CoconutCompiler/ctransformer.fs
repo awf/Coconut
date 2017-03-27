@@ -70,25 +70,16 @@ let letLifting (e: Expr): Expr =
   *)
   LambdaN(inputs, LetN(ll, te))
 
-// FIXME is not needed
-let isIterateMethod (op: System.Reflection.MethodInfo) = 
-  op.Name = "TOP_LEVEL_linalg_iterateNumber_dps"
-
 let isMonomorphicMacro (op: System.Reflection.MethodInfo) = 
-  (not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMonomorphicMacro>, true)))) ||
-    isIterateMethod op
+  (not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMonomorphicMacro>, true))))
 
 let isMacro (op: System.Reflection.MethodInfo) = 
-  (not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true)))) ||
-    isIterateMethod op
+  (not(Seq.isEmpty (op.GetCustomAttributes(typeof<CMacro>, true))))
 
 let isLetBoundMacro (op: System.Reflection.MethodInfo) =
   if isMacro op then 
-    if isIterateMethod op then
-      true
-    else
-      let cMacro = op.GetCustomAttributes(typeof<CMacro>, true).[0] :?> CMacro
-      cMacro.ShouldLetBind()
+    let cMacro = op.GetCustomAttributes(typeof<CMacro>, true).[0] :?> CMacro
+    cMacro.ShouldLetBind()
   else
     false
   
@@ -149,22 +140,16 @@ let closureConversion (e: Expr): Expr =
     | Patterns.NewArray(tp, elems) -> 
       Expr.NewArray(tp, List.map (lambdaLift ctx) elems)
     | Patterns.Call (None, op, elist) -> 
-      match exp with
-      //| _ ->
-        // TODO foldOnRange_dps
-      | _ ->
-        //let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
-        //let isCMacro = cMacro |> Option.isSome
-        let isCMacro = isMacro op
-        let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
-        let callExpr = Expr.Call(op, telist)
-        //let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
-        let shouldLetBind = isLetBoundMacro op
-        if shouldLetBind then
-          let macroVar = new Var(newVar "macroDef", exp.Type)
-          Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
-        else
-          callExpr
+      let isCMacro = isMacro op
+      let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
+      let callExpr = Expr.Call(op, telist)
+      //let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
+      let shouldLetBind = isLetBoundMacro op
+      if shouldLetBind then
+        let macroVar = new Var(newVar "macroDef", exp.Type)
+        Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
+      else
+        callExpr
     | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map rcr elist)
     | Patterns.Var (x) -> Expr.Var(x)
     | ExprShape.ShapeCombination(o, exprs) ->

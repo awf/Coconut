@@ -101,6 +101,7 @@ array_number_t TOP_LEVEL_usecases_gmm_Qtimesv_dps(storage_t stgVar1205, array_nu
 			card_t anfvar1212_shp = 0;
 			card_t anfvar1212_dps = 0;
 			number_t macroDef1225 = 0;
+	storage_t stgVar1216 = empty_storage;
 	for(int idx_dps = anfvar1212_dps; idx_dps <= anfvar1211_dps; idx_dps++){
 		card_t j_shp = 0;
 		index_t j_dps = (idx_dps) - (tis_dps);

@@ -848,6 +848,7 @@ array_array_array_number_t TOP_LEVEL_usecases_ht_relatives_to_absolutes_dps(stor
 	card_t anfvar2047_shp = 0;
 	card_t anfvar2047_dps = 0;
 	array_array_array_number_t macroDef2078 = init_dps;
+	storage_t stgVar2051 = stgVar2044;
 	for(int i_dps = anfvar2047_dps; i_dps <= anfvar2046_dps; i_dps++){
 		array_array_array_number_t ite2079 = 0;
 	if((parents_dps->arr[i_dps]) == (-1)) {
@@ -861,11 +862,11 @@ array_array_array_number_t TOP_LEVEL_usecases_ht_relatives_to_absolutes_dps(stor
 
 	macroDef2072->arr[0] = relatives_dps->arr[i_dps];;stgVar2053_offsetVar += VECTOR_ALL_BYTES(macroDef2072->arr[0]->length);;
 	array_array_array_number_t newMatrix_dps = macroDef2072;
-	macroDef2073 = TOP_LEVEL_usecases_ht_matrix3DUpdate_dps(stgVar2051, macroDef2078, i_dps, (i_dps) + (1), newMatrix_dps, acc_shp, 0, 0, newMatrix_shp);;
+	macroDef2073 = TOP_LEVEL_usecases_ht_matrix3DUpdate_dps(stgVar2051, macroDef2078, i_dps, (i_dps) + (1), newMatrix_dps, init_shp, 0, 0, newMatrix_shp);;
 	storage_free(stgVar2053, size2080);
 		ite2079 = macroDef2073;;
 	} else {
-		matrix3d_shape_t newMatrix_shp = nested_shape_matrix_shape_t(TOP_LEVEL_linalg_matrixMult_shp(acc_shp.elem, relatives_shp.elem), 1);
+		matrix3d_shape_t newMatrix_shp = nested_shape_matrix_shape_t(TOP_LEVEL_linalg_matrixMult_shp(init_shp.elem, relatives_shp.elem), 1);
 		card_t size2083 = width_matrix3d_shape_t(newMatrix_shp);
 	array_number_t stgVar2060 = storage_alloc(size2083);
 	array_array_array_number_t macroDef2077;array_array_array_number_t macroDef2076 = (array_array_array_number_t)stgVar2060;
@@ -873,17 +874,17 @@ array_array_array_number_t TOP_LEVEL_usecases_ht_relatives_to_absolutes_dps(stor
 	macroDef2076->arr=(array_array_number_t*)(STG_OFFSET(stgVar2060, VECTOR_HEADER_BYTES));
 	int stgVar2060_offsetVar = 0;storage_t stgVar2061 = STG_OFFSET(stgVar2060, MATRIX_HEADER_BYTES(1) + stgVar2060_offsetVar);card_t size2082 = width_matrix_shape_t(relatives_shp.elem);
 	array_number_t stgVar2063 = storage_alloc(size2082);
-	array_array_number_t macroDef2075;card_t size2081 = width_matrix_shape_t(acc_shp.elem);
+	array_array_number_t macroDef2075;card_t size2081 = width_matrix_shape_t(init_shp.elem);
 	array_number_t stgVar2062 = storage_alloc(size2081);
 	array_array_number_t macroDef2074;
-	macroDef2074 = TOP_LEVEL_linalg_matrixMult_dps(stgVar2061, macroDef2078->arr[(int)(parents_dps->arr[i_dps])], relatives_dps->arr[i_dps], acc_shp.elem, relatives_shp.elem);;
+	macroDef2074 = TOP_LEVEL_linalg_matrixMult_dps(stgVar2061, macroDef2078->arr[(int)(parents_dps->arr[i_dps])], relatives_dps->arr[i_dps], init_shp.elem, relatives_shp.elem);;
 	storage_free(stgVar2062, size2081);
 	macroDef2075 = macroDef2074;;
 	storage_free(stgVar2063, size2082);
 
 	macroDef2076->arr[0] = macroDef2075;;stgVar2060_offsetVar += VECTOR_ALL_BYTES(macroDef2076->arr[0]->length);;
 	array_array_array_number_t newMatrix_dps = macroDef2076;
-	macroDef2077 = TOP_LEVEL_usecases_ht_matrix3DUpdate_dps(stgVar2051, macroDef2078, i_dps, (i_dps) + (1), newMatrix_dps, acc_shp, 0, 0, newMatrix_shp);;
+	macroDef2077 = TOP_LEVEL_usecases_ht_matrix3DUpdate_dps(stgVar2051, macroDef2078, i_dps, (i_dps) + (1), newMatrix_dps, init_shp, 0, 0, newMatrix_shp);;
 	storage_free(stgVar2060, size2083);
 		ite2079 = macroDef2077;;
 	}
@@ -1148,6 +1149,7 @@ array_array_number_t TOP_LEVEL_usecases_ht_get_skinned_vertex_positions_dps(stor
 	card_t anfvar2234_shp = 0;
 	card_t anfvar2234_dps = 0;
 	array_array_number_t macroDef2346 = init_positions_dps;
+	storage_t stgVar2238 = stgVar2232;
 	for(int i_transform_dps = anfvar2234_dps; i_transform_dps <= anfvar2233_dps; i_transform_dps++){
 		matrix_shape_t curr_positions_shp = TOP_LEVEL_linalg_matrixMult_shp(TOP_LEVEL_linalg_matrixSlice_shp(3, 0, transforms_shp.elem), base_positions_shp);
 		card_t size2367 = width_matrix_shape_t(curr_positions_shp);
@@ -1174,7 +1176,7 @@ array_array_number_t TOP_LEVEL_usecases_ht_get_skinned_vertex_positions_dps(stor
 	card_t size2365 = width_matrix_shape_t(TOP_LEVEL_linalg_matrixMultElementwise_shp(curr_positions_shp, w_shp));
 	array_number_t stgVar2252 = storage_alloc(size2365);
 	array_array_number_t macroDef2343;
-	macroDef2343 = TOP_LEVEL_linalg_matrixAdd_dps(stgVar2238, macroDef2346, TOP_LEVEL_linalg_matrixMultElementwise_dps(stgVar2252, curr_positions_dps, w_dps, curr_positions_shp, w_shp), acc_shp, TOP_LEVEL_linalg_matrixMultElementwise_shp(curr_positions_shp, w_shp));;
+	macroDef2343 = TOP_LEVEL_linalg_matrixAdd_dps(stgVar2238, macroDef2346, TOP_LEVEL_linalg_matrixMultElementwise_dps(stgVar2252, curr_positions_dps, w_dps, curr_positions_shp, w_shp), init_positions_shp, TOP_LEVEL_linalg_matrixMultElementwise_shp(curr_positions_shp, w_shp));;
 	storage_free(stgVar2252, size2365);
 	macroDef2344 = macroDef2343;;
 	storage_free(stgVar2246, size2366);

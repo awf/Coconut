@@ -357,19 +357,26 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
              bodyCode
              , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.foldOnRange_dps @> (_, [ta; tac], _) ->
-              //let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[1]
+              // TODO not memory safe yet
+              let storage = ccodegen (elist.[0])
               let (LambdaN(inputs, body)) = elist.[1]
+              let st = inputs.[0]
               let num = inputs.[1]
               let idx = inputs.[2]
+              let numShp = inputs.[3]
               let idxCode = idx.Name
               let resultType = ccodegenType (var.Type)
               let resultName = var.Name
               let initCode = ccodegen (elist.[2])
               let startCode = ccodegen (elist.[3])
               let endCode = ccodegen (elist.[4])
-              let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
-              (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+              let stCode = st.Name
+              let stType = ccodegenType st.Type
+              let (bodyCode, bodyClosures) = 
+                ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else if v = numShp then Some(elist.[6]) else  None)) None
+              (sprintf "%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
                  resultType resultName initCode 
+                 stType stCode storage
                  idxCode startCode idxCode endCode idxCode
                  bodyCode
                  , bodyClosures, true)
