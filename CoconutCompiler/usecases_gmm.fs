@@ -5,8 +5,6 @@ module usecases_gmm
  * GMM Use Case from https://github.com/awf/autodiff/blob/master/Documents/AD%202016%20extended.pdf
  *)
 
-open MathNet.Numerics
-
 open corelang
 open linalg
 open types
