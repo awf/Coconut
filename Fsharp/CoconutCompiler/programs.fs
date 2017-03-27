@@ -25,7 +25,7 @@ let array_slice_s (storage: Storage) (v: Vector) i j = vectorBuildGivenStorage s
 [<DontOptimize>]
 let hoistingExample (v: Vector) = 
   let sum = 
-    iterateNumber (fun acc idx ->
+    foldOnRange (fun acc idx ->
         let tmp = v.[idx..(idx+9)]  // First, let's desugar this to GetArraySlice/array_slice as F# does...
         acc + sqnorm (vectorAdd tmp tmp)
     ) 0. (Card 0) (Card 9)
@@ -80,7 +80,7 @@ let hoistingExample_pass3 (v: Vector) =
 let explicitMallocExample1(v: Vector) = 
   alloc (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
     let sum = 
-      iterateNumber (fun acc idx ->
+      foldOnRange (fun acc idx ->
           let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
           acc + sqnorm (vectorAdd tmp tmp)
         ) 0. (Card 0) (Card 9)
@@ -103,7 +103,7 @@ let explicitMallocExample2 (v: Vector) =
   alloc (width (nestedShape (Card 0) (Card 10))) (fun storage1 ->
     alloc (width (nestedShape (Card 0) (Card 10))) (fun storage2 -> 
       let sum = 
-        iterateNumber (fun acc idx ->
+        foldOnRange (fun acc idx ->
             let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
             let tmp2 = add_vecGivenStorage storage2 tmp tmp
             acc + sqnorm tmp2

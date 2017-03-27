@@ -47,24 +47,6 @@ let vectorMapToMatrix (f: Number -> Vector) (arr: Vector): Matrix =
 let vectorMapToMatrix3D (f: Number -> Matrix) (arr: Vector): Matrix[] = 
   build (length arr) (fun i -> f arr.[i])
 
-(*
-let iterate (f: Number -> Index -> Number) (z: Number) (s: Index) (e: Index): unit = 
-  ignore (vectorFoldNumber (fun acc cur -> f acc (int cur)) z (vectorRange s e))
-*)
-
-[<CMacro()>]
-let iterateNumber (f: Number -> Index -> Number) (z: Number) (s: Cardinality) (e: Cardinality): Number = 
-  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
-
-let iterateVector (f: Vector -> Index -> Vector) (z: Vector) (s: Cardinality) (e: Cardinality): Vector = 
-  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
-
-let iterateMatrix (f: Matrix -> Index -> Matrix) (z: Matrix) (s: Cardinality) (e: Cardinality): Matrix = 
-  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
-
-let iterateMatrix3D (f: Matrix[] -> Index -> Matrix[]) (z: Matrix[]) (s: Cardinality) (e: Cardinality): Matrix[] = 
-  fold (fun acc cur -> f acc (int cur)) z (vectorRange s e)
-
 let vectorSum (v: Vector): Number = 
   fold (fun acc cur -> acc + cur) 0.0 v
 

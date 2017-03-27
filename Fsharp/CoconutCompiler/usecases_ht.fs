@@ -120,7 +120,7 @@ let relatives_to_absolutes (relatives: Matrix[]) (parents: Vector): Matrix[] =
   //     matrix3DConcat acc newMatrix
   // ) (init) (Card 0) ((length relatives) .- (Card 1))
   let init = relatives
-  iterateMatrix3D (fun acc i ->
+  foldOnRange (fun acc i ->
     if parents.[i] = -1.0 then 
       (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
       let newMatrix = [| relatives.[i] |]
@@ -152,7 +152,7 @@ let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Cardinality) (po
   let init_positions = matrixFill (Card 3) n_verts 0.
 
   let positions = 
-    iterateMatrix (fun acc i_transform ->
+    foldOnRange (fun acc i_transform ->
       let curr_positions = matrixMult transforms.[i_transform].[0..2] base_positions
       let w = matrixFillFromVector (length base_positions) weights.[i_transform]
       matrixAdd acc (matrixMultElementwise curr_positions w)

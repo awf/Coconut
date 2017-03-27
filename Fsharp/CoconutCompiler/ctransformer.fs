@@ -149,24 +149,24 @@ let closureConversion (e: Expr): Expr =
     | Patterns.NewArray(tp, elems) -> 
       Expr.NewArray(tp, List.map (lambdaLift ctx) elems)
     | Patterns.Call (None, op, elist) -> 
-      //let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
-      //let isCMacro = cMacro |> Option.isSome
-      let isCMacro = isMacro op
-      let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
-      let callExpr = Expr.Call(op, telist)
-      //let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
-      let shouldLetBind = isLetBoundMacro op
-      if shouldLetBind then
-        let macroVar = new Var(newVar "macroDef", exp.Type)
-        Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
-      else
-        callExpr
+      match exp with
+      //| _ ->
+        // TODO foldOnRange_dps
+      | _ ->
+        //let cMacro = op.GetCustomAttributes(typeof<CMacro>, true) |> Array.tryPick(fun t -> Some(t :?> CMacro))
+        //let isCMacro = cMacro |> Option.isSome
+        let isCMacro = isMacro op
+        let telist = List.map (lambdaLift {isMacro = isCMacro}) elist
+        let callExpr = Expr.Call(op, telist)
+        //let shouldLetBind = cMacro |> Option.exists(fun x -> x.ShouldLetBind())
+        let shouldLetBind = isLetBoundMacro op
+        if shouldLetBind then
+          let macroVar = new Var(newVar "macroDef", exp.Type)
+          Expr.Let(macroVar, callExpr, if(exp.Type = typeof<unit>) then Expr.Value(()) else Expr.Var(macroVar))
+        else
+          callExpr
     | Patterns.Call (Some x, op, elist) -> Expr.Call(x, op, List.map rcr elist)
     | Patterns.Var (x) -> Expr.Var(x)
-    | IterateNumberDPS(f, elist) ->
-        let macroVar = new Var(newVar "macroDef", exp.Type)
-        let telist = List.map (lambdaLift {isMacro = true}) elist
-        Expr.Let(macroVar, AppN(f, telist), Expr.Var(macroVar))
     | ExprShape.ShapeCombination(o, exprs) ->
         ExprShape.RebuildShapeCombination(o, List.map rcr exprs)
     | _ -> failwith (sprintf "%A not handled yet!" exp)

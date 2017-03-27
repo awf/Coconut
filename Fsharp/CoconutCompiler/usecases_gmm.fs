@@ -50,7 +50,7 @@ let Qtimesv (q : Vector) (l : Vector) (v : Vector) =
       // vectorSum (li .* vi) + exp(q.[i])*v.[i]
       let tis = tri (i - 1)
       let sum = 
-        iterateNumber (fun acc idx -> 
+        foldOnRange (fun acc idx -> 
           let j = idx - tis
           let isInRange = j >= 0 && j < i
           if (isInRange) then 

@@ -83,6 +83,9 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
   | DerivedPatterns.SpecificCall <@ corelang.fold @> (_, [ta; tb], [f; z; r]) ->
     // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
     C z
+  | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], [f; z; st; en]) ->
+    // TODO maybe needs some check to make sure that the program is sound w.r.t. cardinality
+    C z
   | ArrayLength(e0) ->
     let ce0 = C e0
     if ce0.Type = typeof<VectorShape> then

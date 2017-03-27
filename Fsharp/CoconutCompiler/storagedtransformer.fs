@@ -232,6 +232,28 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
           Expr.Let(evar, e, k(Expr.Var(evar)))
     let anfFold = anify z (fun zv -> anify r (fun rv -> MakeCall <@ corelang.fold @> [f; zv; rv] [ta; tb]))
     S anfFold outputStorage
+  | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], [f; z; st; en]) when isNormalForm z && isNormalForm st && isNormalForm en ->
+    let sf = S f O
+    let sz = S z O
+    let sst = S st O
+    let sen = S en O
+    let cf = C f
+    let cz = C z
+    let cst = C st
+    let cen = C en
+    let s1 = Expr.Var(outputStorage)
+    let tac = CT ta
+    MakeCall <@ corelang.foldOnRange_dps @> [s1; sf; sz; sst; sen; cf; cz; cst; cen] [ta; tac]
+  | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], [f; z; st; en]) ->
+    let anify (e: Expr) = 
+      if isNormalForm e then 
+        fun k -> k(e) 
+      else 
+        let evar = new Var(utils.newVar("anfvar"), e.Type)
+        fun k ->
+          Expr.Let(evar, e, k(Expr.Var(evar)))
+    let anfFold = anify z (fun zv -> anify en (fun env -> anify st (fun stv -> MakeCall <@ corelang.foldOnRange @> [f; zv; stv; env] [ta])))
+    S anfFold outputStorage
   | ArrayLength(e0) ->
     Alloc (WidthCard e0 cardEnv) (fun s ->
       ArrayLength(S e0 s)

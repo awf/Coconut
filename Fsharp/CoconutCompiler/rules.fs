@@ -33,7 +33,7 @@ let dce                = <@ ( let x = %E1 in %E2: T1 )    <==>   %E2            
 let vectorFoldBuildToFoldOnRange = 
                              <@ fold<Number, Number> %F %a (build<Number> %c1 %G)
                                                            <==>
-                                linalg.iterateNumber (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
+                                corelang.foldOnRange<Number> (fun acc idx -> (%F) acc ((%G) idx)) %a (Card 0) (%c1 .- (Card 1))
                                                                                       @>
 
 let vectorBuildToStorage = 
@@ -296,7 +296,7 @@ let foldInvariantCodeMotion: Rule =
   (fun (e: Expr) ->
     match e with
     // TODO generalize
-    | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; st; en]) ->
+    | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, _, [f; z; st; en]) ->
       match f with
       | LambdaN(inputs, body) ->
         match body with

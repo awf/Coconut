@@ -203,20 +203,6 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
     match e with
     | Patterns.Call (None, op, elist) -> 
       match op.Name with
-      | "iterateNumber" ->
-        let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[0]
-        let idxCode = idx.Name
-        let resultType = ccodegenType (var.Type)
-        let resultName = var.Name
-        let initCode = ccodegen (elist.[1])
-        let startCode = ccodegen (elist.[2])
-        let endCode = ccodegen (elist.[3])
-        let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
-        (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
-           resultType resultName initCode 
-           idxCode startCode idxCode endCode idxCode
-           bodyCode
-           , bodyClosures, true)
       | "vectorBuildGivenStorage" ->
         let storage = ccodegen (elist.[0])
         let resultType = ccodegenType (var.Type)
@@ -319,6 +305,20 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
              elementType curCode rangeCode idxCode
              bodyCode
              , bodyClosures, true)
+        | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, [ta], _) ->
+          let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[0]
+          let idxCode = idx.Name
+          let resultType = ccodegenType ta
+          let resultName = var.Name
+          let initCode = ccodegen (elist.[1])
+          let startCode = ccodegen (elist.[2])
+          let endCode = ccodegen (elist.[3])
+          let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
+          (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+             resultType resultName initCode 
+             idxCode startCode idxCode endCode idxCode
+             bodyCode
+             , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.fold_s @> (_, [ta; tb; tac; tanc; tbc], _) ->
           // TODO not memory safe yet
           let storage = ccodegen (elist.[0])
@@ -356,6 +356,23 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
              elementType curCode rangeVarCode idxCode
              bodyCode
              , bodyClosures, true)
+        | DerivedPatterns.SpecificCall <@ corelang.foldOnRange_dps @> (_, [ta; tac], _) ->
+              //let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[1]
+              let (LambdaN(inputs, body)) = elist.[1]
+              let num = inputs.[1]
+              let idx = inputs.[2]
+              let idxCode = idx.Name
+              let resultType = ccodegenType (var.Type)
+              let resultName = var.Name
+              let initCode = ccodegen (elist.[2])
+              let startCode = ccodegen (elist.[3])
+              let endCode = ccodegen (elist.[4])
+              let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
+              (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+                 resultType resultName initCode 
+                 idxCode startCode idxCode endCode idxCode
+                 bodyCode
+                 , bodyClosures, true)
         | DerivedPatterns.SpecificCall <@ corelang.newArray_s @> (_, [tp], [stg; arr]) ->
           // TODO use the provided storage of each element
           let elems = 
@@ -465,6 +482,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
       let (e2code, e2closures) = ccodegenStatements "\t\t" e2 None
       (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
         (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
+    (*
     | IterateNumberDPS(f, elist) ->
         //let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[1]
         let (LambdaN(inputs, body)) = elist.[1]
@@ -482,6 +500,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
            idxCode startCode idxCode endCode idxCode
            bodyCode
            , bodyClosures, true)
+           *)
     | Patterns.Call (None, op, elist) when isMacro op -> 
       if isLetBoundMacro op then
         ccodegenMacro e

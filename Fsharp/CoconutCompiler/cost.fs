@@ -56,7 +56,7 @@ let rec fopCost(exp: Expr): double =
     let card = (Option.fold (fun _ x -> x) ARRAY_DEFAULT_SIZE (exprToDouble size))
     fopCost(f) + fopCost(size) + card * BUILD_PER_ELEM_COST
   match exp with 
-  | DerivedPatterns.SpecificCall <@ linalg.iterateNumber @> (_, _, [f; z; s; e]) -> 
+  | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, _, [f; z; s; e]) -> 
     fopCost(z) + fopCost(s) + fopCost(e) + fopCost(f) * (rangeExprToDouble s e |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
     CALL_COST + fopCost(f) + List.sum (List.map fopCost args)

@@ -36,6 +36,12 @@ let length<'a> (v: array<'a>): Cardinality =
 let fold<'a, 'b> (f: 'b -> 'a -> 'b) (z: 'b) (range: array<'a>): 'b = 
   Array.fold (fun acc cur -> f acc cur) z range
 
+[<CMacro()>]
+let foldOnRange<'a> (f: 'a -> Index -> 'a) (z: 'a) (s: Cardinality) (e: Cardinality): 'a = 
+  let mutable res = z
+  for i = (cardToInt s) to ((cardToInt e) - 1) do res <- f res i
+  res
+
 (** I/O Methods **)
 
 [<CMirror("number_print")>]
@@ -108,6 +114,12 @@ let fold_s<'a, 'b, 'ac, 'nac, 'bc> (storage: Storage)
   (f: Storage -> 'b -> 'a -> 'bc -> 'ac -> 'b) (z: 'b) (range: array<'a>)
   (f_c: 'bc -> 'ac -> 'bc) (z_c: 'bc) (range_c: 'nac): 'b = 
   failwith "fold_s is not implemented"
+
+[<CMacro()>]
+let foldOnRange_dps<'a, 'ac> (storage: Storage) 
+  (f: Storage -> 'a -> Index -> 'ac -> Cardinality -> 'a) (z: 'a) (s: Cardinality) (e: Cardinality)
+  (f_c: 'ac -> Cardinality -> 'ac) (z_c: 'ac) (s_c: Cardinality) (e_c: Cardinality): 'a = 
+  failwith "foldOnRange_dps is not implemented"
 
 [<CMonomorphicMacro()>]
 let get_s<'a, 's> (storage: Storage) 

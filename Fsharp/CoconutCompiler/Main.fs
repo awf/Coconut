@@ -108,9 +108,9 @@ let main argv =
     //usecases_ht.test_ht ()
     //test_ba argv
     Qtimesv_test ()
-    //compile_modules ()
-    phase_based_optimizer.test_phase_based_optimizer ()
-    // compile_modules_storaged ()
+    // compile_modules ()
+    // phase_based_optimizer.test_phase_based_optimizer ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
     // guided_optimizer.test_guided_optimizer()
     // benchmark_search ()
