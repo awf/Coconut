@@ -1,6 +1,5 @@
 ﻿module cruntime
 
-open linalg
 open types
 
 let envRef (env: Environment) (name: string): AnyNumeric = 

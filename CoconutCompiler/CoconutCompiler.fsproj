@@ -58,18 +58,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="packages.config" />
-    <Compile Include="types.fs" />
-    <Compile Include="cardinality.fs" />
-    <Compile Include="utils.fs" />
-    <Compile Include="corelang.fs" />
-    <Compile Include="linalg.fs" />
-    <Compile Include="linalgtests.fs" />
-    <Compile Include="usecases_ba.fs" />
-    <Compile Include="usecases_ht.fs" />
-    <Compile Include="usecases_gmm.fs" />
-    <Compile Include="usecases_lm.fs" />
-    <Compile Include="programs.fs" />
-    <Compile Include="ccodegentests.fs" />
     <Compile Include="cruntime.fs" />
     <Compile Include="transformer.fs" />
     <Compile Include="ctransformer.fs" />
@@ -117,4 +105,10 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <ProjectReference Include="..\FSmoothRuntime\FSmoothRuntime.fsproj">
+      <Project>{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}</Project>
+      <Name>FSmoothRuntime</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

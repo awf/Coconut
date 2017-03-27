@@ -47,7 +47,7 @@ let test_guided_optimizer () =
           comp <@ rules.subSameIndex @>, 0;
           comp <@ rules.constFold0Index @>, 0;
           rules.constantFold, 0;
-          comp <@ rules.vectorAddToStorage @>, 0;
+          //comp <@ rules.vectorAddToStorage @>, 0;
           comp <@ rules.letVectorBuildLength @>, 0;
           rules.letFloatOutwards, 0;
           comp <@ rules.vectorBuildToStorage @>, 0;
@@ -67,7 +67,7 @@ let test_guided_optimizer () =
     let stackExample = compiler.getMethodExpr "programs" "stackAllocExample"
     let chains = 
       optimizer.guidedOptimize stackExample 
-        [ comp <@ rules.vectorAddToStorage @>, 0;
+        [ //comp <@ rules.vectorAddToStorage @>, 0;
           rules.letFloatOutwards, 0;
           comp <@ rules.letInliner @>, 0;
           rules.newArrayLength, 0;

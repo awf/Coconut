@@ -37,3 +37,6 @@ ba-old.txt
 ba.txt
 *.opendb
 coconut/FSharp.Core.dll
+
+**/bin
+**/obj

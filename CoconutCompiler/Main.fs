@@ -7,8 +7,8 @@ open linalg
 open corelang
 open FSharp.Quotations
 open types
-open usecases_gmm
-
+//open usecases_gmm
+(*
 let test_ba (argv: string[]) = 
     let fileName = 
       if argv.Length < 1 then 
@@ -22,6 +22,7 @@ let test_ba (argv: string[]) =
     let res = usecases_ba.run_ba_from_file fileName n m p
     //matrixPrint res
     ()
+*)
  
 let test_ruleengine () = 
     //let prog = <@ let x = 1 * 3 in x * 3 @>
@@ -107,9 +108,11 @@ let test_card () =
 let main argv = 
     //usecases_ht.test_ht ()
     //test_ba argv
-    Qtimesv_test ()
-    compiler.compileModuleFromSource "linalg" [] false false
-    compiler.compileModuleFromSource "usecases_ba" ["linalg"] false false
+    //Qtimesv_test ()
+    //compiler.compileModuleFromSource "linalg" [] false false
+    compiler.compileModuleFromSource "simple_tests" [] "Examples/FSmoothUsecases" false false
+    //compiler.compileModuleFromSource "linalg" [] "FSmoothRuntime" false false
+    //compiler.compileModuleFromSource "usecases_ba" ["linalg"] "Examples/FSmoothUsecases" false false
     // compile_modules ()
     // phase_based_optimizer.test_phase_based_optimizer ()
     // compile_modules_storaged ()

@@ -8,6 +8,7 @@ open optimizer
 
 let getMethodExpr (moduleName: string) (methodName: string): Expr = 
   let methodInfo = currentAssembly.GetType(moduleName).GetMethod(methodName)
+  let body = methodInfo.GetMethodBody()
   let reflDefnOpt = Microsoft.FSharp.Quotations.Expr.TryGetReflectedDefinition(methodInfo)
   match reflDefnOpt with
    | None -> failwith (sprintf "%s failed. It seems you forgot to use [<ReflectedDefinition>]." methodName)
@@ -77,10 +78,12 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
   ()
 
 let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
-  let methods = List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
-                  (List.filter (fun (x: System.Reflection.MethodInfo) -> 
-                    x.DeclaringType.Name = moduleName) 
-                    (List.ofArray (currentAssembly.GetType(moduleName).GetMethods())))
+  let allMethods = 
+    let moduleInfo = currentAssembly.GetType(moduleName)
+    moduleInfo.GetMethods() |> List.ofArray
+  let methods = 
+    allMethods |> List.filter (fun (x: System.Reflection.MethodInfo) -> x.DeclaringType.Name = moduleName) 
+               |> List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
   let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
   let moduleNameWithPostfix = nameWithPostfix moduleName
   printf "Compiling %s.fs [%d methods] to %s.h\n" moduleName (methods.Length) moduleNameWithPostfix 
@@ -91,16 +94,17 @@ let compileModule (moduleName: string) (dependentModules: string List) (opt: boo
 open FSharp.Compiler.CodeDom
 open System.CodeDom.Compiler
 
-let compileModuleFromSource (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
+let compileModuleFromSource (moduleName: string) (dependentModules: string List) (folder: string) (opt: bool) (storaged: bool): unit = 
     let provider = new FSharpCodeProvider()
     let compiler = provider.CreateCompiler()
     let parameters = new CompilerParameters(GenerateExecutable = false, OutputAssembly = "tmp.dll")
-    utils.tic()
-    let fsmoothRuntimeAssembly = System.Reflection.Assembly.GetEntryAssembly().Location;
+    let fsmoothRuntimeAssembly = System.Reflection.Assembly.GetAssembly(typeof<types.Storage>).Location;
     let timerAssembly = System.Reflection.Assembly.GetAssembly(typeof<types.Timer>).Location;
     parameters.ReferencedAssemblies.Add(fsmoothRuntimeAssembly)
     parameters.ReferencedAssemblies.Add(timerAssembly)
-    let fileNames = (moduleName :: dependentModules) |> List.map (fun s -> sprintf "../../%s.fs" s) |> List.rev
+    let fileNames = (moduleName :: dependentModules) |> List.map (fun s -> sprintf "../../../%s/%s.fs" folder s) |> List.rev
     let results = compiler.CompileAssemblyFromFileBatch(parameters, fileNames |> List.toArray)
-    currentAssembly = results.CompiledAssembly
+    if results.Errors.HasErrors then
+        failwithf "Compilation Failed for %s with %A" moduleName results.Errors
+    currentAssembly <- results.CompiledAssembly
     compileModule moduleName dependentModules opt storaged
