@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "types.h"
 #include "mem_mng.h"
+#include "timer.h"
 
 #define VECTOR_HEADER_BYTES (sizeof(number_t*) + sizeof(int))
 #define VECTOR_ALL_BYTES(rows) ((rows) * sizeof(number_t) + VECTOR_HEADER_BYTES)
@@ -39,25 +39,6 @@ void array_print(array_number_t arr) {
 			printf(", ");
 	}
 	printf("]\n");
-}
-
-
-/** Timing */
-
-typedef struct timer_t {
-	clock_t start;
-} timer_t;
-
-timer_t tic() {
-	timer_t res;
-	res.start = clock();
-	return res;
-}
-
-void toc(timer_t t, string_t s) {
-	clock_t end = clock();
-	float milliseconds = (float)(end - t.start) * 1000.0 / CLOCKS_PER_SEC;
-	printf("%s -- %d (ms)\n", s, (int)milliseconds);
 }
 
 clock_t benchmarked_time = 0;

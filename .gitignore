@@ -3,7 +3,7 @@
 *_times_*
 estimates_backup.mat
 
-/packages
+**/packages
 
 # User-specific files
 *.suo
@@ -37,3 +37,6 @@ ba-old.txt
 ba.txt
 *.opendb
 coconut/FSharp.Core.dll
+
+**/bin
+**/obj

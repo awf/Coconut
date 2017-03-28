@@ -1,0 +1,138 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>DiffSharp</RootNamespace>
+    <AssemblyName>CoconutCompiler</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <Name>CoconutCompiler</Name>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Debug\CoconutCompiler.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+    <StartArguments></StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>Release\CoconutCompiler\CoconutCompiler.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+    <StartArguments></StartArguments>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" />
+  <ItemGroup>
+    <None Include="App.config" />
+    <Content Include="packages.config" />
+    <Compile Include="linalg.fs" />
+    <Compile Include="cruntime.fs" />
+    <Compile Include="transformer.fs" />
+    <Compile Include="ctransformer.fs" />
+    <Compile Include="ccodegen.fs" />
+    <Compile Include="fscodegen.fs" />
+    <Compile Include="cost.fs" />
+    <Compile Include="ruleengine.fs" />
+    <Compile Include="rules_old.fs" />
+    <Compile Include="rules.fs" />
+    <Compile Include="search.fs" />
+    <Compile Include="optimizer.fs" />
+    <Compile Include="cardinfer.fs" />
+    <Compile Include="storagedtransformer.fs" />
+    <Compile Include="compiler.fs" />
+    <Compile Include="benchmark.fs" />
+    <Compile Include="guided_optimizer.fs" />
+    <Compile Include="phase_based_optimizer.fs" />
+    <Compile Include="..\Examples\FSmoothUsecases\ccodegentests.fs">
+      <Link>FSmoothUsecases\ccodegentests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\linalgtests.fs">
+      <Link>FSmoothUsecases\linalgtests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\programs.fs">
+      <Link>FSmoothUsecases\programs.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\simple_tests.fs">
+      <Link>FSmoothUsecases\simple_tests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_ba.fs">
+      <Link>FSmoothUsecases\usecases_ba.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_gmm.fs">
+      <Link>FSmoothUsecases\usecases_gmm.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_ht.fs">
+      <Link>FSmoothUsecases\usecases_ht.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\FSmoothUsecases\usecases_lm.fs">
+      <Link>FSmoothUsecases\usecases_lm.fs</Link>
+    </Compile>
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.3.1.2.5\lib\net40\FSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Quotations.Evaluator">
+      <HintPath>..\packages\FSharp.Quotations.Evaluator.1.0.6\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\System.Collections.Immutable.1.3.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Metadata">
+      <HintPath>..\packages\System.Reflection.Metadata.1.4.1\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Compiler.CodeDom">
+      <HintPath>..\packages\FSharp.Compiler.CodeDom.1.0.0.1\lib\net40\FSharp.Compiler.CodeDom.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\FSmoothRuntime\FSmoothRuntime.fsproj">
+      <Project>{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}</Project>
+      <Name>FSmoothRuntime</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
