@@ -12,9 +12,7 @@
 
 // #include <boost/timer/timer.hpp>
 
-// #include "Vec.h"
-#include "../autodiff/Vec.h"
-#include "../autodiff/Mat.h"
+#include "../../../Runtime/CPP/Vec.h"
 
 #include <stdlib.h>
 #include <time.h>
