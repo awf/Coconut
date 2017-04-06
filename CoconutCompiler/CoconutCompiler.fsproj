@@ -83,7 +83,7 @@
   </Target>
   -->
   <ItemGroup>
-    <ProjectReference Include="..\FSmoothRuntime\FSmoothRuntime.fsproj">
+    <ProjectReference Include="..\Runtime\FSmooth\FSmoothRuntime.fsproj">
       <Project>{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}</Project>
       <Name>FSmoothRuntime</Name>
     </ProjectReference>
