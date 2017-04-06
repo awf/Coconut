@@ -14,7 +14,7 @@ Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "CoconutCompiler", "CoconutC
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FSmoothRuntime", "FSmoothRuntime\FSmoothRuntime.fsproj", "{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "DiffSharpUsecases", "Examples\DiffSharpUsecases\DiffSharpUsecases.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FSharpUsecases", "Examples\Micro\FSharp\FSharpUsecases.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

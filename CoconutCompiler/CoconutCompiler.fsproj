@@ -55,53 +55,6 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <None Include="App.config" />
-    <Content Include="packages.config" />
-    <Compile Include="linalg.fs" />
-    <Compile Include="cruntime.fs" />
-    <Compile Include="transformer.fs" />
-    <Compile Include="ctransformer.fs" />
-    <Compile Include="ccodegen.fs" />
-    <Compile Include="fscodegen.fs" />
-    <Compile Include="cost.fs" />
-    <Compile Include="ruleengine.fs" />
-    <Compile Include="rules_old.fs" />
-    <Compile Include="rules.fs" />
-    <Compile Include="search.fs" />
-    <Compile Include="optimizer.fs" />
-    <Compile Include="cardinfer.fs" />
-    <Compile Include="storagedtransformer.fs" />
-    <Compile Include="compiler.fs" />
-    <Compile Include="benchmark.fs" />
-    <Compile Include="guided_optimizer.fs" />
-    <Compile Include="phase_based_optimizer.fs" />
-    <Compile Include="..\Examples\Micro\FSmooth\ccodegentests.fs">
-      <Link>FSmoothUsecases\ccodegentests.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\Micro\FSmooth\linalgtests.fs">
-      <Link>FSmoothUsecases\linalgtests.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\Micro\FSmooth\programs.fs">
-      <Link>FSmoothUsecases\programs.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\Micro\FSmooth\simple_tests.fs">
-      <Link>FSmoothUsecases\simple_tests.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\BundleAdjustment\FSmooth\usecases_ba.fs">
-      <Link>FSmoothUsecases\usecases_ba.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\GMM\FSmooth\usecases_gmm.fs">
-      <Link>FSmoothUsecases\usecases_gmm.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\HandTracking\FSmooth\usecases_ht.fs">
-      <Link>FSmoothUsecases\usecases_ht.fs</Link>
-    </Compile>
-    <Compile Include="..\Examples\Micro\FSmooth\usecases_lm.fs">
-      <Link>FSmoothUsecases\usecases_lm.fs</Link>
-    </Compile>
-    <Compile Include="Main.fs" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -134,5 +87,52 @@
       <Project>{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}</Project>
       <Name>FSmoothRuntime</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <Content Include="packages.config" />
+    <Compile Include="linalg.fs" />
+    <Compile Include="cruntime.fs" />
+    <Compile Include="transformer.fs" />
+    <Compile Include="ctransformer.fs" />
+    <Compile Include="ccodegen.fs" />
+    <Compile Include="fscodegen.fs" />
+    <Compile Include="cost.fs" />
+    <Compile Include="ruleengine.fs" />
+    <Compile Include="rules_old.fs" />
+    <Compile Include="rules.fs" />
+    <Compile Include="search.fs" />
+    <Compile Include="optimizer.fs" />
+    <Compile Include="cardinfer.fs" />
+    <Compile Include="storagedtransformer.fs" />
+    <Compile Include="compiler.fs" />
+    <Compile Include="benchmark.fs" />
+    <Compile Include="guided_optimizer.fs" />
+    <Compile Include="phase_based_optimizer.fs" />
+    <Compile Include="..\Examples\Micro\FSmooth\ccodegentests.fs">
+      <Link>FSmoothUsecases\ccodegentests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\Micro\FSmooth\linalgtests.fs">
+      <Link>FSmoothUsecases\linalgtests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\Micro\FSmooth\programs.fs">
+      <Link>FSmoothUsecases\programs.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\Micro\FSmooth\simple_tests.fs">
+      <Link>FSmoothUsecases\simple_tests.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\Micro\FSmooth\usecases_lm.fs">
+      <Link>FSmoothUsecases\usecases_lm.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\BundleAdjustment\FSmooth\usecases_ba.fs">
+      <Link>FSmoothUsecases\usecases_ba.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\GMM\FSmooth\usecases_gmm.fs">
+      <Link>FSmoothUsecases\usecases_gmm.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\HandTracking\FSmooth\usecases_ht.fs">
+      <Link>FSmoothUsecases\usecases_ht.fs</Link>
+    </Compile>
+    <Compile Include="Main.fs" />
   </ItemGroup>
 </Project>

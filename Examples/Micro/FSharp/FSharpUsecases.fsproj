@@ -61,41 +61,62 @@
     <Content Include="packages.config" />
     <Compile Include="corelang.fs" />
     <Compile Include="linalg.fs" />
-    <Compile Include="gmm.fs" />
-    <Compile Include="gmm_opt.fs" />
-    <Compile Include="usecases_gmm.fs" />
-    <Compile Include="ba.fs" />
-    <Compile Include="ba_opt.fs" />
-    <Compile Include="hand.fs" />
-    <Compile Include="hand_d.fs" />
+    <Compile Include="..\..\GMM\FSharp\gmm.fs">
+      <Link>gmm.fs</Link>
+    </Compile>
+    <Compile Include="..\..\GMM\FSharp\gmm_opt.fs">
+      <Link>gmm_opt.fs</Link>
+    </Compile>
+    <Compile Include="..\..\GMM\FSharp\usecases_gmm.fs">
+      <Link>usecases_gmm.fs</Link>
+    </Compile>
+    <Compile Include="..\..\BundleAdjustment\FSharp\ba.fs">
+      <Link>ba.fs</Link>
+    </Compile>
+    <Compile Include="..\..\BundleAdjustment\FSharp\ba_opt.fs">
+      <Link>ba_opt.fs</Link>
+    </Compile>
+    <Compile Include="..\..\HandTracking\FSharp\hand.fs">
+      <Link>hand.fs</Link>
+    </Compile>
+    <Compile Include="..\..\HandTracking\FSharp\hand_d.fs">
+      <Link>hand_d.fs</Link>
+    </Compile>
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Argu">
-      <HintPath>..\..\packages\Argu.2.1\lib\net40\Argu.dll</HintPath>
-    </Reference>
-    <Reference Include="DiffSharp">
-      <HintPath>..\..\packages\DiffSharp.0.6.3\lib\DiffSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="FsAlg">
-      <HintPath>..\..\packages\FsAlg.0.5.13\lib\FsAlg.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\..\packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Quotations.Evaluator">
-      <HintPath>..\..\packages\FSharp.Quotations.Evaluator.1.0.6\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>..\..\packages\MathNet.Numerics.3.7.0\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics.FSharp">
-      <HintPath>..\..\packages\MathNet.Numerics.FSharp.3.7.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\..\..\packages\MathNet.Numerics.3.17.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MathNet.Numerics.FSharp">
+      <HintPath>..\..\..\packages\MathNet.Numerics.FSharp.3.17.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FSharp.Quotations.Evaluator">
+      <HintPath>..\..\..\packages\FSharp.Quotations.Evaluator.1.0.7\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Argu">
+      <HintPath>..\..\..\packages\Argu.3.7.0\lib\net40\Argu.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\..\..\packages\FSharp.Core.4.1.2\lib\net45\FSharp.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DiffSharp">
+      <HintPath>..\..\..\packages\DiffSharp.0.6.3\lib\DiffSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="FsAlg">
+      <HintPath>..\..\..\packages\FsAlg.0.5.13\lib\FsAlg.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -104,4 +125,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\..\packages\DiffSharp.0.7.7\build\DiffSharp.targets" Condition="Exists('..\..\..\packages\DiffSharp.0.7.7\build\DiffSharp.targets')" />
 </Project>
