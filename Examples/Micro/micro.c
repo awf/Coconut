@@ -1,14 +1,14 @@
 #ifdef DPS
 #ifdef FUSED
-#include "../../C/Outputs/linalg_opt_storaged.h"
+#include "../../outputs/C/linalg_opt_storaged.h"
 #else
-#include "../../C/Outputs/linalg_storaged.h"
+#include "../../outputs/C/linalg_storaged.h"
 #endif
 #else
 #ifdef FUSED
-#include "../../C/Outputs/linalg_opt.h"
+#include "../../outputs/C/linalg_opt.h"
 #else
-#include "../../C/Outputs/linalg.h"
+#include "../../outputs/C/linalg.h"
 #endif
 #endif
 

@@ -1,6 +1,6 @@
-#include "../../C/Outputs/usecases_ba.h"
-#include "../../C/Outputs/programs.h"
-#include "../../C/Outputs/ccodegentests.h"
+#include "../../outputs/C/usecases_ba.h"
+#include "../../outputs/C/programs.h"
+#include "../../outputs/C/ccodegentests.h"
 
 int main(int argc, char** argv)
 {

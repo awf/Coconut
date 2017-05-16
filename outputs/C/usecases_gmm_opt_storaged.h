@@ -1,6 +1,6 @@
 #ifndef __USECASES_BA_H__ 
 #define __USECASES_BA_H__ 
-#include "../runtime/fsharp.h"
+#include "../../Runtime/C/fsharp.h"
 #include <stdio.h>
 #include <math.h>
 #include "linalg_storaged.h"

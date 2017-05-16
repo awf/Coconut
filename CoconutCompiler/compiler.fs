@@ -68,7 +68,7 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
   let fileName = sprintf "%s.h" headerName
   let header = sprintf """#ifndef %s 
 #define %s 
-#include "../Runtime/C/fsharp.h"
+#include "../../Runtime/C/fsharp.h"
 #include <stdio.h>
 #include <math.h>""" moduleMacroName moduleMacroName
   let footer = "#endif"

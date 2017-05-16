@@ -1,5 +1,5 @@
-#include "../../C/Outputs/linalgtests_storaged.h"
-#include "../../C/Outputs/usecases_ba_storaged.h"
+#include "../../outputs/C/linalgtests_storaged.h"
+#include "../../outputs/C/usecases_ba_storaged.h"
 
 int main(int argc, char** argv)
 {

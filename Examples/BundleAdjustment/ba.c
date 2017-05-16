@@ -1,14 +1,14 @@
 #ifdef DPS
 #ifdef FUSED
-#include "../../C/Outputs/usecases_ba_opt_storaged.h"
+#include "../../outputs/C/usecases_ba_opt_storaged.h"
 #else
-#include "../../C/Outputs/usecases_ba_storaged.h"
+#include "../../outputs/C/usecases_ba_storaged.h"
 #endif
 #else
 #ifdef FUSED
-#include "../../C/Outputs/usecases_ba_opt.h"
+#include "../../outputs/C/usecases_ba_opt.h"
 #else
-#include "../../C/Outputs/usecases_ba.h"
+#include "../../outputs/C/usecases_ba.h"
 #endif
 #endif
 
