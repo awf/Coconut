@@ -64,7 +64,7 @@
     <Compile Include="..\..\GMM\FSharp\gmm.fs">
       <Link>gmm.fs</Link>
     </Compile>
-    <Compile Include="..\..\GMM\FSharp\gmm_opt.fs">
+    <Compile Include="..\..\..\outputs\FSharp\gmm_opt.fs">
       <Link>gmm_opt.fs</Link>
     </Compile>
     <Compile Include="..\..\GMM\FSharp\usecases_gmm.fs">
@@ -73,7 +73,7 @@
     <Compile Include="..\..\BundleAdjustment\FSharp\ba.fs">
       <Link>ba.fs</Link>
     </Compile>
-    <Compile Include="..\..\BundleAdjustment\FSharp\ba_opt.fs">
+    <Compile Include="..\..\..\outputs\FSharp\ba_opt.fs">
       <Link>ba_opt.fs</Link>
     </Compile>
     <Compile Include="..\..\HandTracking\FSharp\hand.fs">
