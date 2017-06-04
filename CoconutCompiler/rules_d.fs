@@ -6,6 +6,7 @@ open metaVars
 open corelang
 open types
 open cardinality
+open transformer
 
 let D_POSTFIX = "_d"
 
@@ -14,7 +15,25 @@ let mult_d       = <@ diff (%a * %b) %dx               <==>   (diff %a %dx) * %b
 let log_d        = <@ diff (log %a)  %dx               <==>   (diff %a %dx) / %a                           @>
 let exp_d        = <@ diff (exp %a)  %dx               <==>   (diff %a %dx) * (exp %a)                     @>
 let sin_d        = <@ diff (sin %a)  %dx               <==>   (diff %a %dx) * (cos %a)                     @>
-let cos_d        = <@ diff (cos %a)  %dx               <==>   (diff %a %dx) * (sin %a)                     @>
+let cos_d        = <@ diff (cos %a)  %dx               <==>   (diff %a %dx) * -(sin %a)                    @>
+//let vbuild_d     = <@ diff (build<Number> %c1 %F) %dx  <==>   build<Number> %c1 (fun i->diff ((%F)i) %dx)  @>
+
+let get_d        = <@ diff ((%V).[%i]) %dx             <==>   (diff %V %dx).[%i]                           @>
+// Has a shortcut! Not sure if it could be even zero!
+let length_d     = <@ diff ((%V).Length) %dx           <==>   (%V).Length                                  @>
+
+let vbuild_d     = 
+                    <@ diff (build<Number> %c1 (fun i -> (%B1) i)) %dx 
+                                                       <==>   
+                       build<Number> %c1 (fun i -> diff ((%B1) i) %dx)  
+                                                                                                           @>
+
+//let sfold_d      = 
+//                    <@ diff (foldOnRange<Number> (fun s i -> (%B1) s i) %a %c1 %c2) %dx 
+//                                                       <==>   
+//                       snd (foldOnRange<Number * Number> (fun (s, s_d) i -> (%B1) (s) i, let ns = s in let ns_d = s_d in diff ((%B1) s i) %dx) (%a, diff %a %dx) %c1 %c2)
+//                       //snd (foldOnRange<Number * Number> (fun s i -> fst s, snd s) (%a, diff %a %dx) %c1 %c2)
+//                                                                                                           @>
 
 let const_d: Rule = 
   (fun (e: Expr) ->
@@ -32,7 +51,7 @@ let var_d: Rule =
           if v1 = v2 then 
             Expr.Value(1.) 
           else if not(v1.Name.EndsWith(D_POSTFIX)) then 
-            Expr.Var(new Var(v1.Name + D_POSTFIX, typeof<Number>)) 
+            Expr.Var(new Var(v1.Name + D_POSTFIX, v1.Type)) 
           else 
             failwithf "diff of variables %A and %A" v1 v2
       [ res ]
@@ -43,9 +62,14 @@ let chain_rule: Rule =
   (fun (e: Expr) ->
     match e with
     | DerivedPatterns.SpecificCall <@ diff @> (_, _, [Patterns.Let(y, e1 ,e2); Patterns.Var(dx)]) ->
-      let dy = new Var(y.Name + D_POSTFIX, typeof<Number>)
-      let diffCall1 = transformer.MakeCall <@@ diff @@> [e1; Expr.Var(dx)] [typeof<Number>]
-      let diffCall2 = transformer.MakeCall <@@ diff @@> [e2; Expr.Var(dy)] [typeof<Number>]
+      let dy = new Var(y.Name + D_POSTFIX, y.Type)
+      let diffCall1 = MakeCall <@@ diff @@> [e1; Expr.Var(dx)] [e1.Type; dx.Type]
+      let diffCall2 = MakeCall <@@ diff @@> [e2; Expr.Var(dx)] [e2.Type; dx.Type]
       [Expr.Let(y, e1, Expr.Let(dy, diffCall1, diffCall2))]
+    //| DerivedPatterns.SpecificCall <@ diff @> (_, _, [AppN(LambdaN(inputs, body), args); Patterns.Var(dx)]) when (List.length inputs) = (List.length args) ->
+    //  let dinputs = inputs |> List.map (fun y -> new Var(y.Name + D_POSTFIX, y.Type))
+    //  let diffCalls = args |> List.map (fun e1 -> MakeCall <@@ diff @@> [e1; Expr.Var(dx)] [e1.Type; dx.Type])
+    //  let diffCallBody = MakeCall <@@ diff @@> [body; Expr.Var(dx)] [body.Type; dx.Type]
+    //  [AppN(LambdaN(List.append inputs dinputs, diffCallBody), List.append args diffCalls)]
     | _ -> []
   ), "chain_rule"
