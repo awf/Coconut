@@ -18,6 +18,7 @@ let symdiff (exp: Expr): Expr =
               ruleengine.compilePatternToRule <@ length_d @>;
               ruleengine.compilePatternToRule <@ vbuild_d @>;
               //ruleengine.compilePatternToRule <@ sfold_d @>;
+              fold_d;
               const_d;
               var_d; 
               chain_rule;
@@ -34,5 +35,5 @@ let test_symdiff () =
     printfn "symdiff6: %A" (symdiff <@ fun (x: double) (y: double) (z: double) -> diff (let v = sin z in v) x @>)
     printfn "symdiff7: %A" (symdiff <@ fun (x: double) (y: double) (z: double) -> diff (build (Card 10) (fun i -> y)) x @>)
     printfn "symdiff8: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (build (Card 10) (fun i -> y.[i] + z.[i])) x @>)
-    //printfn "symdiff9: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> s * s) 0.0 (Card 0) (Card 10)) x @>)
+    printfn "symdiff9: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> s * s) 0.0 (Card 0) (Card 10)) x @>)
     ()

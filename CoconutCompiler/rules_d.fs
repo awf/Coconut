@@ -9,6 +9,8 @@ open cardinality
 open transformer
 
 let D_POSTFIX = "_d"
+let MakeDVar(v: Var): Var = 
+  new Var(v.Name + D_POSTFIX, v.Type)
 
 let add_d        = <@ diff (%a + %b) %dx               <==>   (diff %a %dx) + (diff %b %dx)                @>
 let mult_d       = <@ diff (%a * %b) %dx               <==>   (diff %a %dx) * %b + %a * (diff %b %dx)      @>
@@ -35,6 +37,36 @@ let vbuild_d     =
 //                       //snd (foldOnRange<Number * Number> (fun s i -> fst s, snd s) (%a, diff %a %dx) %c1 %c2)
 //                                                                                                           @>
 
+let fold_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> 
+        (_, _, [DerivedPatterns.SpecificCall <@ foldOnRange @> 
+          (_, _, [LambdaN([acc; idx], body); z; st; en]); Patterns.Var(v2)]) ->
+       let tp = acc.Type
+       let tupleTp = typeof<Number * Number> // TODO generalize
+       let newAcc = new Var(utils.newVar acc.Name, tupleTp) 
+       let newAccExpr = Expr.Var(newAcc)
+       //let newAccNormal = <@@ fst (%%newAccExpr) @@>
+       let newAccNormal = MakeCall <@ fst @> [newAccExpr] [tp; tp]
+       //let newAccDiff = <@@ snd (%%newAccExpr) @@>
+       let newAccDiff = MakeCall <@ snd @> [newAccExpr] [tp; tp]
+       let accd = MakeDVar(acc)
+       let dx = Expr.Var(v2)
+       let newBody = 
+         Expr.Let(acc, newAccNormal, 
+           Expr.Let(accd, newAccDiff, 
+             <@@ (%%body: Number), (diff (%%body: Number) (%%dx: Number)) @@> // TODO generalize
+           )
+         ) 
+       let newF = LambdaN([newAcc; idx], newBody ) 
+       let newZ = <@@ ((%%z: Number), diff (%%z: Number) (%%dx: Number)) @@> // TODO generalize
+       let foldPart = MakeCall <@ foldOnRange @> [newF; newZ; c1; c2] [tupleTp]
+       let final = MakeCall <@ snd @> [foldPart] [tp; tp]
+       [ final ]
+    | _ -> []
+  ), "fold_d"
+
 let const_d: Rule = 
   (fun (e: Expr) ->
     match e with
@@ -51,7 +83,7 @@ let var_d: Rule =
           if v1 = v2 then 
             Expr.Value(1.) 
           else if not(v1.Name.EndsWith(D_POSTFIX)) then 
-            Expr.Var(new Var(v1.Name + D_POSTFIX, v1.Type)) 
+            Expr.Var(MakeDVar(v1)) 
           else 
             failwithf "diff of variables %A and %A" v1 v2
       [ res ]
@@ -62,7 +94,7 @@ let chain_rule: Rule =
   (fun (e: Expr) ->
     match e with
     | DerivedPatterns.SpecificCall <@ diff @> (_, _, [Patterns.Let(y, e1 ,e2); Patterns.Var(dx)]) ->
-      let dy = new Var(y.Name + D_POSTFIX, y.Type)
+      let dy = MakeDVar(y)
       let diffCall1 = MakeCall <@@ diff @@> [e1; Expr.Var(dx)] [e1.Type; dx.Type]
       let diffCall2 = MakeCall <@@ diff @@> [e2; Expr.Var(dx)] [e2.Type; dx.Type]
       [Expr.Let(y, e1, Expr.Let(dy, diffCall1, diffCall2))]
