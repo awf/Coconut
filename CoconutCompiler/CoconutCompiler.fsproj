@@ -101,6 +101,7 @@
     <Compile Include="ruleengine.fs" />
     <Compile Include="rules_old.fs" />
     <Compile Include="rules.fs" />
+    <Compile Include="rules_d.fs" />
     <Compile Include="search.fs" />
     <Compile Include="optimizer.fs" />
     <Compile Include="cardinfer.fs" />
@@ -109,6 +110,7 @@
     <Compile Include="benchmark.fs" />
     <Compile Include="guided_optimizer.fs" />
     <Compile Include="phase_based_optimizer.fs" />
+    <Compile Include="symbolicdiff.fs" />
     <Compile Include="..\Examples\Micro\FSmooth\ccodegentests.fs">
       <Link>FSmoothUsecases\ccodegentests.fs</Link>
     </Compile>
