@@ -11,6 +11,10 @@ open transformer
 let D_POSTFIX = "_d"
 let MakeDVar(v: Var): Var = 
   new Var(v.Name + D_POSTFIX, v.Type)
+let IsDVar(v: Var): bool = 
+  v.Name.EndsWith(D_POSTFIX)
+let Diff e dx = 
+  MakeCall <@ diff @> [e; dx] [e.Type; dx.Type]
 
 let add_d        = <@ diff (%a + %b) %dx               <==>   (diff %a %dx) + (diff %b %dx)                @>
 let mult_d       = <@ diff (%a * %b) %dx               <==>   (diff %a %dx) * %b + %a * (diff %b %dx)      @>
@@ -44,7 +48,7 @@ let fold_d: Rule =
         (_, _, [DerivedPatterns.SpecificCall <@ foldOnRange @> 
           (_, _, [LambdaN([acc; idx], body); z; st; en]); Patterns.Var(v2)]) ->
        let tp = acc.Type
-       let tupleTp = typeof<Number * Number> // TODO generalize
+       let tupleTp = typeof<Number * Number>.GetGenericTypeDefinition().MakeGenericType(tp, tp)
        let newAcc = new Var(utils.newVar acc.Name, tupleTp) 
        let newAccExpr = Expr.Var(newAcc)
        //let newAccNormal = <@@ fst (%%newAccExpr) @@>
@@ -56,11 +60,14 @@ let fold_d: Rule =
        let newBody = 
          Expr.Let(acc, newAccNormal, 
            Expr.Let(accd, newAccDiff, 
-             <@@ (%%body: Number), (diff (%%body: Number) (%%dx: Number)) @@> // TODO generalize
+             //<@@ %%body, diff %%body %%dx @@>
+             Expr.NewTuple([body; Diff body dx])
            )
          ) 
        let newF = LambdaN([newAcc; idx], newBody ) 
-       let newZ = <@@ ((%%z: Number), diff (%%z: Number) (%%dx: Number)) @@> // TODO generalize
+       let newZ = 
+         //<@@ %%z, diff %%z %%dx @@>
+         Expr.NewTuple([z; Diff z dx ])
        let foldPart = MakeCall <@ foldOnRange @> [newF; newZ; c1; c2] [tupleTp]
        let final = MakeCall <@ snd @> [foldPart] [tp; tp]
        [ final ]
@@ -82,7 +89,7 @@ let var_d: Rule =
       let res = 
           if v1 = v2 then 
             Expr.Value(1.) 
-          else if not(v1.Name.EndsWith(D_POSTFIX)) then 
+          else if not(IsDVar(v1)) then 
             Expr.Var(MakeDVar(v1)) 
           else 
             failwithf "diff of variables %A and %A" v1 v2

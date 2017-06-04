@@ -36,4 +36,5 @@ let test_symdiff () =
     printfn "symdiff7: %A" (symdiff <@ fun (x: double) (y: double) (z: double) -> diff (build (Card 10) (fun i -> y)) x @>)
     printfn "symdiff8: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (build (Card 10) (fun i -> y.[i] + z.[i])) x @>)
     printfn "symdiff9: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> s * s) 0.0 (Card 0) (Card 10)) x @>)
+    printfn "symdiff10: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> build (length s) (fun i -> s.[i])) z (Card 0) (Card 10)) x @>)
     ()
