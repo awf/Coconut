@@ -15,6 +15,7 @@ let symdiff (exp: Expr): Expr =
               ruleengine.compilePatternToRule <@ exp_d @>; 
               ruleengine.compilePatternToRule <@ sin_d @>; 
               ruleengine.compilePatternToRule <@ cos_d @>; 
+              ruleengine.compilePatternToRule <@ cast_d @>; 
               ruleengine.compilePatternToRule <@ vget_d @>;
               ruleengine.compilePatternToRule <@ mget_d @>;
               ruleengine.compilePatternToRule <@ vlength_d @>;
@@ -50,9 +51,9 @@ let test_symdiff () =
     compiler.compileModule "linalg" [] false false
     let vectorAdd3 = compiler.getMethodExpr "linalg" "vectorAdd3" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fscodegenTopLevel
     printfn "symdiff vadd3: %A" vectorAdd3
-    let dot_prod = compiler.getMethodExpr "linalg" "dot_prod" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fscodegenTopLevel
+    let dot_prod = compiler.getMethodExpr "linalg" "dot_prod" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fspreprocess |> trans [rules_old.letCSE] |> fscodegen.fscodegenTopLevel
     printfn "symdiff vdot: %A" dot_prod
-    //compiler.compileModule "usecases_gmm" ["linalg"] false false
-    //let gmm = compiler.getMethodExpr "usecases_gmm" "gmm_objective" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fscodegenTopLevel
-    //printfn "symdiff gmm: %A" gmm
+    compiler.compileModule "usecases_gmm" ["linalg"] false false
+    let gmm = compiler.getMethodExpr "usecases_gmm" "gmm_objective" |> fusion_optimize |> ctransformer.anfConversion false |> transformDiff |> fusion_optimize |> fscodegen.fspreprocess |> trans [rules_old.letCSE] |> fscodegen.fscodegenTopLevel
+    printfn "symdiff gmm: %A" gmm
     ()

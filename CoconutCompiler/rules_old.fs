@@ -105,6 +105,42 @@ let letVectorBuildGet_old =
         (fun [f; idx] -> Expr.Application(f, idx)) e
   ), "letBuildGet"
 
+let letCSE = 
+  (fun e ->
+    match e with 
+    | Patterns.Let(x, e1, e2) ->
+      let rec findInsideTerm(exp: Expr): (Expr) option = 
+        match exp with 
+        | Patterns.Let(y, e3, e4) when e1 = e3 -> 
+          Some(e4.Substitute(fun z -> if z = y then Some(Expr.Var(x)) else None))
+        | ExprShape.ShapeLambda(input, body) ->
+          findInsideTerm body
+          |> Option.map (fun b -> Expr.Lambda(input, b))
+        | ExprShape.ShapeVar(v) -> None
+        | ExprShape.ShapeCombination(op, args) ->
+          let transformedArg = 
+            args 
+            |> List.mapi (fun idx arg ->
+                 findInsideTerm arg
+                 |> Option.map (fun e -> idx, e)
+               )
+            |> List.tryPick id
+          transformedArg 
+          |> Option.map (fun (idx, e) ->         
+                    let transformedArgs = 
+                      args
+                      |> List.mapi (fun idx2 arg ->
+                           if(idx2 = idx) then
+                             e
+                           else
+                             arg
+                         )
+                    ExprShape.RebuildShapeCombination(op, transformedArgs)
+                  )
+      findInsideTerm e2 |> Option.map (fun e2' -> Expr.Let(x, e1, e2')) |> Option.toList
+    | _ -> []
+  ), "letCSE"
+
 let allocToCPS_old (e: Expr): Expr option = 
   match e with
   | Patterns.Let(x, (DerivedPatterns.SpecificCall <@ corelang.vectorAlloc @> (_, _, [s]) as e1), e2) when (e2.Type = typeof<unit>) ->
