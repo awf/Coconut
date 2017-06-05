@@ -54,6 +54,15 @@ let test_symdiff () =
     let dot_prod = compiler.getMethodExpr "linalg" "dot_prod" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fspreprocess |> trans [rules_old.letCSE] |> fscodegen.fscodegenTopLevel
     printfn "symdiff vdot: %A" dot_prod
     compiler.compileModule "usecases_gmm" ["linalg"] false false
-    let gmm = compiler.getMethodExpr "usecases_gmm" "gmm_objective" |> fusion_optimize |> ctransformer.anfConversion false |> transformDiff |> fusion_optimize |> fscodegen.fspreprocess |> trans [rules_old.letCSE] |> fscodegen.fscodegenTopLevel
+    let gmm = 
+      compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
+        |> fusion_optimize 
+        |> ctransformer.anfConversion false 
+        |> transformDiff 
+        |> fusion_optimize 
+        |> trans [rules.foldPartiallyDCE] 
+        |> fscodegen.fspreprocess 
+        |> trans [rules_old.letCSE] 
+        |> fscodegen.fscodegenTopLevel
     printfn "symdiff gmm: %A" gmm
     ()

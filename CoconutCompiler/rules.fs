@@ -336,3 +336,22 @@ let letFloatOutwards: Rule =
       [ Expr.Let(y, e1, Expr.Lambda(x, e2)) ]
     | _ -> []
   ), "letFloatOutwards"
+
+let foldPartiallyDCE: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    // TODO generalize
+    | DerivedPatterns.SpecificCall <@ snd @> (_, _, [DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, _, [f; z; st; en])]) ->
+      match (f, z) with
+      // TODO still needs more check! Currently it's a little bit unsafe!
+      | (LambdaN([acc; idx], LetN([a1; a2], Patterns.NewTuple([fs;sn]))), Patterns.NewTuple([zfs;zsn])) ->
+        if((getFreeVariables sn) |> List.forall (fun v -> v <> (fst a1))) then
+          printfn "foldPartiallyDCE kicked in!"
+          let newF = LambdaN([fst a2; idx], sn)
+          let res = MakeCall <@ foldOnRange @> [newF; zsn; st; en] [zsn.Type]
+          [res]
+        else
+          []
+      | _ -> []
+    | _ -> []
+  ), "foldPartiallyDCE"
