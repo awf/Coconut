@@ -167,6 +167,19 @@ let rec letCommuting (e: Expr): Expr =
   | ExprShape.ShapeLambda(x, e) -> Expr.Lambda(x, letCommuting e)
   | ExprShape.ShapeCombination(op, args) -> ExprShape.RebuildShapeCombination(op, args |> List.map letCommuting)
 
+
+(* Performs a full ANF conversion. *)
+let fullAnfConversion (e: Expr): Expr = 
+  let rec introduceLet (e: Expr) = 
+    match e with 
+    | ExprShape.ShapeLambda(x, body) -> Expr.Lambda(x, introduceLet body)
+    | ExprShape.ShapeVar(x) -> e
+    | Patterns.Value(v, tp) -> e
+    | ExprShape.ShapeCombination(o, exprs) ->
+      let variable = new Var(newVar "_x", e.Type)
+      Expr.Let(variable, ExprShape.RebuildShapeCombination(o, exprs |> List.map introduceLet), Expr.Var(variable))
+  introduceLet e |> letLifting |> letCommuting
+
 (* Prepares the given program for C code generation *)
 let cpreprocess (e: Expr): Expr = 
   e 
