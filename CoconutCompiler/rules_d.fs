@@ -29,7 +29,9 @@ let log_d        = <@ diff (log %a)  %dx               <==>   (diff %a %dx) / %a
 let exp_d        = <@ diff (exp %a)  %dx               <==>   (diff %a %dx) * (exp %a)                     @>
 let sin_d        = <@ diff (sin %a)  %dx               <==>   (diff %a %dx) * (cos %a)                     @>
 let cos_d        = <@ diff (cos %a)  %dx               <==>   (diff %a %dx) * -(sin %a)                    @>
-//let vbuild_d     = <@ diff (build<Number> %c1 %F) %dx  <==>   build<Number> %c1 (fun i->diff ((%F)i) %dx)  @>
+
+// I guess this should be the case!
+let cast_d       = <@ diff ((double) %i)  %dx          <==>   0.                                           @>
 
 let vget_d       = <@ diff ((%V).[%i]) %dx             <==>   (diff %V %dx).[%i]                           @>
 let mget_d       = <@ diff ((%M).[%i]) %dx             <==>   (diff %M %dx).[%i]                           @>
@@ -92,8 +94,15 @@ let fold_d: Rule =
 let const_d: Rule = 
   (fun (e: Expr) ->
     match e with
-    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [Patterns.Value(v1); Patterns.Var(v2)]) ->
-      [ Expr.Value(0.)  ]
+    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [Patterns.Value(v1, tp); Patterns.Var(v2)]) ->
+      let res =
+        if(tp = typeof<Number>) then
+          Expr.Value(0.)
+        else if (tp = typeof<bool>) then
+          Expr.Value(false)
+        else
+          failwithf "No diff rule for value %A" v1
+      [ res ]
     | _ -> []
   ), "const_d"
 
