@@ -111,8 +111,10 @@ let letCSE =
     | Patterns.Let(x, e1, e2) ->
       let rec findInsideTerm(exp: Expr): (Expr) option = 
         match exp with 
-        | Patterns.Let(y, e3, e4) when e1 = e3 -> 
+        | Patterns.Let(y, e3, e4) when alphaEquals e1 e3 Map.empty -> 
           Some(e4.Substitute(fun z -> if z = y then Some(Expr.Var(x)) else None))
+        | exp when alphaEquals e1 exp Map.empty -> 
+          Some(Expr.Var(x))
         | ExprShape.ShapeLambda(input, body) ->
           findInsideTerm body
           |> Option.map (fun b -> Expr.Lambda(input, b))

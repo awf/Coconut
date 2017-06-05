@@ -57,11 +57,12 @@ let test_symdiff () =
     let gmm = 
       compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
         |> fusion_optimize 
-        |> ctransformer.anfConversion false 
+        //|> ctransformer.anfConversion false 
         |> transformDiff 
         |> fusion_optimize 
         |> trans [rules.foldPartiallyDCE] 
         |> fscodegen.fspreprocess 
+        //|> ctransformer.fullAnfConversion
         |> trans [rules_old.letCSE] 
         |> fscodegen.fscodegenTopLevel
     printfn "symdiff gmm: %A" gmm

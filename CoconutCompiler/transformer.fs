@@ -397,3 +397,13 @@ let captureAvoidingSubstitution (e: Expr) (mapping: (Var * Expr) list): Expr =
   variableRenaming substitutedE []
   // let renamedE = mapping |> List.map (fun (v, _) -> v, v) |> variableRenaming e
   // renamedE.Substitute(fun v2 -> mapping |> List.tryFind (fun (v, a) -> v = v2) |> Option.map snd)
+
+let rec alphaEquals (e1: Expr) (e2: Expr) (renamings: Map<Var, Var>): bool =
+  match (e1, e2) with
+  | (ExprShape.ShapeLambda(x1, b1), ExprShape.ShapeLambda(x2, b2)) ->
+      alphaEquals b1 b2 (renamings.Add(x1, x2))
+  | (ExprShape.ShapeVar(x1), ExprShape.ShapeVar(x2)) ->
+    x1 = x2 || renamings.TryFind(x1) |> Option.exists (fun v2 -> v2 = x2)
+  | (ExprShape.ShapeCombination(op1, args1), ExprShape.ShapeCombination(op2, args2)) ->
+    op1 = op2 && (args1, args2) ||> List.map2 (fun a1 a2 -> alphaEquals a1 a2 renamings) |> List.forall id
+  | _ -> false
