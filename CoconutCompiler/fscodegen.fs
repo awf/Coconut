@@ -69,6 +69,7 @@ let rec fscodegenExpr (e:Expr) (tabsNumber: int): string =
   | AppN(f, args) ->
      sprintf "%s(%s)" (rcr f) (String.concat ", " (List.map rcr args))
   | Patterns.IfThenElse(cond, e1, e2) -> sprintf "if(%s) then \n%s%s\n%selse \n%s%s" (rcr cond) tabsInd (rcrInd e1) tabs tabsInd (rcrInd e2)
+  | Patterns.NewTuple(es) -> sprintf "(%s)" (String.concat ", " (List.map rcr es)) 
   | ExprShape.ShapeCombination(op, args) -> 
     failwithf "COMB{%A}(%s)" (op) (String.concat ", " (List.map rcr args))
   | _ -> failwithf "ERROR[%A]" e

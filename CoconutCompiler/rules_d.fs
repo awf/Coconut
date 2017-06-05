@@ -8,15 +8,22 @@ open types
 open cardinality
 open transformer
 
+let mutable env: Map<Var, Var> = Map.empty<Var, Var>
 let D_POSTFIX = "_d"
 let MakeDVar(v: Var): Var = 
-  new Var(v.Name + D_POSTFIX, v.Type)
+  match env.TryFind(v) with 
+  | Some(vd) -> vd
+  | _        -> 
+    let vd = new Var(v.Name + D_POSTFIX, v.Type)
+    env <- env.Add(v, vd)
+    vd
 let IsDVar(v: Var): bool = 
   v.Name.EndsWith(D_POSTFIX)
 let Diff e dx = 
   MakeCall <@ diff @> [e; dx] [e.Type; dx.Type]
 
 let add_d        = <@ diff (%a + %b) %dx               <==>   (diff %a %dx) + (diff %b %dx)                @>
+let sub_d        = <@ diff (%a - %b) %dx               <==>   (diff %a %dx) - (diff %b %dx)                @>
 let mult_d       = <@ diff (%a * %b) %dx               <==>   (diff %a %dx) * %b + %a * (diff %b %dx)      @>
 let log_d        = <@ diff (log %a)  %dx               <==>   (diff %a %dx) / %a                           @>
 let exp_d        = <@ diff (exp %a)  %dx               <==>   (diff %a %dx) * (exp %a)                     @>
@@ -24,14 +31,22 @@ let sin_d        = <@ diff (sin %a)  %dx               <==>   (diff %a %dx) * (c
 let cos_d        = <@ diff (cos %a)  %dx               <==>   (diff %a %dx) * -(sin %a)                    @>
 //let vbuild_d     = <@ diff (build<Number> %c1 %F) %dx  <==>   build<Number> %c1 (fun i->diff ((%F)i) %dx)  @>
 
-let get_d        = <@ diff ((%V).[%i]) %dx             <==>   (diff %V %dx).[%i]                           @>
+let vget_d       = <@ diff ((%V).[%i]) %dx             <==>   (diff %V %dx).[%i]                           @>
+let mget_d       = <@ diff ((%M).[%i]) %dx             <==>   (diff %M %dx).[%i]                           @>
 // Has a shortcut! Not sure if it could be even zero!
-let length_d     = <@ diff ((%V).Length) %dx           <==>   (%V).Length                                  @>
+let vlength_d    = <@ diff (length (%V)) %dx           <==>   length (%V)                                  @>
+let mlength_d    = <@ diff (length (%M)) %dx           <==>   length (%M)                                  @>
 
 let vbuild_d     = 
                     <@ diff (build<Number> %c1 (fun i -> (%B1) i)) %dx 
                                                        <==>   
                        build<Number> %c1 (fun i -> diff ((%B1) i) %dx)  
+                                                                                                           @>
+
+let mbuild_d     = 
+                    <@ diff (build<Vector> %c1 (fun i -> (%B1) i)) %dx 
+                                                       <==>   
+                       build<Vector> %c1 (fun i -> diff ((%B1) i) %dx)  
                                                                                                            @>
 
 //let sfold_d      = 
@@ -96,6 +111,16 @@ let var_d: Rule =
       [ res ]
     | _ -> []
   ), "var_d"
+
+let if_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [Patterns.IfThenElse(c, e1, e2); dx]) ->
+      let res = 
+        Expr.IfThenElse(c, Diff e1 dx, Diff e2 dx)
+      [ res ]
+    | _ -> []
+  ), "if_d"
 
 let chain_rule: Rule = 
   (fun (e: Expr) ->
