@@ -7,6 +7,9 @@ In order to install BOEHM GC on mac, if you have mac-brew installed, you can run
 
 `brew install bdw-gc`
 
+Running
+----
+
 Run the following commands:
 ```
 ./compile_c.sh
