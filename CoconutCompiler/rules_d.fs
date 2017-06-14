@@ -10,11 +10,22 @@ open transformer
 
 let mutable env: Map<Var, Var> = Map.empty<Var, Var>
 let D_POSTFIX = "_d"
+let diffName (name: string): string = sprintf "%s%s" name D_POSTFIX
+let rec DT (t: System.Type) = 
+    match t with
+    | _ when isScalarType t                                 -> t
+    | _ when t = typeof<Cardinality>                        -> t
+    | _ when t = typeof<Vector> || t = typeof<Matrix> || 
+        t = typeof<Matrix3D>                                -> t
+    | FunctionType(inputs, o)                               -> 
+      let dinputs = inputs |> List.map DT
+      FunctionType (inputs @ dinputs) o                  
+    | _ -> failwithf "Does not know how to convert the storaged type `%A`" t
 let MakeDVar(v: Var): Var = 
   match env.TryFind(v) with 
   | Some(vd) -> vd
   | _        -> 
-    let vd = new Var(v.Name + D_POSTFIX, v.Type)
+    let vd = new Var(diffName v.Name, DT v.Type)
     env <- env.Add(v, vd)
     vd
 let IsDVar(v: Var): bool = 
@@ -35,9 +46,11 @@ let cast_d       = <@ diff ((double) %i)  %dx          <==>   0.                
 
 let vget_d       = <@ diff ((%V).[%i]) %dx             <==>   (diff %V %dx).[%i]                           @>
 let mget_d       = <@ diff ((%M).[%i]) %dx             <==>   (diff %M %dx).[%i]                           @>
+let m3get_d      = <@ diff ((%MM).[%i]) %dx            <==>   (diff %MM %dx).[%i]                          @>
 // Has a shortcut! Not sure if it could be even zero!
 let vlength_d    = <@ diff (length (%V)) %dx           <==>   length (%V)                                  @>
 let mlength_d    = <@ diff (length (%M)) %dx           <==>   length (%M)                                  @>
+let m3length_d   = <@ diff (length (%MM)) %dx          <==>   length (%MM)                                 @>
 
 let vbuild_d     = 
                     <@ diff (build<Number> %c1 (fun i -> (%B1) i)) %dx 
@@ -85,11 +98,23 @@ let fold_d: Rule =
        let newZ = 
          //<@@ %%z, diff %%z %%dx @@>
          Expr.NewTuple([z; Diff z dx ])
-       let foldPart = MakeCall <@ foldOnRange @> [newF; newZ; c1; c2] [tupleTp]
+       let foldPart = MakeCall <@ foldOnRange @> [newF; newZ; st; en] [tupleTp]
        let final = MakeCall <@ snd @> [foldPart] [tp; tp]
        [ final ]
     | _ -> []
   ), "fold_d"
+
+let build_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> 
+        (_, _, [DerivedPatterns.SpecificCall <@ build @> 
+          (_, _, [c; Patterns.Lambda(idx, body)]); Patterns.Var(dx)]) ->
+       let tp = body.Type
+       let newF = LambdaN([idx], Diff body (Expr.Var(dx)))
+       [ MakeCall <@ build @> [c; newF] [tp] ]
+    | _ -> []
+  ), "build_d"
 
 let const_d: Rule = 
   (fun (e: Expr) ->
@@ -140,9 +165,13 @@ let chain_rule: Rule =
       let diffCall2 = MakeCall <@@ diff @@> [e2; Expr.Var(dx)] [e2.Type; dx.Type]
       [Expr.Let(y, e1, Expr.Let(dy, diffCall1, diffCall2))]
     //| DerivedPatterns.SpecificCall <@ diff @> (_, _, [AppN(LambdaN(inputs, body), args); Patterns.Var(dx)]) when (List.length inputs) = (List.length args) ->
-    //  let dinputs = inputs |> List.map (fun y -> new Var(y.Name + D_POSTFIX, y.Type))
+    //  let dinputs = inputs |> List.map (MakeDVar)
     //  let diffCalls = args |> List.map (fun e1 -> MakeCall <@@ diff @@> [e1; Expr.Var(dx)] [e1.Type; dx.Type])
     //  let diffCallBody = MakeCall <@@ diff @@> [body; Expr.Var(dx)] [body.Type; dx.Type]
     //  [AppN(LambdaN(List.append inputs dinputs, diffCallBody), List.append args diffCalls)]
+    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [AllAppN(Patterns.Var(f), args); Patterns.Var(dx)]) ->
+      let diffCalls = args |> List.map (fun e1 -> Diff e1 (Expr.Var(dx)))
+      let nf = Expr.Var(MakeDVar f)
+      [AppN(nf, List.append args diffCalls)]
     | _ -> []
   ), "chain_rule"
