@@ -15,7 +15,7 @@ let getMethodExpr (moduleName: string) (methodName: string): Expr =
    | Some(e) -> e
 
 (* The entry point for the compiler which invokes different phases and code generators *)
-let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: bool): string = 
+let compileMethod (moduleName: string) (methodName: string) (opt: bool) (storaged: bool): string = 
      printf "compile %s%s.%s: " (if opt then "[optimized] " else "") moduleName methodName
      let e = getMethodExpr moduleName methodName
      let optimized = 
@@ -56,10 +56,11 @@ let compile (moduleName: string) (methodName: string) (opt: bool) (storaged: boo
      printfn " done"
      s
 
-let compileSeveral (moduleName: string) (methodNames: string List) (opt: bool) (storaged: bool) =
+let compileAllMethods (moduleName: string) (methodNames: string List) (compiler: string -> string -> string) =
   List.map (fun m -> 
     existingMethods <- (moduleName, m) :: existingMethods
-    compile moduleName m opt storaged
+    //compileMethod moduleName m opt storaged
+    compiler moduleName m
   ) methodNames
 
 let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (content: string List): unit =
@@ -77,34 +78,40 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 
-let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
+let compileModuleGeneric (moduleName: string) (dependentModules: string List) (nameWithPostfix: string -> string) (compiler: string -> string -> string): unit = 
   let allMethods = 
     let moduleInfo = currentAssembly.GetType(moduleName)
     moduleInfo.GetMethods() |> List.ofArray
   let methods = 
     allMethods |> List.filter (fun (x: System.Reflection.MethodInfo) -> x.DeclaringType.Name = moduleName) 
                |> List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
-  let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
+  //let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
   let moduleNameWithPostfix = nameWithPostfix moduleName
   printf "Compiling %s.fs [%d methods] to %s.h\n" moduleName (methods.Length) moduleNameWithPostfix 
-  let generatedMethods = compileSeveral moduleName methods opt storaged
+  //let generatedMethods = compileAllMethods moduleName methods opt storaged
+  let generatedMethods = compileAllMethods moduleName methods compiler
   let depModulesString = dependentModules |> List.map nameWithPostfix
   writeToHeaderFile moduleNameWithPostfix depModulesString generatedMethods
+
+let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
+  let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
+  let compiler modu met = compileMethod modu met opt storaged
+  compileModuleGeneric moduleName dependentModules nameWithPostfix compiler
 
 open FSharp.Compiler.CodeDom
 open System.CodeDom.Compiler
 
-let compileModuleFromSource (moduleName: string) (dependentModules: string List) (folder: string) (opt: bool) (storaged: bool): unit = 
+let compileModuleFromSource (moduleName: string) (dependentModules: string List) (folder: string) (nameWithPostfix: string -> string) (compiler: string -> string -> string): unit = 
     let provider = new FSharpCodeProvider()
-    let compiler = provider.CreateCompiler()
+    let comp = provider.CreateCompiler()
     let parameters = new CompilerParameters(GenerateExecutable = false, OutputAssembly = "tmp.dll")
     let fsmoothRuntimeAssembly = System.Reflection.Assembly.GetAssembly(typeof<types.Storage>).Location;
     let timerAssembly = System.Reflection.Assembly.GetAssembly(typeof<types.Timer>).Location;
     parameters.ReferencedAssemblies.Add(fsmoothRuntimeAssembly)
     parameters.ReferencedAssemblies.Add(timerAssembly)
     let fileNames = (moduleName :: dependentModules) |> List.map (fun s -> sprintf "../../../%s/%s.fs" folder s) |> List.rev
-    let results = compiler.CompileAssemblyFromFileBatch(parameters, fileNames |> List.toArray)
+    let results = comp.CompileAssemblyFromFileBatch(parameters, fileNames |> List.toArray)
     if results.Errors.HasErrors then
         failwithf "Compilation Failed for %s with %A" moduleName results.Errors
     currentAssembly <- results.CompiledAssembly
-    compileModule moduleName dependentModules opt storaged
+    compileModuleGeneric moduleName dependentModules nameWithPostfix compiler
