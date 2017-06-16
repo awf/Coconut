@@ -48,6 +48,7 @@ let rec prettyprint (e:Expr): string =
   | _ -> sprintf "ERROR[%A]" e
 
 let ARRAY_PREFIX = "array_"
+let TUPLE_PREFIX = "tuple_"
 
 let mutable private current_env_number: int = 0
 
@@ -78,6 +79,8 @@ let rec ccodegenType (t: System.Type): string =
   | _ when (t = typeof<Environment>) -> "env_t_" + current_env_number.ToString() + "*"
   | _ when (t.Name = typeof<Closure<_, _>>.Name) -> "closure_t"
   | _ when (t.Name = typeof<_ -> _>.Name) -> "closure_t"
+  | _ when (t.Name = typeof<_ * _>.Name) -> 
+    TUPLE_PREFIX + (ccodegenType (t.GenericTypeArguments.[0])) + "_" + (ccodegenType (t.GenericTypeArguments.[1]))
   | _ when (t = typeof<Unit>) -> "void"
   | _ when (t = typeof<bool>) -> "bool_t"
   | _ when (t.IsGenericParameter) ->
@@ -115,6 +118,10 @@ let rec ccodegen (e:Expr): string =
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, _) when isMonomorphicMacro op -> 
     ccodegenMonomorphicMacro e
+  | DerivedPatterns.SpecificCall <@ fst @> (_, _, [e]) ->
+    sprintf "%s._1" (ccodegen e)
+  | DerivedPatterns.SpecificCall <@ snd @> (_, _, [e]) ->
+    sprintf "%s._2" (ccodegen e)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
     | "GetArray" -> sprintf "%s->arr[%s]" (ccodegen elist.[0]) (ccodegen elist.[1])

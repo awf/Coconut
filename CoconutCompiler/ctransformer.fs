@@ -21,6 +21,11 @@ let rec anfConversion (letRhs: bool) (e: Expr): Expr =
   | Patterns.Sequential(e1, e2) when not letRhs ->
     let variable = new Var(newVar "foo", e1.Type)
     Expr.Let(variable, anfConversion true e1, anfConversion false e2)
+  | DerivedPatterns.SpecificCall <@ snd @> (_, _, [e1]) when not letRhs ->
+    let tp = e.Type
+    let variable = new Var(newVar "snd", tp)
+    Expr.Let(variable, MakeCall <@ snd @> [anfConversion false e1] [tp; tp], Expr.Var(variable))
+
   | ExprShape.ShapeCombination(o, exprs) ->
     ExprShape.RebuildShapeCombination(o, List.map (anfConversion false) exprs)
   | _ -> e
