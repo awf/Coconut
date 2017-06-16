@@ -5,6 +5,7 @@ open rules_d
 open FSharp.Quotations
 open phase_based_optimizer
 open types
+open ccodegen
 
 let symdiff (exp: Expr): Expr = 
   exp
@@ -18,10 +19,13 @@ let symdiff (exp: Expr): Expr =
               ruleengine.compilePatternToRule <@ cast_d @>; 
               ruleengine.compilePatternToRule <@ vget_d @>;
               ruleengine.compilePatternToRule <@ mget_d @>;
+              ruleengine.compilePatternToRule <@ m3get_d @>;
               ruleengine.compilePatternToRule <@ vlength_d @>;
               ruleengine.compilePatternToRule <@ mlength_d @>;
-              ruleengine.compilePatternToRule <@ vbuild_d @>;
-              ruleengine.compilePatternToRule <@ mbuild_d @>;
+              ruleengine.compilePatternToRule <@ m3length_d @>;
+              build_d;
+              //ruleengine.compilePatternToRule <@ vbuild_d @>;
+              //ruleengine.compilePatternToRule <@ mbuild_d @>;
               //ruleengine.compilePatternToRule <@ sfold_d @>;
               fold_d;
               const_d;
@@ -37,6 +41,23 @@ let transformDiff (e: Expr): Expr =
   let diffBody = Diff body (Expr.Var(new Var("dx", typeof<Number>)))
   transformer.LambdaN(List.append inputs inputsd, diffBody |> symdiff)
 
+let compileD (opt: bool) (moduleName: string) (methodName: string): string = 
+     printf "compile [d]%s.%s: " moduleName methodName
+     let expr = compiler.getMethodExpr moduleName methodName
+     let e = expr |> transformDiff
+     let optimized = if opt then e else e
+     let debug = true
+     if(debug) then 
+       printfn "/* Original code:\n%A\n*/\n" (prettyprint e)
+       if(opt) then 
+         printfn "/* Optimized code:\n%A\n*/\n" (prettyprint optimized)
+     let functionName = transformer.methodVariableName methodName moduleName
+     let s = (
+               printf "C"
+               ccodegenTopLevel optimized (diffName functionName) debug)
+     printfn " done"
+     s
+
 let test_symdiff () = 
     //printfn "symdiff: %A" (symdiff <@ fun (x: double) -> diff (1. * 2.) x @>)
     //printfn "symdiff2: %A" (symdiff <@ fun (x: double) -> diff (let v = 1. * 2. in v) x @>)
@@ -49,11 +70,11 @@ let test_symdiff () =
     //printfn "symdiff9: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> s * s) 0.0 (Card 0) (Card 10)) x @>)
     //printfn "symdiff10: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> build (length s) (fun i -> s.[i])) z (Card 0) (Card 10)) x @>)
     compiler.compileModule "linalg" [] false false
+    compiler.compileModule "usecases_gmm" ["linalg"] false false
     let vectorAdd3 = compiler.getMethodExpr "linalg" "vectorAdd3" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fscodegenTopLevel
     printfn "symdiff vadd3: %A" vectorAdd3
     let dot_prod = compiler.getMethodExpr "linalg" "dot_prod" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fspreprocess |> trans [rules_old.letCSE] |> fscodegen.fscodegenTopLevel
     printfn "symdiff vdot: %A" dot_prod
-    compiler.compileModule "usecases_gmm" ["linalg"] false false
     let gmm = 
       compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
         |> fusion_optimize 
@@ -66,4 +87,7 @@ let test_symdiff () =
         |> trans [rules_old.letCSE] 
         |> fscodegen.fscodegenTopLevel
     printfn "symdiff gmm: %A" gmm
+    //let matSlice = compiler.getMethodExpr "linalg" "vectorFoldNumber" |> transformDiff |> ctransformer.closureConversion |> ctransformer.anfConversion false  |> fscodegen.fscodegenTopLevel
+    //printfn "symdiff matSlice: %A" matSlice
+    //compiler.compileModuleGeneric "linalg" [] diffName (compileD false)
     ()
