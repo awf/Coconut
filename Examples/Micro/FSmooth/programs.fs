@@ -28,7 +28,7 @@ let hoistingExample (v: Vector) =
     foldOnRange (fun acc idx ->
         let tmp = v.[idx..(idx+9)]  // First, let's desugar this to GetArraySlice/array_slice as F# does...
         acc + sqnorm (vectorAdd tmp tmp)
-    ) 0. (Card 0) (Card 9)
+    ) 0. (Card 0) (Card 10)
   numberPrint sum
   ()
 
@@ -83,7 +83,7 @@ let explicitMallocExample1(v: Vector) =
       foldOnRange (fun acc idx ->
           let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
           acc + sqnorm (vectorAdd tmp tmp)
-        ) 0. (Card 0) (Card 9)
+        ) 0. (Card 0) (Card 10)
     numberPrint sum
   )
   ()
@@ -107,7 +107,7 @@ let explicitMallocExample2 (v: Vector) =
             let tmp = build_s storage1 (Card 10) (fun s i i_c -> v.[i + idx]) (Card 10) (fun c -> c)
             let tmp2 = add_vecGivenStorage storage2 tmp tmp
             acc + sqnorm tmp2
-          ) 0. (Card 0) (Card 9)
+          ) 0. (Card 0) (Card 10)
       numberPrint sum
     )
   )

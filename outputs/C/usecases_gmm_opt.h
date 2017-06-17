@@ -1,5 +1,5 @@
-#ifndef __USECASES_BA_H__ 
-#define __USECASES_BA_H__ 
+#ifndef __USECASES_GMM_H__ 
+#define __USECASES_GMM_H__ 
 #include "../../Runtime/C/fsharp.h"
 #include <stdio.h>
 #include <math.h>
@@ -16,11 +16,11 @@ number_t TOP_LEVEL_usecases_gmm_gmm_objective(array_array_number_t x, array_numb
 	card_t macroDef176 = alphas->length;
 	card_t K = macroDef176;
 	number_t macroDef189 = 0;
-	for(int idx = 0; idx <= (n) - (1); idx++){
+	for(int idx = 0; idx < n; idx++){
 		number_t acc0 = macroDef189;
 		index_t i = idx;
 		number_t macroDef182 = -1000;
-	for(int idx0 = 0; idx0 <= (K) - (1); idx0++){
+	for(int idx0 = 0; idx0 < K; idx0++){
 		number_t acc2 = macroDef182;
 		index_t k = idx0;
 		array_number_t v = qs->arr[k];
@@ -90,7 +90,7 @@ number_t TOP_LEVEL_usecases_gmm_gmm_objective(array_array_number_t x, array_numb
 	}
 		number_t mx148 = macroDef182;
 		number_t macroDef188 = 0;
-	for(int idx0 = 0; idx0 <= (K) - (1); idx0++){
+	for(int idx0 = 0; idx0 < K; idx0++){
 		number_t acc2 = macroDef188;
 		index_t i0 = idx0;
 		array_number_t v149 = qs->arr[i0];
@@ -180,7 +180,7 @@ number_t TOP_LEVEL_usecases_gmm_gmm_objective(array_array_number_t x, array_numb
 	}
 	number_t semx174 = macroDef192;
 	number_t macroDef197 = 0;
-	for(int idx = 0; idx <= (K) - (1); idx++){
+	for(int idx = 0; idx < K; idx++){
 		number_t acc0 = macroDef197;
 		index_t k = idx;
 		array_number_t v = qs->arr[k];

@@ -147,7 +147,7 @@ number_t TOP_LEVEL_linalg_vectorFoldNumber(closure_t f, number_t z, array_number
 	card_t macroDef22 = range->length;
 	card_t l = macroDef22;
 	number_t macroDef23 = z;
-	for(int idx = 0; idx <= l; idx++){
+	for(int idx = 0; idx < l; idx++){
 		
 		macroDef23 = f.lam(f.env, macroDef23, range->arr[idx]).number_t_value;;
 	}

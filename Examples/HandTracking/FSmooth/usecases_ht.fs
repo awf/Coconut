@@ -129,7 +129,7 @@ let relatives_to_absolutes (relatives: Matrix[]) (parents: Vector): Matrix[] =
       (* Revealed a bug in ANF convertor and let lifter. Inlining the next let binding makes the code generator crash. *)
       let newMatrix = [| matrixMult acc.[int parents.[i]] relatives.[i] |]
       matrix3DUpdate acc i (i + 1) newMatrix
-  ) (init) (Card 0) ((length relatives) .- (Card 1))
+  ) (init) (Card 0) (length relatives)
 
 let apply_global_transform (pose_params: Matrix) (positions: Matrix) = 
   let R = angle_axis_to_rotation_matrix pose_params.[0]
@@ -156,7 +156,7 @@ let get_skinned_vertex_positions (is_mirrored: Index) (n_bones: Cardinality) (po
       let curr_positions = matrixMult transforms.[i_transform].[0..2] base_positions
       let w = matrixFillFromVector (length base_positions) weights.[i_transform]
       matrixAdd acc (matrixMultElementwise curr_positions w)
-    ) init_positions (Card 0) ((length transforms) .- (Card 1))
+    ) init_positions (Card 0) (length transforms)
 
   let mirrored_positions =
     if(is_mirrored = 1) then 

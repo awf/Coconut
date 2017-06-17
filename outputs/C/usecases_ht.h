@@ -426,7 +426,7 @@ array_array_array_number_t TOP_LEVEL_usecases_ht_relatives_to_absolutes(array_ar
 	array_array_array_number_t init = relatives;
 	card_t macroDef204 = relatives->length;
 	array_array_array_number_t macroDef205 = init;
-	for(int i = 0; i <= (macroDef204) - (1); i++){
+	for(int i = 0; i < macroDef204; i++){
 		array_array_array_number_t ite206 = 0;
 	if((parents->arr[i]) == (-1)) {
 		array_array_array_number_t newMatrix = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);
@@ -508,7 +508,7 @@ array_array_number_t TOP_LEVEL_usecases_ht_get_skinned_vertex_positions(index_t 
 	array_array_number_t init_positions = TOP_LEVEL_linalg_matrixFill(3, n_verts, 0);
 	card_t macroDef224 = transforms->length;
 	array_array_number_t macroDef225 = init_positions;
-	for(int i_transform = 0; i_transform <= (macroDef224) - (1); i_transform++){
+	for(int i_transform = 0; i_transform < macroDef224; i_transform++){
 		array_array_number_t curr_positions = TOP_LEVEL_linalg_matrixMult(matrix_slice(transforms->arr[i_transform], 0, 2), base_positions);
 		card_t macroDef223 = base_positions->length;
 		array_array_number_t w = TOP_LEVEL_linalg_matrixFillFromVector(macroDef223, weights->arr[i_transform]);

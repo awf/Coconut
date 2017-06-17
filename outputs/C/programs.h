@@ -27,7 +27,7 @@ array_array_number_t TOP_LEVEL_programs_matrix_add3(array_array_number_t m1, arr
 
 void TOP_LEVEL_programs_hoistingExample(array_number_t v) {
 	number_t macroDef248 = 0;
-	for(int idx = 0; idx <= 9; idx++){
+	for(int idx = 0; idx < 10; idx++){
 		array_number_t tmp = array_slice(v, idx, (idx) + (9));
 		macroDef248 = (macroDef248) + (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorAdd(tmp, tmp)));;
 	}
@@ -40,7 +40,7 @@ void TOP_LEVEL_programs_explicitMallocExample1(array_number_t v) {
 	card_t size254 = width_matrix_shape_t(nested_shape_card_t(0, 10));
 	array_number_t storage1 = storage_alloc(size254);
 	number_t macroDef251 = 0;
-	for(int idx = 0; idx <= 9; idx++){
+	for(int idx = 0; idx < 10; idx++){
 		array_number_t macroDef250 = (array_number_t)storage1;
 		macroDef250->length=10;
 		macroDef250->arr=(number_t*)(STG_OFFSET(macroDef250, VECTOR_HEADER_BYTES));
@@ -94,7 +94,7 @@ void TOP_LEVEL_programs_explicitMallocExample2(array_number_t v) {
 	card_t size267 = width_matrix_shape_t(nested_shape_card_t(0, 10));
 	array_number_t storage2 = storage_alloc(size267);
 	number_t macroDef263 = 0;
-	for(int idx = 0; idx <= 9; idx++){
+	for(int idx = 0; idx < 10; idx++){
 		array_number_t macroDef262 = (array_number_t)storage1;
 		macroDef262->length=10;
 		macroDef262->arr=(number_t*)(STG_OFFSET(macroDef262, VECTOR_HEADER_BYTES));

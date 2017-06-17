@@ -40,7 +40,7 @@ array_number_t TOP_LEVEL_usecases_gmm_Qtimesv(array_number_t q, array_number_t l
 			index_t tis = TOP_LEVEL_usecases_gmm_tri((i) - (1));
 			card_t macroDef295 = l->length;
 			number_t macroDef296 = 0;
-	for(int idx = 0; idx <= macroDef295; idx++){
+	for(int idx = 0; idx < macroDef295; idx++){
 		index_t j = (idx) - (tis);
 		bool_t isInRange = 0;
 	if((j) >= (0)) {
