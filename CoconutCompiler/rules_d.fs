@@ -49,10 +49,16 @@ let log_d        = <@ diff<N,N,N> (log %a)  %dx        <==>   (diff<N,N,N> %a %d
 let exp_d        = <@ diff<N,N,N> (exp %a)  %dx        <==>   (diff<N,N,N> %a %dx) * (exp %a)                        @>
 let sin_d        = <@ diff<N,N,N> (sin %a)  %dx        <==>   (diff<N,N,N> %a %dx) * (cos %a)                        @>
 let cos_d        = <@ diff<N,N,N> (cos %a)  %dx        <==>   (diff<N,N,N> %a %dx) * -(sin %a)                       @>
+let div_d        = <@ diff<N,N,N> (%a / %b) %dx        
+                                                       <==>   
+                      ((diff<N,N,N> %a %dx) * %b - %a * (diff<N,N,N> %b %dx)) / (%b * %b)                            
+                                                                                                                     @>
 
 // I guess this should be the case!
 let cast_in_d    = <@ diff<N,N,N> ((double) %i)  %dx   <==>   0.                                                     @>
 let cast_ci_d    = <@ diff<I,N,I> (cardToInt %c1) %dx  <==>   cardToInt %c1                                          @>
+
+let int_d        = <@ diff<I,N,I> %i %dx               <==>   0                                                      @>
 
 let vget_d       = <@ diff<N,N,N> ((%V).[%i]) %dx      <==>   (diff<V,N,V> %V %dx).[%i]                              @>
 let mget_d       = <@ diff<V,N,V> ((%M).[%i]) %dx      <==>   (diff<M,N,M> %M %dx).[%i]                              @>
@@ -159,6 +165,28 @@ let card_d: Rule =
     | _ -> []
   ), "card_d"
 
+let nondouble_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [e1; Patterns.Var(v2)]) when 
+        isScalarType e1.Type && e1.Type <> typeof<Number> ->
+      let res = 
+        if e1.Type = typeof<Index> then
+          Expr.Value(0)
+        else if e1.Type = typeof<bool> then
+          Expr.Value(false)
+        else if e1.Type = typeof<Cardinality> then
+          Expr.Value(Card(0))
+        else if e1.Type = typeof<unit> then
+          Expr.Value(())
+        else if e1.Type = typeof<string> then
+          Expr.Value("")
+        else 
+          failwithf "Type %A not supported yet!" e1.Type
+      [res]
+    | _ -> []
+  ), "nondouble_d"
+
 let var_d: Rule = 
   (fun (e: Expr) ->
     match e with
@@ -213,12 +241,16 @@ let chain_rule: Rule =
     | _ -> []
   ), "chain_rule"
 
-let mread_d = 
+let mio_d = 
   (fun (e: Expr) ->
     match e with
     | DerivedPatterns.SpecificCall <@ diff @> 
-        (_, _, [DerivedPatterns.SpecificCall <@ matrixRead @> 
-          (_, _, _) as e1; Patterns.Var(dx)]) ->
+        (_, _, [
+            DerivedPatterns.SpecificCall <@ matrixRead @> (_, _, _) | 
+              DerivedPatterns.SpecificCall <@ numberPrint @> (_, _, _) |
+              DerivedPatterns.SpecificCall <@ vectorPrint @> (_, _, _) |
+              DerivedPatterns.SpecificCall <@ matrixPrint @> (_, _, _) as e1;
+            Patterns.Var(dx)]) ->
        [ e1 ]
     | _ -> []
-  ), "mread_d"
+  ), "mio_d"

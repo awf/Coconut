@@ -12,12 +12,14 @@ let symdiff (exp: Expr): Expr =
     |> trans [ruleengine.compilePatternToRule <@ add_d @>;
               ruleengine.compilePatternToRule <@ sub_d @>;
               ruleengine.compilePatternToRule <@ mult_d @>; 
+              ruleengine.compilePatternToRule <@ div_d @>; 
               ruleengine.compilePatternToRule <@ log_d @>; 
               ruleengine.compilePatternToRule <@ exp_d @>; 
               ruleengine.compilePatternToRule <@ sin_d @>; 
               ruleengine.compilePatternToRule <@ cos_d @>; 
               ruleengine.compilePatternToRule <@ cast_in_d @>; 
               ruleengine.compilePatternToRule <@ cast_ci_d @>; 
+              ruleengine.compilePatternToRule <@ int_d @>; 
               ruleengine.compilePatternToRule <@ vget_d @>;
               ruleengine.compilePatternToRule <@ mget_d @>;
               ruleengine.compilePatternToRule <@ m3get_d @>;
@@ -31,12 +33,13 @@ let symdiff (exp: Expr): Expr =
               array_d;
               fold_d;
               const_d;
+              nondouble_d;
               card_d;
               var_d; 
               if_d;
               chain_rule;
               lambda_d;
-              mread_d;
+              mio_d;
               //rules.lambdaAppToLet;
               ] 
 
@@ -79,24 +82,26 @@ let test_symdiff () =
     //printfn "symdiff9: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> s * s) 0.0 (Card 0) (Card 10)) x @>)
     //printfn "symdiff10: %A" (symdiff <@ fun (x: double) (y: Vector) (z: Vector) -> diff (foldOnRange (fun s i -> build (length s) (fun i -> s.[i])) z (Card 0) (Card 10)) x @>)
     compiler.compileModule "linalg" [] false false
-    //compiler.compileModule "usecases_gmm" ["linalg"] false false
+    compiler.compileModule "usecases_gmm" ["linalg"] false false
     //let vectorAdd3 = compiler.getMethodExpr "linalg" "vectorAdd3" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fscodegenTopLevel
     //printfn "symdiff vadd3: %A" vectorAdd3
     //let dot_prod = compiler.getMethodExpr "linalg" "dot_prod" |> fusion_optimize |> transformDiff |> fusion_optimize |> fscodegen.fspreprocess |> trans [rules_old.letCSE] |> fscodegen.fscodegenTopLevel
     //printfn "symdiff vdot: %A" dot_prod
-    ////let gmm = 
-    ////  compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
-    ////    |> fusion_optimize 
-    ////    //|> ctransformer.anfConversion false 
-    ////    |> transformDiff 
-    ////    |> fusion_optimize 
-    ////    |> trans [rules.foldPartiallyDCE] 
-    ////    |> fscodegen.fspreprocess 
-    ////    //|> ctransformer.fullAnfConversion
-    ////    |> trans [rules_old.letCSE] 
-    ////    |> fscodegen.fscodegenTopLevel
-    ////printfn "symdiff gmm: %A" gmm
     //let matSlice = compiler.getMethodExpr "linalg" "vectorFoldNumber" |> transformDiff |> ctransformer.closureConversion |> ctransformer.anfConversion false  |> fscodegen.fscodegenTopLevel
     //printfn "symdiff matSlice: %A" matSlice
-    compileModuleD "linalg" [] false
+    //compileModuleD "linalg" [] false
+    //compileModuleD "usecases_gmm" ["linalg"] false
+    let gmm = 
+      compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
+        |> fusion_optimize 
+        //|> ctransformer.anfConversion false 
+        |> transformDiff 
+        |> fusion_optimize 
+        |> trans [rules.foldPartiallyDCE] 
+        |> fscodegen.fspreprocess 
+        //|> ctransformer.fullAnfConversion
+        |> trans [rules_old.letCSE] 
+        //|> fscodegen.fscodegenTopLevel
+        |> (fun e -> ccodegenTopLevel e "gmm_obj_opt" true)
+    printfn "symdiff gmm: %A" gmm
     ()
