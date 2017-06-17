@@ -121,7 +121,7 @@ let get_s<'a, 's> (storage: Storage)
 let newArray_s<'a> (storage: Storage) ([<ParamArray>] args: (Storage -> 'a) array): 'a array =
   args |> Array.map (fun f -> f storage)
 
-let diff<'a, 'b> (v: 'a) (x: 'b): 'a =
+let diff<'a, 'b, 'c> (v: 'a) (x: 'b): 'c =
   failwith "diff is not implemented!"
 
 [<CMirror("matrix_read_s")>]

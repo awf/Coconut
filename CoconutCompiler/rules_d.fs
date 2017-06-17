@@ -11,58 +11,68 @@ open transformer
 let mutable env: Map<Var, Var> = Map.empty<Var, Var>
 let D_POSTFIX = "_d"
 let diffName (name: string): string = sprintf "%s%s" name D_POSTFIX
-let rec DT (t: System.Type) = 
+let rec DT (dt: System.Type) (t: System.Type) = 
+    if dt <> typeof<Number> then
+      failwithf "Type %A is not supported yet!" dt
     match t with
     | _ when isScalarType t                                 -> t
     | _ when t = typeof<Cardinality>                        -> t
     | _ when t = typeof<Vector> || t = typeof<Matrix> || 
         t = typeof<Matrix3D>                                -> t
     | FunctionType(inputs, o)                               -> 
-      let dinputs = inputs |> List.map DT
+      let dinputs = inputs |> List.map (DT dt)
       FunctionType (inputs @ dinputs) o                  
     | _ -> failwithf "Does not know how to convert the storaged type `%A`" t
 let MakeDVar(v: Var): Var = 
   match env.TryFind(v) with 
   | Some(vd) -> vd
   | _        -> 
-    let vd = new Var(diffName v.Name, DT v.Type)
+    let vd = new Var(diffName v.Name, DT (typeof<Number>) v.Type) // TODO take other types of dx into account
     env <- env.Add(v, vd)
     vd
 let IsDVar(v: Var): bool = 
   v.Name.EndsWith(D_POSTFIX)
 let Diff e dx = 
-  MakeCall <@ diff @> [e; dx] [e.Type; dx.Type]
+  MakeCall <@ diff @> [e; dx] [e.Type; dx.Type; DT dx.Type e.Type]
 
-let add_d        = <@ diff (%a + %b) %dx               <==>   (diff %a %dx) + (diff %b %dx)                @>
-let sub_d        = <@ diff (%a - %b) %dx               <==>   (diff %a %dx) - (diff %b %dx)                @>
-let mult_d       = <@ diff (%a * %b) %dx               <==>   (diff %a %dx) * %b + %a * (diff %b %dx)      @>
-let log_d        = <@ diff (log %a)  %dx               <==>   (diff %a %dx) / %a                           @>
-let exp_d        = <@ diff (exp %a)  %dx               <==>   (diff %a %dx) * (exp %a)                     @>
-let sin_d        = <@ diff (sin %a)  %dx               <==>   (diff %a %dx) * (cos %a)                     @>
-let cos_d        = <@ diff (cos %a)  %dx               <==>   (diff %a %dx) * -(sin %a)                    @>
+type N = Number
+type V = Vector
+type M = Matrix
+type M3 = Matrix3D
+type C = Cardinality
+type I = Index
+
+let add_d        = <@ diff<N,N,N> (%a + %b) %dx        <==>   (diff<N,N,N> %a %dx) + (diff<N,N,N> %b %dx)            @>
+let sub_d        = <@ diff<N,N,N> (%a - %b) %dx        <==>   (diff<N,N,N> %a %dx) - (diff<N,N,N> %b %dx)            @>
+let mult_d       = <@ diff<N,N,N> (%a * %b) %dx        <==>   (diff<N,N,N> %a %dx) * %b + %a * (diff<N,N,N> %b %dx)  @>
+let log_d        = <@ diff<N,N,N> (log %a)  %dx        <==>   (diff<N,N,N> %a %dx) / %a                              @>
+let exp_d        = <@ diff<N,N,N> (exp %a)  %dx        <==>   (diff<N,N,N> %a %dx) * (exp %a)                        @>
+let sin_d        = <@ diff<N,N,N> (sin %a)  %dx        <==>   (diff<N,N,N> %a %dx) * (cos %a)                        @>
+let cos_d        = <@ diff<N,N,N> (cos %a)  %dx        <==>   (diff<N,N,N> %a %dx) * -(sin %a)                       @>
 
 // I guess this should be the case!
-let cast_d       = <@ diff ((double) %i)  %dx          <==>   0.                                           @>
+let cast_in_d    = <@ diff<N,N,N> ((double) %i)  %dx   <==>   0.                                                     @>
+let cast_ci_d    = <@ diff<I,N,I> (cardToInt %c1) %dx  <==>   cardToInt %c1                                          @>
 
-let vget_d       = <@ diff ((%V).[%i]) %dx             <==>   (diff %V %dx).[%i]                           @>
-let mget_d       = <@ diff ((%M).[%i]) %dx             <==>   (diff %M %dx).[%i]                           @>
-let m3get_d      = <@ diff ((%MM).[%i]) %dx            <==>   (diff %MM %dx).[%i]                          @>
+let vget_d       = <@ diff<N,N,N> ((%V).[%i]) %dx      <==>   (diff<V,N,V> %V %dx).[%i]                              @>
+let mget_d       = <@ diff<V,N,V> ((%M).[%i]) %dx      <==>   (diff<M,N,M> %M %dx).[%i]                              @>
+let m3get_d      = <@ diff<M,N,M> ((%MM).[%i]) %dx     <==>   (diff<M3,N,M3> %MM %dx).[%i]                           @>
 // Has a shortcut! Not sure if it could be even zero!
-let vlength_d    = <@ diff (length (%V)) %dx           <==>   length (%V)                                  @>
-let mlength_d    = <@ diff (length (%M)) %dx           <==>   length (%M)                                  @>
-let m3length_d   = <@ diff (length (%MM)) %dx          <==>   length (%MM)                                 @>
+let vlength_d    = <@ diff<C,N,C> (length (%V)) %dx    <==>   length (%V)                                            @>
+let mlength_d    = <@ diff<C,N,C> (length (%M)) %dx    <==>   length (%M)                                            @>
+let m3length_d   = <@ diff<C,N,C> (length (%MM)) %dx   <==>   length (%MM)                                           @>
 
 let vbuild_d     = 
-                    <@ diff (build<Number> %c1 (fun i -> (%B1) i)) %dx 
+                    <@ diff<V,N,V> (build<Number> %c1 (fun i -> (%B1) i)) %dx 
                                                        <==>   
-                       build<Number> %c1 (fun i -> diff ((%B1) i) %dx)  
-                                                                                                           @>
+                       build<Number> %c1 (fun i -> diff<N,N,N> ((%B1) i) %dx)  
+                                                                                                                     @>
 
 let mbuild_d     = 
-                    <@ diff (build<Vector> %c1 (fun i -> (%B1) i)) %dx 
+                    <@ diff<M,N,M> (build<Vector> %c1 (fun i -> (%B1) i)) %dx 
                                                        <==>   
-                       build<Vector> %c1 (fun i -> diff ((%B1) i) %dx)  
-                                                                                                           @>
+                       build<Vector> %c1 (fun i -> diff<V,N,V> ((%B1) i) %dx)  
+                                                                                                                     @>
 
 //let sfold_d      = 
 //                    <@ diff (foldOnRange<Number> (fun s i -> (%B1) s i) %a %c1 %c2) %dx 
@@ -116,6 +126,16 @@ let build_d: Rule =
     | _ -> []
   ), "build_d"
 
+let array_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> 
+        (_, _, [Patterns.NewArray(tp, es); Patterns.Var(dx)]) ->
+       let des = es |> List.map (fun e -> Diff e (Expr.Var(dx)))  
+       [ Expr.NewArray(DT (dx.Type) tp, des) ]
+    | _ -> []
+  ), "array_d"
+
 let const_d: Rule = 
   (fun (e: Expr) ->
     match e with
@@ -130,6 +150,14 @@ let const_d: Rule =
       [ res ]
     | _ -> []
   ), "const_d"
+
+let card_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [e1; Patterns.Var(v2)]) when e1.Type = typeof<Cardinality> ->
+      [e1]
+    | _ -> []
+  ), "card_d"
 
 let var_d: Rule = 
   (fun (e: Expr) ->
@@ -156,13 +184,22 @@ let if_d: Rule =
     | _ -> []
   ), "if_d"
 
+let lambda_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> (_, _, [LambdaN(inputs, body); Patterns.Var(dx)]) ->
+      let dinputs = inputs |> List.map (MakeDVar)
+      [LambdaN(inputs @ dinputs, Diff body (Expr.Var(dx)))]
+    | _ -> []
+  ), "lambda_d"
+
 let chain_rule: Rule = 
   (fun (e: Expr) ->
     match e with
     | DerivedPatterns.SpecificCall <@ diff @> (_, _, [Patterns.Let(y, e1 ,e2); Patterns.Var(dx)]) ->
       let dy = MakeDVar(y)
-      let diffCall1 = MakeCall <@@ diff @@> [e1; Expr.Var(dx)] [e1.Type; dx.Type]
-      let diffCall2 = MakeCall <@@ diff @@> [e2; Expr.Var(dx)] [e2.Type; dx.Type]
+      let diffCall1 = Diff e1 (Expr.Var(dx))
+      let diffCall2 = Diff e2 (Expr.Var(dx))
       [Expr.Let(y, e1, Expr.Let(dy, diffCall1, diffCall2))]
     //| DerivedPatterns.SpecificCall <@ diff @> (_, _, [AppN(LambdaN(inputs, body), args); Patterns.Var(dx)]) when (List.length inputs) = (List.length args) ->
     //  let dinputs = inputs |> List.map (MakeDVar)
@@ -175,3 +212,13 @@ let chain_rule: Rule =
       [AppN(nf, List.append args diffCalls)]
     | _ -> []
   ), "chain_rule"
+
+let mread_d = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> 
+        (_, _, [DerivedPatterns.SpecificCall <@ matrixRead @> 
+          (_, _, _) as e1; Patterns.Var(dx)]) ->
+       [ e1 ]
+    | _ -> []
+  ), "mread_d"

@@ -78,7 +78,7 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 
-let compileModuleGeneric (moduleName: string) (dependentModules: string List) (nameWithPostfix: string -> string) (compiler: string -> string -> string): unit = 
+let compileModuleGeneric (moduleName: string) (depModulesString: string List) (nameWithPostfix: string -> string) (compiler: string -> string -> string): unit = 
   let allMethods = 
     let moduleInfo = currentAssembly.GetType(moduleName)
     moduleInfo.GetMethods() |> List.ofArray
@@ -90,13 +90,13 @@ let compileModuleGeneric (moduleName: string) (dependentModules: string List) (n
   printf "Compiling %s.fs [%d methods] to %s.h\n" moduleName (methods.Length) moduleNameWithPostfix 
   //let generatedMethods = compileAllMethods moduleName methods opt storaged
   let generatedMethods = compileAllMethods moduleName methods compiler
-  let depModulesString = dependentModules |> List.map nameWithPostfix
   writeToHeaderFile moduleNameWithPostfix depModulesString generatedMethods
 
 let compileModule (moduleName: string) (dependentModules: string List) (opt: bool) (storaged: bool): unit = 
   let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
   let compiler modu met = compileMethod modu met opt storaged
-  compileModuleGeneric moduleName dependentModules nameWithPostfix compiler
+  let depModulesString = dependentModules |> List.map nameWithPostfix
+  compileModuleGeneric moduleName depModulesString nameWithPostfix compiler
 
 open FSharp.Compiler.CodeDom
 open System.CodeDom.Compiler
