@@ -118,6 +118,8 @@ let rec ccodegen (e:Expr): string =
   | Patterns.PropertyGet(Some(arr), prop, []) when prop.Name = "Length" -> sprintf "%s->length" (ccodegen arr)
   | Patterns.Call (None, op, _) when isMonomorphicMacro op -> 
     ccodegenMonomorphicMacro e
+  | Patterns.NewTuple([e1; e2]) ->
+    sprintf "pair(%s, %s)" (ccodegen e1) (ccodegen e2)
   | DerivedPatterns.SpecificCall <@ fst @> (_, _, [e]) ->
     sprintf "%s._1" (ccodegen e)
   | DerivedPatterns.SpecificCall <@ snd @> (_, _, [e]) ->
@@ -300,7 +302,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           let startCode = ccodegen (elist.[2])
           let endCode = ccodegen (elist.[3])
           let (bodyCode, bodyClosures) = ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else None)) None
-          (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+          (sprintf "%s %s = %s;\n\tfor(int %s = %s; %s < %s; %s++){\n\t\t%s\n\t}"
              resultType resultName initCode 
              idxCode startCode idxCode endCode idxCode
              bodyCode
@@ -323,7 +325,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
               let stType = ccodegenType st.Type
               let (bodyCode, bodyClosures) = 
                 ccodegenStatements "\t\t" (body.Substitute(fun v -> if v = num then Some(Expr.Var(var)) else if v = numShp then Some(elist.[6]) else  None)) None
-              (sprintf "%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = %s; %s <= %s; %s++){\n\t\t%s\n\t}"
+              (sprintf "%s %s = %s;\n\t%s %s = %s;\n\tfor(int %s = %s; %s < %s; %s++){\n\t\t%s\n\t}"
                  resultType resultName initCode 
                  stType stCode storage
                  idxCode startCode idxCode endCode idxCode
