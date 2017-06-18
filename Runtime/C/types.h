@@ -24,6 +24,10 @@ typedef struct matrix3d_shape_t {
   matrix_shape_t elem;
   card_t card;
 } matrix3d_shape_t;
+typedef struct tuple_number_t_number_t {
+  number_t _1;
+  number_t _2;
+} tuple_number_t_number_t;
 
 typedef union value_t {
 	card_t card_t_value;
