@@ -52,7 +52,7 @@ let TUPLE_PREFIX = "tuple_"
 
 let mutable private current_env_number: int = 0
 
-let private withEnvNumer<'a> (id: int) (cont: int -> 'a): 'a = 
+let private withEnvNumber<'a> (id: int) (cont: int -> 'a): 'a = 
   let prev_number = current_env_number
   current_env_number <- id
   let res = cont(id)
@@ -431,7 +431,7 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
           sprintf "make_%s(%s)" envName (String.concat "," (List.map (fun (_, _, v) -> v) fields))
       let makeEnvVar = sprintf "%s_value" envName
       let makeEnvStatement = sprintf "%s %s = %s" envName makeEnvVar makeEnvInvoke 
-      let lambdaCode = withEnvNumer id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
+      let lambdaCode = withEnvNumber id (fun idx -> ccodegenFunction (Expr.Lambda(envVar, lamBody)) lambdaName true)
       (sprintf "%s; %s %s = make_closure(%s, &%s);" makeEnvStatement (ccodegenType var.Type) (var.Name)  lambdaName makeEnvVar, 
         [envStruct; makeEnvDef; lambdaCode], 
         true)

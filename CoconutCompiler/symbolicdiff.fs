@@ -17,6 +17,8 @@ let symdiff (exp: Expr): Expr =
               ruleengine.compilePatternToRule <@ exp_d @>; 
               ruleengine.compilePatternToRule <@ sin_d @>; 
               ruleengine.compilePatternToRule <@ cos_d @>; 
+              ruleengine.compilePatternToRule <@ tan_d @>; 
+              ruleengine.compilePatternToRule <@ sqrt_d @>; 
               ruleengine.compilePatternToRule <@ cast_in_d @>; 
               ruleengine.compilePatternToRule <@ cast_ci_d @>; 
               ruleengine.compilePatternToRule <@ int_d @>; 
@@ -27,14 +29,11 @@ let symdiff (exp: Expr): Expr =
               ruleengine.compilePatternToRule <@ mlength_d @>;
               ruleengine.compilePatternToRule <@ m3length_d @>;
               build_d;
-              //ruleengine.compilePatternToRule <@ vbuild_d @>;
-              //ruleengine.compilePatternToRule <@ mbuild_d @>;
-              //ruleengine.compilePatternToRule <@ sfold_d @>;
               array_d;
               fold_d;
+              card_d;
               const_d;
               nondouble_d;
-              card_d;
               var_d; 
               if_d;
               chain_rule;
@@ -71,6 +70,7 @@ let compileModuleD (moduleName: string) (dependentModules: string List) (opt: bo
   compiler.compileModuleGeneric moduleName (moduleName :: depModulesD) diffName (compileD opt)
 
 let test_symdiff () = 
+    utils.variable_counter <- 1000
     //printfn "symdiff: %A" (symdiff <@ fun (x: double) -> diff (1. * 2.) x @>)
     //printfn "symdiff2: %A" (symdiff <@ fun (x: double) -> diff (let v = 1. * 2. in v) x @>)
     //printfn "symdiff3: %A" (symdiff <@ fun (x: double) (y: double) (z: double) -> diff (let v = y * z in v) x @>)
@@ -91,17 +91,20 @@ let test_symdiff () =
     //printfn "symdiff matSlice: %A" matSlice
     compileModuleD "linalg" [] false
     compileModuleD "usecases_gmm" ["linalg"] false
-    //let gmm = 
-    //  compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
-    //    |> fusion_optimize 
-    //    //|> ctransformer.anfConversion false 
-    //    |> transformDiff 
-    //    |> fusion_optimize 
-    //    |> trans [rules.foldPartiallyDCE] 
-    //    |> fscodegen.fspreprocess 
-    //    //|> ctransformer.fullAnfConversion
-    //    |> trans [rules_old.letCSE] 
-    //    //|> fscodegen.fscodegenTopLevel
-    //    |> (fun e -> ccodegenTopLevel e "gmm_obj_opt" true)
-    //printfn "symdiff gmm: %A" gmm
+    compileModuleD "usecases_ba" ["linalg"] false
+    let res = 
+      //compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
+      compiler.getMethodExpr "usecases_ba" "project" 
+        |> fusion_optimize 
+        //|> ctransformer.anfConversion false 
+        |> transformDiff 
+        |> fusion_optimize 
+        |> trans [rules.foldPartiallyDCE] 
+        |> fscodegen.fspreprocess 
+        //|> ctransformer.fullAnfConversion
+        |> trans [rules_old.letCSE] 
+        //|> fscodegen.fscodegenTopLevel
+        //|> (fun e -> ccodegenTopLevel e "gmm_obj_opt" true)
+        |> (fun e -> ccodegenTopLevel e "project_d" true)
+    printfn "symdiff: %s" res
     ()
