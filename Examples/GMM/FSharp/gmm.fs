@@ -76,57 +76,59 @@ let write_grad (fn:string) (gradient:float[]) =
 
 ////// Objective //////
 
+let square x = x*x
+
+let sumsq (arr:_[]) = 
+    arr  |> Array.map square |> Array.sum
+
 let inline logsumexp (arr:_[]) =
     let mx = Array.max arr
     let semx = Array.map (fun x -> exp(x-mx)) arr |> Array.sum
     (log semx) + mx
 
-let log_wishart_prior p (wishart:Wishart) (Qdiags:_[][]) (sum_qs:_[]) (icf:_[][]) =
-    let log_gamma_distrib a p =
-        log (Math.Pow(Math.PI,(0.25*(float (p*(p-1)))))) + 
-            ([for j = 1 to p do yield SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))] |> List.sum)
-    let square x = x*x
+let gammaln a p =
+    log (Math.Pow(Math.PI,(0.25*(float (p*(p-1)))))) + 
+        ([for j = 1 to p do yield SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))] |> List.sum)
+
+let log_wishart_prior p (wishart:Wishart) (Qdiags:float[][]) (sum_qs:float[]) (icf:float[][]) =
     let n = p + wishart.m + 1
     let k = icf.Length
-    let C = (float (n*p))*((log wishart.gamma) - 0.5*(log 2.)) - (log_gamma_distrib (0.5*(float n)) p)
-    let mutable out = 0.
-    for ik = 0 to k-1 do
-        let frobenius1 = Qdiags.[ik] 
-                            |> Array.map square
-                            |> Array.sum
-        let frobenius2 = icf.[ik].[p..]
-                            |> Array.map square
-                            |> Array.sum
-//        out <- out + 0.5*wishart.gamma*wishart.gamma*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
-        out <- out + 0.5*(frobenius1+frobenius2)
-    out// - (float k)*C
-        
+    let C = (float (n*p))*((log wishart.gamma) - 0.5*(log 2.)) - (gammaln (0.5*(float n)) p)
+    seq { 
+      for ik = 0 to k-1 do
+        let frobenius1 = sumsq Qdiags.[ik] 
+        let frobenius2 = sumsq icf.[ik].[p..]
+        0.5*(square wishart.gamma)*(frobenius1+frobenius2) - wishart.m*sum_qs.[ik]
+    } |> Seq.sum
+
+// Gaussian mixture negative log likelihood
+// Covariances are parameterized as inverse square roots, log diagonal, lower triangle
 let gmm_objective (alphas:float[]) (means:float[][]) (icf:float[][]) (x:float[][]) (wishart:Wishart) =
     let k = alphas.Length
     let d = means.[0].Length
     let n = x.Length
 
-//    let CONSTANT = 1. / (pown (sqrt (2. * Math.PI)) d)
-    let CONSTANT = 1.
+    let CONSTANT = 1. / (pown (sqrt (2. * Math.PI)) d)
     let Qdiags = [|for curr_icf in icf do yield (Array.map exp curr_icf.[..(d-1)])|]
     let sum_qs = [|for curr_icf in icf do yield (Array.sum curr_icf.[..(d-1)])|]
-    
-    let Q_times_x (Qdiag:float[]) (curr_icf:float[]) (curr_x:float[]) =
-        let mutable res = Array.map2 (*) Qdiag curr_x
-        let mutable curr_icf_idx = d
+
+    // Multiply log-diagonal-lower-triangle matrix (Qdiag, Qltri) by x
+    let Q_times_x (Qdiag:float[]) (Qltri:float[]) (x:float[]) =
+        let mutable res = Array.map2 (*) Qdiag x
+        let mutable Qltri_idx = d
         for i = 0 to d-1 do
             for j = i+1 to d-1 do
-                res.[j] <- res.[j] + curr_icf.[curr_icf_idx] * curr_x.[i]
-                curr_icf_idx <- curr_icf_idx + 1
+                res.[j] <- res.[j] + Qltri.[Qltri_idx] * x.[i]
+                Qltri_idx <- Qltri_idx + 1
         res
 
+    // Evaluate for a single point
     let main_term (curr_x:float[]) ik =
         let xcentered = Array.map2 (-) curr_x means.[ik]
-        let sqsum_mahal = (Q_times_x Qdiags.[ik] icf.[ik] xcentered)
-                            |> Array.map (fun x -> x*x)
-                            |> Array.sum
+        let sqsum_mahal = sumsq (Q_times_x Qdiags.[ik] icf.[ik] xcentered)
         -0.5*sqsum_mahal
     
+    // Accumulate for all points
     let mutable slse = 0. 
     for curr_x in x do
         let tmp = Array.map2 (+) (Array.map2 (+) alphas sum_qs) [| for i = 0 to k-1 do yield (main_term curr_x i)|]

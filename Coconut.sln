@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "CoconutCompiler", "CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CoconutCompiler", "CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FSmoothRuntime", "Runtime\FSmooth\FSmoothRuntime.fsproj", "{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSmoothRuntime", "Runtime\FSmooth\FSmoothRuntime.fsproj", "{8A1D6D0D-304C-4004-8959-EB1D6082C0ED}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FSharpUsecases", "Examples\Micro\FSharp\FSharpUsecases.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpUsecases", "Examples\Micro\FSharp\FSharpUsecases.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SymDiff", "SymDiff\SymDiff.fsproj", "{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{389E169C-620A-4883-B42C-018A62278277}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{389E169C-620A-4883-B42C-018A62278277}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
