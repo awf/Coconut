@@ -92,9 +92,8 @@ let test_symdiff () =
     compileModuleD "linalg" [] false
     compileModuleD "usecases_gmm" ["linalg"] false
     compileModuleD "usecases_ba" ["linalg"] false
-    let res = 
-      //compiler.getMethodExpr "usecases_gmm" "gmm_objective" 
-      compiler.getMethodExpr "usecases_ba" "project" 
+    let optimizeD moduleName methodName finalName = 
+      compiler.getMethodExpr moduleName methodName 
         |> fusion_optimize 
         //|> ctransformer.anfConversion false 
         |> transformDiff 
@@ -104,7 +103,10 @@ let test_symdiff () =
         //|> ctransformer.fullAnfConversion
         |> trans [rules_old.letCSE] 
         //|> fscodegen.fscodegenTopLevel
-        //|> (fun e -> ccodegenTopLevel e "gmm_obj_opt" true)
-        |> (fun e -> ccodegenTopLevel e "project_d" true)
+        |> (fun e -> ccodegenTopLevel e finalName true)
+    let res = 
+      //optimizeD "usecases_gmm" "gmm_objective" "gmm_obj_opt"
+      //optimizeD "usecases_ba" "project" "project_d"
+      optimizeD "linalg" "dot_prod" "dot_prod_d"
     printfn "symdiff: %s" res
     ()
