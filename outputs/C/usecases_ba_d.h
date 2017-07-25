@@ -20,7 +20,7 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_d(array_number_t rot
 	array_number_t ite1251 = 0;
 	if((sqtheta) != (0)) {
 		number_t theta = sqrt(sqtheta);
-		number_t theta_d = (sqtheta_d) / ((2) * (sqtheta));
+		number_t theta_d = (sqtheta_d) / ((2) * (sqrt(sqtheta)));
 		number_t costheta = cos(theta);
 		number_t costheta_d = (theta_d) * (-(sin(theta)));
 		number_t sintheta = sin(theta);

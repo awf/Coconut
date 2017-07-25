@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 #endif
 #else
     	array_number_t res = TOP_LEVEL_usecases_ba_project_d(cam, X, cam, X);
-        total += TOP_LEVEL_linalg_sqnorm_d(res, res);
+        total += TOP_LEVEL_linalg_sqnorm(res);
 #endif
     }
     float elapsed = toc2(t);

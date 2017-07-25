@@ -50,7 +50,7 @@ let exp_d        = <@ diff<N,N,N> (exp %a)  %dx        <==>   (diff<N,N,N> %a %d
 let sin_d        = <@ diff<N,N,N> (sin %a)  %dx        <==>   (diff<N,N,N> %a %dx) * (cos %a)                        @>
 let cos_d        = <@ diff<N,N,N> (cos %a)  %dx        <==>   (diff<N,N,N> %a %dx) * -(sin %a)                       @>
 let tan_d        = <@ diff<N,N,N> (tan %a)  %dx        <==>   (diff<N,N,N> %a %dx) * ((cos %a) ** 2.)                @>
-let sqrt_d       = <@ diff<N,N,N> (sqrt %a)  %dx       <==>   (diff<N,N,N> %a %dx) / (2. * (%a))                     @>
+let sqrt_d       = <@ diff<N,N,N> (sqrt %a)  %dx       <==>   (diff<N,N,N> %a %dx) / (2. * sqrt(%a))                 @>
 let div_d        = <@ diff<N,N,N> (%a / %b) %dx        
                                                        <==>   
                       ((diff<N,N,N> %a %dx) * %b - %a * (diff<N,N,N> %b %dx)) / (%b * %b)                            

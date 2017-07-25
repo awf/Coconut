@@ -10,8 +10,8 @@ clang gmm_d.c -O3 -DFUSED -o gmm_opt_d.exe
 cd ..;
 cd BundleAdjustment;
 echo "Compiling BA ..."
-clang ba_d.c -O3 -o ba_d.exe
-clang ba_d.c -O3 -DFUSED -o ba_opt_d.exe
+clang ba_d.c -O3 -DBUMP -o ba_d.exe
+clang ba_d.c -O3 -DFUSED -DBUMP -o ba_opt_d.exe
 cd ../Micro;
 echo "Compiling Micro Benchmarks ..."
 echo "Compiling dot product ..."
