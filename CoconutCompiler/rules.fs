@@ -147,7 +147,9 @@ let lambdaAppToLet: Rule =
   (fun (e: Expr) ->
     match e with
     | AppN(LambdaN(inputs, body), args) when (List.length inputs) = (List.length args) -> 
-        [LetN(List.zip inputs args, body)]
+        let newInputs = inputs |> List.map (fun v -> new Var(v.Name, v.Type))
+        let inputsMap = (inputs, newInputs) ||> List.zip |> Map.ofList
+        [LetN(List.zip newInputs args, body.Substitute(fun v -> inputsMap |> Map.tryFind v |> Option.map (fun v -> Expr.Var(v) )))]
     | _ -> []
   ), "lambdaAppToLet"
 

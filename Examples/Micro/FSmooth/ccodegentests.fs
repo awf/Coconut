@@ -35,3 +35,10 @@ let rec numSum (n: Number): Number =
     0.
   else 
     numSum (n - 1.) + n
+
+let liftingBug (n: Number): Vector = 
+  let v = (fun i -> n * (double)(i))
+  [| 
+     v 0 ; 
+     v 1
+  |]
