@@ -1,0 +1,47 @@
+\subsection{Properties of shape translation}
+\label{sec:shape-properties}
+
+The target language of shape translation is a subset of \salafsharp{} called \shapefsmooth{}.
+The syntax of the subset is given in Figure~\ref{fig:shape_syntax}. It includes nested pairs, of statically-known depth, to represent shapes, but it does not include vectors.
+That provides an important property for \shapefsmooth{} as follows:
+
+\begin{theorems}
+\label{theorcardheap}
+All expressions resulting from shape translation, do not require any heap memory allocation.
+\end{theorems}
+\textit{Proof.} All the non-shape expressions have either scalar or function type. As it is shown in Figure~\ref{fig:laf_card} all scalar type expressions are translated into zero cardinality (\cardempty), which can be stack-allocated. On the other hand, the function type expressions can also be stack allocated. This is because we avoid partial application. Hence, the captured environment in a closure does not escape its scope. Hence, the closure environment can be stack allocated. Finally, the last case consists of expressions which are the result of shape translation for vector expressions. As we know the number of dimensions of the original vector expressions, the translated expressions are tuples with a known-depth, which can be easily allocated on stack. 
+
+Next, we show the properties of our translation algorithm. First, let us investigate the impact of shape translation on \lafsharp{} types. For array types, we need to represent the shape in terms of the shape of each element of the array, and the cardinality of the array. We encode this information as a tuple. For scalar type and cardinality type expressions, the shape is a cardinality expression. This is captured in the following theorem:
+
+\begin{theorems}
+\label{theorcardtype}
+If the expression \expr{} in \lafsharp{} has the type \typet{}, then \cardtrans{\expr} has type \cardtranstype{\typet}.
+\end{theorems}
+\textit{Proof.} Can be proved by induction on the translation rules from \lafsharp{} to \shapefsmooth{}.
+
+% For the \lafsharp{} expressions with scalar types (such as numeric and boolean) the shape translation is quite straightforward, as specified by the following theorem.
+
+% \begin{theorems}
+% \label{theorcardnumber}
+% The expressions of numeric or boolean type in \lafsharp{} have a zero cardinality (\cardempty).
+% \end{theorems}
+% \textit{Proof.} Obvious from the definition.
+
+\input{form/shape-fsmooth-syntax}
+
+In order to have a simpler shape translation algorithm as well as better guarantees about the expressions resulting from shape translation, two important restrictions are applied on \lafsharp{} programs. 
+\begin{enumerate}
+\item The accumulating function which is used in the \viteratek{} operator should preserve the shape of the initial value. Otherwise, converting the result shape into a closed-form polynomial expression requires solving a recurrence relation.
+\item The shape of both branches of a conditional should be the same. 
+\end{enumerate}
+These two restrictions simplify the shape translation as is shown in Figure~\ref{fig:laf_card}.
+
+
+\begin{theorems}
+\label{theorshapelintime}
+All expressions resulting from shape translation require linear computation time with respect to the size of terms in the original \lafsharp{} program.
+\end{theorems}
+\textit{Proof.} This can be proved in two steps. First, translating a  \lafsharp{} expression into its shape expression, leads to an expression with smaller size. This can be proved by induction on translation rules. Second, the run time of a shape expression is linear in terms of its size. An important case is the \viteratek{} construct, which by applying the mentioned restrictions, we ensured their shape can be computed without any need for recursion. 
+
+Finally, we believe that our translation is correct based on our successful implementation. 
+However, we leave a formal semantics definition and the proof of correctness of the transformation as future work. 

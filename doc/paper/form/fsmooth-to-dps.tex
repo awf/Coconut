@@ -1,0 +1,127 @@
+\begin{figure*}[h]
+\centering
+% \infer{\expr{}=\exprind{0}\ \vmore{\expr}\tab \expr{}: \typemat \tab \typemat \neq \typedouble}
+\begin{tabular}{l r c l}
+& \stgtranss{\expr}{\stgvar} &=&
+\exprdps{}
+\\ \\
+(D-App) & 
+\stgtranss{\vapp{\exprind{0}}{\vvarind{1} ... \vvarind{k}}}{\stgvar}&=&
+% \vallocterm{} (\cardwidth{\cardtrans{\vapp{\exprind{0}}{\vvarind{1} ... \vvarind{k}}}}) 
+% (\vabs{\stgvarind{2}}{}\\
+% & & & 
+% \tab (\stgtranss{\exprind{0}}{\stgempty})\ \stgvarind{2}\ \stgvarpostfix{\vvarind{1}} ... \stgvarpostfix{\vvarind{k}}) \\
+(\stgtranss{\exprind{0}}{\stgempty})\ \stgvar{}\ \stgvarpostfix{\vvarind{1}} ... \stgvarpostfix{\vvarind{k}}  \cardvarpostfix{\vvarind{1}} ... \cardvarpostfix{\vvarind{k}} \\
+% \infer{\expr{}=\vabs{$\vmore{\text{x}}$}{\exprind{1}} \tab \expr{}: \typefun{\typet}{\typemat} \tab \typemat \neq \typedouble}
+(D-Abs) &
+\stgtranse{\vabs{\vvarind{1} ... \vvarind{k}}{\exprind{1}}}&=&
+\vabs{\stgvarind{2} \stgvarpostfix{\vvarind{1}} ... \stgvarpostfix{\vvarind{k}}  \cardvarpostfix{\vvarind{1}} ... \cardvarpostfix{\vvarind{k}}}{ \stgtranss{\exprind{1}}{\stgvarind{2}} } \\
+(D-VarScalar) & 
+\stgtranse{\text{x}}&=&
+\stgvarpostfix{\text{x}}\\
+(D-VarVector) & 
+\stgtranss{\text{x}}{\stgvar}&=&
+\vcopys{\stgvar}{\stgvarpostfix{\text{x}}}\\
+(D-Let) &
+\stgtrans{\vlet{\text{x}}{\exprind{1}}{\exprind{2}}}&=&
+\vlet{\cardvarpostfix{\text{x}}}{\cardtrans{\exprind{1}}}{}\\
+& & & 
+\vallocterm{} (\cardwidth{\cardvarpostfix{\text{x}}}) (\vabs{\stgvarind{2}}{}
+\\
+& & & 
+\tabt \vlet{\stgvarpostfix{\text{x}}}{\stgtranss{\exprind{1}}{\stgvarind{2}}}{\stgtrans{\exprind{2}}})\\
+(D-If) & 
+\stgtrans{\vifthenelse{\exprind{1}}{\exprind{2}}{\exprind{3}}}&=&
+\vifthenelse{\stgtranse{\exprind{1}}}{\stgtrans{\exprind{2}}}{\stgtrans{\exprind{3}}}\\
+% (Tr-BuildEmpty) &
+% \stgtranss{\vbuild{\exprind{0}}{\exprind{1}}}{\stgempty} &=&
+% \vlet{\text{x}}{\stgtranss{\exprind{0}}{\stgempty}}{}\\
+% & & &
+% \withstg{\text{x}}{\stgvarind{2}}{\vbuilds{\stgvarind{2}}{\text{x}}{\stgtranss{\exprind{1}}{\stgempty}}}\\
+% (D-Vector) & \stgtrans{\varr{\exprind{1}, ..., \exprind{\valcard}}} &=&
+% \varrs{\stgvar}{\vabs{\stgvarind{1}}{\stgtranss{\exprind{1}}{\stgvarind{1}}}, ..., \vabs{\stgvarind{\valcard}}{\stgtranss{\exprind{\valcard}}{\stgvarind{\valcard}}}} \\
+% \\
+\\
+& \stgtranstype{\typet} &=&
+\typetdps
+\\
+\\
+(DT-Fun) &
+\stgtranstype{\typefunone{\typeind{1}, ..., \typeind{k}}{\typemat}} &=&
+\typefunone{\typestg{}, \stgtranstype{\typeind{1}}, ..., \stgtranstype{\typeind{k}}, \cardtranstype{\typeind{1}}, ..., \cardtranstype{\typeind{k}}}{\stgtranstype{\typemat}} \\
+(DT-Mat) &
+\stgtranstype{\typemat} &=&
+\typemat \\
+(DT-Bool) &
+\stgtranstype{\typebool} &=&
+\typebool \\
+(DT-Card) &
+\stgtranstype{\typecard} &=&
+\typecard \\
+\end{tabular}
+\caption{Translation from \lafsharp{} to \salafsharp{}}
+\label{fig:salaf_trans}
+\end{figure*}
+
+% \begin{figure}
+% \centering
+% \begin{subfigure}[b]{.85\columnwidth}
+% \lett{} add = \vabs{a b}{}
+% \\
+% \tabt
+% \vbuild{(\vlength{a})}{(\vabs{i}{\vget{a}{i} + \vget{b}{i}})} \code{in}
+% \\
+% \vlet{vec1}{[1, 2, 3]}{}
+% \\
+% \vlet{vec2}{[4, 5, 6]}{}
+% \\
+% add vec1 vec2
+% \caption{Initial Program in \lafsharp}
+% \end{subfigure}
+% \begin{subfigure}[b]{.85\columnwidth}
+% \vlet{\cardvarpostfix{add}}{\vabscard{\cardvarpostfix{a} \cardvarpostfix{b}}{\cardvector{\cardempty}{\cardvectorsize{\cardvarpostfix{a}}}}}{}
+% \\
+% \vallocterm{} (\cardwidth{\cardvarpostfix{add}}) (\vabs{\stgvarind{1}}{}
+% \\
+% \tabt \lett{} \stgvarpostfix{add} = \vabs{\stgvarind{2} \stgvarpostfix{a} \stgvarpostfix{b}}{}
+% \\
+% \tabt \tabt \vbuilds{\stgvarind{2}}{(\vlength{\stgvarpostfix{a}})}{\vabs{\stgvarind{3} \stgvarpostfix{i}}{\vget{\stgvarpostfix{a}}{\stgvarpostfix{i}} + \vget{\stgvarpostfix{b}}{\stgvarpostfix{i}}}}
+% \\
+% \tabt \vlet{\cardvarpostfix{vec1}}{\cardvector{\cardempty}{3}}{}
+% \\
+% \tabt \vallocterm{} (\cardwidth{\cardvarpostfix{vec1}}) (\vabs{\stgvarind{4}}{}
+% \\
+% \tabt \tabt \vlet{\stgvarpostfix{vec1}}{\varrs{\stgvarind{4}}{\vabs{\_}{1}, \vabs{\_}{2}, \vabs{\_}{3}}}{}
+% \\
+% \tabt \tabt \vlet{\cardvarpostfix{vec2}}{\cardvector{\cardempty}{3}}{}
+% \\
+% \tabt \tabt \vallocterm{} (\cardwidth{\cardvarpostfix{vec2}}) (\vabs{\stgvarind{5}}{}
+% \\
+% \tabt \tabt \tabt \vlet{\stgvarpostfix{vec2}}{\varrs{\stgvarind{5}}{\vabs{\_}{4}, \vabs{\_}{5}, \vabs{\_}{6}}}{}
+% \\
+% \tabt \tabt \tabt
+% \stgvarpostfix{add} \stgvarind{0} \stgvarpostfix{vec1} \stgvarpostfix{vec2}
+% \\
+% )\tabtm)\tabtm)
+% \caption{Transformed Program in \salafsharp}
+% \end{subfigure}
+% \begin{subfigure}[b]{.85\columnwidth}
+% \lett{} \stgvarpostfix{add} = \vabs{\stgvarind{2} \stgvarpostfix{a} \stgvarpostfix{b}}{}
+% \\
+% \tabt \vbuilds{\stgvarind{2}}{(\vlength{\stgvarpostfix{a}})}{\vabs{\stgvarind{3} \stgvarpostfix{i}}{\vget{\stgvarpostfix{a}}{\stgvarpostfix{i}} + \vget{\stgvarpostfix{b}}{\stgvarpostfix{i}}}}
+% \\
+% \vallocterm{} 6 (\vabs{\stgvarind{6}}{}
+% \\
+% \tabt \vlet{\stgvarpostfix{vec1}}{\varrsat{\stgvarind{6}}{1, 2, 3}}{}
+% \\
+% \tabt \vlet{\stgvarpostfix{vec2}}{\varrsat{(\stgoffset{} \stgvarind{6} 3)}{4, 5, 6}}{}
+% \\
+% \tabt
+% \stgvarpostfix{add} \stgvarind{0} \stgvarpostfix{vec1} \stgvarpostfix{vec2}
+% \\
+% )
+% \caption{More Optimized Program in \salafsharp}
+% \end{subfigure}
+% \caption{Example of Translation from \lafsharp{} to \salafsharp{}}
+% \label{fig:salaf_trans_ex}
+% \end{figure}

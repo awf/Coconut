@@ -10,9 +10,7 @@ type Comparer(tol: float) =
 
 /// A float wrapper to test generic methods
 type TestType(v: float) =
-    static member Zero = TestType 0.0
-
-
+        static member Zero = TestType 0.0
 
 (* 
 
@@ -97,7 +95,7 @@ let test_delta () =
     test <@ sdelta 1 0 2 = 0 @>
     test <@ sdelta (1,1) (1,1) 2.2 = 2.2 @>
     test <@ sdelta (1,1) (1,2) 2.2 = 0.0 @>
-(*
+
 /// GDot: Generalized dot
 //  Consider the function composition 
 //     h(x) = g(f(x))
@@ -129,17 +127,73 @@ type GDot =
     static member dot (c2: float, c2c3: float, c1c2: float) = c2c3 * c1c2
     static member dot (c2: float[], c2c3: float[], c1c2: float[]) = Array.fold2 (fun s a b -> s + a * b) 0.0 c2c3 c1c2
 
+type Tuple =
+    static member get(tup:'T*'T, ind:int) = 
+        match ind, tup with
+        | 0, (a,_) -> a
+        | 1, (_,b) -> b
+        | _, _ -> failwith "unpack"
+    static member get(tup:'T*'T*'T, ind:int) = 
+        match ind, tup with
+        | 0, (a,_,_) -> a
+        | 1, (_,b,_) -> b
+        | 2, (_,_,c) -> c
+        | _, _ -> failwith "unpack"
+    static member get(tup:'T*'T*'T*'T, ind:int) = 
+        match ind, tup with
+        | 0, (a,_,_,_) -> a
+        | 1, (_,b,_,_) -> b
+        | 2, (_,_,c,_) -> c
+        | 3, (_,_,_,d) -> d
+        | _, _ -> failwith "unpack"
+    static member get(tup:'T*'T*'T*'T*'T, ind:int) = 
+        match ind, tup with
+        | 0, (a,_,_,_,_) -> a
+        | 1, (_,b,_,_,_) -> b
+        | 2, (_,_,c,_,_) -> c
+        | 3, (_,_,_,d,_) -> d
+        | 4, (_,_,_,_,e) -> e
+        | _, _ -> failwith "unpack"
+    static member get(tup:'T*'T*'T*'T*'T*'T, ind:int) = 
+        match ind, tup with
+        | 0, (a,_,_,_,_,_) -> a
+        | 1, (_,b,_,_,_,_) -> b
+        | 2, (_,_,c,_,_,_) -> c
+        | 3, (_,_,_,d,_,_) -> d
+        | 4, (_,_,_,_,e,_) -> e
+        | 5, (_,_,_,_,_,f) -> f
+        | _, _ -> failwith "unpack"
+    static member get(tup:'T*'T*'T*'T*'T*'T*'T, ind:int) = 
+        match ind, tup with
+        | 0, (a,_,_,_,_,_,_) -> a
+        | 1, (_,b,_,_,_,_,_) -> b
+        | 2, (_,_,c,_,_,_,_) -> c
+        | 3, (_,_,_,d,_,_,_) -> d
+        | 4, (_,_,_,_,e,_,_) -> e
+        | 5, (_,_,_,_,_,f,_) -> f
+        | 6, (_,_,_,_,_,_,g) -> g
+        | _, _ -> failwith "unpack"
+
 /// Vec: Vector given size and builder.
 [<StructuredFormatDisplay("{Display}")>]
-type Vec<'T>(size: int, builder:int->'T) = 
+type Vec<'T>(values:'T[]) = 
     // Fields:
-    member this.v = Array.init size builder
-    member this.size = size
+    member this.v = values
+    member this.size = values.Length
 
-    // Additional constructors:
-    new(size:int, value:'T) = Vec<'T> (size, fun _->value)
-    new(size:int, values:'T[]) = Vec<'T> (size, fun i -> values.[i])
-    new(values:'T[]) = Vec<'T> (values.Length, fun i -> values.[i])
+    // Constructor from builder
+    new(size:int, builder: int -> 'T) = Vec<'T> (Array.init size builder)
+    // Constructor from tuples makes for a little less visual noise when making literals
+    new(v1:'T,v2:'T) = Vec<'T> ([| v1;v2 |])
+    new(v1:'T,v2:'T,v3:'T) = Vec<'T> ([| v1;v2;v3 |])
+    new(v1:'T,v2:'T,v3:'T,v4:'T) = Vec<'T> ([| v1;v2;v3;v4 |])
+    new(v1:'T,v2:'T,v3:'T,v4:'T,v5:'T) = Vec<'T> ([| v1;v2;v3;v4;v5 |])
+    new(v1:'T,v2:'T,v3:'T,v4:'T,v5:'T,v6:'T) = Vec<'T> ([| v1;v2;v3;v4;v5;v6 |])
+    new(tup:'T*'T) = Vec<'T> (2, fun i -> Tuple.get(tup,i))
+    new(tup:'T*'T*'T) = Vec<'T> (3, fun i -> Tuple.get(tup,i))
+    new(tup:'T*'T*'T*'T) = Vec<'T> (4, fun i -> Tuple.get(tup,i))
+    new(tup:'T*'T*'T*'T*'T) = Vec<'T> (5, fun i -> Tuple.get(tup,i))
+    new(tup:'T*'T*'T*'T*'T*'T) = Vec<'T> (6, fun i -> Tuple.get(tup,i))
 
     // Methods:
     member this.Item i = this.v.[i]
@@ -163,9 +217,13 @@ let inline Vec_map (f:'T1 -> 'T2) (v:Vec<'T1>) = Vec<'T2>(Array.map f v.v)
 
 let inline Vec_map2 (f:'T->'S->'R) (a:Vec<'T>) (b:Vec<'S>) = Vec<'R>(a.size, fun i->f a.[i] b.[i])
 
-
+// to_vec_of_tuples: Vec<T>*Vec<S> -> Vec<T*S>
+let to_vec_of_tuples (v:Vec<'T> * Vec<'S>):Vec<'T * 'S> = Vec_map2 (fun ai bi -> ai,bi) (fst v) (snd v)
 
 (**** Constructors ****)
+
+// It's sometimes handy to quickly create a little-vector
+let vec2 (x:float) (y:float) = Vec<float>([| x;y |])
 
 // It's sometimes handy to quickly create a little-vector
 let vec3 (x:float) (y:float) (z:float) = Vec<float>([| x;y;z|])
@@ -197,6 +255,9 @@ let inline Vec_seye' (n:int) (s:'T) = Vec<Vec<'T>>(n, fun i -> Vec_ae' n i s)
 // Identity "matrix" of float
 let inline Vec_eye (n:int) = Vec_seye n 1.0
 
+// Construct a Vec<Vec<>> easily
+let inline VecVec (rows:int) (cols:int) (builder:int -> int -> 'T) = Vec<Vec<'T>>(rows, fun i-> Vec<'T>(cols, builder i))
+
 (**** Arithmetic ****)
 // add: Duple<Vec<R>> -> Vec<R> (=RHS)
 let Vec_add (a:Vec<float>, b:Vec<float>) = Vec<float>(a.size, fun i-> a.[i] + b.[i])
@@ -221,6 +282,14 @@ let Vec_smul (a:float, b:Vec<float>)=Vec<float>(b.size, fun i-> a * b.[i])
 
 // dot': R * Vec<R> -> Vec<R> * Vec<Vec<R>>
 let Vec_smul' (a:float, b:Vec<float>): Vec<float> * Vec<Vec<float>> = (b, Vec_seye b.size a)
+
+// outer: Vec<R> * Vec<R> -> Vec<Vec<R>>
+let Vec_outer (a:Vec<float>, b:Vec<float>) = Vec<Vec<float>>(a.size, fun i -> Vec<float>(b.size, fun j -> a.[i]*b.[j]))
+
+// outer': Vec<R> * Vec<R> -> Vec<Vec<Vec<R>>> * Vec<Vec<Vec<R>>>
+let Vec_outer' (a:Vec<float>, b:Vec<float>): Vec<Vec<Vec<float>>> * Vec<Vec<Vec<float>>> = 
+        Vec<Vec<Vec<float>>>(a.size, fun i -> VecVec a.size b.size (fun i' j' -> sdelta i i' b.[j'])),
+        Vec<Vec<Vec<float>>>(b.size, fun j -> VecVec a.size b.size (fun i' j' -> sdelta j j' a.[i']))
 
 (**** Finite difference gradients/jacobians ****)
 type FiniteDiff with
@@ -287,10 +356,23 @@ let Vec_norm' (v:Vec<float>) : Vec<float> =
     GDot.dot (sumsqv, sqrt' sumsqv, sumsqv')
 
 // normalized : Vec<R> -> Vec<R> = v / norm(v)
-let normalized (v:Vec<float>) : Vec<float> = Vec_smul (recip (Vec_norm v), v)
+let normalized (v:Vec<float>) : Vec<float> = 
+    let n = Vec_norm v
+    let s = recip n  
+    Vec_smul (s,v) 
 
 // normalized': Vec<R> -> Vec<Vec<R>> = (I*norm(v)^2 - v v')/norm(v)^3
 let normalized' (v:Vec<float>) : Vec<Vec<float>> = 
+    let n = Vec_norm v
+    let n' = Vec_norm' v
+    let s = recip n
+    let s' = GDot.dot (s, recip' n, n')
+    let v' = Vec_eye v.size
+    // returned was Vec_smul (s,v)
+    // Chain rule: h(x) = g(f(x)), so h'(x) = GDot(fx, g'(fx), f'x)
+    GDot.dot((s,v), Vec_smul' (s,v), to_vec_of_tuples (s',v'))
+
+    // Note:
     // (v1 / sqrt(v1^2 + v2^2), v2 / sqrt(v1^2 + v2^2))
     // d/dv1 = 1/n^2 * (v1 * n^-1 * v1 - n * 1, v2 * n^-1 * v1)
     // d/dv2 = 1/n^2 * (v1 * n^-1 * v2        , v2 * n^-1 * v2 - n * 1)
@@ -298,17 +380,6 @@ let normalized' (v:Vec<float>) : Vec<Vec<float>> =
     // d/dv2 = 1/n^3 * (v1 * v2        , v2 * v2 - n^2 * 1)
     // d/dv = v v' / n^3 - I / n
     // d/dv = (vhat vhat' - I) / n
-    let n = Vec_norm v
-    let n' = Vec_norm' v
-    let s = recip n  // 1/n
-    let s' = GDot.dot (s, recip' n, n')
-    let ret = Vec_smul (s, v)  // 1/n * v
-    let ret'_1, ret'_2 = Vec_smul' (s, v)
-    // Vec_smul: R * Vec<R> -> Vec<R>
-    //  C1
-    // Vec_smul': R * Vec<R> -> Vec<Rfloat> * Vec<Vec<R>>
-    //       R*Vec<R>   Vec<Rfloat> * Vec<Vec<R>>  Vec<R*Vec<R>>
-    GDot.dot((s,v),     Vec_smul' (s,v),           (Vec_map2 (fun a b -> a,b) s' (Vec_eye v.size)))
 
 (**** Testing ****)
 // Check that infinity norm of difference of two vectors is less than a tolerance
@@ -325,54 +396,66 @@ type Comparer with
     member this.cf (a:Vec<float>, b:Vec<float>):bool = Vec_all2 (fun (ai:float) bi -> this.cf (ai, bi)) a b      // FIXME: Would love to make this generic on Vec<'T>...
     member this.cf (a:Vec<Vec<float>>, b:Vec<Vec<float>>):bool = Vec_all2 (fun (ai:Vec<float>) bi -> this.cf (ai, bi)) a b
     member this.cf (a:Vec<Vec<float>>*Vec<Vec<float>>, b:Vec<Vec<float>>*Vec<Vec<float>>) = this.cf(fst a, fst b) && this.cf(snd a, snd b)
-    *)
 
 [<Test>]
-let test_Vec_basics () = 
-    1
-    //let near = Comparer(1e-8)
-    //let a = vec3 1.1 2.2 3.3
-    //let b = vec3 3.1 -1.2 -5.7
-    //let ones3 = Vec_ones 3
-    //let eye3 = Vec_seye 3 1.0
-    //test <@ near.cf (a, (Vec<float>(3, fun i -> (float i + 1.0) * 1.1))) @>
-    //test <@ near.cf (Vec_ones 4, Vec<float>(4, fun i->1.0)) @>
-    //test <@ near.cf (Vec_zeros 1, Vec<float>(1, fun i->0.0)) @>
-    //test <@ near.cf (Vec_zeros 3, Vec<float>(3, 0.0)) @>
-    //test <@ near.cf (Vec_add (a,b), vec3 4.2 1.0 -2.4) @>
-    //test <@ near.cf (Vec_add' (a,b), (Vec_eye 3, Vec_eye 3)) @>
-    //test <@ Vec_all (fun x -> x > 0.0) (vec3 0.1 0.1 0.1) @>
+let test_vec_basics () = 
+    let near = Comparer(1e-8)
+    let a = vec3 1.1 2.2 3.3
+    let s = 2.3
+    let sa = vec3 (s*1.1) (s*2.2) (s*3.3)
+    let b = vec3 3.1 -1.2 -5.7
+    let ones3 = Vec_ones 3
+    let eye3 = Vec_seye 3 1.0
+    test <@ near.cf (a, (Vec<float>(3, fun i -> (float i + 1.0) * 1.1))) @>
+    test <@ near.cf (Vec_ones 4, Vec<float>(4, fun i->1.0)) @>
+    test <@ near.cf (Vec_zeros 1, Vec<float>(1, fun i->0.0)) @>
+    test <@ near.cf (Vec_zeros 3, Vec<float>(3, fun i->0.0)) @>
+    test <@ near.cf (Vec_add (a,b), vec3 4.2 1.0 -2.4) @>
+    test <@ near.cf (Vec_add' (a,b), (Vec_eye 3, Vec_eye 3)) @>
+    test <@ near.cf (Vec_smul (s,a), sa) @>
+    let o = Vec_outer (vec2 1.1 2.2, vec3 1.3 1.4 1.5)
+    test <@ near.cf (o.[0].[2], 1.1 * 1.5) @>
+    test <@ near.cf (o.[1].[1], 2.2 * 1.4) @>
+    test <@ Vec_all (fun x -> x > 0.0) (vec3 0.1 0.1 0.1) @>
 
-
- [<Test>]
+[<Test>]
 let test_vec_diffs () =
-    1
-    //let fd = FiniteDiff(1e-5)
-    //let cf = Comparer(1e-4)
-    //let a = vec3 1.1 -2.2 3.1
-    //test <@ cf.cf (fd.diff Vec_norm a, Vec_norm' a) @>
-
-(*
-
-    
-    
+    let fd = FiniteDiff(1e-5)
+    let cf = Comparer(1e-4)
+    let a = vec3 1.1 -2.2 3.1
+    let b = vec2 0.1 0.2
+    let s = -5.8
+    test <@ cf.cf (fd.diff Vec_norm a, Vec_norm' a) @>
+    test <@ cf.cf (fd.diff normalized a, normalized' a) @>
+    test <@ cf.cf (fd.diff (fun x-> Vec_smul (s, x)) b, snd (Vec_smul' (s, b))) @>
+    test <@ cf.cf (fd.diff (fun x-> Vec_smul (x, b)) s, fst (Vec_smul' (s, b))) @>
 
 // Mat: Matrix expressed as vector of rows.
 [<StructuredFormatDisplay("{Display}")>]
-type Mat<'T>(rows: int, cols: int, builder: int->int->'T) = 
-    new(rows:int, cols:int, value:'T) = Mat<'T> (rows, cols, fun i j -> value)
+type Mat<'T>(v: Vec<Vec<'T>>) = 
+    new(rows:int, cols:int, builder: int->int->'T) = Mat<'T>(Vec<Vec<'T>>(rows, fun i -> Vec<'T>(cols, builder i)))
+    new(rows:int, cols:int, value:'T) = Mat<'T>(Vec<Vec<'T>>(rows, fun _->Vec<'T>(cols, fun _ -> value)))
     new(rows:int, cols:int, values:'T[]) = Mat<'T> (rows, cols, fun i j -> values.[i * cols + j])
-    new(v: Vec<Vec<'T>>) = Mat<'T> (v.size, v.[0].size, fun i j -> v.[i].[j])
 
-    member this.rows = rows
-    member this.cols = cols
-    member this.v = Vec<Vec<'T>> (rows, fun i -> Vec<'T> (cols, builder i))
+    // Construct from array of tuples minimizes visual noise for literals.
+    new(values:('T*'T)[]) = Mat<'T> (Vec<Vec<'T>>(values.Length, fun i -> new Vec<'T>(values.[i])))
+    new(values:('T*'T*'T)[]) = Mat<'T> (Vec<Vec<'T>>(values.Length, fun i -> new Vec<'T>(values.[i])))
+    new(values:('T*'T*'T*'T)[]) = Mat<'T> (Vec<Vec<'T>>(values.Length, fun i -> new Vec<'T>(values.[i])))
+    new(values:('T*'T*'T*'T*'T)[]) = Mat<'T> (Vec<Vec<'T>>(values.Length, fun i -> new Vec<'T>(values.[i])))
+    new(values:('T*'T*'T*'T*'T*'T)[]) = Mat<'T> (Vec<Vec<'T>>(values.Length, fun i -> new Vec<'T>(values.[i])))
 
-    member this.Item i = this.v.[i / cols].[i % cols]
+    member this.v = v
+    member this.rows = v.size
+    member this.cols = v.[0].size
+
+    member this.Item i = this.v.[i / this.cols].[i % this.cols]
     member this.Item (i:int, j:int) = this.v.[i].[j]
     member this.Display = "Mat[" + (Array.fold (fun s (v:Vec<'T>) -> s + "; " + v.ToString()) "" this.v.v) + "]"
     override this.ToString() = this.Display
 
+let mat (vv: Vec<Vec<'T>>) = Mat<'T>(vv)
+
+let Mat_eye n = mat (Vec_eye n)
 
 type Arith = 
     // add: R * R -> R
@@ -399,24 +482,15 @@ type Arith =
     static member mul' (a:float, b:float): float * float = (b,a)
     
     // mul: R * Vec<R> -> Vec<R>
-    static member mul (a:float, b:Vec<float>) = Vec<float>(b.size, fun i -> Arith.mul (a, b.[i]))
+    static member mul (a:float, b:Vec<float>) = Vec_smul (a,b)
     // mul': R * Vec<R> -> Vec<R> * Vec<Vec<R>>
-    static member mul' (a:float, b:Vec<float>): Vec<float> * Vec<Vec<float>> = (b, Vec_eye b.size)
+    static member mul' (a:float, b:Vec<float>) = Vec_smul' (a,b)
     
     // dot: Vec<R> * Vec<R> -> R
-    static member dot (a:Vec<float>, b:Vec<float>) = Array.fold2 (fun accum ai bi -> accum + ai * bi) 0.0 a.v b.v
+    static member dot (a:Vec<float>, b:Vec<float>) = Vec_dot (a,b)
     // dot': Vec<R> * Vec<R> -> Vec<R> * Vec<R>
-    static member dot' (a:Vec<float>, b:Vec<float>): Vec<float> * Vec<float> = (b, a)
+    static member dot' (a:Vec<float>, b:Vec<float>) = Vec_dot' (a,b)
     
-    // outer: Vec<R> * Vec<R> -> Mat<R>
-    static member outer (a:Vec<float>, b:Vec<float>) = Mat<float>(a.size, b.size, fun i j -> a.[i]*b.[j])
-    // outer': Vec<R> * Vec<R> -> Vec<Mat<R>> * Vec<Mat<R>>
-    static member outer' (a:Vec<float>, b:Vec<float>): Vec<Mat<float>> * Vec<Mat<float>> = 
-        Vec<Mat<float>>(a.size, fun i -> Mat<float>(a.size, b.size, fun i' j' -> sdelta i i' b.[j'])),
-        Vec<Mat<float>>(b.size, fun j -> Mat<float>(a.size, b.size, fun i' j' -> sdelta j j' a.[i']))
-
-
-(*
 // No function overloading in F#
 let VSmul (a:Vec<float>, b:float) = Vec<float>(a.size, fun i -> a.[i] * b)
 let SVmul (a:float, b:Vec<float>) = Vec<float>(b.size, fun i -> a * b.[i])
@@ -425,8 +499,8 @@ let VVouter (a:Vec<float>, b:Vec<float>) = Mat<float>(a.size, b.size, fun i j ->
 let MSmul (a:Mat<float>, b:float) = Mat<float>(a.rows, a.cols, fun i j -> a.[i,j] * b)
 let SMmul (a:float, b:Mat<float>) = Mat<float>(b.rows, b.cols, fun i j -> a * b.[i,j])
 
-let diff_VSmul (a:Vec<float>, b:float) : (Vec<Vec<float>> * Vec<float>) = ((MSmul (eye(a.size), b)).v, a)
-let diff_SVmul (a:float, b:Vec<float>) : (Vec<float> * Vec<Vec<float>>) = (b, (SMmul (a, eye(b.size))).v)
+let diff_VSmul (a:Vec<float>, b:float) : (Vec<Vec<float>> * Vec<float>) = ((MSmul (Mat_eye(a.size), b)).v, a)
+let diff_SVmul (a:float, b:Vec<float>) : (Vec<float> * Vec<Vec<float>>) = (b, (SMmul (a, Mat_eye(b.size))).v)
 
 // [m11 m12] = [a11*b a12*b] = [a11 a12] * b
 // [m21 m22]   [a21*b a22*b]   [a21 a22]
@@ -440,6 +514,23 @@ let diff_SMmul (a:float, b:Mat<float>) : (Mat<float> * Mat<Mat<float>>) =
     (b,
      Mat<Mat<float>>(b.rows, b.cols, fun i j -> Mat<float>(b.rows, b.cols, fun k l -> if i = k && j = l then a else 0.0)))
 
+
+let cross_matrix (n: Vec<float>) = Mat([|    0.0, -n.[2],    n.[1]; 
+                                           n.[2],    0.0,   -n.[0]; 
+                                          -n.[1],  n.[0],      0.0 |])
+
+let diff_cross_matrix (n: Vec<float>) = Vec(Mat([|    0.0,    0.0,    0.0; 
+                                                      0.0,    0.0,   -1.0; 
+                                                      0.0,    1.0,    0.0   |]),
+                                            Mat([|    0.0,    0.0,    1.0; 
+                                                      0.0,    0.0,    0.0; 
+                                                     -1.0,    0.0,    0.0   |]), 
+                                            Mat([|    0.0,   -1.0,    0.0; 
+                                                      1.0,    0.0,    0.0; 
+                                                      0.0,    0.0,    0.0   |]) )
+
+
+                                                      
 // Uncurried version ... I can see a few ways to do it, but all require a function to be packaged with its derivative, and then what about higher derivatives?
 //let cmul (a:Vec<'T>) = fun (b:'T) -> Vec<'T>(a.size, fun i -> a.[i] * b)
 //let diff_cmul (a:Vec<'T>) = 
@@ -452,29 +543,5 @@ let diff_SMmul (a:float, b:Mat<float>) : (Mat<float> * Mat<Mat<float>>) =
 
 
 
-
-let cross_matrix (n: Vec<float>) = Mat<float>(3,3, [|    0.0; -n.[2];    n.[1]; 
-                                                       n.[2];    0.0;   -n.[0]; 
-                                                      -n.[1];  n.[0];      0.0 |])
-
-let diff_cross_matrix (n: Vec<float>) = Vec<Mat<float>>([|
-                                                            Mat<float>(3,3, [|    0.0;    0.0;    0.0; 
-                                                                                  0.0;    0.0;   -1.0; 
-                                                                                  0.0;    1.0;    0.0   |]); 
-                                                            Mat<float>(3,3, [|    0.0;    0.0;    1.0; 
-                                                                                  0.0;    0.0;    0.0; 
-                                                                                 -1.0;    0.0;    0.0   |]); 
-                                                            Mat<float>(3,3, [|    0.0;   -1.0;    0.0; 
-                                                                                  1.0;    0.0;    0.0; 
-                                                                                  0.0;    0.0;    0.0   |])
-                                                         |])
-
-let basis_vector (n:int) (i:int) = Vec<float>(n, fun i' -> if i' = i then 1.0 else 0.0)
-let diff (f:Vec<float> -> float) (x0:Vec<float>) = 
-    let delta = 1e-5 in 
-    let e = basis_vector x0.size in
-    Vec<float>(x0.size, fun i -> (f (VVadd (x0, VSmul (e i, delta))) - f x0) * (1.0 / delta))
-
 // reminder: toby says windows used dps
-*)
-*)
+

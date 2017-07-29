@@ -1,0 +1,31 @@
+\section{Related Work}
+\label{sec:related}
+\subsection{Programming Languages without GC}
+Functional programming languages without using garbage collection dates back to Linear Lisp~\cite{baker1992lively}. However, most functional languages (dating back to
+the Lisp around 1959) use garbage collection for managing memory.
+
+Region-based memory management was first introduced in ML~\cite{TOFTE1997109} and then in an extended version of C, called Cyclone~\cite{Grossman:2002:RMM:512529.512563}, as an alternative or complementary technique to in order to remove the need for runtime garbage collection. This is achieved by allocating memory regions based on the liveness of objects. This approach improves both performance and memory consumption in many cases. However, in many cases the size of the regions is not known, whereas in our approach the size of each storage location is computed using the shape expressions. Also, in practice there are cases in which one needs to combine this technique with garbage collection~\cite{Hallenberg:2002:CRI:512529.512547}, as well as cases in which the performance is still not satisfying~\cite{Birkedal:1996:RIV:237721.237771, Tofte:2004:RRM:993034.993040}. Furthermore, the complexity of region inference, hinders the maintenance of the compiler, in addition to the overhead it causes for compilation time.
+
+Safe~\cite{montenegro2009simple, montenegro2008type} suggests a simpler region inference algorithm by restricting the language to a first-order functional language. Also, linear regions~\cite{fluet2006linear} relax the stack discipline restriction on region-based memory management. This is because of certain usecases, which use unbounded amount of memory due to recursion. A Haskell implementation of this approach is given in~\cite{kiselyov2008lightweight}. The restricted form of recursion allowed by \lafsharp{} means that we never face similar issues. Hence, we choose to always follow the stack discipline for memory management.
+
+\subsection{Estimation of Memory Consumption}
+
+One can use type systems for estimating memory consumption. Hofmann and Jost \cite{Hofmann:2003:SPH:604131.604148} enrich the type system with certain annotations and uses linear programming for the heap consumption inference. Another approach is to use sized types~\cite{vasconcelos2008space} for the same purpose.
+
+Size slicing~\cite{Henriksen:2014:SSH:2636228.2636238} uses a technique similar to ours for inferring the shape of arrays in the Futhark programming language. However, in \lafsharp{} we guarantee that shape inference is simplified and is based only on size computation, whereas in their case, they rely on compiler optimizations for its simplification and in some cases it can fall back to inefficient approaches which in the worst case could be as expensive as evaluating the original expression~\cite{Hofmann:2003:SPH:604131.604148}. The FISh programming language~\cite{jay1999programming} also makes shape information explicit in programs, and resolves the shapes at compilation time by using partial evaluation.
+
+Clinger~\cite{Clinger98propertail} explores different space efficiency classes. Based on the proposed formalism he defines formally what it means for a language to \textit{properly} handle tail recursion. Next, we see related work on optimizing tail recursive calls.
+
+\subsection{Optimizing Tail Calls}
+Destination-passing style was originally introduced in~\cite{larus1989restructuring}, then was encoded functionally in~\cite{Research98afunctional} by using linear types~\cite{turner1995once, wadler1990linear}. Walker and Morrisett \cite{walker2000alias} use extensions to linear type systems to support aliasing which is avoided in vanilla linear type systems. The idea of destination-passing style has many similarities to \textit{tail-recursion modulo cons}~\cite{friedman1975unwinding, wadler1984listlessness}.
+
+\subsection{Array Programming Languages}
+APL~\cite{iverson1962programming} can be considered as the first array programming language. Futhark~\cite{Henriksen:2014:SSH:2636228.2636238, Henriksen:2014:BCI:2627373.2627388} and SAC~\cite{Grelck2006} are functional array programming languages. One interesting property of such languages is the support for fusion, which is achieved in \lafsharp{} by certain rewrite rules. However, as this topic is out of the scope of this paper, we leave more discussion for the future work.
+
+There are many domain-specific languages (DSLs) for numerical workloads such as Opt~\cite{devito2016opt}, 
+Halide~\cite{ragan2013halide}, Diderot~\cite{chiw2012diderot}, and OptiML~\cite{sujeeth2011optiml}. All these DSLs 
+generate parallel code from their high-level programs. 
+Furthermore, Halide~\cite{ragan2013halide}
+exploits the memory hierarchy by making tiling and scheduling decisions, similar to Spiral~\cite{spiral} and LGen~\cite{spampinato2016basic}. 
+Although both parallelism and improving use of a memory
+hierarchy are orthogonal concepts to translation into DPS, they are still interesting directions for \lafsharp{}.  

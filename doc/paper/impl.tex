@@ -1,0 +1,69 @@
+\section{Implementation}
+\label{sec:impl}
+\subsection{\lafsharp{} Language}
+We implemented \lafsharp{} as a subset of F\#. Hence \lafsharp{} programs are normal F\# programs. Furthermore, the built-in constants (presented in Figure~\ref{fig:laf_type_system}) are defined as a library in F\# and all library functions (presented in Figure~\ref{fig:smooth_lib}) are implemented using these built-in constants. If a given expression is in the subset supported by \lafsharp{}, the compiler accepts it.
+
+For implementing the transformations presented in the previous sections, instead of modifying the F\# compiler, we use F\# quotations~\cite{fsharpquotation}. Note that there is no need for the user to use F\# quotations in order to implement a \lafsharp{} program. The F\# quotations are only used by the compiler developer in order to implement transformation passes.
+
+Although \lafsharp{} expressions are F\# expressions, it is not possible to express memory management constructs used by \salafsharp{} expressions using the F\# runtime. Hence, after translating \lafsharp{} expressions to \salafsharp{}, we compile down the result program into a programming language which provides memory management facilities, such as C. 
+The generated C code can either be used as kernels by other C programs, or invoked in F\# as a native function using inter-operatorability facilities
+provided by Common Language Runtime (CLR).
+
+Next, we discuss why we choose C and how the C code generation works.
+\subsection{C Code Generation}
+\label{sec:ccodegen}
+There are many programming languages which provide manual memory management. Among them we are interested in the ones which give us full control on the runtime environment, while still being easy to debug. Hence, low-level imperative languages such as C and C++ are better candidates than LLVM mainly because of debugging purposes.
+
+One of the main advantages of \salafsharp{} is that we can generate idiomatic C from it. More specifically, the generated C code is similar to a handwritten C program. This is because, we can manage the memory in a stack fashion. The translation from \salafsharp{} programs into C code is quite straightforward.
+
+As our DPS encoded programs are using the memory in a stack fashion, the memory could be managed more efficiently. More specifically, we first allocate a specific amount of buffer in the beginning. Then, instead of using the standard \code{malloc} function, we bump-allocate from our already allocated buffer. Hence, in most cases allocating memory is only a pointer arithmetic operation to advance the pointer to the last allocated element of the buffer. In the cases that the user needs more than the amount which is allocated in the buffer, we need to double the size of the buffer. Furthermore, memory deallocation is also very efficient in this scheme. Instead of invoking the \code{free} function, we need to only decrement the pointer to the last allocated storage.
+
+We compile lambdas by performing closure conversion. Because \salafsharp{} does not allow partial application, the environment captured by a closure can be stack allocated.
+
+As mentioned in Section~\ref{sec:lafsharp}, polymorphism is not allowed except for some built-in constructs in the language (e.g. \vbuildk{} and \viteratek{}). Hence, all the usages of these constructs are monomorphic, and the C code generator knows exactly which code to generate for them. Furthermore, the C code generator does not need to perform the closure conversion for the lambdas passed to the built-in constructs. Instead, it can generate an efficient for-loop in place. As an example, the generated C code for a running sum function of \lafsharp{} is:\\[-6pt]
+\begin{lstlisting}[language=C, numbers=none]
+double vector_sum(vector v) {
+  double sum = 0;
+  for (index idx = 0; idx < v->length; idx++) {
+    sum = sum + v->elements[idx];
+  }
+  return sum;
+}
+\end{lstlisting}
+
+Finally, for the \code{alloc} construct in \salafsharp{}, the generated C code consists of the following three parts. First, a memory allocation statement is generated which allocates the given amount of storage. Second, the corresponding body of code which uses the allocated storage is generated. Finally, a memory deallocation statement is generated which frees the allocated storage. The generated C code for our working example is:\\[-6pt]
+\begin{lstlisting}[language=C, numbers=none]
+double f(storage r0, vector vec1_dps, vector vec2_dps, 
+            vec_shape vec1_shp, vec_shape vec2_shp) {
+  storage r1 = malloc(vector_bytes(vec1_shp));
+  vector tmp_dps = 
+    vector_add_dps(r1, vec1_dps, vec2_dps, vec1_shp, vec2_shp);
+  double result = vector_norm_dps(r0, tmp_dps, vec1_shp);
+  free(r1);
+  return result;
+}
+\end{lstlisting}
+We use our own implementation of \lstinline|malloc| and \lstinline|free| for bump allocation.
+
+% \subsection{C Runtime}
+% For scalar expressions, the generated C code uses the standard integer and double types existing in Standard C. For vector expressions, we encode them in terms of structs which contains the following two fields: 1) an integer representing the length the array, and 2) an array representing the elements of the vector. The C struct for a vector of double numbers is as follows:
+
+% \begin{lstlisting}[language=C, numbers=none]
+% typedef struct vector {
+%   int length;
+%   double* elements;
+% }* vector;
+% \end{lstlisting}
+
+% For matrix expressions, we encode them in terms of vectors of vector elements. 
+% % Although this way is not the best representation in terms of efficiency, it works very well with the vector type.
+% The corresponding C struct definition of this type is as follows:
+
+% \begin{lstlisting}[language=C, numbers=none]
+% typedef struct matrix {
+%   int length;
+%   vector* elements;
+% }* matrix;
+% \end{lstlisting}
+
+% % Regarding memory management, there are two important constructs that should be provided by the C runtime: 1) memory allocation, and 2) memory deallocation. One could use the existing \code{malloc} and \code{free} constructs provided by the standard C. However, we observed that the invocation of these two functions, is a significant proportion of the run time of the generated C programs.

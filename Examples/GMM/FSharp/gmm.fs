@@ -90,15 +90,15 @@ let gammaln a p =
     log (Math.Pow(Math.PI,(0.25*(float (p*(p-1)))))) + 
         ([for j = 1 to p do yield SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))] |> List.sum)
 
-let log_wishart_prior p (wishart:Wishart) (Qdiags:float[][]) (sum_qs:float[]) (icf:float[][]) =
+let log_wishart_prior p (wishart:Wishart) (qdiags:float[][]) (sum_qs:float[]) (icf:float[][]) =
     let n = p + wishart.m + 1
     let k = icf.Length
     let C = (float (n*p))*((log wishart.gamma) - 0.5*(log 2.)) - (gammaln (0.5*(float n)) p)
     seq { 
       for ik = 0 to k-1 do
-        let frobenius1 = sumsq Qdiags.[ik] 
+        let frobenius1 = sumsq qdiags.[ik] 
         let frobenius2 = sumsq icf.[ik].[p..]
-        0.5*(square wishart.gamma)*(frobenius1+frobenius2) - wishart.m*sum_qs.[ik]
+        0.5*(square wishart.gamma)*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
     } |> Seq.sum
 
 // Gaussian mixture negative log likelihood

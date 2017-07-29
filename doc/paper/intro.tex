@@ -1,0 +1,63 @@
+\section{Introduction}
+
+Applications in computer vision~\cite{triggs1999bundle,taylor2014user} may need to run in memory-constrained environments with strict latency requirements, and have high turnover of small-to-medium-sized arrays.
+For these applications the overhead of malloc/free, or of a garbage collector, is unacceptable,
+so programmers often implement custom memory management directly in C. % awf: find concrete evidence, e.g. https://www.edwardrosten.com/cvd/toon/html-internals/allocator_8hh_source.html.
+
+In this paper we propose a technique that automates a common custom memory-management
+technique, which we call \emph{destination passing style} (DPS).
+We allow the programmer to code in a high-level functional style, while guaranteeing
+extremely efficient stack allocation of all intermediate arrays.
+Fusion techniques for such languages are absolutely essential to eliminate
+intermediate arrays, and are well established.  But fusion leaves behind an
+irreducible core of intermediate arrays that \emph{must} exist to accommodate
+multiple or random-access consumers.  
+
+That is where DPS takes over.  The key idea is that every function is given the storage in which to store its result.  The caller of the function is responsible for allocating the destination storage, and deallocating it as soon as it is not longer needed.  
+% These are my suggestions, but I don't know this audience, so please feel free to adjust/delete.
+Of course this incurs a burden at the call site of computing the size of the callee result, but we will show how a surprisingly rich input language can nevertheless allow these computations to be done in negligible time.  Our contributions are:
+% awf: Dup of next line.
+% We make the following contributions:
+
+% Functional languages: high-level of abstraction, performance not comparable to low-level C code.
+% Functional programming languages provide a high level of abstraction which improves programmer productivity~\cite{hughes1989functional}. However, from a performance point of view, they lag behind the low-level imperative language counterparts. 
+
+
+% Main reason is memory management: uses garbage collection with runtime overhead
+%Lack of an optimal memory management policy for the workload in question is an important reason for this performance gap, as most functional rely on an automated garbage collector for handling memory management. Garbage collectors can be quite competitive to manual memory management if given enough heap~\cite{hertz2005quantifying} but maintaining low working sets {\em and} high throughput is non-trivial. For applications
+%in computer vision that may need to run on memory-constrained environments with strict latency requirements and have high churn of many small-to-medium-sized objects (e.g.\ 3$\times$4 matrices) the overhead of using a garbage collector might not be acceptable. 
+
+% % Region-based memory management: pushes to compilation time, performance is not that good yet
+% Region-based memory management~\cite{TOFTE1997109} was introduced as an alternative or complementary technique to in order to remove the need for runtime garbage collection. This is achieved by allocating memory regions based on the liveness of objects. This approach clearly improves memory consumption, however, in practice the performance is still not satisfying~\cite{Birkedal:1996:RIV:237721.237771, Tofte:2004:RRM:993034.993040}. Furthermore, the complexity of region inference, hinders the maintenance of the compiler.
+% \dv{I do not understand why we bring regions up  here? It seems pretty irrelevant. Actually regions do not necessarily improve memory
+% consumption, they may make it worse, because a GC may collect earlier than a bulk-deallocation point of a region. Finally the performance
+% {\bf can} be pretty good, for example a whole high-performant ML compiler was based on regions. Anyway, I don't understand why we mention regions here.}
+
+% We propose DPS on \lafsharp{} to do proper memory management.
+%In this paper, we propose a technique for  efficient memory management, more specifically for prompt deallocation of unnecessary objects without sacrificing throughput or introducing big latencies. The core of this technique is the \textit{destination-passing style} (DPS) representation. In this representation, the destination storage is passed to every function. Hence, the caller of the function is responsible for allocating the destination storage (by guessing how much space the function will need), and deallocating the destination storage as soon as it is not longer needed. This representation naturally combines with stack allocation of objects and can lead to faster code with a reasonable amount of memory consumption.
+
+% We use this technique in the context of array programming workloads. More specifically, we present \lafsharp, a functional array programming language, for which we can generate efficient low-level code, and which is designed to make the DPS transformation possible and cheap.
+% % In addition to manual memory management for this language, we demonstrate how we perform loop fusion in this language by using local rewrite rules. 
+
+\begin{itemize}
+% \item We present the \lafsharp{} higher-order functional language in Section~\ref{sec:lafsharp}. This language has the following properties. First, because of its functional nature, transformation rules can be expressed in terms of equality relations. More specifically, we show how we can present loop fusion transformations using local rewrite rules for this language. Second, because of certain restrictions imposed on it we can generate efficient C code from it. Third, because of the same restrictions during compilation time one can evaluate the amount of memory required for a particular expression. \dv{statically OR dynamically, but cheaply, without any extra allocations (theorem).}
+% \item We propose the DPS intermediate representation in Section~\ref{sec:salafsharp}. There are two main benefits for such a representation. First, it ensures that there is no memory leak. Second, because of its nature, the allocations are happening in the call site instead of the function body. Hence, this provides optimization opportunities without requiring inlining.
+% \item We demonstrate how the needed amount of memory can be inferred for \lafsharp{} expressions in Section~\ref{sec:card}. Based on that, we give a translation from \lafsharp{} to its destination-passing style form, called \salafsharp{} in Section~\ref{sec:fsmooth_to_dps}.
+% \item We provide the system implementation as well as several performance tuning techniques in Section~\ref{sec:impl}. Furthermore, we show how we generate idiomatic C code from the destination-passing style version of our language, which uses the memory in a stack-fashion.
+
+% \item Finally, we experimentally evaluate the runtime performance and memory consumption improvements in Section~\ref{sec:exp}. The experiments use computer vision algorithms implemented in \lafsharp{}.
+\item We propose a new destination-passing style intermediate representation that captures a stack-like memory management discipline and ensures there
+are no leaks (Section~\ref{sec:salafsharp}). This is a good compiler intermediate language because we can perform transformations on it and be able to reason about how much
+memory a program will take. It also allows efficient C code generation with bump-allocation. Although it is folklore to compile functions
+in this style when the result size is known, we have not seen DPS used as an actual compiler intermediate language, despite the fact that DPS has been used for other purposes (c.f. Section~\ref{sec:related}).
+ 
+\item DPS requires to know at the call site how much memory a function will need.
+We design a carefully-restricted higher-order functional language, \lafsharp{} (Section~\ref{sec:lafsharp}), and a
+\emph{compositional} shape translation (Section~\ref{sec:shapetrans}) that guarantee
+to compute the result size of any \lafsharp{} expression, either statically
+or at runtime, with no allocation, and a run-time cost independent of the data or its size (Section~\ref{sec:shape-properties}).
+We do not know any other language stack with these properties.
+ 
+\item We evaluate the runtime and memory performance of both micro-benchmarks and real-life computer vision and machine-learning workloads written in our high-level language and compiled to C via DPS (as shown in Section~\ref{sec:exp}).
+We show that our approach gives performance comparable to, and sometimes better than, idiomatic C++.\!\footnote{Keen C++ programmers may wonder what advantage we anticipate over C++. Primarily this is the future possibility of program transformations such as automatic differentiation, which are easily expressed in \lafsharp{}, but remain slow in C++~\cite{srajerbenchmark}, and would be expected to generate code as efficient as our benchmarks indicate.}
+\end{itemize}

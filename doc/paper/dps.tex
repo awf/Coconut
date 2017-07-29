@@ -1,0 +1,45 @@
+\section{Destination-Passing Style}
+\label{sec:salafsharp}
+
+\input{form/dps-fsmooth-syntax}
+\input{form/dps-fsmooth-typesystem}
+
+Thus motivated, we define a new intermediate language, \salafsharp{}, in which memory
+allocation and deallocation is explicit.  \salafsharp{} uses
+\emph{destination-passing style}: every array-returning function receives as its first parameter a pointer to memory in which to store the result array.
+No function  allocates the storage needed for its result; instead the responsibility of allocating
+and deallocating the output storage of a function is  given to the caller of that function. Similarly, all the storage allocated inside a function can be deallocated as soon as the function returns its result. 
+
+Destination passing style is a standard programming idiom in C.  For example, the C standard library procedures that return a string (e.g. \code{strcpy}) expect the caller to provide storage for the result. This gives the programmer full control over memory management for string values. Other languages have exploited destination-passing style during compilation~\cite{Henriksen:2014:SSH:2636228.2636238, Henriksen:2014:BCI:2627373.2627388}.
+
+
+% Every storage is allocated before being passed to a function. This way, that function does need to worry about freeing that storage space, and should only manage the storage allocated inside its body.
+
+\subsection{The \salafsharp{} language}
+
+The syntax of \salafsharp{} is shown in Figure~\ref{fig:salaf_core_syntax}, while its type system is in Figure~\ref{fig:salaf_type_system}. 
+The main additional construct in this language is the one for allocating a particular amount of storage space \vallocterm{} t1 (\vabs{\stgvarind{}}{t2}). In this construct
+t1 is an expression that evaluates to the size (in bytes) that is required for storing
+the result of evaluating t2. This storage is available in the lexical scope of the 
+lambda parameter, \emph{and is deallocated outside this scope}. 
+The previous example can be written in the following way in \salafsharp{}:
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+f = \vabs{\stgvarind{1} vec1 vec2}{} \vallocterm{} (vecBytes vec1) (\vabs{\stgvarind{2}}{}
+\\
+\tabt \tabt
+vectorNorm\_dps \stgempty{} (vectorAdd\_dps \stgvarind{2} vec1 vec2)
+\\
+\tabt )
+\end{minipage}\hfill
+\end{figure}
+Each lambda abstraction typically takes an additional parameter which specifies the storage space that 
+is used for its result.  Furthermore, every application should be applied to an additional parameter 
+which specifies the memory location of the return value in the case of an array-returning function. 
+However, a scalar-returning function is applied to a dummy empty memory location, specified by \stgempty{}. 
+In this example, the number of bytes allocated for the memory location \stgvarind{2} is specified
+by the expression (vecBytes vec1) which computes the number of bytes of the array vec1.
+
+%Every expression which results in the creation of a vector requires passing the output storage space. This storage space is created using the \cod{alloc} construct in the call site of the functions. This is one of the main differences of DPS with the traditional region-based memory management.
+

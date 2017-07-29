@@ -1,0 +1,87 @@
+\section{\lafsharp}
+\label{sec:lafsharp}
+
+\input{form/fsmooth-syntax}
+
+\input{form/fsmooth-typesystem}
+
+\input{form/fsmooth-lib}
+
+\lafsharp{} is a subset of F\#, an ML-like functional programming language (the syntax is slightly different from F\# for presentation reasons).  It is designed to be \emph{expressive enough} to make it easy to write array-processing workloads, while simultaneously being \emph{restricted enough} to allow it to be compiled to code that is as efficient as hand-written C, with very simple and efficient memory management.  We are willing to sacrifice some expressiveness to achieve higher performance. 
+
+\subsection{Syntax and types of \lafsharp{}}
+In addition to the usual $\lambda$-calculus constructs (abstraction, application, and variable access), \lafsharp{} supports let binding and conditionals.  In support of array programming, the language
+has several built-in functions defined: \vbuildk{} for producing arrays;  \viteratek{} for iteration for a particular number of times (from \cod{0} to \cod{n-1}) while maintaining a state across iterations; \vclength{} to get the size of an array; and \vcget{} to index an array. 
+
+The syntax of \lafsharp{} is shown in Figure~\ref{fig:laf_core_syntax}, while the type system and several other built-in functions are shown in Figure~\ref{fig:laf_type_system}. 
+Note that Figure~\ref{fig:laf_core_syntax} shows an abstract syntax and parentheses can be used as necessary. Also, \vmore{\text{x}} and \vmore{\expr} denote one or more variables and expressions, respectively, which are separated by spaces, whereas, \vmore{\typet} represents one or more types which are separated by commas.
+
+Although \lafsharp{} is a higher-order functional language, it is carefully restricted in order to make it efficiently compilable:
+\begin{itemize}
+\item \lafsharp{} does not support arbitrary recursion, hence is not Turing Complete.
+Instead one can use \vbuildk{} and \viteratek{} for producing and iterating over arrays.
+\item The type system is monomorphic. The only polymorphic functions are the built-in functions of the language, such as \vbuildk{} and \viteratek{}, which are best thought of as language constructs rather than first-class functions.
+\item An array, of type $\typearray{\typemat}$, is one-dimensional but can be nested. If arrays
+are nested they are expected to be rectangular, which is enforced by defining the specific \typecard{} type for dimension of arrays, which is used as the type of the first parameter of the \vbuildk{} function.\todo{SLPJ: What happens if not?}
+% \awf{does F\# quotation not desugar polymorphism anyway?}
+% Amir: Yes and No. For application sites yes. What if we define a polymorphic function (e.g. map)? Then % how we should generate C code for that function? So in such cases, the quotation cannot desugar polymorphism, as the function is polymorphic. 
+\item No partial application is allowed as an expression in this language. 
+Additionally, an abstraction cannot return a function value. These two restrictions are enforced by (T-App) and (T-Abs) typing rules, respectively (c.f. Figure~\ref{fig:laf_type_system}). 
+% \item There is no arbitrary recursion allowed on the language. In order to allow a managed form of recursion and looping, one should use \vbuildk{} or \viteratek{}.
+% \item The cardinality of vectors and matrices is restricted and can be appeared only as the following forms. First, the cardinality can be a constant literal (shown as N). Second, it can appear as an expression showing the cardinality of a vector (shown as \code{length}). Third, it can appear as the addition of two other cardinalities. Finally, it can be an input to a function.
+\end{itemize}
+
+% SLPJ: what restrictions? I'm commenting this out for now
+% Throughout the paper, in order to ensure certain guarantees about the language, we impose more restrictions on this language as we proceed. However, the given restrictions seem sufficient for the reasoning power required up to here.
+
+% Figure~\ref{fig:laf_type_system} specifies the typing rules as well as certain predefined functions for this language. The given predefined functions are expressive enough for a wide range of numeric applications. Next, we define several linear algebra and matrix operations which can be defined using the \lafsharp{} language.
+
+As an example, Figure~\ref{fig:smooth_lib} shows a linear algebra library defined using \lafsharp{}. First, there are vector mapping operations (vectorMap and vectorMap2) which \textit{build} vectors using the size of the input vectors. The $i^{th}$ element (using a zero-based indexing system) of the output vector is the result of the application of the given function to the $i^{th}$ element of the input vectors. Using the vector mapping operations, one can define vector addition, vector element-wise multiplication, and vector-scalar multiplication. Then, there are several vector operations which consume a given vector by \textit{reducing} them. For example, vectorSum computes the sum of the elements of the given vector, which is used by the vectorDot and vectorNorm operations. Similarly, several matrix operations are defined using these vector operations. More specifically, matrix-matrix multiplication is defined in terms of vector dot product and matrix transpose. 
+Finally, vector outer product is defined in terms of matrix multiplication of the matrix form of the two input vectors.
+
+\subsection{Fusion}
+Consider this function, which accepts two vectors and returns the norm of the vector resulting from the addition of these two vectors.
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+f = \vabs{vec1 vec2}{}
+  vectorNorm (vectorAdd vec1 vec2)
+\end{minipage}\hfill
+\end{figure}
+\noindent
+Executing this program, as is, involves constructing two vectors in total: one intermediate vector which is the result of adding the two vectors \code{vec1} and \code{vec2}, and another intermediate vector which is used in the implementation of vectorNorm (vectorNorm invokes vectorDot, which invokes vectorEMul in order to perform the element-wise multiplication between two vectors). In this 
+example one can remove the intermediate vectors by {\em fusion} (or \emph{deforestation})~\cite{deforestation, foldr-fusion-1, Svenningsson:2002:SFA:581478.581491, Coutts07streamfusion}. After fusion the function might look like this:
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.95\textwidth}\raggedright
+f = \vabs{vec1 vec2}{}
+\\
+\tabt \viterate{(\vabs{sum idx}{sum + (\vget{vec1}{idx}+\vget{vec2}{idx}) * (\vget{vec1}{idx}+\vget{vec2}{idx})})}{0}{(\vlength{vec1})}
+\end{minipage}\hfill
+\end{figure}
+\noindent
+This is \emph{much} better because it does not construct the intermediate vectors. Instead, the elements of the intermediate vectors are consumed as they are produced.
+
+Fusion is well studied, and we take it for granted in this paper.  However, there are plenty of cases in which the intermediate array cannot be removed. For example: the intermediate array is passed to a foreign library function;  it is passed to a library function that is too big to inline; or it is consumed by multiple consumers, or by a consumer with a random (non-sequential) access pattern.  
+
+In these cases there are good reasons to build an intermediate array, but we want to allocate, fill, use, and de-allocate it extremely efficiently.  In particular, we do not want to rely on a garbage collector.
+
+% \subsection{Loop Fusion}
+
+% If a human expert was writing the same program in a low-level language, none of these intermediate vectors was necessary. It was sufficient to perform a single loop which in the same time was producing the elements of these vectors and consuming those values {\em on the fly}. In other words, the different loops for constructing and consuming these intermediate vectors could have been {\em fused} together, hence no intermediate vector was created. This is known as {\em loop fusion} or {\em deforestation}~\cite{deforestation, foldr-fusion-1, Svenningsson:2002:SFA:581478.581491, Coutts07streamfusion}.
+
+% Deforestation is achieved using the rewrite rules given in Figure~\ref{fig:laf_eq}. This is in essence very similar to pull arrays. The \code{build} function is constructing a pull array, and the first two rules are removing the materialization of intermediate arrays. The next two rules partially evaluate array element access and array length computation for vector values.
+% % The last rule, is for optimizing  Instead, an optimized for loop is generated which iterates over the elements of the range vector by producing each element on the fly.
+
+% Although deforestation can remove many intermediate arrays, there are cases that the intermediate array can either not be removed, or it is less preferable to be removed. The former case happens when an external function is invoked, thus there is no way to rewrite it in terms of \cod{build}. Hence, the defined fusion rules are not applicable. The latter case happens whenever the result of the intermediate array is reused for many other computations. Then, removing this intermediate array leads to many recomputations. In such cases, prompt deallocation for big arrays is important. 
+
+% \subsection{Memory Management}
+
+% According to the following theorem, we do not need to worry about the memory management for non-array types.
+% \begin{theorems}
+% \label{no_heap_scalar_thrm}
+% If \expr{} is a term in \lafsharp{} with a non-array type (it has either a function, scalar, cardinality, or boolean type), it does not need any memory location in the heap to be stored. 
+% \end{theorems}
+% \textit{Proof.} For the objects of scalar, cardinality, and boolean type it is obvious. For function expressions, as as \lafsharp{} does not allow partial application, we need to only consider the case of lambda expressions. Hence, we have to prove that we do not need to heap allocate any memory for the closure environment. By assuming that the result of a lambda is not aliasing any of the elements in its body and environment, we can allocate the environment for the closure on heap.
+
+% The \lafsharp{} programming language is implicitly managing memory, thus has no construct for memory management. Hence, like most other functional programming languages it relies on garbage collectors for managing memory. In the next section, we define a variant of this language which makes the memory management explicit.

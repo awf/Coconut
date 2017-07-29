@@ -1,0 +1,26 @@
+\begin{figure}[t]
+\centering
+\def\comment{\hfill -- }
+\begin{tabular}{r c l}
+% Prog & ::= & $\overline{\text{\cod{let} \text{x} = \expr{}}}$ \inn{} \expr{}
+% \\
+\exprshape & ::= & \exprshape{} $\vmore{\exprshape}$ |
+\vabscard{\vmore{\text{x}}}{\exprshape} | 
+\text{x} |
+\shapevar{} |
+\text{c} |
+\lett{} x = \exprshape{} \inn{} \exprshape{} \\
+\shapevar & ::= & \cardempty{} | 
+\valcard{} | 
+\cardvector{\valcard}{\shapevar} \\
+\text{c} & ::= & \vcvecshape{} |
+\cardvectorsize{} |
+\cardvectorelem{} | \vcaddcard{} | \vcmulcard{} \\
+\typetshape{} & ::= & \typefun{\typetshape}{\carddom} | 
+\carddom \\
+\carddom{} & ::= & \typecard{} |
+\typenestedcard{\typecard{}}{\carddom{}}\\
+\end{tabular}
+\caption{\shapefsmooth{} syntax, which is a subset of the syntax of \salafsharp{} presented in Figure~\ref{fig:salaf_core_syntax}.}
+\label{fig:shape_syntax}
+\end{figure}

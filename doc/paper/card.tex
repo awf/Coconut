@@ -1,0 +1,46 @@
+\subsection{Shape translation}
+\label{sec:card}\label{sec:shapetrans}
+
+\input{form/fsmooth-to-shape}
+
+As we have seen, rule (D-Let) relies on the \emph{shape translation} of the right
+hand side.  This translation is given in Figure~\ref{fig:laf_card}.
+If $\expr$ has type $\typet$, then $\cardtrans{\expr}$ is an expression 
+of type $\cardtranstype{\typet}$ that gives the shape of $\expr$.
+This expression can always be evaluated without allocation.
+
+A \emph{shape} is an expression of type $\carddom{}$ (Figure~\ref{fig:salaf_core_syntax}),
+whose values are given by $\shapevar$ in that Figure.  There are three cases to consider
+
+First, a scalar value has shape $\cardempty$ (rules (S-ExpNum), (S-ExpBool)).
+
+Second, when $\expr$ is an array, $\cardtrans{\expr}$ gives the shape of the array as
+a nested tuple, such as $(3,(4,\cardempty))$ for a 3-vector of 4-vectors.
+So the ``shape'' of an array specifies the cardinality of each dimension.
+
+Finally, when $\expr$ is a function, $\cardtrans{\expr}$ is a function that takes the shapes of its arguments and returns the shape of its result. 
+You can see this directly in rule (S-App): to compute the shape of (the result of) a call, apply the shape-translation of the function to the shapes of the arguments.
+This is possible because \lafsharp{} programs do not allow the programmer
+to write a function whose result size depends on the contents of its input array.
+
+What is the shape-translation of a function $\text{f}$?  Remembering that every in-scope variable $\text{f}$ has become a pair of variables one for the value and one for the shape, we can simply use the latter, $\cardvarpostfix{\text{f}}$, as we see in rule (S-Var).
+
+For arrays, could the shape be simply the number of bytes required for the array,
+rather than a nested tuple?  No.
+Consider the following function, which returns the first row of its argument matrix:
+
+firstRow = \vabs{m: \typearray{\typearray{\typedouble{}}}}{\vget{m}{0}}
+
+The shape translation of firstRow, namely \cardvarpostfix{firstRow}, is given the shape of m, and must produce the
+shape of m's first row.  It cannot do that given only the number of bytes in m; it must know how many rows
+and columns it has.  But by defining shapes as a nested tuple, it becomes easy: see rule (S-Get).
+
+The shape of the result of the iteration construct (\viteratek) requires the shape of 
+the state expression to remain the same across iterations. Otherwise the compiler
+produce an error, as it is shown in rule (S-Reduce).  
+
+The other rules are straightforward.  \emph{The key point is this: by translating every in-scope variable, including functions, into a pair of variables, we can give a \emph{compositional} account of shape translation, even in a higher order language.}
+
+
+
+
