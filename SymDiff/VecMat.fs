@@ -201,7 +201,7 @@ type Vec<'T>(values:'T[]) =
     static member str(x: 'T) = let bx = box x in if ( bx :? float ) then sprintf "%.4f" (unbox bx) else x.ToString()
 
     // Methods:
-    member this.Item i = this.v.[i]
+    member this.Item (i:int) = this.v.[i]
     member this.Display = "Vec[" + (Array.fold (fun s (v:'T) -> s + " " + (Vec<'T>.str v)) "" this.v) + " ]"
     override this.ToString() = this.Display
 
@@ -492,6 +492,8 @@ let mat (vv: Vec<Vec<'T>>) = Mat<'T>(vv)
 
 let Mat_eye n = mat (Vec_eye n)
 
+let Mat_zeros (rows:int) (cols:int) = Mat<float>(rows, cols, 0.0)
+
 type R = float
 
 type Arith = 
@@ -609,41 +611,6 @@ let diff_SMmul (a:float, b:Mat<float>) : (Mat<float> * Mat<Mat<float>>) =
     (b,
      Mat<Mat<float>>(b.rows, b.cols, fun i j -> Mat<float>(b.rows, b.cols, fun k l -> if i = k && j = l then a else 0.0)))
 
-let cross (a: Vec<float>, b:Vec<float>) = Vec(a.[1]*b.[2] - a.[2]*b.[1],
-                                              a.[2]*b.[0] - a.[0]*b.[2],
-                                              a.[0]*b.[1] - a.[1]*b.[0])
-
-let cross' (a: Vec<float>, b:Vec<float>):Vec<Vec<float>>*Vec<Vec<float>> = 
-    Mat([|0.0, -b.[2], b.[1]; b.[2], 0.0, -b.[0]; -b.[1], b.[0], 0.0|]).v,
-    Mat([|0.0, a.[2], -a.[1]; -a.[2], 0.0, a.[0]; a.[1], -a.[0], 0.0|]).v
-
-let cross_matrix (n: Vec<float>) = Mat([|    0.0, -n.[2],    n.[1]; 
-                                           n.[2],    0.0,   -n.[0]; 
-                                          -n.[1],  n.[0],      0.0 |])
-
-let cross_matrix' (n: Vec<float>) =     Vec(Mat([|  0.0,    0.0,    0.0;  
-                                                    0.0,    0.0,   -1.0; 
-                                                    0.0,    1.0,    0.0  |]),
-
-                                            Mat([|  0.0,    0.0,    1.0; 
-                                                    0.0,    0.0,    0.0; 
-                                                   -1.0,    0.0,    0.0  |]), 
-
-                                            Mat([|  0.0,   -1.0,    0.0; 
-                                                    1.0,    0.0,    0.0; 
-                                                    0.0,    0.0,    0.0  |]) )
-
-                                                    
-[<Test>]
-let test_cross_matrix () =
-    let fd = FiniteDiff(1e-5)
-    let cf = Comparer(1e-7)
-    let a = Vec (1.0,2.0,3.0)
-    let b = Vec (-0.3,7.1,5.9)
-    test <@ cf.cf (fd.diff cross_matrix a, cross_matrix' a) @>
-    test <@ cf.cf (fd.diff (fun x -> cross (a,x)) b, snd (cross' (a,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> cross (x,b)) a, fst (cross' (a,b))) @>
-
 type GDot with
     // C2: Tv, C2C3: Tv<Vec>, C1C2: Tv<Vec>
     // C3: Vec, C1:  
@@ -678,6 +645,10 @@ type GDot with
            let d2 = Arith.mul(snd c2c3, snd c1c2)
            Arith.add(d1, d2) 
 
+    // C2: DV, C2C3: DVV => C3 = V; C1C2: DVV
+    static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<Vec<float>> * Vec<Vec<float>>, c1c2: Vec<Vec<float>> * Vec<Vec<float>>) =
+           GDot.dot(c2, c2c3, to_vec_of_tuples c1c2) 
+
     static member dot(c2:float * float, c2c3:float * float, c1c2: Vec<float> * Vec<float>) =
            let d1 = Arith.mul(fst c2c3, fst c1c2)
            let d2 = Arith.mul(snd c2c3, snd c1c2)
@@ -693,88 +664,6 @@ type GDot with
            let d2 = Arith.mul(snd c2c3, snd c1c2)
            Arith.add(d1, d2) 
                                             
-
-let rodrigues_rotate_point (rot: Vec<float>, x: Vec<float>) =
-    let sqtheta = Vec_sumsq rot
-    if abs(sqtheta) < 1e-5 then
-      let theta = sqrt sqtheta                 
-      let costheta = cos theta                 
-      let sintheta = sin theta                 
-      let theta_inv = recip theta              
-      let w = Vec_smul (theta_inv, rot)        
-      let w_cross_X = cross (w, x)             
-      let wx = Vec_dot (w,x)                   
-      let tmp = wx * (1. - costheta)           
-      let v1 = Vec_smul (costheta, x)          
-      let v2 = Vec_smul (sintheta, w_cross_X)  
-      let v1plusv2 = Vec_add (v1,v2)           
-      let wtmp = Vec_smul (tmp, w)             
-      let ret = Vec_add (v1plusv2, wtmp)
-      ret         
-    else 
-      Vec_add (x, cross (rot, x))
-
-let rodrigues_rotate_point' (rot: Vec<float>, x: Vec<float>) : Vec<Vec<float>> * Vec<Vec<float>> =
-    let rot' = Vec_eye 3, Vec_seye 3 0.0
-    let x' = Vec_seye 3 0.0, Vec_eye 3
-    let sqtheta = Vec_sumsq rot                 in let sqtheta'     = Vec_sumsq' rot, Vec_zeros 3
-    if abs(sqtheta) < 1e-5 then
-      let theta = sqrt sqtheta                  in let theta'       = GDot.dot(sqtheta, sqrt' sqtheta, sqtheta')
-      let costheta = cos theta                  in let costheta'    = GDot.dot(theta, cos' theta, theta')
-      let sintheta = sin theta                  in let sintheta'    = GDot.dot(theta, sin' theta, theta')
-      let theta_inv = recip theta               in let theta_inv'   = GDot.dot(theta, recip' theta, theta')
-      let w = Vec_smul (theta_inv, rot)         in let w'           = GDot.dot((theta_inv, rot), Vec_smul' (theta_inv, rot), (theta_inv', rot'))
-      let w_cross_X = cross (w, x)              in let w_cross_X'   = GDot.dot((w, x), cross' (w, x), (w', x'))
-      let wx = Vec_dot (w,x)                    in let wx'          = GDot.dot((w,x), Vec_dot' (w,x), (w',x'))
-      let lmc = 1.0 - costheta                  in let lmc'         = Vec_smul (-1.0, fst costheta'), snd costheta'
-      let tmp = wx * lmc                        in let tmp'         = GDot.dot((wx,lmc), Arith.mul' (wx,lmc), (wx',lmc'))
-      let v1 = Vec_smul (costheta, x)           in let v1'          = GDot.dot((costheta, x), Vec_smul' (costheta, x), (costheta', x'))
-      let v2 = Vec_smul (sintheta, w_cross_X)   in let v2'          = GDot.dot((sintheta, w_cross_X), Vec_smul' (sintheta, w_cross_X), (sintheta', w_cross_X'))
-      let v1plusv2 = Vec_add (v1,v2)            in let v1plusv2'    = GDot.dot((v1,v2), Vec_add' (v1,v2), (v1', v2'))
-      let wtmp = Vec_smul (tmp, w)              in let wtmp'        = GDot.dot((tmp,w), Vec_smul' (tmp,w), (tmp', w'))
-      let ret = Vec_add (v1plusv2, wtmp)        in let ret'         = GDot.dot((v1plusv2, wtmp), Vec_add' (v1plusv2, wtmp), (v1plusv2', wtmp'))
-      ret'
-    else 
-      let rx = cross (rot, x)  in let rx' =  GDot.dot((rot,x), cross' (rot,x), (rot', x'))
-      GDot.dot((x,rx), Vec_add' (x,rx), (x', rx'))
-
-                                 
-[<Test>]
-let test_rodrigues () =
-    let fd = FiniteDiff(1e-5)
-    let cf = Comparer(1e-7)
-    let a = Vec (1.0,2.0,3.0)
-    let atiny = Vec_smul (1e-6, Vec (1.0,2.0,3.0))
-    let b = Vec (-0.3,7.1,5.9)
-    test <@ cf.cf (fd.diff cross_matrix a, cross_matrix' a) @>
-    test <@ cf.cf (fd.diff (fun x -> cross (a,x)) b, snd (cross' (a,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> cross (x,b)) a, fst (cross' (a,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) a, fst (rodrigues_rotate_point' (a,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (a,x)) b, snd (rodrigues_rotate_point' (a,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) atiny, fst (rodrigues_rotate_point' (atiny,b))) @>
-
-let radial_distort (rad_params: Vec<R>, proj: Vec<R>):Vec<R> =
-    let rsq = Vec_sumsq proj
-    let L = 1. + rad_params.[0] * rsq + rad_params.[1] * rsq * rsq
-    Vec_smul (L, proj)
-
-let radial_distort' (k: Vec<R>, proj: Vec<R>):Vec<Vec<R>> * Vec<Vec<R>> =
-    let rsq = Vec_sumsq proj            in let rsq' = Vec_sumsq' proj
-    let rsqsq = sqr rsq                 in let rsqsq' = GDot.dot(rsq, sqr' rsq, rsq')
-    let k0 = k.[0]                      in let k0' =  get' k 0
-    let k1 = k.[1]                      in let k1' =  get' k 1
-    let L = 1. + k0 * rsq + k1 * rsqsq  in let L' =  Arith.add(Arith.mul (rsq, k0'), Arith.mul (rsqsq, k1')), 
-                                                     Arith.add(Arith.mul (k0, rsq'), Arith.mul (k1, rsqsq'))
-    GDot.dot((L, proj), Vec_smul' (L, proj), (L', (Vec_seye k.size 0.0, Vec_seye proj.size 1.0)))
-
-[<Test>]
-let test_radial_distort' () =
-    let fd = FiniteDiff(1e-5)
-    let cf = Comparer(1e-7)
-    let k = Vec (0.1,-0.02)
-    let b = Vec (-0.3,7.1)
-    test <@ cf.cf (fd.diff (fun x -> radial_distort (x,b)) k, fst (radial_distort' (k,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> radial_distort (k,x)) b, snd (radial_distort' (k,b))) @>
 
 
 

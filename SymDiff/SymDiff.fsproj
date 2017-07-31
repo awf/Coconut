@@ -58,10 +58,10 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <None Include="VecMat.fsx" />
     <Content Include="packages.config" />
     <Compile Include="VecMat.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="bundle.fs" />
+    <Compile Include="z_main.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
