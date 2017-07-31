@@ -748,7 +748,7 @@ let test_rodrigues () =
     test <@ cf.cf (fd.diff (fun x -> cross (x,b)) a, fst (cross' (a,b))) @>
     test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) a, fst (rodrigues_rotate_point' (a,b))) @>
     test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (a,x)) b, snd (rodrigues_rotate_point' (a,b))) @>
-    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) atiny, snd (rodrigues_rotate_point' (atiny,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) atiny, fst (rodrigues_rotate_point' (atiny,b))) @>
 
 //let rodrigues (a: Vec<float>) = Arith.add (Vec_eye 3, cross_matrix                                            
 
