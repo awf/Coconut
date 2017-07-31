@@ -89,6 +89,33 @@ let mbuild_d     =
 //                       //snd (foldOnRange<Number * Number> (fun s i -> fst s, snd s) (%a, diff %a %dx) %c1 %c2)
 //                                                                                                           @>
 
+let tupleType tp1 tp2 = 
+    typeof<Number * Number>.GetGenericTypeDefinition().MakeGenericType(tp1, tp2)
+
+let foldDiffTransform (acc: Var) idx body z st en v2 = 
+    let tp = acc.Type
+    let tupleTp = tupleType tp tp
+    let newAcc = new Var(utils.newVar acc.Name, tupleTp) 
+    let newAccExpr = Expr.Var(newAcc)
+    //let newAccNormal = <@@ fst (%%newAccExpr) @@>
+    let newAccNormal = MakeCall <@ fst @> [newAccExpr] [tp; tp]
+    //let newAccDiff = <@@ snd (%%newAccExpr) @@>
+    let newAccDiff = MakeCall <@ snd @> [newAccExpr] [tp; tp]
+    let accd = MakeDVar(acc)
+    let dx = Expr.Var(v2)
+    let newBody = 
+      Expr.Let(acc, newAccNormal, 
+        Expr.Let(accd, newAccDiff, 
+          //<@@ %%body, diff %%body %%dx @@>
+          Expr.NewTuple([body; Diff body dx])
+        )
+      ) 
+    let newF = LambdaN([newAcc; idx], newBody ) 
+    let newZ = 
+      //<@@ %%z, diff %%z %%dx @@>
+      Expr.NewTuple([z; Diff z dx ])
+    MakeCall <@ foldOnRange @> [newF; newZ; st; en] [tupleTp]
+
 let fold_d: Rule = 
   (fun (e: Expr) ->
     match e with
@@ -96,31 +123,32 @@ let fold_d: Rule =
         (_, _, [DerivedPatterns.SpecificCall <@ foldOnRange @> 
           (_, _, [LambdaN([acc; idx], body); z; st; en]); Patterns.Var(v2)]) ->
        let tp = acc.Type
-       let tupleTp = typeof<Number * Number>.GetGenericTypeDefinition().MakeGenericType(tp, tp)
-       let newAcc = new Var(utils.newVar acc.Name, tupleTp) 
-       let newAccExpr = Expr.Var(newAcc)
-       //let newAccNormal = <@@ fst (%%newAccExpr) @@>
-       let newAccNormal = MakeCall <@ fst @> [newAccExpr] [tp; tp]
-       //let newAccDiff = <@@ snd (%%newAccExpr) @@>
-       let newAccDiff = MakeCall <@ snd @> [newAccExpr] [tp; tp]
-       let accd = MakeDVar(acc)
-       let dx = Expr.Var(v2)
-       let newBody = 
-         Expr.Let(acc, newAccNormal, 
-           Expr.Let(accd, newAccDiff, 
-             //<@@ %%body, diff %%body %%dx @@>
-             Expr.NewTuple([body; Diff body dx])
-           )
-         ) 
-       let newF = LambdaN([newAcc; idx], newBody ) 
-       let newZ = 
-         //<@@ %%z, diff %%z %%dx @@>
-         Expr.NewTuple([z; Diff z dx ])
-       let foldPart = MakeCall <@ foldOnRange @> [newF; newZ; st; en] [tupleTp]
+       let foldPart = foldDiffTransform acc idx body z st en v2
        let final = MakeCall <@ snd @> [foldPart] [tp; tp]
        [ final ]
     | _ -> []
   ), "fold_d"
+
+let letFold_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> 
+        (_, _, [Patterns.Let(x, 
+          DerivedPatterns.SpecificCall <@ foldOnRange @> 
+              (_, _, [LambdaN([acc; idx], body); z; st; en]), letBody); Patterns.Var(v2)]) ->
+       let tp = acc.Type
+       let foldPart = foldDiffTransform acc idx body z st en v2
+       let tupleX = new Var("tup" + x.Name, tupleType tp tp)
+       let dx = MakeDVar(x)
+       let diffLetBody = Diff letBody (Expr.Var(v2))
+       let final = 
+         LetN([tupleX, foldPart; 
+               x, MakeCall <@ fst @> [Expr.Var(tupleX)] [tp; tp];
+               dx, MakeCall <@ snd @> [Expr.Var(tupleX)] [tp; tp] ],
+             diffLetBody)
+       [ final ]
+    | _ -> []
+  ), "letFold_d"
 
 let build_d: Rule = 
   (fun (e: Expr) ->
@@ -213,6 +241,28 @@ let if_d: Rule =
       [ res ]
     | _ -> []
   ), "if_d"
+
+let letIf_d: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ diff @> 
+        (_, _, [Patterns.Let(y, Patterns.IfThenElse(c, e1, e2), body); dx]) ->
+      let tp = e1.Type
+      let tupleX = new Var("tup" + y.Name, tupleType tp tp)
+      let dy = MakeDVar(y)
+      let ifPart = 
+          Expr.IfThenElse(c, 
+            Expr.NewTuple([e1; Diff e1 dx]),
+            Expr.NewTuple([e2; Diff e2 dx])
+          )
+      let res = 
+        LetN([tupleX, ifPart; 
+              y, MakeCall <@ fst @> [Expr.Var(tupleX)] [tp; tp];
+              dy, MakeCall <@ snd @> [Expr.Var(tupleX)] [tp; tp] ],
+            Diff body dx)
+      [ res ]
+    | _ -> []
+  ), "letIf_d"
 
 let lambda_d: Rule = 
   (fun (e: Expr) ->
