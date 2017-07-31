@@ -693,7 +693,7 @@ type GDot with
 
 let rodrigues_rotate_point (rot: Vec<float>, x: Vec<float>) =
     let sqtheta = Vec_sumsq rot
-    if sqtheta <> 0. then
+    if abs(sqtheta) < 1e-5 then
       let theta = sqrt sqtheta                 
       let costheta = cos theta                 
       let sintheta = sin theta                 
@@ -711,11 +711,11 @@ let rodrigues_rotate_point (rot: Vec<float>, x: Vec<float>) =
     else 
       Vec_add (x, cross (rot, x))
 
-let rodrigues_rotate_point' (rot: Vec<float>, x: Vec<float>) = (**) // : Vec<Vec<float>> * Vec<Vec<float>> =
+let rodrigues_rotate_point' (rot: Vec<float>, x: Vec<float>) : Vec<Vec<float>> * Vec<Vec<float>> =
     let rot' = Vec_eye 3, Vec_seye 3 0.0
     let x' = Vec_seye 3 0.0, Vec_eye 3
-    let sqtheta = Vec_sumsq rot                 in let sqtheta' = Vec_sumsq' rot, Vec_zeros 3
-    if sqtheta <> 0. then
+    let sqtheta = Vec_sumsq rot                 in let sqtheta'     = Vec_sumsq' rot, Vec_zeros 3
+    if abs(sqtheta) < 1e-5 then
       let theta = sqrt sqtheta                  in let theta'       = GDot.dot(sqtheta, sqrt' sqtheta, sqtheta')
       let costheta = cos theta                  in let costheta'    = GDot.dot(theta, cos' theta, theta')
       let sintheta = sin theta                  in let sintheta'    = GDot.dot(theta, sin' theta, theta')
@@ -732,40 +732,23 @@ let rodrigues_rotate_point' (rot: Vec<float>, x: Vec<float>) = (**) // : Vec<Vec
       let ret = Vec_add (v1plusv2, wtmp)        in let ret'         = GDot.dot((v1plusv2, wtmp), Vec_add' (v1plusv2, wtmp), (v1plusv2', wtmp'))
       ret'
     else 
-      failwith "unimp"
+      let rx = cross (rot, x)  in let rx' =  GDot.dot((rot,x), cross' (rot,x), (rot', x'))
+      GDot.dot((x,rx), Vec_add' (x,rx), (x', rx'))
 
-      (*
-Test Name:	test_rodrigues
-Test FullName:	VecMat.test_rodrigues
-Test Source:	C:\dev\GitHub\Coconut\SymDiff\VecMat.fs : line 681
-Test Outcome:	Failed
-Test Duration:	0:00:00.158
-
-Result StackTrace:	at VecMat.test_rodrigues() in C:\dev\GitHub\Coconut\SymDiff\VecMat.fs:line 688
-Result Message:	
-VecMat+Comparer.cf((VecMat+FiniteDiff.diff((fun x -> VecMat.rodrigues_rotate_point x Vec[ -0.3 7.1 5.9 ]))) Vec[ 1 2 3 ], fst (VecMat.rodrigues_rotate_point' Vec[ 1 2 3 ] Vec[ -0.3 7.1 5.9 ]))
-VecMat+Comparer.cf(Vec[ Vec[ 0.181355842721054 -1.44702872407754 1.7505611345392 ] Vec[ 1.93955301281967 0.259625206433522 -0.213808993532183 ] Vec[ -1.35348728935725 0.309259437092368 -0.440981049187883 ] ], 
-              fst (Vec[ Vec[ -0.181355842726288 -1.93955301273588 1.35348728939935 ] Vec[ 1.4470287240687 -0.259625206429212 -0.309259437070091 ] Vec[ -1.75056113452638 0.21380899352994 0.4409810491555 ] ],
- Vec[ Vec[ 1 0 0 ] Vec[ 0 1 0 ] Vec[ 0 0 1 ] ]))
-VecMat+Comparer.cf(Vec[ Vec[ 0.181355842721054 -1.44702872407754 1.7505611345392 ] Vec[ 1.93955301281967 0.259625206433522 -0.213808993532183 ] Vec[ -1.35348728935725 0.309259437092368 -0.440981049187883 ] ], Vec[ Vec[ -0.181355842726288 -1.93955301273588 1.35348728939935 ] Vec[ 1.4470287240687 -0.259625206429212 -0.309259437070091 ] Vec[ -1.75056113452638 0.21380899352994 0.4409810491555 ] ])
-false
-
-
-
-*)
-
-
+                                 
 [<Test>]
 let test_rodrigues () =
     let fd = FiniteDiff(1e-5)
     let cf = Comparer(1e-7)
     let a = Vec (1.0,2.0,3.0)
+    let atiny = Vec_smul (1e-6, Vec (1.0,2.0,3.0))
     let b = Vec (-0.3,7.1,5.9)
     test <@ cf.cf (fd.diff cross_matrix a, cross_matrix' a) @>
     test <@ cf.cf (fd.diff (fun x -> cross (a,x)) b, snd (cross' (a,b))) @>
     test <@ cf.cf (fd.diff (fun x -> cross (x,b)) a, fst (cross' (a,b))) @>
     test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) a, fst (rodrigues_rotate_point' (a,b))) @>
     test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (a,x)) b, snd (rodrigues_rotate_point' (a,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) atiny, snd (rodrigues_rotate_point' (atiny,b))) @>
 
 //let rodrigues (a: Vec<float>) = Arith.add (Vec_eye 3, cross_matrix                                            
 
