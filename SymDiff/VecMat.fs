@@ -195,10 +195,13 @@ type Vec<'T>(values:'T[]) =
     new(tup:'T*'T*'T*'T*'T) = Vec<'T> (5, fun i -> Tuple.get(tup,i))
     new(tup:'T*'T*'T*'T*'T*'T) = Vec<'T> (6, fun i -> Tuple.get(tup,i))
 
+    static member str(x: 'T) = let bx = box x in if ( bx :? float ) then sprintf "%.4f" (unbox bx) else x.ToString()
+
     // Methods:
     member this.Item i = this.v.[i]
-    member this.Display = "Vec[" + (Array.fold (fun s v -> s + " " + v.ToString()) "" this.v) + " ]"
+    member this.Display = "Vec[" + (Array.fold (fun s (v:'T) -> s + " " + (Vec<'T>.str v)) "" this.v) + " ]"
     override this.ToString() = this.Display
+
  
 (**** Fold/Map etc ****)
 
@@ -308,14 +311,16 @@ type FiniteDiff with
     member this.diff (f:Vec<float>->Vec<float>) = 
         fun (x:Vec<float>) -> Vec<Vec<float>>(x.size, fun i -> (this.diff (fun (h: float) -> f (Vec_add (x, Vec_ae x.size i h))) 0.0))
  
+let foldi0 n f = Array.fold (fun a i -> a + f i) 0.0 [|0..n-1|]
 
 (**** GDot ****)
 type GDot with
     // C1: Single, C2:Vec, C3:Single
     static member dot (c2: Vec<float>, c2c3: Vec<float>, c1c2: Vec<float>): float = Vec_dot (c2c3, c1c2)
 
-    // C1: Vec, C2:Single, C3:Vec
-    static member dot (c2: float, c2c3: Vec<float>, c1c2: Vec<float>) = Vec<Vec<float>>(c2c3.size, fun i -> Vec<float>(c1c2.size, fun j -> c2c3.[i] * c1c2.[j]))
+    // C1: VecN, C2:Single, C3:VecM -> VecN<VecM>
+    static member dot (c2: float, c2c3: Vec<float>, c1c2: Vec<float>) = 
+            Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.size, fun j -> c1c2.[i] * c2c3.[j]))
 
     // C1: Single, C2:Single, C3:Vec
     static member dot (c2: float, c2c3: Vec<float>, c1c2: float) = Vec<float>(c2c3.size, fun i -> c2c3.[i] * c1c2)
@@ -323,17 +328,34 @@ type GDot with
     // C1: Vec, C2:Single, C3:Single
     static member dot (c2: float, c2c3: float, c1c2: Vec<float>) = Vec<float>(c1c2.size, fun i -> c2c3 * c1c2.[i])
 
-    // C1: Vec<VEC>, C2:VEC, C3:VEC<Vec>
+    // C1: VecM, C2: VecK, C3:Single -> VecM
+    static member dot (c2: Vec<float>, c2c3: Vec<float>, c1c2: Vec<Vec<float>>) = Vec<float>(c1c2.size, fun i -> foldi0 (c2c3.size) (fun k -> c2c3.[k] * c1c2.[i].[k]))
+
+    // C1: VecM<VecP>, C2:VecP, C3:VecP<VecN>  -> VecM<VecN>
     static member dot (c2: Vec<float>, c2c3: Vec<Vec<float>>, c1c2: Vec<Vec<float>>):Vec<Vec<float>> =
-         Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.size, fun j -> Vec_dot(c2c3.[i], c1c2.[j])))
+         Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.[0].size, fun j -> foldi0 (c2c3.size) (fun k -> c2c3.[k].[j] * c1c2.[i].[k])))
+
+    // C1: Single<VEC<VEC>>, C2:VEC<VEC>, C3:Single<VEC<VEC>>
+    //static member dot (c2: Vec<Vec<float>>, c2c3: Vec<Vec<float>>, c1c2: Vec<Vec<float>>):float =
+    //     Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.size, fun j -> Vec_dot(c2c3.[i], c1c2.[j])))
 
     // C1: Vec<Tuple>, C2: Tuple, C3: Tuple<Vec>
     static member dot(c2:float * Vec<float>, c2c3:Vec<float> * Vec<Vec<float>>, c1c2: Vec<float * Vec<float>>):Vec<Vec<float>> =
         Vec_map2 (fun a b -> Vec_add (a,b)) (GDot.dot(fst c1c2.[0], fst c2c3, Vec_map fst c1c2)) (GDot.dot(snd c1c2.[0], snd c2c3, Vec_map snd c1c2))
 
-    // C1: Single<Tuple>, C2: Tuple, C3: Tuple<Vec>
-    //static member dot(c2:float * Vec<float>, c2c3:Vec<float> * Vec<Vec<float>>, c1c2: float * Vec<float>):Vec<Vec<float>> =
-    //    GDot.dot(fst c1c2, fst c2c3, fst c1c2) + GDot.dot(snd c1c2, snd c2c3, snd c1c2)
+    // C1: Vec<Tuple>, C2: Tuple, C3: Tuple<Vec>
+    static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<Vec<float>> * Vec<Vec<float>>, c1c2: Vec<Vec<float> * Vec<float>>):Vec<Vec<float>> =
+        Vec_map2 (fun a b -> Vec_add (a,b)) (GDot.dot(fst c1c2.[0], fst c2c3, Vec_map fst c1c2)) (GDot.dot(snd c1c2.[0], snd c2c3, Vec_map snd c1c2))
+
+    // C1: Single<Tuple>, C2: Tuple, C3: Tuple<Single>
+    static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<float> * Vec<float>, c1c2: Vec<float> * Vec<float>):float =
+        GDot.dot(fst c1c2, fst c2c3, fst c1c2) + GDot.dot(snd c1c2, snd c2c3, snd c1c2)
+
+    // C1: Vec<Tuple>, C2: Tuple<Vec>, C3: Single
+    static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<float> * Vec<float>, c1c2: Vec<Vec<float> * Vec<float>>):Vec<float> =
+        Vec<float>(c1c2.size, fun i -> GDot.dot(c2, c2c3, c1c2.[i]))
+    
+
 
 
 (****** norm etc ******)
@@ -453,20 +475,41 @@ type Mat<'T>(v: Vec<Vec<'T>>) =
     member this.Display = "Mat[" + (Array.fold (fun s (v:Vec<'T>) -> s + "; " + v.ToString()) "" this.v.v) + "]"
     override this.ToString() = this.Display
 
+/// Floating-point comparison helper
+type Comparer with
+    member this.cf (a:Mat<float>, b:Mat<float>):bool = this.cf (a.v,b.v)
+    member this.cf (a:Vec<Mat<float>>, b:Vec<Mat<float>>):bool = Vec_all2 (fun (a:Mat<float>) (b:Mat<float>) -> this.cf (a,b)) a b
+
 let mat (vv: Vec<Vec<'T>>) = Mat<'T>(vv)
 
 let Mat_eye n = mat (Vec_eye n)
+
+type R = float
 
 type Arith = 
     // add: R * R -> R
     static member add (a:float, b:float): float = a + b
     // add': R * R -> R * R
     static member add' (a:float, b:float): float * float = (1.0, 1.0)
+
+    // add: T * T -> T
+    //static member add (a:'T*'S, b:'T*'S): 'T*'S = (Arith.add(fst a, fst b), Arith.add(snd a, snd b))
+    static member add (a:R*R, b:R*R): R*R = (Arith.add(fst a, fst b), Arith.add(snd a, snd b))
+    static member add (a:Vec<R>*Vec<R>, b:Vec<R>*Vec<R>): Vec<R>*Vec<R> = (Arith.add(fst a, fst b), Arith.add(snd a, snd b))
+    static member add (a:Vec<Vec<R>>*Vec<Vec<R>>, b:Vec<Vec<R>>*Vec<Vec<R>>): Vec<Vec<R>>*Vec<Vec<R>> = (Arith.add(fst a, fst b), Arith.add(snd a, snd b))
+    // add': R * R -> R * R
+    //static member add' (a:'T*'S, b:'T*'S): 'T*'S = (Arith.add(fst a, fst b), Arith.add(snd a, snd b))
+    
     
     // add Vec<R> Vec<R>
     static member add (a:Vec<float>, b:Vec<float>): Vec<float> = Vec_add (a,b)
     // Derivative add' (Vec<R> * Vec<R>) -> 
     static member add' (a:Vec<float>, b:Vec<float>): Vec<Vec<float>> * Vec<Vec<float>> = Vec_add' (a,b)
+    
+    // add Vec<R> Vec<R>
+    static member add (a:Vec<Vec<float>>, b:Vec<Vec<float>>):Vec<Vec<float>> = map2 a b Arith.add
+    // Derivative add' (Vec<R> * Vec<R>) -> 
+    //static member add' (a:Vec<Vec<float>>, b:Vec<Vec<float>>):Vec<Vec<Vec<Vec<float>>>> * Vec<Vec<Vec<Vec<float>>>> = 
     
     // add: Mat<R> * Mat<R> -> Mat<R>
     static member add (a:Mat<float>, b:Mat<float>)= Mat<float>(map2 a.v b.v Arith.add)
@@ -475,6 +518,24 @@ type Arith =
         let m,n = a.rows, a.cols
         Mat<Mat<float>>(m, n, fun i j -> Mat<float>(m, n, fun i' j' -> sdelta (i,j) (i',j') 1.0)),
         Mat<Mat<float>>(m, n, fun i j -> Mat<float>(m, n, fun i' j' -> sdelta (i,j) (i',j') 1.0))
+
+    // add: R * R -> R
+    static member sub (a:float, b:float): float = a - b
+    // add': R * R -> R * R
+    static member sub' (a:float, b:float): float * float = (1.0, -1.0)
+    
+    // add Vec<R> Vec<R>
+    static member sub (a:Vec<float>, b:Vec<float>): Vec<float> = Vec_sub (a,b)
+    // Derivative add' (Vec<R> * Vec<R>) -> 
+    static member sub' (a:Vec<float>, b:Vec<float>): Vec<Vec<float>> * Vec<Vec<float>> = Vec_sub' (a,b)
+    
+    // add: Mat<R> * Mat<R> -> Mat<R>
+    static member sub (a:Mat<float>, b:Mat<float>)= Mat<float>(map2 a.v b.v Arith.sub)
+    // add': Mat<R> * Mat<R> -> Mat<Mat<R>> * Mat<Mat<R>> 
+    static member sub' (a:Mat<float>, b:Mat<float>): Mat<Mat<float>> * Mat<Mat<float>> = 
+        let m,n = a.rows, a.cols
+        Mat<Mat<float>>(m, n, fun i j -> Mat<float>(m, n, fun i' j' -> sdelta (i,j) (i',j') 1.0)),
+        Mat<Mat<float>>(m, n, fun i j -> Mat<float>(m, n, fun i' j' -> sdelta (i,j) (i',j') -1.0))
  
     // mul: R * R -> R
     static member mul (a:float, b:float): float = a * b
@@ -486,10 +547,36 @@ type Arith =
     // mul': R * Vec<R> -> Vec<R> * Vec<Vec<R>>
     static member mul' (a:float, b:Vec<float>) = Vec_smul' (a,b)
     
+    // mul: R * Vec<R> -> Vec<R>
+    static member mul (a:float, b:Vec<Vec<float>>) = Vec_map (fun (x:Vec<float>) -> Arith.mul (a,x)) b 
+    // mul': R * Vec<R> -> Vec<R> * Vec<Vec<R>>
+    //static member mul' (a:float, b:Vec<'T>) = Vec_smul' (a,b)
+
+    // mul: R * Vec<R> -> Vec<R>
+    static member mul (a:float, b:Mat<float>) = Mat(Arith.mul(a,b.v))
+    // mul': R * Vec<R> -> Vec<R> * Vec<Vec<R>>
+    //static member mul' (a:float, b:Vec<'T>) = Vec_smul' (a,b)
+
+    // mul: R * Tuple<Vec<R>> -> Tuple<Vec<R>>
+    static member mul (a:float, b:Vec<float> * Vec<float>) = Arith.mul (a, fst b), Arith.mul (a, snd b)
+    static member mul (a:float, b:Vec<Vec<float>> * Vec<Vec<float>>) = Arith.mul (a, fst b), Arith.mul (a, snd b)
+    
     // dot: Vec<R> * Vec<R> -> R
     static member dot (a:Vec<float>, b:Vec<float>) = Vec_dot (a,b)
     // dot': Vec<R> * Vec<R> -> Vec<R> * Vec<R>
     static member dot' (a:Vec<float>, b:Vec<float>) = Vec_dot' (a,b)
+
+type FiniteDiff with
+
+    // diff: (R->Vec<R>) -> (R->Vec<R>)
+    // Tangent
+    member this.diff (f:float->Mat<float>) = fun (x:float) -> Arith.mul (this.one_over_2delta, Arith.sub (f (x + this.delta), f (x - this.delta)))
+
+    // diff: (Vec<R>->Vec<R>) -> (Vec<R>->Vec<Vec<R>>)
+    // Jacobian
+    member this.diff (f:Vec<float>->Mat<float>) = 
+        fun (x:Vec<float>) -> Vec<Mat<float>>(x.size, fun i -> (this.diff (fun (h: float) -> f (Vec_add (x, Vec_ae x.size i h))) 0.0))
+
     
 // No function overloading in F#
 let VSmul (a:Vec<float>, b:float) = Vec<float>(a.size, fun i -> a.[i] * b)
@@ -514,20 +601,187 @@ let diff_SMmul (a:float, b:Mat<float>) : (Mat<float> * Mat<Mat<float>>) =
     (b,
      Mat<Mat<float>>(b.rows, b.cols, fun i j -> Mat<float>(b.rows, b.cols, fun k l -> if i = k && j = l then a else 0.0)))
 
+let cross (a: Vec<float>, b:Vec<float>) = Vec(a.[1]*b.[2] - a.[2]*b.[1],
+                                              a.[2]*b.[0] - a.[0]*b.[2],
+                                              a.[0]*b.[1] - a.[1]*b.[0])
+
+let cross' (a: Vec<float>, b:Vec<float>):Vec<Vec<float>>*Vec<Vec<float>> = 
+    Mat([|0.0, -b.[2], b.[1]; b.[2], 0.0, -b.[0]; -b.[1], b.[0], 0.0|]).v,
+    Mat([|0.0, a.[2], -a.[1]; -a.[2], 0.0, a.[0]; a.[1], -a.[0], 0.0|]).v
 
 let cross_matrix (n: Vec<float>) = Mat([|    0.0, -n.[2],    n.[1]; 
                                            n.[2],    0.0,   -n.[0]; 
                                           -n.[1],  n.[0],      0.0 |])
 
-let diff_cross_matrix (n: Vec<float>) = Vec(Mat([|    0.0,    0.0,    0.0; 
-                                                      0.0,    0.0,   -1.0; 
-                                                      0.0,    1.0,    0.0   |]),
-                                            Mat([|    0.0,    0.0,    1.0; 
-                                                      0.0,    0.0,    0.0; 
-                                                     -1.0,    0.0,    0.0   |]), 
-                                            Mat([|    0.0,   -1.0,    0.0; 
-                                                      1.0,    0.0,    0.0; 
-                                                      0.0,    0.0,    0.0   |]) )
+let cross_matrix' (n: Vec<float>) =     Vec(Mat([|  0.0,    0.0,    0.0;  
+                                                    0.0,    0.0,   -1.0; 
+                                                    0.0,    1.0,    0.0  |]),
+
+                                            Mat([|  0.0,    0.0,    1.0; 
+                                                    0.0,    0.0,    0.0; 
+                                                   -1.0,    0.0,    0.0  |]), 
+
+                                            Mat([|  0.0,   -1.0,    0.0; 
+                                                    1.0,    0.0,    0.0; 
+                                                    0.0,    0.0,    0.0  |]) )
+
+                                                    
+[<Test>]
+let test_cross_matrix () =
+    let fd = FiniteDiff(1e-5)
+    let cf = Comparer(1e-7)
+    let a = Vec (1.0,2.0,3.0)
+    let b = Vec (-0.3,7.1,5.9)
+    test <@ cf.cf (fd.diff cross_matrix a, cross_matrix' a) @>
+    test <@ cf.cf (fd.diff (fun x -> cross (a,x)) b, snd (cross' (a,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> cross (x,b)) a, fst (cross' (a,b))) @>
+
+type GDot with
+    // C2: Tv, C2C3: Tv<Vec>, C1C2: Tv<Vec>
+    // C3: Vec, C1:  
+    static member dot(c2:float * Vec<float>, c2c3:Vec<float> * Vec<Vec<float>>, c1c2: Vec<float> * Vec<Vec<float>>):Vec<Vec<float>> =
+           Arith.add(GDot.dot(fst c2, fst c2c3, fst c1c2), GDot.dot(snd c2, snd c2c3, snd c1c2))
+
+    // C2: S, C2C3: S, C1C2: D<V>
+    static member dot(c2:float, c2c3:float, c1c2: Vec<float> * Vec<float>):Vec<float> * Vec<float> =
+           GDot.dot(c2, c2c3, fst c1c2), GDot.dot(c2, c2c3, snd c1c2)
+
+    // C2: Tv, C2C3: Tv<V>, C1C2: D<D<V,V>,D<VV,VV>>
+    // transform to_vec_of_tuples, giving
+    // C2: Tv, C2C3: Tv<V>, C1C2: D<D<V,V>,D<VV,VV>>
+    static member dot(c2:float * Vec<float>, c2c3:Vec<float> * Vec<Vec<float>>, c1c2: (Vec<float> * Vec<float>) * (Vec<Vec<float>> * Vec<Vec<float>>)) =
+           GDot.dot(c2, c2c3, (fst (fst c1c2), fst (snd c1c2))), GDot.dot(c2, c2c3, (snd (fst c1c2), snd (snd c1c2)))
+
+    static member dot(c2:Vec<float>, c2c3:Vec<Vec<float>>, c1c2: Vec<Vec<float>> * Vec<Vec<float>>) =
+           let d1 = GDot.dot(c2, c2c3, fst c1c2)
+           let d2 = GDot.dot(c2, c2c3, snd c1c2)
+           (d1, d2) 
+           
+    static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<Vec<float>> * Vec<Vec<float>>, c1c2: (Vec<Vec<float>> * Vec<Vec<float>>) * (Vec<Vec<float>> * Vec<Vec<float>>)) =
+           let d1 = GDot.dot(fst c2, fst c2c3, fst c1c2)
+           let d2 = GDot.dot(snd c2, snd c2c3, snd c1c2)
+           Arith.add(d1, d2) 
+
+    static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<float> * Vec<float>, c1c2: (Vec<Vec<float>> * Vec<Vec<float>>) * (Vec<Vec<float>> * Vec<Vec<float>>)) =
+           GDot.dot(c2, c2c3, to_vec_of_tuples (fst c1c2)), GDot.dot(c2, c2c3, to_vec_of_tuples (snd c1c2)) 
+
+    static member dot(c2:float * float, c2c3:float * float, c1c2: Vec<Vec<float>> * Vec<Vec<float>>) =
+           let d1 = Arith.mul(fst c2c3, fst c1c2)
+           let d2 = Arith.mul(snd c2c3, snd c1c2)
+           Arith.add(d1, d2) 
+
+    static member dot(c2:float * float, c2c3:float * float, c1c2: Vec<float> * Vec<float>) =
+           let d1 = Arith.mul(fst c2c3, fst c1c2)
+           let d2 = Arith.mul(snd c2c3, snd c1c2)
+           Arith.add(d1, d2) 
+
+    static member dot(c2:float * float, c2c3:float * float, c1c2: (Vec<Vec<float>> * Vec<Vec<float>>) * (Vec<Vec<float>> * Vec<Vec<float>>)) =
+           let d1 = GDot.dot(c2, c2c3, fst c1c2)
+           let d2 = GDot.dot(c2, c2c3, snd c1c2)
+           Arith.add(d1, d2) 
+
+    static member dot(c2:float * float, c2c3:float * float, c1c2: (Vec<float> * Vec<float>) * (Vec<float> * Vec<float>)) =
+           let d1 = Arith.mul(fst c2c3, fst c1c2)
+           let d2 = Arith.mul(snd c2c3, snd c1c2)
+           Arith.add(d1, d2) 
+
+    // V w = f(D<V,V>);  D<VV,VV> w' = f'
+    // V x = g(D<V,V>);  D<VV,VV> x' = g'
+    // S y = h(w,x);     D<V,V> y' = h'(w,x) PDOT (w',x')
+    // a(u,v) = f(g(u,v), h(u,v))
+
+
+let rodrigues_rotate_point (rot: Vec<float>, x: Vec<float>) =
+    let sqtheta = Vec_sumsq rot
+    if sqtheta <> 0. then
+      let theta = sqrt sqtheta                 
+      let costheta = cos theta                 
+      let sintheta = sin theta                 
+      let theta_inv = recip theta              
+      let w = Vec_smul (theta_inv, rot)        
+      let w_cross_X = cross (w, x)             
+      let wx = Vec_dot (w,x)                   
+      let tmp = wx * (1. - costheta)           
+      let v1 = Vec_smul (costheta, x)          
+      let v2 = Vec_smul (sintheta, w_cross_X)  
+      let v1plusv2 = Vec_add (v1,v2)           
+      let wtmp = Vec_smul (tmp, w)             
+      let ret = Vec_add (v1plusv2, wtmp)
+      ret         
+    else 
+      Vec_add (x, cross (rot, x))
+
+let rodrigues_rotate_point' (rot: Vec<float>, x: Vec<float>) = (**) // : Vec<Vec<float>> * Vec<Vec<float>> =
+    let rot' = Vec_eye 3, Vec_seye 3 0.0
+    let x' = Vec_seye 3 0.0, Vec_eye 3
+    let sqtheta = Vec_sumsq rot                 in let sqtheta' = Vec_sumsq' rot, Vec_zeros 3
+    if sqtheta <> 0. then
+      let theta = sqrt sqtheta                  in let theta' = GDot.dot(sqtheta, sqrt' sqtheta, sqtheta')
+      let costheta = cos theta                  in let costheta' = GDot.dot(theta, cos' theta, theta')
+      let sintheta = sin theta                  in let sintheta' = GDot.dot(theta, sin' theta, theta')
+      let theta_inv = recip theta               in let theta_inv' = GDot.dot(theta, recip' theta, theta')
+      let w = Vec_smul (theta_inv, rot)         in let w' = GDot.dot((theta_inv, rot), Vec_smul' (theta_inv, rot), (theta_inv', rot'))
+      let w_cross_X = cross (w, x)              in let w_cross_X' = GDot.dot((w, x), cross' (w, x), (w', x'))
+
+      // fst: D<V,V> -> V => f': D<V,V> -> D<VV>
+      // f: D<V,V> -> D<V,V> => f': D<V,V> -> D<V<D<V,V>>, V<D<V,V>>> = V<V*V> * V<V*V>
+      // C2: DV, C2C3: DV, C1C2: D<VV,VV>
+      let wx = Vec_dot (w,x)                    in let wx' = GDot.dot((w,x), Vec_dot' (w,x), (w',x'))
+      let lmc = (1. - costheta)                 in let lmc' = Vec_smul (-1.0, fst costheta'), snd costheta'
+      let tmp = wx * lmc                        in let tmp' = GDot.dot((wx,lmc), Arith.mul' (wx,lmc), (wx',lmc'))
+      let v1 = Vec_smul (costheta, x)           in let v1' = GDot.dot((costheta, x), Vec_smul' (costheta, x), (costheta', x'))
+      let v2 = Vec_smul (sintheta, w_cross_X)   in let v2' = GDot.dot((sintheta, w_cross_X), Vec_smul' (sintheta, w_cross_X), (sintheta', w_cross_X'))
+      let v1plusv2 = Vec_add (v1,v2)            in let v1plusv2' = GDot.dot((v1,v2), Vec_add' (v1,v2), (v1', v2'))
+      let wtmp = Vec_smul (tmp, w)              in let wtmp' = GDot.dot((tmp,w), Vec_smul' (tmp,w), (tmp', w'))
+      let ret = Vec_add (v1plusv2, wtmp)        in let ret' = GDot.dot((v1plusv2, wtmp), Vec_add' (v1plusv2, wtmp), (v1plusv2', wtmp'))
+      ret'
+    else 
+      failwith "unimp"
+
+      (*
+Test Name:	test_rodrigues
+Test FullName:	VecMat.test_rodrigues
+Test Source:	C:\dev\GitHub\Coconut\SymDiff\VecMat.fs : line 681
+Test Outcome:	Failed
+Test Duration:	0:00:00.158
+
+Result StackTrace:	at VecMat.test_rodrigues() in C:\dev\GitHub\Coconut\SymDiff\VecMat.fs:line 688
+Result Message:	
+VecMat+Comparer.cf((VecMat+FiniteDiff.diff((fun x -> VecMat.rodrigues_rotate_point x Vec[ -0.3 7.1 5.9 ]))) Vec[ 1 2 3 ], fst (VecMat.rodrigues_rotate_point' Vec[ 1 2 3 ] Vec[ -0.3 7.1 5.9 ]))
+VecMat+Comparer.cf(Vec[ Vec[ 0.181355842721054 -1.44702872407754 1.7505611345392 ] Vec[ 1.93955301281967 0.259625206433522 -0.213808993532183 ] Vec[ -1.35348728935725 0.309259437092368 -0.440981049187883 ] ], 
+              fst (Vec[ Vec[ -0.181355842726288 -1.93955301273588 1.35348728939935 ] Vec[ 1.4470287240687 -0.259625206429212 -0.309259437070091 ] Vec[ -1.75056113452638 0.21380899352994 0.4409810491555 ] ],
+ Vec[ Vec[ 1 0 0 ] Vec[ 0 1 0 ] Vec[ 0 0 1 ] ]))
+VecMat+Comparer.cf(Vec[ Vec[ 0.181355842721054 -1.44702872407754 1.7505611345392 ] Vec[ 1.93955301281967 0.259625206433522 -0.213808993532183 ] Vec[ -1.35348728935725 0.309259437092368 -0.440981049187883 ] ], Vec[ Vec[ -0.181355842726288 -1.93955301273588 1.35348728939935 ] Vec[ 1.4470287240687 -0.259625206429212 -0.309259437070091 ] Vec[ -1.75056113452638 0.21380899352994 0.4409810491555 ] ])
+false
+
+
+
+*)
+
+
+[<Test>]
+let test_rodrigues () =
+    let fd = FiniteDiff(1e-5)
+    let cf = Comparer(1e-7)
+    let a = Vec (1.0,2.0,3.0)
+    let b = Vec (-0.3,7.1,5.9)
+    test <@ cf.cf (fd.diff cross_matrix a, cross_matrix' a) @>
+    test <@ cf.cf (fd.diff (fun x -> cross (a,x)) b, snd (cross' (a,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> cross (x,b)) a, fst (cross' (a,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) a, fst (rodrigues_rotate_point' (a,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (a,x)) b, snd (rodrigues_rotate_point' (a,b))) @>
+
+//let rodrigues (a: Vec<float>) = Arith.add (Vec_eye 3, cross_matrix                                            
+
+
+
+
+
+
+
+
+
+
 
 
                                                       
