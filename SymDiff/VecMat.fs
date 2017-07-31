@@ -716,24 +716,20 @@ let rodrigues_rotate_point' (rot: Vec<float>, x: Vec<float>) = (**) // : Vec<Vec
     let x' = Vec_seye 3 0.0, Vec_eye 3
     let sqtheta = Vec_sumsq rot                 in let sqtheta' = Vec_sumsq' rot, Vec_zeros 3
     if sqtheta <> 0. then
-      let theta = sqrt sqtheta                  in let theta' = GDot.dot(sqtheta, sqrt' sqtheta, sqtheta')
-      let costheta = cos theta                  in let costheta' = GDot.dot(theta, cos' theta, theta')
-      let sintheta = sin theta                  in let sintheta' = GDot.dot(theta, sin' theta, theta')
-      let theta_inv = recip theta               in let theta_inv' = GDot.dot(theta, recip' theta, theta')
-      let w = Vec_smul (theta_inv, rot)         in let w' = GDot.dot((theta_inv, rot), Vec_smul' (theta_inv, rot), (theta_inv', rot'))
-      let w_cross_X = cross (w, x)              in let w_cross_X' = GDot.dot((w, x), cross' (w, x), (w', x'))
-
-      // fst: D<V,V> -> V => f': D<V,V> -> D<VV>
-      // f: D<V,V> -> D<V,V> => f': D<V,V> -> D<V<D<V,V>>, V<D<V,V>>> = V<V*V> * V<V*V>
-      // C2: DV, C2C3: DV, C1C2: D<VV,VV>
-      let wx = Vec_dot (w,x)                    in let wx' = GDot.dot((w,x), Vec_dot' (w,x), (w',x'))
-      let lmc = (1. - costheta)                 in let lmc' = Vec_smul (-1.0, fst costheta'), snd costheta'
-      let tmp = wx * lmc                        in let tmp' = GDot.dot((wx,lmc), Arith.mul' (wx,lmc), (wx',lmc'))
-      let v1 = Vec_smul (costheta, x)           in let v1' = GDot.dot((costheta, x), Vec_smul' (costheta, x), (costheta', x'))
-      let v2 = Vec_smul (sintheta, w_cross_X)   in let v2' = GDot.dot((sintheta, w_cross_X), Vec_smul' (sintheta, w_cross_X), (sintheta', w_cross_X'))
-      let v1plusv2 = Vec_add (v1,v2)            in let v1plusv2' = GDot.dot((v1,v2), Vec_add' (v1,v2), (v1', v2'))
-      let wtmp = Vec_smul (tmp, w)              in let wtmp' = GDot.dot((tmp,w), Vec_smul' (tmp,w), (tmp', w'))
-      let ret = Vec_add (v1plusv2, wtmp)        in let ret' = GDot.dot((v1plusv2, wtmp), Vec_add' (v1plusv2, wtmp), (v1plusv2', wtmp'))
+      let theta = sqrt sqtheta                  in let theta'       = GDot.dot(sqtheta, sqrt' sqtheta, sqtheta')
+      let costheta = cos theta                  in let costheta'    = GDot.dot(theta, cos' theta, theta')
+      let sintheta = sin theta                  in let sintheta'    = GDot.dot(theta, sin' theta, theta')
+      let theta_inv = recip theta               in let theta_inv'   = GDot.dot(theta, recip' theta, theta')
+      let w = Vec_smul (theta_inv, rot)         in let w'           = GDot.dot((theta_inv, rot), Vec_smul' (theta_inv, rot), (theta_inv', rot'))
+      let w_cross_X = cross (w, x)              in let w_cross_X'   = GDot.dot((w, x), cross' (w, x), (w', x'))
+      let wx = Vec_dot (w,x)                    in let wx'          = GDot.dot((w,x), Vec_dot' (w,x), (w',x'))
+      let lmc = 1.0 - costheta                  in let lmc'         = Vec_smul (-1.0, fst costheta'), snd costheta'
+      let tmp = wx * lmc                        in let tmp'         = GDot.dot((wx,lmc), Arith.mul' (wx,lmc), (wx',lmc'))
+      let v1 = Vec_smul (costheta, x)           in let v1'          = GDot.dot((costheta, x), Vec_smul' (costheta, x), (costheta', x'))
+      let v2 = Vec_smul (sintheta, w_cross_X)   in let v2'          = GDot.dot((sintheta, w_cross_X), Vec_smul' (sintheta, w_cross_X), (sintheta', w_cross_X'))
+      let v1plusv2 = Vec_add (v1,v2)            in let v1plusv2'    = GDot.dot((v1,v2), Vec_add' (v1,v2), (v1', v2'))
+      let wtmp = Vec_smul (tmp, w)              in let wtmp'        = GDot.dot((tmp,w), Vec_smul' (tmp,w), (tmp', w'))
+      let ret = Vec_add (v1plusv2, wtmp)        in let ret'         = GDot.dot((v1plusv2, wtmp), Vec_add' (v1plusv2, wtmp), (v1plusv2', wtmp'))
       ret'
     else 
       failwith "unimp"
