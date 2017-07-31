@@ -42,6 +42,9 @@ type TestType(v: float) =
 
 (**** Derivatives of basic functions ****)
 
+let sqr (x: float) : float = x * x
+let sqr' (x: float) : float = 2.0 * x
+
 // diff_sin: float -> float
 let sin' (x: float) : float = cos(x)
 
@@ -223,7 +226,7 @@ let inline Vec_map2 (f:'T->'S->'R) (a:Vec<'T>) (b:Vec<'S>) = Vec<'R>(a.size, fun
 // to_vec_of_tuples: Vec<T>*Vec<S> -> Vec<T*S>
 let to_vec_of_tuples (v:Vec<'T> * Vec<'S>):Vec<'T * 'S> = Vec_map2 (fun ai bi -> ai,bi) (fst v) (snd v)
 
-(**** Constructors ****)
+(**** Constructors / Getters ****)
 
 // It's sometimes handy to quickly create a little-vector
 let vec2 (x:float) (y:float) = Vec<float>([| x;y |])
@@ -260,6 +263,11 @@ let inline Vec_eye (n:int) = Vec_seye n 1.0
 
 // Construct a Vec<Vec<>> easily
 let inline VecVec (rows:int) (cols:int) (builder:int -> int -> 'T) = Vec<Vec<'T>>(rows, fun i-> Vec<'T>(cols, builder i))
+
+// Get at index, and derivative
+let get (v:Vec<float>) (i:int) = v.[i]
+
+let get' (v:Vec<float>) (i:int) = Vec_e v.size i
 
 (**** Arithmetic ****)
 // add: Duple<Vec<R>> -> Vec<R> (=RHS)
@@ -684,12 +692,7 @@ type GDot with
            let d1 = Arith.mul(fst c2c3, fst c1c2)
            let d2 = Arith.mul(snd c2c3, snd c1c2)
            Arith.add(d1, d2) 
-
-    // V w = f(D<V,V>);  D<VV,VV> w' = f'
-    // V x = g(D<V,V>);  D<VV,VV> x' = g'
-    // S y = h(w,x);     D<V,V> y' = h'(w,x) PDOT (w',x')
-    // a(u,v) = f(g(u,v), h(u,v))
-
+                                            
 
 let rodrigues_rotate_point (rot: Vec<float>, x: Vec<float>) =
     let sqtheta = Vec_sumsq rot
@@ -750,9 +753,28 @@ let test_rodrigues () =
     test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (a,x)) b, snd (rodrigues_rotate_point' (a,b))) @>
     test <@ cf.cf (fd.diff (fun x -> rodrigues_rotate_point (x,b)) atiny, fst (rodrigues_rotate_point' (atiny,b))) @>
 
-//let rodrigues (a: Vec<float>) = Arith.add (Vec_eye 3, cross_matrix                                            
+let radial_distort (rad_params: Vec<R>, proj: Vec<R>):Vec<R> =
+    let rsq = Vec_sumsq proj
+    let L = 1. + rad_params.[0] * rsq + rad_params.[1] * rsq * rsq
+    Vec_smul (L, proj)
 
+let radial_distort' (k: Vec<R>, proj: Vec<R>):Vec<Vec<R>> * Vec<Vec<R>> =
+    let rsq = Vec_sumsq proj            in let rsq' = Vec_sumsq' proj
+    let rsqsq = sqr rsq                 in let rsqsq' = GDot.dot(rsq, sqr' rsq, rsq')
+    let k0 = k.[0]                      in let k0' =  get' k 0
+    let k1 = k.[1]                      in let k1' =  get' k 1
+    let L = 1. + k0 * rsq + k1 * rsqsq  in let L' =  Arith.add(Arith.mul (rsq, k0'), Arith.mul (rsqsq, k1')), 
+                                                     Arith.add(Arith.mul (k0, rsq'), Arith.mul (k1, rsqsq'))
+    GDot.dot((L, proj), Vec_smul' (L, proj), (L', (Vec_seye k.size 0.0, Vec_seye proj.size 1.0)))
 
+[<Test>]
+let test_radial_distort' () =
+    let fd = FiniteDiff(1e-5)
+    let cf = Comparer(1e-7)
+    let k = Vec (0.1,-0.02)
+    let b = Vec (-0.3,7.1)
+    test <@ cf.cf (fd.diff (fun x -> radial_distort (x,b)) k, fst (radial_distort' (k,b))) @>
+    test <@ cf.cf (fd.diff (fun x -> radial_distort (k,x)) b, snd (radial_distort' (k,b))) @>
 
 
 
