@@ -1,0 +1,3 @@
+[submodule "FsAlg"]
+	path = FsAlg
+	url = https://github.com/awf/FsAlg.git

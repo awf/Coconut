@@ -98,7 +98,7 @@ let log_wishart_prior p (wishart:Wishart) (qdiags:float[][]) (sum_qs:float[]) (i
       for ik = 0 to k-1 do
         let frobenius1 = sumsq qdiags.[ik] 
         let frobenius2 = sumsq icf.[ik].[p..]
-        0.5*(square wishart.gamma)*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
+        yield 0.5*(square wishart.gamma)*(frobenius1+frobenius2) - (float wishart.m)*sum_qs.[ik]
     } |> Seq.sum
 
 // Gaussian mixture negative log likelihood
@@ -113,13 +113,13 @@ let gmm_objective (alphas:float[]) (means:float[][]) (icf:float[][]) (x:float[][
     let sum_qs = [|for curr_icf in icf do yield (Array.sum curr_icf.[..(d-1)])|]
 
     // Multiply log-diagonal-lower-triangle matrix (Qdiag, Qltri) by x
-    let Q_times_x (Qdiag:float[]) (Qltri:float[]) (x:float[]) =
-        let mutable res = Array.map2 (*) Qdiag x
-        let mutable Qltri_idx = d
+    let Q_times_x (qdiag:float[]) (qltri:float[]) (x:float[]) =
+        let mutable res = Array.map2 (*) qdiag x
+        let mutable qltri_idx = d
         for i = 0 to d-1 do
             for j = i+1 to d-1 do
-                res.[j] <- res.[j] + Qltri.[Qltri_idx] * x.[i]
-                Qltri_idx <- Qltri_idx + 1
+                res.[j] <- res.[j] + qltri.[qltri_idx] * x.[i]
+                qltri_idx <- qltri_idx + 1
         res
 
     // Evaluate for a single point
@@ -137,7 +137,7 @@ let gmm_objective (alphas:float[]) (means:float[][]) (icf:float[][]) (x:float[][
     slse + (float n) * ((log CONSTANT) - (logsumexp alphas)) + (log_wishart_prior d wishart Qdiags sum_qs icf)
     
 /////// Derivative extras ////////
-let log_wishart_prior_ p (wishart:Wishart) (Qdiags:D[][]) (sum_qs:D[]) (icf:D[][]) =
+let log_wishart_prior_ p (wishart:Wishart) (qdiags:D[][]) (sum_qs:D[]) (icf:D[][]) =
     let log_gamma_distrib a p =
         log (Math.Pow(Math.PI,(0.25*(float (p*(p-1)))))) + 
             ([for j = 1 to p do yield SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))] |> List.sum)
@@ -147,7 +147,7 @@ let log_wishart_prior_ p (wishart:Wishart) (Qdiags:D[][]) (sum_qs:D[]) (icf:D[][
     let C = (float (n*p))*((log wishart.gamma) - 0.5*(log 2.)) - (log_gamma_distrib (0.5*(float n)) p)
 
     let main_term ik =
-        let frobenius1 = Qdiags.[ik] 
+        let frobenius1 = qdiags.[ik] 
                             |> Array.map square
                             |> Array.sum
         let frobenius2 = icf.[ik].[p..]

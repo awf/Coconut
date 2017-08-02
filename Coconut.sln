@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CoconutCompiler", "CoconutCompiler\CoconutCompiler.fsproj", "{B50BAE60-B142-4E9A-A23B-D29FAC2BFD4F}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpUsecases", "Examples\Micro\FSharp\FSharpUsecases.fsproj", "{389E169C-620A-4883-B42C-018A62278277}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SymDiff", "SymDiff\SymDiff.fsproj", "{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsAlg", "FsAlg\src\FsAlg\FsAlg.fsproj", "{8715EA25-3B32-4CF5-A595-D4034442FE58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAF69BFA-3C2D-4E42-AEBA-8B117BDC7421}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8715EA25-3B32-4CF5-A595-D4034442FE58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8715EA25-3B32-4CF5-A595-D4034442FE58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8715EA25-3B32-4CF5-A595-D4034442FE58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8715EA25-3B32-4CF5-A595-D4034442FE58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

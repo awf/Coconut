@@ -1,6 +1,7 @@
 ﻿module VecMat
 open NUnit.Framework
 open Swensen.Unquote
+open Tuple
 
 
 /// Test helper: compare floats up to a given tolerance
@@ -130,52 +131,7 @@ type GDot =
     static member dot (c2: float, c2c3: float, c1c2: float) = c2c3 * c1c2
     static member dot (c2: float[], c2c3: float[], c1c2: float[]) = Array.fold2 (fun s a b -> s + a * b) 0.0 c2c3 c1c2
 
-type Tuple =
-    static member get(tup:'T*'T, ind:int) = 
-        match ind, tup with
-        | 0, (a,_) -> a
-        | 1, (_,b) -> b
-        | _, _ -> failwith "unpack"
-    static member get(tup:'T*'T*'T, ind:int) = 
-        match ind, tup with
-        | 0, (a,_,_) -> a
-        | 1, (_,b,_) -> b
-        | 2, (_,_,c) -> c
-        | _, _ -> failwith "unpack"
-    static member get(tup:'T*'T*'T*'T, ind:int) = 
-        match ind, tup with
-        | 0, (a,_,_,_) -> a
-        | 1, (_,b,_,_) -> b
-        | 2, (_,_,c,_) -> c
-        | 3, (_,_,_,d) -> d
-        | _, _ -> failwith "unpack"
-    static member get(tup:'T*'T*'T*'T*'T, ind:int) = 
-        match ind, tup with
-        | 0, (a,_,_,_,_) -> a
-        | 1, (_,b,_,_,_) -> b
-        | 2, (_,_,c,_,_) -> c
-        | 3, (_,_,_,d,_) -> d
-        | 4, (_,_,_,_,e) -> e
-        | _, _ -> failwith "unpack"
-    static member get(tup:'T*'T*'T*'T*'T*'T, ind:int) = 
-        match ind, tup with
-        | 0, (a,_,_,_,_,_) -> a
-        | 1, (_,b,_,_,_,_) -> b
-        | 2, (_,_,c,_,_,_) -> c
-        | 3, (_,_,_,d,_,_) -> d
-        | 4, (_,_,_,_,e,_) -> e
-        | 5, (_,_,_,_,_,f) -> f
-        | _, _ -> failwith "unpack"
-    static member get(tup:'T*'T*'T*'T*'T*'T*'T, ind:int) = 
-        match ind, tup with
-        | 0, (a,_,_,_,_,_,_) -> a
-        | 1, (_,b,_,_,_,_,_) -> b
-        | 2, (_,_,c,_,_,_,_) -> c
-        | 3, (_,_,_,d,_,_,_) -> d
-        | 4, (_,_,_,_,e,_,_) -> e
-        | 5, (_,_,_,_,_,f,_) -> f
-        | 6, (_,_,_,_,_,_,g) -> g
-        | _, _ -> failwith "unpack"
+
 
 /// Vec: Vector given size and builder.
 [<StructuredFormatDisplay("{Display}")>]
@@ -323,9 +279,7 @@ let foldi0 n f = Array.fold (fun a i -> a + f i) 0.0 [|0..n-1|]
 
 (**** GDot ****)
 type GDot with
-    // C1: Single, C2:Vec, C3:Single
-    static member dot (c2: Vec<float>, c2c3: Vec<float>, c1c2: Vec<float>): float = Vec_dot (c2c3, c1c2)
-
+    (** C2: Single **)
     // C1: VecN, C2:Single, C3:VecM -> VecN<VecM>
     static member dot (c2: float, c2c3: Vec<float>, c1c2: Vec<float>) = 
             Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.size, fun j -> c1c2.[i] * c2c3.[j]))
@@ -336,6 +290,14 @@ type GDot with
     // C1: Vec, C2:Single, C3:Single
     static member dot (c2: float, c2c3: float, c1c2: Vec<float>) = Vec<float>(c1c2.size, fun i -> c2c3 * c1c2.[i])
 
+    // C2: S, C2C3: S, C1C2: D<V>
+    static member dot (c2: float, c2c3: float, c1c2: Vec<float> * Vec<float>):Vec<float> * Vec<float> =
+           GDot.dot(c2, c2c3, fst c1c2), GDot.dot(c2, c2c3, snd c1c2)
+
+    (** C2: Vec **)
+    // C1: Single, C2:Vec, C3:Single
+    static member dot (c2: Vec<float>, c2c3: Vec<float>, c1c2: Vec<float>): float = Vec_dot (c2c3, c1c2)
+
     // C1: VecM, C2: VecK, C3:Single -> VecM
     static member dot (c2: Vec<float>, c2c3: Vec<float>, c1c2: Vec<Vec<float>>) = Vec<float>(c1c2.size, fun i -> foldi0 (c2c3.size) (fun k -> c2c3.[k] * c1c2.[i].[k]))
 
@@ -343,19 +305,19 @@ type GDot with
     static member dot (c2: Vec<float>, c2c3: Vec<Vec<float>>, c1c2: Vec<Vec<float>>):Vec<Vec<float>> =
          Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.[0].size, fun j -> foldi0 (c2c3.size) (fun k -> c2c3.[k].[j] * c1c2.[i].[k])))
 
-    // C1: Single<VEC<VEC>>, C2:VEC<VEC>, C3:Single<VEC<VEC>>
-    //static member dot (c2: Vec<Vec<float>>, c2c3: Vec<Vec<float>>, c1c2: Vec<Vec<float>>):float =
-    //     Vec<Vec<float>>(c1c2.size, fun i -> Vec<float>(c2c3.size, fun j -> Vec_dot(c2c3.[i], c1c2.[j])))
+    (** C2: Tuple<Single,Vec> **)
 
-    // C1: Vec<Tuple>, C2: Tuple, C3: Tuple<Vec>
+    // C2: Tv, C2C3: Tv<V> => C3:V, C1C2: Vec<Tv> => C1:Vec
     static member dot(c2:float * Vec<float>, c2c3:Vec<float> * Vec<Vec<float>>, c1c2: Vec<float * Vec<float>>):Vec<Vec<float>> =
         Vec_map2 (fun a b -> Vec_add (a,b)) (GDot.dot(fst c1c2.[0], fst c2c3, Vec_map fst c1c2)) (GDot.dot(snd c1c2.[0], snd c2c3, Vec_map snd c1c2))
 
+    (** C2: Tuple<Vec,Vec> **)
+    
     // C1: Vec<Tuple>, C2: Tuple, C3: Tuple<Vec>
     static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<Vec<float>> * Vec<Vec<float>>, c1c2: Vec<Vec<float> * Vec<float>>):Vec<Vec<float>> =
         Vec_map2 (fun a b -> Vec_add (a,b)) (GDot.dot(fst c1c2.[0], fst c2c3, Vec_map fst c1c2)) (GDot.dot(snd c1c2.[0], snd c2c3, Vec_map snd c1c2))
 
-    // C1: Single<Tuple>, C2: Tuple, C3: Tuple<Single>
+    // C1: Single, C2: D<V,V>, C3: Single
     static member dot(c2:Vec<float> * Vec<float>, c2c3:Vec<float> * Vec<float>, c1c2: Vec<float> * Vec<float>):float =
         GDot.dot(fst c1c2, fst c2c3, fst c1c2) + GDot.dot(snd c1c2, snd c2c3, snd c1c2)
 
@@ -616,10 +578,6 @@ type GDot with
     // C3: Vec, C1:  
     static member dot(c2:float * Vec<float>, c2c3:Vec<float> * Vec<Vec<float>>, c1c2: Vec<float> * Vec<Vec<float>>):Vec<Vec<float>> =
            Arith.add(GDot.dot(fst c2, fst c2c3, fst c1c2), GDot.dot(snd c2, snd c2c3, snd c1c2))
-
-    // C2: S, C2C3: S, C1C2: D<V>
-    static member dot(c2:float, c2c3:float, c1c2: Vec<float> * Vec<float>):Vec<float> * Vec<float> =
-           GDot.dot(c2, c2c3, fst c1c2), GDot.dot(c2, c2c3, snd c1c2)
 
     // C2: Tv, C2C3: Tv<V>, C1C2: D<D<V,V>,D<VV,VV>>
     // transform to_vec_of_tuples, giving
