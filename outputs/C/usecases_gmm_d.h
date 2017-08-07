@@ -87,15 +87,17 @@ index_t TOP_LEVEL_usecases_gmm_tri_d(index_t n, index_t n_d) {
 
 array_number_t TOP_LEVEL_usecases_gmm_Qtimesv_d(array_number_t q, array_number_t l, array_number_t v, array_number_t q_d, array_number_t l_d, array_number_t v_d) {
 	card_t macroDef1212 = v->length;
-	array_number_t macroDef1217 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1217->length=macroDef1212;
-	macroDef1217->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef1212);
-		for(int i = 0; i < macroDef1217->length; i++){
+	array_number_t macroDef1215 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1215->length=macroDef1212;
+	macroDef1215->arr = (number_t*)storage_alloc(sizeof(number_t) * macroDef1212);
+		for(int i = 0; i < macroDef1215->length; i++){
 			index_t tis = TOP_LEVEL_usecases_gmm_tri((i) - (1));
 			index_t tis_d = 0;
 			card_t macroDef1213 = l->length;
-			number_t macroDef1214 = 0;
+			tuple_number_t_number_t macroDef1214 = pair(0, 0);
 	for(int idx = 0; idx < macroDef1213; idx++){
+		number_t acc = macroDef1214._1;
+		number_t acc_d = macroDef1214._2;
 		index_t j = (idx) - (tis);
 		bool_t isInRange = 0;
 	if((j) >= (0)) {
@@ -105,38 +107,13 @@ array_number_t TOP_LEVEL_usecases_gmm_Qtimesv_d(array_number_t q, array_number_t
 		
 		isInRange = false;;
 	}
-		number_t ite1218 = 0;
+		number_t ite1216 = 0;
 	if(isInRange) {
 		
-		ite1218 = (macroDef1214) + ((l->arr[idx]) * (v->arr[j]));;
+		ite1216 = (acc) + ((l->arr[idx]) * (v->arr[j]));;
 	} else {
 		
-		ite1218 = macroDef1214;;
-	}
-		macroDef1214 = ite1218;;
-	}
-			number_t sum = macroDef1214;
-			card_t macroDef1215 = l->length;
-			tuple_number_t_number_t macroDef1216 = pair(0, 0);
-	for(int idx = 0; idx < macroDef1215; idx++){
-		number_t acc = macroDef1216._1;
-		number_t acc_d = macroDef1216._2;
-		index_t j = (idx) - (tis);
-		bool_t isInRange = 0;
-	if((j) >= (0)) {
-		
-		isInRange = (j) < (i);;
-	} else {
-		
-		isInRange = false;;
-	}
-		number_t ite1219 = 0;
-	if(isInRange) {
-		
-		ite1219 = (acc) + ((l->arr[idx]) * (v->arr[j]));;
-	} else {
-		
-		ite1219 = acc;;
+		ite1216 = acc;;
 	}
 		index_t j0 = (idx) - (tis);
 		index_t j_d = 0;
@@ -149,30 +126,59 @@ array_number_t TOP_LEVEL_usecases_gmm_Qtimesv_d(array_number_t q, array_number_t
 		isInRange0 = false;;
 	}
 		bool_t isInRange_d = false;
-		number_t ite1220 = 0;
+		number_t ite1217 = 0;
 	if(isInRange0) {
 		
-		ite1220 = (acc_d) + (((l_d->arr[idx]) * (v->arr[j0])) + ((l->arr[idx]) * (v_d->arr[j0])));;
+		ite1217 = (acc_d) + (((l_d->arr[idx]) * (v->arr[j0])) + ((l->arr[idx]) * (v_d->arr[j0])));;
 	} else {
 		
-		ite1220 = acc_d;;
+		ite1217 = acc_d;;
 	}
-		macroDef1216 = pair(ite1219, ite1220);;
+		macroDef1214 = pair(ite1216, ite1217);;
 	}
-			number_t sum_d = macroDef1216._2;
-			macroDef1217->arr[i] = (sum_d) + ((((q_d->arr[i]) * (exp(q->arr[i]))) * (v->arr[i])) + ((exp(q->arr[i])) * (v_d->arr[i])));;
+			tuple_number_t_number_t tupsum = macroDef1214;
+			number_t sum = tupsum._1;
+			number_t sum_d = tupsum._2;
+			macroDef1215->arr[i] = (sum_d) + ((((q_d->arr[i]) * (exp(q->arr[i]))) * (v->arr[i])) + ((exp(q->arr[i])) * (v_d->arr[i])));;
 		}
-	return macroDef1217;
+	return macroDef1215;
 }
 
 void TOP_LEVEL_usecases_gmm_Qtimesv_test_d(int unitVar0, int unitVar0_d) {
 	
 	return ;
 }
+typedef empty_env_t env_t_1243;
+
+
+value_t lambda1243(env_t_1243* env1225, number_t value) {
+	
+	value_t res;
+	res.number_t_value = exp(value);
+	return res;
+}
+typedef empty_env_t env_t_1244;
+
+
+value_t lambda1244(env_t_1244* env1229, number_t value) {
+	
+	value_t res;
+	res.number_t_value = exp(value);
+	return res;
+}
+typedef empty_env_t env_t_1245;
+
+
+value_t lambda1245(env_t_1245* env1233, number_t value) {
+	
+	value_t res;
+	res.number_t_value = exp(value);
+	return res;
+}
 typedef empty_env_t env_t_1246;
 
 
-value_t lambda1246(env_t_1246* env1228, number_t value) {
+value_t lambda1246(env_t_1246* env1236, number_t value) {
 	
 	value_t res;
 	res.number_t_value = exp(value);
@@ -181,34 +187,7 @@ value_t lambda1246(env_t_1246* env1228, number_t value) {
 typedef empty_env_t env_t_1247;
 
 
-value_t lambda1247(env_t_1247* env1232, number_t value) {
-	
-	value_t res;
-	res.number_t_value = exp(value);
-	return res;
-}
-typedef empty_env_t env_t_1248;
-
-
-value_t lambda1248(env_t_1248* env1236, number_t value) {
-	
-	value_t res;
-	res.number_t_value = exp(value);
-	return res;
-}
-typedef empty_env_t env_t_1249;
-
-
-value_t lambda1249(env_t_1249* env1239, number_t value) {
-	
-	value_t res;
-	res.number_t_value = exp(value);
-	return res;
-}
-typedef empty_env_t env_t_1250;
-
-
-value_t lambda1250(env_t_1250* env1242, number_t value, number_t value_d) {
+value_t lambda1247(env_t_1247* env1239, number_t value, number_t value_d) {
 	
 	value_t res;
 	res.number_t_value = (value_d) * (exp(value));
@@ -219,67 +198,67 @@ number_t TOP_LEVEL_usecases_gmm_gmm_objective_d(array_array_number_t x, array_nu
 	card_t n_d = TOP_LEVEL_linalg_rows(x);
 	card_t d = TOP_LEVEL_linalg_cols(x);
 	card_t d_d = TOP_LEVEL_linalg_cols(x);
-	card_t macroDef1221 = alphas->length;
-	card_t K = macroDef1221;
-	card_t macroDef1222 = alphas->length;
-	card_t K_d = macroDef1222;
+	card_t macroDef1218 = alphas->length;
+	card_t K = macroDef1218;
+	card_t macroDef1219 = alphas->length;
+	card_t K_d = macroDef1219;
+	array_number_t macroDef1221 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1221->length=n;
+	macroDef1221->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
+		for(int i = 0; i < macroDef1221->length; i++){
+			array_number_t macroDef1220 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1220->length=K;
+	macroDef1220->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef1220->length; k++){
+			
+			macroDef1220->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
+		}
+			macroDef1221->arr[i] = TOP_LEVEL_usecases_gmm_logsumexp(macroDef1220);;
+		}
 	array_number_t macroDef1224 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef1224->length=n;
 	macroDef1224->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
 		for(int i = 0; i < macroDef1224->length; i++){
+			array_number_t macroDef1222 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1222->length=K;
+	macroDef1222->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef1222->length; k++){
+			
+			macroDef1222->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
+		}
 			array_number_t macroDef1223 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef1223->length=K;
 	macroDef1223->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
 		for(int k = 0; k < macroDef1223->length; k++){
 			
-			macroDef1223->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
+			macroDef1223->arr[k] = ((alphas_d->arr[k]) + (TOP_LEVEL_linalg_vectorSum_d(qs->arr[k], qs_d->arr[k]))) - (((0) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k]))))) + ((0.5) * (TOP_LEVEL_linalg_sqnorm_d(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])), TOP_LEVEL_usecases_gmm_Qtimesv_d(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k]), qs_d->arr[k], ls_d->arr[k], TOP_LEVEL_linalg_vectorSub_d(x->arr[i], means->arr[k], x_d->arr[i], means_d->arr[k]))))));;
 		}
-			macroDef1224->arr[i] = TOP_LEVEL_usecases_gmm_logsumexp(macroDef1223);;
+			macroDef1224->arr[i] = TOP_LEVEL_usecases_gmm_logsumexp_d(macroDef1222, macroDef1223);;
 		}
-	array_number_t macroDef1227 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1227->length=n;
-	macroDef1227->arr = (number_t*)storage_alloc(sizeof(number_t) * n);
-		for(int i = 0; i < macroDef1227->length; i++){
-			array_number_t macroDef1225 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1225->length=K;
-	macroDef1225->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef1225->length; k++){
-			
-			macroDef1225->arr[k] = ((alphas->arr[k]) + (TOP_LEVEL_linalg_vectorSum(qs->arr[k]))) - ((0.5) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])))));;
+	array_number_t macroDef1228 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1228->length=K;
+	macroDef1228->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef1228->length; k++){
+			env_t_1243 env_t_1243_value = make_empty_env(); closure_t closure1227 = make_closure(lambda1243, &env_t_1243_value);
+			macroDef1228->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure1227, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
 		}
-			array_number_t macroDef1226 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1226->length=K;
-	macroDef1226->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef1226->length; k++){
-			
-			macroDef1226->arr[k] = ((alphas_d->arr[k]) + (TOP_LEVEL_linalg_vectorSum_d(qs->arr[k], qs_d->arr[k]))) - (((0) * (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k]))))) + ((0.5) * (TOP_LEVEL_linalg_sqnorm_d(TOP_LEVEL_usecases_gmm_Qtimesv(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k])), TOP_LEVEL_usecases_gmm_Qtimesv_d(qs->arr[k], ls->arr[k], TOP_LEVEL_linalg_vectorSub(x->arr[i], means->arr[k]), qs_d->arr[k], ls_d->arr[k], TOP_LEVEL_linalg_vectorSub_d(x->arr[i], means->arr[k], x_d->arr[i], means_d->arr[k]))))));;
+	array_number_t macroDef1232 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1232->length=K;
+	macroDef1232->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef1232->length; k++){
+			env_t_1244 env_t_1244_value = make_empty_env(); closure_t closure1231 = make_closure(lambda1244, &env_t_1244_value);
+			macroDef1232->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure1231, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
 		}
-			macroDef1227->arr[i] = TOP_LEVEL_usecases_gmm_logsumexp_d(macroDef1225, macroDef1226);;
+	array_number_t macroDef1242 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	macroDef1242->length=K;
+	macroDef1242->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
+		for(int k = 0; k < macroDef1242->length; k++){
+			env_t_1245 env_t_1245_value = make_empty_env(); closure_t closure1235 = make_closure(lambda1245, &env_t_1245_value);
+			env_t_1246 env_t_1246_value = make_empty_env(); closure_t closure1238 = make_closure(lambda1246, &env_t_1246_value);
+			env_t_1247 env_t_1247_value = make_empty_env(); closure_t closure1241 = make_closure(lambda1247, &env_t_1247_value);
+			macroDef1242->arr[k] = (TOP_LEVEL_linalg_sqnorm_d(TOP_LEVEL_linalg_vectorMap(closure1235, qs->arr[k]), TOP_LEVEL_linalg_vectorMap_d(closure1238, qs->arr[k], closure1241, qs_d->arr[k]))) + (TOP_LEVEL_linalg_sqnorm_d(ls->arr[k], ls_d->arr[k]));;
 		}
-	array_number_t macroDef1231 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1231->length=K;
-	macroDef1231->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef1231->length; k++){
-			env_t_1246 env_t_1246_value = make_empty_env(); closure_t closure1230 = make_closure(lambda1246, &env_t_1246_value);
-			macroDef1231->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure1230, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
-		}
-	array_number_t macroDef1235 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1235->length=K;
-	macroDef1235->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef1235->length; k++){
-			env_t_1247 env_t_1247_value = make_empty_env(); closure_t closure1234 = make_closure(lambda1247, &env_t_1247_value);
-			macroDef1235->arr[k] = (TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorMap(closure1234, qs->arr[k]))) + (TOP_LEVEL_linalg_sqnorm(ls->arr[k]));;
-		}
-	array_number_t macroDef1245 = (array_number_t)storage_alloc(sizeof(int) * 2);
-	macroDef1245->length=K;
-	macroDef1245->arr = (number_t*)storage_alloc(sizeof(number_t) * K);
-		for(int k = 0; k < macroDef1245->length; k++){
-			env_t_1248 env_t_1248_value = make_empty_env(); closure_t closure1238 = make_closure(lambda1248, &env_t_1248_value);
-			env_t_1249 env_t_1249_value = make_empty_env(); closure_t closure1241 = make_closure(lambda1249, &env_t_1249_value);
-			env_t_1250 env_t_1250_value = make_empty_env(); closure_t closure1244 = make_closure(lambda1250, &env_t_1250_value);
-			macroDef1245->arr[k] = (TOP_LEVEL_linalg_sqnorm_d(TOP_LEVEL_linalg_vectorMap(closure1238, qs->arr[k]), TOP_LEVEL_linalg_vectorMap_d(closure1241, qs->arr[k], closure1244, qs_d->arr[k]))) + (TOP_LEVEL_linalg_sqnorm_d(ls->arr[k], ls_d->arr[k]));;
-		}
-	return ((TOP_LEVEL_linalg_vectorSum_d(macroDef1224, macroDef1227)) - (((0) * (TOP_LEVEL_usecases_gmm_logsumexp(alphas))) + (((double)((n))) * (TOP_LEVEL_usecases_gmm_logsumexp_d(alphas, alphas_d))))) + (((0) * (TOP_LEVEL_linalg_vectorSum(macroDef1231))) + ((0.5) * (TOP_LEVEL_linalg_vectorSum_d(macroDef1235, macroDef1245))));
+	return ((TOP_LEVEL_linalg_vectorSum_d(macroDef1221, macroDef1224)) - (((0) * (TOP_LEVEL_usecases_gmm_logsumexp(alphas))) + (((double)((n))) * (TOP_LEVEL_usecases_gmm_logsumexp_d(alphas, alphas_d))))) + (((0) * (TOP_LEVEL_linalg_vectorSum(macroDef1228))) + ((0.5) * (TOP_LEVEL_linalg_vectorSum_d(macroDef1232, macroDef1242))));
 }
 
 void TOP_LEVEL_usecases_gmm_test_gmm_d(array_number_t dum, array_number_t dum_d) {

@@ -30,11 +30,13 @@ let symdiff (exp: Expr): Expr =
               ruleengine.compilePatternToRule <@ m3length_d @>;
               build_d;
               array_d;
+              letFold_d;
               fold_d;
               card_d;
               const_d;
               nondouble_d;
               var_d; 
+              //letIf_d;
               if_d;
               chain_rule;
               lambda_d;
@@ -96,17 +98,20 @@ let test_symdiff () =
       compiler.getMethodExpr moduleName methodName 
         |> fusion_optimize 
         //|> ctransformer.anfConversion false 
+        |> ctransformer.fullAnfConversion
         |> transformDiff 
         |> fusion_optimize 
         |> trans [rules.foldPartiallyDCE] 
-        |> fscodegen.fspreprocess 
-        //|> ctransformer.fullAnfConversion
+        //|> fscodegen.fspreprocess 
+        |> ctransformer.fullAnfConversion
+        |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        |> trans [rules_old.dce_old]
         |> trans [rules_old.letCSE] 
         //|> fscodegen.fscodegenTopLevel
         |> (fun e -> ccodegenTopLevel e finalName true)
     let res = 
       //optimizeD "usecases_gmm" "gmm_objective" "gmm_obj_opt"
-      //optimizeD "usecases_ba" "project" "project_d"
-      optimizeD "linalg" "dot_prod" "dot_prod_d"
+      optimizeD "usecases_ba" "project" "project_d"
+      //optimizeD "linalg" "dot_prod" "dot_prod_d"
     printfn "symdiff: %s" res
     ()

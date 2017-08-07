@@ -230,4 +230,11 @@ tuple_number_t_number_t pair(number_t _1, number_t _2) {
 	return res;
 }
 
+tuple_array_number_t_array_number_t pair_v_v(array_number_t _1, array_number_t _2) {
+	tuple_array_number_t_array_number_t res;
+	res._1 = _1;
+	res._2 = _2;
+	return res;
+}
+
 #endif

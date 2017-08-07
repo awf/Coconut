@@ -17,7 +17,7 @@ array_number_t TOP_LEVEL_usecases_ba_radial_distort_d(array_number_t rad_params,
 array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_d(array_number_t rot, array_number_t x, array_number_t rot_d, array_number_t x_d) {
 	number_t sqtheta = TOP_LEVEL_linalg_sqnorm(rot);
 	number_t sqtheta_d = TOP_LEVEL_linalg_sqnorm_d(rot, rot_d);
-	array_number_t ite1251 = 0;
+	array_number_t ite1248 = 0;
 	if((sqtheta) != (0)) {
 		number_t theta = sqrt(sqtheta);
 		number_t theta_d = (sqtheta_d) / ((2) * (sqrt(sqtheta)));
@@ -37,12 +37,12 @@ array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_d(array_number_t rot
 		array_number_t v1_d = TOP_LEVEL_linalg_mult_by_scalar_d(x, costheta, x_d, costheta_d);
 		array_number_t v2 = TOP_LEVEL_linalg_mult_by_scalar(w_cross_X, sintheta);
 		array_number_t v2_d = TOP_LEVEL_linalg_mult_by_scalar_d(w_cross_X, sintheta, w_cross_X_d, sintheta_d);
-		ite1251 = TOP_LEVEL_linalg_vectorAdd_d(TOP_LEVEL_linalg_vectorAdd(v1, v2), TOP_LEVEL_linalg_mult_by_scalar(w, tmp), TOP_LEVEL_linalg_vectorAdd_d(v1, v2, v1_d, v2_d), TOP_LEVEL_linalg_mult_by_scalar_d(w, tmp, w_d, tmp_d));;
+		ite1248 = TOP_LEVEL_linalg_vectorAdd_d(TOP_LEVEL_linalg_vectorAdd(v1, v2), TOP_LEVEL_linalg_mult_by_scalar(w, tmp), TOP_LEVEL_linalg_vectorAdd_d(v1, v2, v1_d, v2_d), TOP_LEVEL_linalg_mult_by_scalar_d(w, tmp, w_d, tmp_d));;
 	} else {
 		
-		ite1251 = TOP_LEVEL_linalg_vectorAdd_d(x, TOP_LEVEL_linalg_cross(rot, x), x_d, TOP_LEVEL_linalg_cross_d(rot, x, rot_d, x_d));;
+		ite1248 = TOP_LEVEL_linalg_vectorAdd_d(x, TOP_LEVEL_linalg_cross(rot, x), x_d, TOP_LEVEL_linalg_cross_d(rot, x, rot_d, x_d));;
 	}
-	return ite1251;
+	return ite1248;
 }
 
 array_number_t TOP_LEVEL_usecases_ba_project_d(array_number_t cam, array_number_t x, array_number_t cam_d, array_number_t x_d) {
@@ -74,38 +74,38 @@ number_t TOP_LEVEL_usecases_ba_compute_zach_weight_error_d(number_t w, number_t 
 	
 	return (0) - (((w_d) * (w)) + ((w) * (w_d)));
 }
-typedef empty_env_t env_t_1258;
+typedef empty_env_t env_t_1255;
 
 
-value_t lambda1258(env_t_1258* env1252, number_t w0) {
+value_t lambda1255(env_t_1255* env1249, number_t w0) {
 	
 	value_t res;
 	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error(w0);
 	return res;
 }
-typedef empty_env_t env_t_1259;
+typedef empty_env_t env_t_1256;
 
 
-value_t lambda1259(env_t_1259* env1255, number_t w0, number_t w_d0) {
+value_t lambda1256(env_t_1256* env1252, number_t w0, number_t w_d0) {
 	
 	value_t res;
 	res.number_t_value = TOP_LEVEL_usecases_ba_compute_zach_weight_error_d(w0, w_d0);
 	return res;
 }
 array_number_t TOP_LEVEL_usecases_ba_w_err_d(array_number_t w, array_number_t w_d) {
-	env_t_1258 env_t_1258_value = make_empty_env(); closure_t closure1254 = make_closure(lambda1258, &env_t_1258_value);
-	env_t_1259 env_t_1259_value = make_empty_env(); closure_t closure1257 = make_closure(lambda1259, &env_t_1259_value);
-	return TOP_LEVEL_linalg_vectorMap_d(closure1254, w, closure1257, w_d);
+	env_t_1255 env_t_1255_value = make_empty_env(); closure_t closure1251 = make_closure(lambda1255, &env_t_1255_value);
+	env_t_1256 env_t_1256_value = make_empty_env(); closure_t closure1254 = make_closure(lambda1256, &env_t_1256_value);
+	return TOP_LEVEL_linalg_vectorMap_d(closure1251, w, closure1254, w_d);
 }
-typedef struct env_t_1284 {
+typedef struct env_t_1281 {
 	array_array_number_t x;
 	array_number_t w;
 	array_array_number_t obs;
 	array_array_number_t feat;
 	array_array_number_t cams;
-} env_t_1284;
-env_t_1284 make_env_t_1284(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
-	env_t_1284 env;
+} env_t_1281;
+env_t_1281 make_env_t_1281(array_array_number_t x,array_number_t w,array_array_number_t obs,array_array_number_t feat,array_array_number_t cams) {
+	env_t_1281 env;
 	env.x = x;
 	env.w = w;
 	env.obs = obs;
@@ -114,17 +114,17 @@ env_t_1284 make_env_t_1284(array_array_number_t x,array_number_t w,array_array_n
 	return env;
 }
 
-value_t lambda1284(env_t_1284* env1269, number_t i) {
-	array_array_number_t x1268 = env1269->x;
-	array_number_t w1267 = env1269->w;
-	array_array_number_t obs1266 = env1269->obs;
-	array_array_number_t feat1265 = env1269->feat;
-	array_array_number_t cams1264 = env1269->cams;
+value_t lambda1281(env_t_1281* env1266, number_t i) {
+	array_array_number_t x1265 = env1266->x;
+	array_number_t w1264 = env1266->w;
+	array_array_number_t obs1263 = env1266->obs;
+	array_array_number_t feat1262 = env1266->feat;
+	array_array_number_t cams1261 = env1266->cams;
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err(cams1264->arr[(int)(obs1266->arr[(int)(i)]->arr[0])], x1268->arr[(int)(obs1266->arr[(int)(i)]->arr[1])], w1267->arr[(int)(i)], feat1265->arr[(int)(i)]);
+	res.array_number_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err(cams1261->arr[(int)(obs1263->arr[(int)(i)]->arr[0])], x1265->arr[(int)(obs1263->arr[(int)(i)]->arr[1])], w1264->arr[(int)(i)], feat1262->arr[(int)(i)]);
 	return res;
 }
-typedef struct env_t_1285 {
+typedef struct env_t_1282 {
 	array_array_number_t x_d;
 	array_array_number_t x;
 	array_number_t w_d;
@@ -134,9 +134,9 @@ typedef struct env_t_1285 {
 	array_array_number_t feat;
 	array_array_number_t cams_d;
 	array_array_number_t cams;
-} env_t_1285;
-env_t_1285 make_env_t_1285(array_array_number_t x_d,array_array_number_t x,array_number_t w_d,array_number_t w,array_array_number_t obs,array_array_number_t feat_d,array_array_number_t feat,array_array_number_t cams_d,array_array_number_t cams) {
-	env_t_1285 env;
+} env_t_1282;
+env_t_1282 make_env_t_1282(array_array_number_t x_d,array_array_number_t x,array_number_t w_d,array_number_t w,array_array_number_t obs,array_array_number_t feat_d,array_array_number_t feat,array_array_number_t cams_d,array_array_number_t cams) {
+	env_t_1282 env;
 	env.x_d = x_d;
 	env.x = x;
 	env.w_d = w_d;
@@ -149,34 +149,34 @@ env_t_1285 make_env_t_1285(array_array_number_t x_d,array_array_number_t x,array
 	return env;
 }
 
-value_t lambda1285(env_t_1285* env1281, number_t i, number_t i_d) {
-	array_array_number_t x_d1280 = env1281->x_d;
-	array_array_number_t x1279 = env1281->x;
-	array_number_t w_d1278 = env1281->w_d;
-	array_number_t w1277 = env1281->w;
-	array_array_number_t obs1276 = env1281->obs;
-	array_array_number_t feat_d1275 = env1281->feat_d;
-	array_array_number_t feat1274 = env1281->feat;
-	array_array_number_t cams_d1273 = env1281->cams_d;
-	array_array_number_t cams1272 = env1281->cams;
+value_t lambda1282(env_t_1282* env1278, number_t i, number_t i_d) {
+	array_array_number_t x_d1277 = env1278->x_d;
+	array_array_number_t x1276 = env1278->x;
+	array_number_t w_d1275 = env1278->w_d;
+	array_number_t w1274 = env1278->w;
+	array_array_number_t obs1273 = env1278->obs;
+	array_array_number_t feat_d1272 = env1278->feat_d;
+	array_array_number_t feat1271 = env1278->feat;
+	array_array_number_t cams_d1270 = env1278->cams_d;
+	array_array_number_t cams1269 = env1278->cams;
 	value_t res;
-	res.array_number_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err_d(cams1272->arr[(int)(obs1276->arr[(int)(i)]->arr[0])], x1279->arr[(int)(obs1276->arr[(int)(i)]->arr[1])], w1277->arr[(int)(i)], feat1274->arr[(int)(i)], cams_d1273->arr[(int)(obs1276->arr[(int)(i)]->arr[0])], x_d1280->arr[(int)(obs1276->arr[(int)(i)]->arr[1])], w_d1278->arr[(int)(i)], feat_d1275->arr[(int)(i)]);
+	res.array_number_t_value = TOP_LEVEL_usecases_ba_compute_reproj_err_d(cams1269->arr[(int)(obs1273->arr[(int)(i)]->arr[0])], x1276->arr[(int)(obs1273->arr[(int)(i)]->arr[1])], w1274->arr[(int)(i)], feat1271->arr[(int)(i)], cams_d1270->arr[(int)(obs1273->arr[(int)(i)]->arr[0])], x_d1277->arr[(int)(obs1273->arr[(int)(i)]->arr[1])], w_d1275->arr[(int)(i)], feat_d1272->arr[(int)(i)]);
 	return res;
 }
 array_array_number_t TOP_LEVEL_usecases_ba_reproj_err_d(array_array_number_t cams, array_array_number_t x, array_number_t w, array_array_number_t obs, array_array_number_t feat, array_array_number_t cams_d, array_array_number_t x_d, array_number_t w_d, array_array_number_t obs_d, array_array_number_t feat_d) {
-	card_t macroDef1260 = cams->length;
-	card_t n = macroDef1260;
-	card_t macroDef1261 = cams->length;
-	card_t n_d = macroDef1261;
-	card_t macroDef1262 = w->length;
-	card_t p = macroDef1262;
-	card_t macroDef1263 = w->length;
-	card_t p_d = macroDef1263;
+	card_t macroDef1257 = cams->length;
+	card_t n = macroDef1257;
+	card_t macroDef1258 = cams->length;
+	card_t n_d = macroDef1258;
+	card_t macroDef1259 = w->length;
+	card_t p = macroDef1259;
+	card_t macroDef1260 = w->length;
+	card_t p_d = macroDef1260;
 	array_number_t range = TOP_LEVEL_linalg_vectorRange(0, (p) - (1));
 	array_number_t range_d = TOP_LEVEL_linalg_vectorRange_d(0, (p) - (1), 0, (p) - (1));
-	env_t_1284 env_t_1284_value = make_env_t_1284(x,w,obs,feat,cams); closure_t closure1271 = make_closure(lambda1284, &env_t_1284_value);
-	env_t_1285 env_t_1285_value = make_env_t_1285(x_d,x,w_d,w,obs,feat_d,feat,cams_d,cams); closure_t closure1283 = make_closure(lambda1285, &env_t_1285_value);
-	return TOP_LEVEL_linalg_vectorMapToMatrix_d(closure1271, range, closure1283, range_d);
+	env_t_1281 env_t_1281_value = make_env_t_1281(x,w,obs,feat,cams); closure_t closure1268 = make_closure(lambda1281, &env_t_1281_value);
+	env_t_1282 env_t_1282_value = make_env_t_1282(x_d,x,w_d,w,obs,feat_d,feat,cams_d,cams); closure_t closure1280 = make_closure(lambda1282, &env_t_1282_value);
+	return TOP_LEVEL_linalg_vectorMapToMatrix_d(closure1268, range, closure1280, range_d);
 }
 
 void TOP_LEVEL_usecases_ba_run_ba_from_file_d(string_t fn, card_t n, card_t m, card_t p, string_t fn_d, card_t n_d, card_t m_d, card_t p_d) {

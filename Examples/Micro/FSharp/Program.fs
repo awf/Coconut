@@ -2,9 +2,14 @@
 open System.Diagnostics
 open System.IO
 
+//open DiffSharp.AD
+//let D_seed (x:float) = D x
+//let DD (x:double) = D x
+
 #if MODE_AD
 open DiffSharp.AD
 let D_seed (x:float) = D x
+//let DD (x:double) = D x
 #else
 #if MODE_R
 open DiffSharp.AD.Specialized.Reverse1
@@ -272,7 +277,7 @@ let vector_fill (rows: int) (value: double): double[] =
     (matrix_fill 1 rows value).[0];
 
 let benchmark_ba () = 
-    let cam = [| 0.1; 0.1; 0.1; 0.2; 0.1; 0.3; 1.2; 0.01; 0.03; 0.009; 1.2e-4 |]
+    let cam = [| 0.1; 0.1; 0.1; 0.2; 0.1; 0.3; 1.2; 0.01; 0.03; 0.009; 1.2e-4 |] 
     let X = [| 0.03; 0.11; -0.7 |]
     let N = 1000 * 1000 * 10
     let mutable total = 0.0
@@ -281,6 +286,20 @@ let benchmark_ba () =
       X.[0] <- 1.0 / (2.0 + (double)i);
       cam.[5] <- 1.0 + (double)i * 1e-6;
       total <- total + ba.sqnorm (ba.project cam X)
+    t.Stop()
+    printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
+
+let benchmark_ba_d () = 
+    let cam = [| 0.1; 0.1; 0.1; 0.2; 0.1; 0.3; 1.2; 0.01; 0.03; 0.009; 1.2e-4 |] |> Array.map (D)
+    let X = [| 0.03; 0.11; -0.7 |] |> Array.map (D)
+    let N = 1000 * 1000 * 10
+    let mutable total = 0.0
+    let t = Stopwatch.StartNew()
+    for i = 0 to N-1 do
+      X.[0] <- D (1.0 / (2.0 + (double)i));
+      cam.[5] <- D (1.0 + (double)i * 1e-6);
+      let res = (ba.sqnorm (ba.project_ cam X))
+      total <- total + (float res.T)
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
@@ -390,7 +409,8 @@ let main argv =
     //benchmark_ba ()
     //benchmark_gmm ()
     //benchmark_micro (Int32.Parse argv.[0])
-    benchmark_ht ()
+    //benchmark_ht ()
+    benchmark_ba_d ()
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif

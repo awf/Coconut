@@ -28,6 +28,10 @@ typedef struct tuple_number_t_number_t {
   number_t _1;
   number_t _2;
 } tuple_number_t_number_t;
+typedef struct tuple_array_number_t_array_number_t {
+  array_number_t _1;
+  array_number_t _2;
+} tuple_array_number_t_array_number_t;
 
 typedef union value_t {
 	card_t card_t_value;
