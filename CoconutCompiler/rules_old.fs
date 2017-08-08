@@ -4,12 +4,31 @@ open Microsoft.FSharp.Quotations
 open corelang
 open transformer
 
-let letInliner_old (e: Expr): Expr Option = 
-  match e with 
-  | Patterns.Let(v, e1, e2) -> 
-    let renamedBody = captureAvoidingSubstitution e2 [v, e1]
-    Some(renamedBody)
-  | _ -> None
+let letInlinerOnce_old = 
+  (fun (e: Expr) ->
+    match e with 
+    | Patterns.Let(v, e1, e2) -> 
+      let rec count exp: int = 
+        match exp with 
+        | ExprShape.ShapeCombination(op, args) -> args |> List.map count |> List.fold (+) 0
+        | ExprShape.ShapeVar(v2) -> if v2 = v then 1 else 0
+        | ExprShape.ShapeLambda(x, body) -> count body
+      if (count e2) = 1 then 
+        let renamedBody = captureAvoidingSubstitution e2 [v, e1]
+        [renamedBody]
+      else
+        []
+    | _ -> []
+  ), "letInlinerOnce_old"
+
+let letInliner_old = 
+  (fun (e: Expr) ->
+    match e with 
+    | Patterns.Let(v, e1, e2) -> 
+      let renamedBody = captureAvoidingSubstitution e2 [v, e1]
+      [renamedBody]
+    | _ -> []
+  ), "letInliner_old"
 
 // c.f. "Compiling with Continuations, Continued", Andrew Kennedy, ICFP'07
 let letCommutingConversion_old = 
