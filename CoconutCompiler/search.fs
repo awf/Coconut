@@ -54,6 +54,20 @@ let bfs<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e
   reporter.finish allNodes best
   best
 
+(* Beam Search Algorithm *)
+let beamSearch<'a> (levels: int) (width: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e: 'a) (children: 'a -> 'a List) (costModel: 'a -> double) -> 
+  let range = [for i = 1 to levels do yield i]
+  let listTopN n l = 
+    let n' = min n (List.length l)
+    l |> Seq.sortBy snd |> Seq.take n' |> List.ofSeq
+
+  let revertedResult = 
+    List.fold (fun acc cur ->  (List.collect (fun (exp, _) -> List.map (fun x -> x, costModel x) (children exp) |> listTopN width) (List.head acc)) :: acc) [[e, costModel e]] range
+  let allNodes = (List.concat revertedResult)
+  let best = List.minBy snd allNodes
+  reporter.finish allNodes best
+  best
+
 (* Random Walk *)
 let randomWalk<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>)  (e: 'a)  (children: 'a -> 'a List) (costModel: 'a -> double) -> 
   reporter.init (sprintf "Random Walk started with %d levels" levels)
