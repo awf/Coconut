@@ -55,7 +55,7 @@ type InputMetaData = RulePosition
 type Positioned<'r> = InputMetaData * 'r
 type MetaData = Positioned<Rule>
 
-let private zeroMetaData: InputMetaData = 0
+let zeroMetaData: InputMetaData = 0
 
 let rec exprSize (exp: Expr): int =
   match exp with
@@ -63,9 +63,12 @@ let rec exprSize (exp: Expr): int =
   | ExprShape.ShapeVar(v)                -> 1 + 1
   | ExprShape.ShapeCombination(o, exprs) -> 1 + (exprs |> List.map exprSize |> List.sum)
 
+let examineAllRulesPositionedImmediately (rs: Rule List) (exp: Expr) (meta: InputMetaData): MetaData List = 
+  rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta, r)) 
+
 let examineAllRulesPositioned (rs: Rule List) (e: Expr): MetaData List = 
   let rec rcr (exp: Expr) (meta: InputMetaData): MetaData List = 
-    let immediatelyConstructedExpressions = rs |> List.collect (fun r -> applyRule r exp |> List.map (fun _ -> meta, r)) 
+    let immediatelyConstructedExpressions = examineAllRulesPositionedImmediately rs exp meta
     let constructedExpressionsByChildren =
       match exp with 
       | ExprShape.ShapeLambda(i, e) -> rcr e (meta + 1)

@@ -56,6 +56,7 @@ let bfs<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e
 
 (* Beam Search Algorithm *)
 let beamSearch<'a> (levels: int) (width: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e: 'a) (children: 'a -> 'a List) (costModel: 'a -> double) -> 
+  reporter.init (sprintf "Beam Search started with %d levels and width %d" levels width)
   let range = [for i = 1 to levels do yield i]
   let listTopN n l = 
     let n' = min n (List.length l)
