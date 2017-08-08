@@ -27,8 +27,36 @@ type Move =
       | Down4 -> "D4"
   member this.AsString = this.ToString()
 
+let downNth idx = 
+  match idx with 
+  | 0 -> Down
+  | 1 -> Down2
+  | 2 -> Down3
+  | 3 -> Down4
+  | _ -> failwithf "%d th down not available" idx
+
+let downIndex m = 
+  match m with
+  | Down -> 0
+  | Down2 -> 1
+  | Down3 -> 2
+  | Down4 -> 3
+  | _ -> failwithf "%A is not a down move" m
+
+type Step = 
+  | StepMove of Move
+  | StepRule of Rule
+
+// In essence similar to a zipper data structure
+type SubExpr<'p> = 
+  Expr (* Root *) * 
+  //Expr (* Sub Expression *) * 
+  'p (* Position Representation *)
+type ProgramState = SubExpr<RulePosition>
+type ProgramMoves = SubExpr<Move list>
+
 let positionToMoves (e: Expr) (pos: RulePosition): Move list =
-  let rec rcr (exp: Expr) (rootPos: InputMetaData): Move list = 
+  let rec rcr (exp: Expr) (rootPos: RulePosition): Move list = 
     if rootPos = pos then
       []
     else
@@ -37,20 +65,58 @@ let positionToMoves (e: Expr) (pos: RulePosition): Move list =
       | ExprShape.ShapeVar(v)       -> if rootPos + 1 = pos then [] else failwithf "shouldn't reach to var %A" exp
       | Patterns.Value(v, tp)       -> if rootPos + 1 = pos then [] else failwithf "shouldn't reach to value %A" exp
       | ExprShape.ShapeCombination(o, exprs) ->
-          //let exprsExpressions = (([], rootPos + 1), exprs) ||> List.fold (fun (ms, idx) e  -> (rcr e idx) :: ms, idx + exprSize e)
-          //ExprShape.RebuildShapeCombination(o, fst exprsExpressions |> List.rev)
           let exprsPos = ([rootPos + 1], exprs) ||> List.fold (fun list cur -> (List.head list) + exprSize cur :: list) |> List.rev
           let idx = exprsPos |> List.findIndex (fun p -> p > pos)
           let childPos = List.nth exprsPos (idx - 1)
           let exp = List.nth exprs (idx - 1)
-          let move = 
-             match idx with 
-             | 1 -> Down
-             | 2 -> Down2
-             | 3 -> Down3
-             | 4 -> Down4
+          let move = downNth (idx - 1)
           move :: (rcr exp childPos)
   rcr e zeroMetaData
+
+let stateToMoves ((e, pos): ProgramState): ProgramMoves = 
+  e, positionToMoves e pos
+
+let movesToState ((e, moves): ProgramMoves): ProgramState = 
+  let rec rcr exp moves rootPos: int = 
+    match moves with
+    | [] -> rootPos
+    | hd :: tl ->
+      match exp with 
+      | ExprShape.ShapeLambda(i, e) -> 
+        if hd = Down2 then rcr e tl (rootPos + 1) else failwithf "shouldn't move %A in lambda %A" hd exp
+      | ExprShape.ShapeVar(v)       -> 
+        failwithf "shouldn't move in var %A" exp
+      | Patterns.Value(v, tp)       -> 
+        failwithf "shouldn't move in value %A" exp
+      | ExprShape.ShapeCombination(o, exprs) ->
+        let idx = downIndex hd
+        let sizes = (rootPos + 1, exprs) ||> List.scan (fun acc cur -> acc + (exprSize cur))
+        let childPos = List.nth sizes idx
+        let childExp = List.nth exprs idx
+        rcr childExp tl childPos
+  e, rcr e moves 0
+
+let movesUpdate (p: Move list) (nextMove: Move): Move list =
+  p |> List.iter (fun m -> assert(m <> Up))
+  match nextMove with 
+  | Up -> p |> List.rev |> List.tail |> List.rev
+  | _  -> p @ [nextMove]
+
+let deltaPos (p1: Move list) (p2: Move list): Move list = 
+  let rec commonPrefix l1 l2 = 
+      match (l1, l2) with
+      | (hd1 :: tl1, hd2 :: tl2) ->
+        if hd1 = hd2 then 
+           hd1 :: (commonPrefix tl1 tl2)
+        else
+           []
+      | _ -> []
+  let cmn = commonPrefix p1 p2
+  let cmnSize = List.length cmn
+  let p1UpSize = (List.length p1) - cmnSize
+  let p1Up = [for i = 1 to p1UpSize do yield Up]
+  let p2Down = p2 |> Seq.skip cmnSize |> List.ofSeq
+  p1Up @ p2Down
 
 let log_optimize (e: Expr) = 
   let debug = true
@@ -74,15 +140,62 @@ let log_optimize (e: Expr) =
       ) (fun (e, _) -> fopCost e)
   toc t "beam searching"
   //printfn "rules %A" appliedRules
+  // TODO rewrite using List.scan
   let allProgs = 
     let rs = appliedRules |> List.rev
     ([e], rs) ||> List.fold (fun acc cur -> applyRuleAtParticularPosition (List.head acc) cur :: acc) |> List.rev
   //printf "rep prog: %s" (ccodegen.prettyprint (repeatRules |> List.head))
   let allProgsButLast = allProgs |> List.rev |> List.tail |> List.rev
-  (appliedRules |> List.rev, allProgsButLast) ||> List.zip 
-    |> List.iter (fun ((pos, rule), e) ->
-         printfn "rule: %A, moves: %A" (snd rule) (positionToMoves e pos)
-       )
+  let ruleMoves = 
+    (appliedRules |> List.rev, allProgsButLast) ||> List.zip 
+    |> List.fold (fun cur ((pos, rule), e) ->
+         (positionToMoves e pos, rule) :: cur
+       ) [] |> List.rev
+  
+  //ruleMoves 
+  //  |> List.iter (fun (pos, rule) ->
+  //      printfn "moves: %A, rule: %s" pos (snd rule)
+  //     )
+  let compressedMoves = 
+    (([], []), ruleMoves) 
+      ||> List.scan (fun (prevDeltaPos, prevPos) (pos, rule) -> 
+            deltaPos prevPos pos, pos
+          ) 
+      |> List.map fst |> List.tail
+
+  //compressedMoves 
+  //    |> List.iter (fun pos ->
+  //        printfn "cmpr moves: %A" pos
+  //       )  
+
+  let steps = 
+     (ruleMoves, compressedMoves) 
+       ||> List.map2 (fun (_, rule) pos -> (pos |> List.map StepMove) @ [StepRule rule])
+       |> List.concat
+
+  //steps 
+  //    |> List.iter (fun step ->
+  //        printfn "step: %A" step
+  //       )  
+
+  let stepProg (prog: ProgramState) (step: Step): ProgramState = 
+    let (e, pos) = prog
+    match step with 
+    | StepMove(m) -> 
+      let (_, moves) = stateToMoves prog
+      let moves' = movesUpdate moves m
+      movesToState (e, moves')
+    | StepRule(r) ->
+      applyRuleAtParticularPosition e (pos, r), pos
+
+  let finalProg = 
+    ((e, 0), steps)
+      ||> List.fold (fun (exp, pos) step ->
+          stepProg (exp, pos) step
+         )  
+
+  printfn "final exp: %s" (ccodegen.prettyprint (fst finalProg))
+
   best
 
 [<Test>]
@@ -101,6 +214,7 @@ let testPositionToMoves () =
   posListsEqual (positionToMoves exp1 1) [Down2]
   posListsEqual (positionToMoves exp1 3) [Down2; Down]
   posListsEqual (positionToMoves exp1 4) [Down2; Down2]
+  posListsEqual (deltaPos [Down2; Down] [Down2; Down2]) [Up; Down2]
   let exp2 = 
     <@ 
       fun a b -> 
