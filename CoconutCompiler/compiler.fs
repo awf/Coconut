@@ -78,13 +78,15 @@ let writeToHeaderFile (headerName: string) (dependentHeaders: string List) (cont
       List.append (header :: (List.append depModulesString content)) ([footer]))
   ()
 
-let compileModuleGeneric (moduleName: string) (depModulesString: string List) (nameWithPostfix: string -> string) (compiler: string -> string -> string): unit = 
-  let allMethods = 
+let getMethodsOfModule (moduleName: string): string list = 
     let moduleInfo = currentAssembly.GetType(moduleName)
-    moduleInfo.GetMethods() |> List.ofArray
-  let methods = 
-    allMethods |> List.filter (fun (x: System.Reflection.MethodInfo) -> x.DeclaringType.Name = moduleName) 
-               |> List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
+    moduleInfo.GetMethods() |> 
+      List.ofArray |> 
+      List.filter (fun (x: System.Reflection.MethodInfo) -> x.DeclaringType.Name = moduleName) |> 
+      List.map (fun (x: System.Reflection.MethodInfo) -> x.Name) 
+
+let compileModuleGeneric (moduleName: string) (depModulesString: string List) (nameWithPostfix: string -> string) (compiler: string -> string -> string): unit = 
+  let methods = getMethodsOfModule moduleName
   //let nameWithPostfix name = if storaged then sprintf "%s_storaged" name else name
   let moduleNameWithPostfix = nameWithPostfix moduleName
   printf "Compiling %s.fs [%d methods] to %s.h\n" moduleName (methods.Length) moduleNameWithPostfix 

@@ -111,6 +111,7 @@
     <Compile Include="guided_optimizer.fs" />
     <Compile Include="phase_based_optimizer.fs" />
     <Compile Include="symbolicdiff.fs" />
+    <Compile Include="ml_engine.fs" />
     <Compile Include="..\Examples\Micro\FSmooth\ccodegentests.fs">
       <Link>FSmoothUsecases\ccodegentests.fs</Link>
     </Compile>
@@ -135,6 +136,7 @@
     <Compile Include="..\Examples\HandTracking\FSmooth\usecases_ht.fs">
       <Link>FSmoothUsecases\usecases_ht.fs</Link>
     </Compile>
+    <Compile Include="FSmoothUsecases\training_programs.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 </Project>
