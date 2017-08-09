@@ -87,6 +87,17 @@ let stateToExternal (rs: Rule list) ((e, pos) as state: ProgramState) : ProgramE
   let currentDepth = snd (stateToMoves state) |> List.length
   rules, currentDepth
 
+let externalToString (rulesIndexMap: Map<RuleInfo, int>) (ext: ProgramExternalState): string = 
+  let extRulesIndex = (fst ext) |> Set.toList |> List.map (fun r -> (rulesIndexMap |> Map.find r).ToString())
+  sprintf ">> %s %d" (String.concat " " extRulesIndex) (snd ext)
+
+let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string = 
+  let (tp, desc) = 
+    match step with
+    | StepRule r -> "R", (rulesIndexMap |> Map.find (snd r)).ToString()
+    | StepMove m -> "M", m.ToString()
+  sprintf "<< %s %s" tp desc
+
 let movesToState ((e, moves): ProgramMoves): ProgramState = 
   let rec rcr exp moves rootPos: int = 
     match moves with
@@ -202,14 +213,18 @@ let log_optimize (e: Expr) =
   let steps = 
     appliedRulesToSteps e (appliedRules |> List.rev)
  
-  printfn ">> %A" (stateToExternal rs (e, 0))
+  let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x) |> Map.ofList
+  //printfn ">> %A" (stateToExternal rs (e, 0))
+  printfn "%s" (externalToString rulesIndexMap (stateToExternal rs (e, 0)))
   let finalProg = 
     ((e, 0), steps)
       ||> List.fold (fun (exp, pos) step ->
             let newState = stepProg (exp, pos) step
             let ext = stateToExternal rs newState
-            printfn "<< %A" step
-            printfn ">> %A" ext
+            //printfn "<< %A" step
+            //printfn ">> %A" ext
+            printfn "%s" (stepToString rulesIndexMap step)
+            printfn "%s" (externalToString rulesIndexMap ext)
             newState
           )  
 
