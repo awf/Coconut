@@ -44,6 +44,8 @@ let rec fopCost(exp: Expr): double =
   let VALUE_ACCESS = 0.1
   let SCALAR_OPERATOR = 1.0
   let UNKNOWN_CALL = 10000.0
+  let METHOD_DEF_OVERHEAD = 10.0
+  let LAMBDA_ACCESS = 5.0
   let CALL_COST = 5.0
   let LENGTH_ACCESS = SCALAR_OPERATOR
   let ARRAY_ACCESS = 3.0
@@ -59,7 +61,7 @@ let rec fopCost(exp: Expr): double =
   | DerivedPatterns.SpecificCall <@ corelang.foldOnRange @> (_, _, [f; z; s; e]) -> 
     fopCost(z) + fopCost(s) + fopCost(e) + fopCost(f) * (rangeExprToDouble s e |> Option.fold (fun _ s -> s) ARRAY_DEFAULT_SIZE)
   | ExistingCompiledMethodWithLambda(_, _, args, f) ->
-    CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
+    CALL_COST + METHOD_DEF_OVERHEAD + fopCost(f) + List.sum (List.map fopCost args)
   | DerivedPatterns.SpecificCall <@ corelang.build @> (_, _, [size; f]) -> 
     MALLOC_COST + buildCost(size, f)
   | DerivedPatterns.SpecificCall <@ corelang.vectorBuildGivenStorage @> (_, _, [s; f]) -> 
@@ -98,7 +100,7 @@ let rec fopCost(exp: Expr): double =
   | Patterns.Value(_) -> VALUE_ACCESS
   | Patterns.Let(x, e1, e2) -> fopCost(e1) + fopCost(e2) + VAR_INIT
   | Patterns.Var(_) -> VAR_ACCESS
-  | LambdaN(xs, e) -> VAR_INIT * float (List.length xs) + fopCost(e)
+  | LambdaN(xs, e) -> VAR_INIT * float (List.length xs) + LAMBDA_ACCESS + fopCost(e)
   | AppN(f, args) -> CALL_COST + fopCost(f) + List.sum (List.map fopCost args)
   | Patterns.PropertyGet(Some(e), op, []) when op.Name = "Length" -> fopCost(e) + LENGTH_ACCESS
   | Patterns.Sequential(e1, e2) -> fopCost(e1) + fopCost(e2)
