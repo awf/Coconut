@@ -55,6 +55,12 @@ type SubExpr<'p> =
 type ProgramState = SubExpr<RulePosition>
 type ProgramMoves = SubExpr<Move list>
 
+type ProgramExternalState = 
+  (* Set of Applicable Rules *)
+  RuleInfo Set * 
+  (* Current Depth *)
+  int 
+
 let positionToMoves (e: Expr) (pos: RulePosition): Move list =
   let rec rcr (exp: Expr) (rootPos: RulePosition): Move list = 
     if rootPos = pos then
@@ -75,6 +81,11 @@ let positionToMoves (e: Expr) (pos: RulePosition): Move list =
 
 let stateToMoves ((e, pos): ProgramState): ProgramMoves = 
   e, positionToMoves e pos
+
+let stateToExternal (rs: Rule list) ((e, pos) as state: ProgramState) : ProgramExternalState = 
+  let rules = examineAllRulesPositioned rs e |> List.map (fun i -> snd (snd i)) |> Set.ofList
+  let currentDepth = snd (stateToMoves state) |> List.length
+  rules, currentDepth
 
 let movesToState ((e, moves): ProgramMoves): ProgramState = 
   let rec rcr exp moves rootPos: int = 
@@ -102,6 +113,16 @@ let movesUpdate (p: Move list) (nextMove: Move): Move list =
   | Up -> p |> List.rev |> List.tail |> List.rev
   | _  -> p @ [nextMove]
 
+let stepProg (prog: ProgramState) (step: Step): ProgramState = 
+  let (e, pos) = prog
+  match step with 
+  | StepMove(m) -> 
+    let (_, moves) = stateToMoves prog
+    let moves' = movesUpdate moves m
+    movesToState (e, moves')
+  | StepRule(r) ->
+    applyRuleAtParticularPosition e (pos, r), pos
+
 let deltaPos (p1: Move list) (p2: Move list): Move list = 
   let rec commonPrefix l1 l2 = 
       match (l1, l2) with
@@ -117,6 +138,44 @@ let deltaPos (p1: Move list) (p2: Move list): Move list =
   let p1Up = [for i = 1 to p1UpSize do yield Up]
   let p2Down = p2 |> Seq.skip cmnSize |> List.ofSeq
   p1Up @ p2Down
+
+let appliedRulesToSteps (e: Expr) (appliedRules: MetaData list): Step list = 
+  //printfn "rules %A" appliedRules
+  let allProgs = 
+    (e, appliedRules) ||> List.scan applyRuleAtParticularPosition
+  //printf "rep prog: %s" (ccodegen.prettyprint (repeatRules |> List.head))
+  let allProgsButLast = allProgs |> Seq.skip 1 |> List.ofSeq
+  let ruleMoves = 
+    (appliedRules, allProgsButLast) ||> List.map2 (fun (pos, rule) e ->
+         (positionToMoves e pos, rule)
+       )
+  
+  //ruleMoves 
+  //  |> List.iter (fun (pos, rule) ->
+  //      printfn "moves: %A, rule: %s" pos (snd rule)
+  //     )
+  let compressedMoves = 
+    (([], []), ruleMoves) 
+      ||> List.scan (fun (prevDeltaPos, prevPos) (pos, rule) -> 
+            deltaPos prevPos pos, pos
+          ) 
+      |> List.map fst |> List.tail
+
+  //compressedMoves 
+  //    |> List.iter (fun pos ->
+  //        printfn "cmpr moves: %A" pos
+  //       )  
+
+  let steps = 
+     (ruleMoves, compressedMoves) 
+       ||> List.map2 (fun (_, rule) pos -> (pos |> List.map StepMove) @ [StepRule rule])
+       |> List.concat
+  //steps 
+  //    |> List.iter (fun step ->
+  //        printfn "step: %A" step
+  //       )  
+  steps
+
 
 let log_optimize (e: Expr) = 
   let debug = true
@@ -139,60 +198,20 @@ let log_optimize (e: Expr) =
         applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
       ) (fun (e, _) -> fopCost e)
   toc t "beam searching"
-  //printfn "rules %A" appliedRules
-  // TODO rewrite using List.scan
-  let allProgs = 
-    let rs = appliedRules |> List.rev
-    ([e], rs) ||> List.fold (fun acc cur -> applyRuleAtParticularPosition (List.head acc) cur :: acc) |> List.rev
-  //printf "rep prog: %s" (ccodegen.prettyprint (repeatRules |> List.head))
-  let allProgsButLast = allProgs |> List.rev |> List.tail |> List.rev
-  let ruleMoves = 
-    (appliedRules |> List.rev, allProgsButLast) ||> List.zip 
-    |> List.fold (fun cur ((pos, rule), e) ->
-         (positionToMoves e pos, rule) :: cur
-       ) [] |> List.rev
-  
-  //ruleMoves 
-  //  |> List.iter (fun (pos, rule) ->
-  //      printfn "moves: %A, rule: %s" pos (snd rule)
-  //     )
-  let compressedMoves = 
-    (([], []), ruleMoves) 
-      ||> List.scan (fun (prevDeltaPos, prevPos) (pos, rule) -> 
-            deltaPos prevPos pos, pos
-          ) 
-      |> List.map fst |> List.tail
-
-  //compressedMoves 
-  //    |> List.iter (fun pos ->
-  //        printfn "cmpr moves: %A" pos
-  //       )  
 
   let steps = 
-     (ruleMoves, compressedMoves) 
-       ||> List.map2 (fun (_, rule) pos -> (pos |> List.map StepMove) @ [StepRule rule])
-       |> List.concat
-
-  //steps 
-  //    |> List.iter (fun step ->
-  //        printfn "step: %A" step
-  //       )  
-
-  let stepProg (prog: ProgramState) (step: Step): ProgramState = 
-    let (e, pos) = prog
-    match step with 
-    | StepMove(m) -> 
-      let (_, moves) = stateToMoves prog
-      let moves' = movesUpdate moves m
-      movesToState (e, moves')
-    | StepRule(r) ->
-      applyRuleAtParticularPosition e (pos, r), pos
-
+    appliedRulesToSteps e (appliedRules |> List.rev)
+ 
+  printfn ">> %A" (stateToExternal rs (e, 0))
   let finalProg = 
     ((e, 0), steps)
       ||> List.fold (fun (exp, pos) step ->
-          stepProg (exp, pos) step
-         )  
+            let newState = stepProg (exp, pos) step
+            let ext = stateToExternal rs newState
+            printfn "<< %A" step
+            printfn ">> %A" ext
+            newState
+          )  
 
   printfn "final exp: %s" (ccodegen.prettyprint (fst finalProg))
 

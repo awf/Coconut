@@ -10,18 +10,27 @@ open cardinality
 //  let a = 1. / x
 //  a / (a + 1.)
 
+let scalar1 (x: Number) (b: Number): Number =
+  x + (b - b)
+
 let scalar2 (x: Number) (b: Number): Number =
   (x + b) - b
 
 let scalar3 (x: Number): Number = 
+  1. / (1. / x)
+
+let scalar4 (x: Number): Number = 
   let a = 1. / x
   1. / a
 
-let scalar4 (x: Number): Number = 
-  let a = 1. * x
-  x + 0.
+let scalar5 (x: Number): Number = 
+  1. * x + 0.
 
-let scalar5 (x: Number) (b: Number): Number = 
+let scalar6 (x: Number): Number = 
+  let a = 1. * x
+  a + 0.
+
+let scalar7 (x: Number) (b: Number): Number = 
   ((x / x) / x) / ((b / b) / x)
 
 let vectorAdd0 (v1: Vector): Vector = 
