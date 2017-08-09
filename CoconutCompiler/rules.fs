@@ -8,15 +8,22 @@ open types
 open cardinality
 
 
-let divide2Mult        = <@ (%a / %b) / %c                <==>   %a / (%b * %c)      @>
+let divide2Mult1       = <@ (%a / %b) / %c                <==>   %a / (%b * %c)      @>
+let divide2Mult2       = <@ %a / (%b / %c)                <==>   (%a * %c) / %b      @>
 let distrMult          = <@ %a * (%b + %c)                <==>   %a * %b + %a * %c   @>
-let constFold0         = <@ %a + 0.0                      <==>   %a                  @>
-let constFold1         = <@ %a * 1.0                      <==>   %a                  @>
+let constFoldAdd0      = <@ %a + 0.0                      <==>   %a                  @>
+let constFoldMult0     = <@ %a * 0.0                      <==>   0.0                 @>
+let constFoldMult1     = <@ %a * 1.0                      <==>   %a                  @>
+let constFoldSub0      = <@ %a - 0.0                      <==>   %a                  @>
+let constFoldDiv1      = <@ %a / 1.0                      <==>   %a                  @>
+let divSame            = <@ %a / %a                       <==>   1.0                 @>
 let subSame            = <@ %a - %a                       <==>   0.0                 @>
 let multDivide         = <@ %a * (%b / %a)                <==>   %b                  @>
 let assocAddSub        = <@ (%a + %b) - %c                <==>   %a + (%b - %c)      @>
 let assocAddAdd        = <@ (%a + %b) + %c                <==>   %a + (%b + %c)      @>
 let assocSubSub        = <@ (%a - %b) - %c                <==>   %a - (%b + %c)      @>
+let comAdd             = <@ %a + %b                       <==>   %b + %a             @>
+let comMult            = <@ %a * %b                       <==>   %b * %a             @>
 let comAddIndex        = <@ %i + %j                       <==>   %j + %i             @>
 let assocAddSubIndex   = <@ (%i + %j) - %k                <==>   %i + (%j - %k)      @>
 let assocSubAddIndex   = <@ (%i - %j) + %k                <==>   %i - (%j - %k)      @>
@@ -121,11 +128,16 @@ let letFloatOutwards_exp = <@
 let allocToCPS: Rule = compilePatternWithNameToRule allocToCPS_exp "allocToCPS"
 
 let algebraicRulesScalar = 
-  [ compilePatternToRule <@ divide2Mult @>; compilePatternToRule <@ distrMult @>; 
-  compilePatternToRule <@ constFold0 @>; compilePatternToRule <@ constFold1 @>; 
+  [ compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
+  compilePatternToRule <@ distrMult @>; 
+  compilePatternToRule <@ constFoldAdd0 @>; compilePatternToRule <@ constFoldMult0 @>; 
+  compilePatternToRule <@ constFoldMult1 @>; 
+  compilePatternToRule <@ constFoldSub0 @>; compilePatternToRule <@ constFoldDiv1 @>; 
+  compilePatternToRule <@ divSame @>;
   compilePatternToRule <@ subSame @> ; compilePatternToRule <@ multDivide @>; 
   compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
-  compilePatternToRule <@ assocSubSub @> ]
+  compilePatternToRule <@ assocSubSub @>;
+  compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @> ]
 
 //let algebraicRulesVector_exp = [ <@ vectorBuildGet_exp @>; <@ vectorSliceToBuild_exp @>]
 
