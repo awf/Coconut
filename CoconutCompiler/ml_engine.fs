@@ -259,11 +259,37 @@ let testPositionToMoves () =
           b
     @>
   Assert.AreEqual(positionToMoves exp2 0, [])
+
+let training_generator(): unit = 
+  let trainingBase = "training_base"
+  let methodsName = compiler.getMethodsOfModule trainingBase
+  let methods = methodsName |> List.map (compiler.getMethodExpr trainingBase)
+  let numberOfInputs exp = 
+      let (TopLevelFunction(ins, body)) = exp
+      ins |> List.length
+  let methodsScalarOne = methods |> List.filter(fun m -> (numberOfInputs m) = 1)
+  let methodsScalarTwo = methods |> List.filter(fun m -> (numberOfInputs m) = 2)
+  let methodsScalarOne' = 
+    methodsScalarOne |> 
+    List.collect (fun m1 ->
+      methodsScalarOne 
+        |> List.map (fun m2 ->
+           match (m1, m2) with
+           | Patterns.Lambda(x1, body1), Patterns.Lambda(x2, body2) -> Expr.Lambda(x1, captureAvoidingSubstitution body2 [x2, body1])
+           | _ -> failwithf ""
+        )
+    )
+  methodsScalarOne' |>
+    List.iteri (fun i m ->
+      printfn "let scalar_1_%d: Number -> Number = %s" i (fscodegen.fscodegenTopLevel m)
+    )
+  //printfn "methods: %A" (methodsScalarOne' |> List.map fscodegen.fscodegenTopLevel)
   
 
 let main_ml_engine(): unit = 
-  compiler.compileModule "linalg" [] false false
-  let trainingModule = "training_programs"
-  let methods = compiler.getMethodsOfModule trainingModule
-  let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m))
+  //compiler.compileModule "linalg" [] false false
+  //let trainingModule = "training_programs"
+  //let methods = compiler.getMethodsOfModule trainingModule
+  //let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m))
+  training_generator()
   ()

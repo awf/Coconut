@@ -130,6 +130,12 @@
     <Compile Include="..\Examples\Micro\FSmooth\usecases_lm.fs">
       <Link>FSmoothUsecases\usecases_lm.fs</Link>
     </Compile>
+    <Compile Include="..\Examples\Micro\FSmooth\training_base.fs">
+      <Link>FSmoothUsecases\training_base.fs</Link>
+    </Compile>
+    <Compile Include="..\Examples\Micro\FSmooth\training_generated.fs">
+      <Link>FSmoothUsecases\training_generated.fs</Link>
+    </Compile>
     <Compile Include="..\Examples\BundleAdjustment\FSmooth\usecases_ba.fs">
       <Link>FSmoothUsecases\usecases_ba.fs</Link>
     </Compile>
