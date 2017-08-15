@@ -261,6 +261,7 @@ let testPositionToMoves () =
   Assert.AreEqual(positionToMoves exp2 0, [])
 
 let training_generator(): unit = 
+  let outputFile = "../../../outputs/training_generated.fs"
   let trainingBase = "training_base"
   let methodsName = compiler.getMethodsOfModule trainingBase
   let methods = methodsName |> List.map (compiler.getMethodExpr trainingBase)
@@ -279,11 +280,41 @@ let training_generator(): unit =
            | _ -> failwithf ""
         )
     )
+  System.IO.File.WriteAllText(outputFile, """[<ReflectedDefinition>]
+module training_generated
+
+open types
+open corelang
+open cardinality
+""")
   methodsScalarOne' |>
     List.iteri (fun i m ->
-      printfn "let scalar_1_%d: Number -> Number = %s" i (fscodegen.fscodegenTopLevel m)
+      let str = sprintf "let scalar_1_%d: Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
+      printfn "%s" str
+      System.IO.File.AppendAllText(outputFile, str)
     )
-  //printfn "methods: %A" (methodsScalarOne' |> List.map fscodegen.fscodegenTopLevel)
+  let methodsScalaOneAll = (methodsScalarOne, methodsScalarOne') ||> List.append
+  let methodsScalarTwo' = 
+    methodsScalarTwo |>
+    List.collect (fun met ->
+      methodsScalaOneAll |>
+      List.collect (fun m1 ->
+        methodsScalaOneAll |>
+        List.map (fun m2 ->
+          match (met, m1, m2) with
+          | LambdaN([xt1; xt2], bodyt), Patterns.Lambda(x1, body1), Patterns.Lambda(x2, body2) -> 
+            let body1' = captureAvoidingSubstitution body1 [x1, Expr.Var(xt1)]
+            let body2' = captureAvoidingSubstitution body2 [x2, Expr.Var(xt2)]
+            LambdaN([xt1; xt2], captureAvoidingSubstitution bodyt [xt1, body1'; xt2, body2'])
+          | _ -> failwithf ""
+        )
+      )
+    )
+  methodsScalarTwo' |>
+    List.iteri (fun i m ->
+      let str = sprintf "let scalar_2_%d: Number -> Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
+      System.IO.File.AppendAllText(outputFile, str)
+    )
   
 
 let main_ml_engine(): unit = 
