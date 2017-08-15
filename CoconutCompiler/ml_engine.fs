@@ -83,7 +83,7 @@ let stateToMoves ((e, pos): ProgramState): ProgramMoves =
   e, positionToMoves e pos
 
 let stateToExternal (rs: Rule list) ((e, pos) as state: ProgramState) : ProgramExternalState = 
-  let rules = examineAllRulesPositioned rs e |> List.map (fun i -> snd (snd i)) |> Set.ofList
+  let rules = examineAllRulesPositioned rs e |> List.filter (fun r -> (fst r) = pos) |> List.map (fun i -> snd (snd i)) |> Set.ofList
   let currentDepth = snd (stateToMoves state) |> List.length
   rules, currentDepth
 
@@ -188,17 +188,8 @@ let appliedRulesToSteps (e: Expr) (appliedRules: MetaData list): Step list =
   steps
 
 
-let log_optimize (e: Expr) = 
+let log_optimize (e: Expr) (rs: List<Rule>) = 
   let debug = true
-  let comp = ruleengine.compilePatternToRule
-  let rs = 
-    [//comp <@ letInliner @> ; 
-     rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
-     rules_old.letInlinerOnce_old; rules_old.dce_old;
-     methodDefToLambda ; lambdaAppToLet;
-     comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
-     rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old] @
-     algebraicRulesScalar
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
   let t = tic()
@@ -320,7 +311,19 @@ open cardinality
 let main_ml_engine(): unit = 
   //compiler.compileModule "linalg" [] false false
   //let trainingModule = "training_programs"
-  //let methods = compiler.getMethodsOfModule trainingModule
-  //let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m))
-  training_generator()
+  let trainingModule = "training_base"
+  let methods = compiler.getMethodsOfModule trainingModule
+  let comp = ruleengine.compilePatternToRule
+  let rs = 
+    [//comp <@ letInliner @> ; 
+     rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
+     rules_old.letInlinerOnce_old; rules_old.dce_old;
+     methodDefToLambda ; lambdaAppToLet;
+     comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
+     rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old] @
+     algebraicRulesScalar
+  let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
+  printfn "rule index: %s" (rulesIndexMap |> String.concat "\n")
+  let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
+  //training_generator()
   ()
