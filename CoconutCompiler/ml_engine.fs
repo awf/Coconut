@@ -59,7 +59,9 @@ type ProgramExternalState =
   (* Set of Applicable Rules to the Current Position *)
   RuleInfo Set * 
   (* Current Depth *)
-  int 
+  int *
+  (* Preorder repr of the Subexpr in the Current Position *)
+  string
 
 let positionToMoves (e: Expr) (pos: RulePosition): Move list =
   let rec rcr (exp: Expr) (rootPos: RulePosition): Move list = 
@@ -101,20 +103,42 @@ let subexpr ((e, s, pos) as state: ProgramState): Expr =
   | Some(se) -> se
   | None -> positionToSubexpr e pos
 
-
-
 let stateToMoves ((e, s, pos) as state: ProgramState): ProgramMoves = 
   e, s, positionToMoves e pos
 
+let rec exprPreorderString (exp: Expr): string = 
+  match exp with 
+  | ExprShape.ShapeLambda(i, e) -> sprintf "LV%s" (exprPreorderString e)
+  | ExprShape.ShapeVar(v)       -> "V"
+  | Patterns.Value(v, tp)       -> 
+      // TODO
+      //if (v = 1.) then "1" elif (v = 0.) then "0" else 
+    "C"
+  | Patterns.Call (None, op, elist) -> 
+    match op.Name with
+      | OperatorName opname -> 
+        let c = opname.ToCharArray().[0]
+        let exprsStr = elist |> List.map exprPreorderString
+        sprintf "%c%s" c (exprsStr |> String.concat "")
+      | "GetArray" -> sprintf "G%s%s" (exprPreorderString elist.[0]) (exprPreorderString elist.[1])
+      | _ -> 
+        let exprsStr = elist |> List.map exprPreorderString
+        sprintf "_%s" (exprsStr |> String.concat "")
+  | ExprShape.ShapeCombination(o, exprs) ->
+      let exprsStr = exprs |> List.map exprPreorderString
+      sprintf "U%s" (exprsStr |> String.concat "")
+
 let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState = 
-  let rules = examineAllRulesPositioned rs (subexpr state) |> List.filter (fun r -> (fst r) = 0) |> List.map (fun i -> snd (snd i)) |> Set.ofList
+  let se = subexpr state
+  let rules = examineAllRulesPositioned rs se |> List.filter (fun r -> (fst r) = 0) |> List.map (fun i -> snd (snd i)) |> Set.ofList
   let (_, _, moves) = stateToMoves state
   let currentDepth = moves |> List.length
-  rules, currentDepth
+  let se = subexpr state
+  rules, currentDepth, exprPreorderString se
 
-let externalToString (rulesIndexMap: Map<RuleInfo, int>) (ext: ProgramExternalState): string = 
-  let extRulesIndex = (fst ext) |> Set.toList |> List.map (fun r -> (rulesIndexMap |> Map.find r).ToString())
-  sprintf ">> %s %d" (String.concat " " extRulesIndex) (snd ext)
+let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str) as ext: ProgramExternalState): string = 
+  let extRulesIndex = rs |> Set.toList |> List.map (fun r -> (rulesIndexMap |> Map.find r).ToString())
+  sprintf ">> %s %d %s" (String.concat " " extRulesIndex) depth str
 
 let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string = 
   let (tp, desc) = 
