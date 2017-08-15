@@ -56,7 +56,7 @@ type ProgramState = SubExpr<RulePosition>
 type ProgramMoves = SubExpr<Move list>
 
 type ProgramExternalState = 
-  (* Set of Applicable Rules *)
+  (* Set of Applicable Rules to the Current Position *)
   RuleInfo Set * 
   (* Current Depth *)
   int 
@@ -79,11 +79,31 @@ let positionToMoves (e: Expr) (pos: RulePosition): Move list =
           move :: (rcr exp childPos)
   rcr e zeroMetaData
 
-let stateToMoves ((e, pos): ProgramState): ProgramMoves = 
+let positionToSubexpr (e: Expr) (pos: RulePosition): Expr =
+  let rec rcr (exp: Expr) (rootPos: RulePosition): Expr = 
+    if rootPos = pos then
+      exp
+    else
+      match exp with 
+      | ExprShape.ShapeLambda(i, e) -> rcr e (rootPos + 1)
+      | ExprShape.ShapeVar(v)       -> failwithf "shouldn't reach to var %A" exp
+      | Patterns.Value(v, tp)       -> failwithf "shouldn't reach to value %A" exp
+      | ExprShape.ShapeCombination(o, exprs) ->
+          let exprsPos = ([rootPos + 1], exprs) ||> List.fold (fun list cur -> (List.head list) + exprSize cur :: list) |> List.rev
+          let idx = exprsPos |> List.findIndex (fun p -> p > pos)
+          let childPos = List.nth exprsPos (idx - 1)
+          let exp = List.nth exprs (idx - 1)
+          rcr exp childPos
+  rcr e zeroMetaData
+
+let subexpr ((e, pos) as state: ProgramState): Expr = 
+  positionToSubexpr e pos
+
+let stateToMoves ((e, pos) as state: ProgramState): ProgramMoves = 
   e, positionToMoves e pos
 
-let stateToExternal (rs: Rule list) ((e, pos) as state: ProgramState) : ProgramExternalState = 
-  let rules = examineAllRulesPositioned rs e |> List.filter (fun r -> (fst r) = pos) |> List.map (fun i -> snd (snd i)) |> Set.ofList
+let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState = 
+  let rules = examineAllRulesPositioned rs (subexpr state) |> List.filter (fun r -> (fst r) = 0) |> List.map (fun i -> snd (snd i)) |> Set.ofList
   let currentDepth = snd (stateToMoves state) |> List.length
   rules, currentDepth
 
@@ -225,8 +245,6 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
 
 [<Test>]
 let testPositionToMoves () =
-  let trainingModule = "training_programs"
-  let methods = compiler.getMethodsOfModule trainingModule
   let exp1 = 
     <@ 
       fun a -> 
@@ -250,6 +268,20 @@ let testPositionToMoves () =
           b
     @>
   Assert.AreEqual(positionToMoves exp2 0, [])
+
+[<Test>]
+let testPositionToSubexpr () =
+  let exp1 = 
+    <@ 
+      fun a -> 
+        42. + 43.
+    @>
+  let areEqual e1 e2 =
+    Assert.AreEqual(e1, e2, sprintf "Expected: %A\nActual: %A" e2 e1)
+  areEqual (positionToSubexpr exp1 0) exp1
+  areEqual (positionToSubexpr exp1 1) <@ 42. + 43. @>
+  areEqual (positionToSubexpr exp1 2) <@ 42. @>
+  areEqual (positionToSubexpr exp1 3) <@ 43. @>
 
 let training_generator(): unit = 
   let outputFile = "../../../outputs/training_generated.fs"
