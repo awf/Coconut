@@ -50,7 +50,7 @@ type Step =
 // In essence similar to a zipper data structure
 type SubExpr<'p> = 
   Expr (* Root *) * 
-  //Expr (* Sub Expression *) * 
+  Expr option (* Sub Expression *) * 
   'p (* Position Representation *)
 type ProgramState = SubExpr<RulePosition>
 type ProgramMoves = SubExpr<Move list>
@@ -96,15 +96,20 @@ let positionToSubexpr (e: Expr) (pos: RulePosition): Expr =
           rcr exp childPos
   rcr e zeroMetaData
 
-let subexpr ((e, pos) as state: ProgramState): Expr = 
-  positionToSubexpr e pos
+let subexpr ((e, s, pos) as state: ProgramState): Expr = 
+  match s with 
+  | Some(se) -> se
+  | None -> positionToSubexpr e pos
 
-let stateToMoves ((e, pos) as state: ProgramState): ProgramMoves = 
-  e, positionToMoves e pos
+
+
+let stateToMoves ((e, s, pos) as state: ProgramState): ProgramMoves = 
+  e, s, positionToMoves e pos
 
 let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState = 
   let rules = examineAllRulesPositioned rs (subexpr state) |> List.filter (fun r -> (fst r) = 0) |> List.map (fun i -> snd (snd i)) |> Set.ofList
-  let currentDepth = snd (stateToMoves state) |> List.length
+  let (_, _, moves) = stateToMoves state
+  let currentDepth = moves |> List.length
   rules, currentDepth
 
 let externalToString (rulesIndexMap: Map<RuleInfo, int>) (ext: ProgramExternalState): string = 
@@ -118,7 +123,7 @@ let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string =
     | StepMove m -> "M", m.ToString()
   sprintf "<< %s %s" tp desc
 
-let movesToState ((e, moves): ProgramMoves): ProgramState = 
+let movesToState ((e, s, moves): ProgramMoves): ProgramState = 
   let rec rcr exp moves rootPos: int = 
     match moves with
     | [] -> rootPos
@@ -136,7 +141,7 @@ let movesToState ((e, moves): ProgramMoves): ProgramState =
         let childPos = List.nth sizes idx
         let childExp = List.nth exprs idx
         rcr childExp tl childPos
-  e, rcr e moves 0
+  e, s, rcr e moves 0
 
 let movesUpdate (p: Move list) (nextMove: Move): Move list =
   p |> List.iter (fun m -> assert(m <> Up))
@@ -145,14 +150,14 @@ let movesUpdate (p: Move list) (nextMove: Move): Move list =
   | _  -> p @ [nextMove]
 
 let stepProg (prog: ProgramState) (step: Step): ProgramState = 
-  let (e, pos) = prog
+  let (e, s, pos) = prog
   match step with 
   | StepMove(m) -> 
-    let (_, moves) = stateToMoves prog
+    let (_, _, moves) = stateToMoves prog
     let moves' = movesUpdate moves m
-    movesToState (e, moves')
+    movesToState (e, None, moves')
   | StepRule(r) ->
-    applyRuleAtParticularPosition e (pos, r), pos
+    applyRuleAtParticularPosition e (pos, r), None, pos
 
 let deltaPos (p1: Move list) (p2: Move list): Move list = 
   let rec commonPrefix l1 l2 = 
@@ -226,11 +231,11 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
  
   let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x) |> Map.ofList
   //printfn ">> %A" (stateToExternal rs (e, 0))
-  printfn "%s" (externalToString rulesIndexMap (stateToExternal rs (e, 0)))
+  printfn "%s" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0)))
   let finalProg = 
-    ((e, 0), steps)
-      ||> List.fold (fun (exp, pos) step ->
-            let newState = stepProg (exp, pos) step
+    ((e, Some(e), 0), steps)
+      ||> List.fold (fun (exp, sexp, pos) step ->
+            let newState = stepProg (exp, sexp, pos) step
             let ext = stateToExternal rs newState
             //printfn "<< %A" step
             //printfn ">> %A" ext
@@ -238,8 +243,8 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
             printfn "%s" (externalToString rulesIndexMap ext)
             newState
           )  
-
-  printfn "final exp: %s" (ccodegen.prettyprint (fst finalProg))
+  let (finalProgRoot, _, _) = finalProg
+  printfn "final exp: %s" (ccodegen.prettyprint finalProgRoot)
 
   best
 
