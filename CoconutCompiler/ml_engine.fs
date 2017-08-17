@@ -106,27 +106,36 @@ let subexpr ((e, s, pos) as state: ProgramState): Expr =
 let stateToMoves ((e, s, pos) as state: ProgramState): ProgramMoves = 
   e, s, positionToMoves e pos
 
-let rec exprPreorderString (exp: Expr): string = 
-  match exp with 
-  | ExprShape.ShapeLambda(i, e) -> sprintf "LV%s" (exprPreorderString e)
-  | ExprShape.ShapeVar(v)       -> "V"
-  | Patterns.Value(v, tp)       -> 
-      // TODO
-      //if (v = 1.) then "1" elif (v = 0.) then "0" else 
-    "C"
-  | Patterns.Call (None, op, elist) -> 
-    match op.Name with
-      | OperatorName opname -> 
-        let c = opname.ToCharArray().[0]
-        let exprsStr = elist |> List.map exprPreorderString
-        sprintf "%c%s" c (exprsStr |> String.concat "")
-      | "GetArray" -> sprintf "G%s%s" (exprPreorderString elist.[0]) (exprPreorderString elist.[1])
-      | _ -> 
-        let exprsStr = elist |> List.map exprPreorderString
-        sprintf "_%s" (exprsStr |> String.concat "")
-  | ExprShape.ShapeCombination(o, exprs) ->
-      let exprsStr = exprs |> List.map exprPreorderString
-      sprintf "U%s" (exprsStr |> String.concat "")
+let exprPreorderString (exp: Expr): string = 
+  let rec rcr e = 
+    match e with 
+    | ExprShape.ShapeLambda(i, e) -> sprintf "LV%s" (rcr e)
+    | ExprShape.ShapeVar(v)       -> "V"
+    | Patterns.Value(v, tp)       -> 
+      if(tp = typeof<double>) then
+        let dv = unbox<double>(v)
+        if (dv = 0.) then
+          "0"
+        elif (dv = 1.) then
+          "1"
+        elif (dv = 2.) then
+          "2"
+        else 
+          "C"
+      else 
+        "C"
+    | Patterns.Call (None, op, elist) -> 
+      let opName = 
+        match op.Name with
+        | OperatorName opname -> opname.ToCharArray().[0]
+        | "GetArray"          -> 'G'
+        | _                   -> '_' 
+      let exprsStr = elist |> List.map rcr
+      sprintf "%c%s" opName (exprsStr |> String.concat "")
+    | ExprShape.ShapeCombination(o, exprs) ->
+        let exprsStr = exprs |> List.map rcr
+        sprintf "U%s" (exprsStr |> String.concat "")
+  rcr exp
 
 let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState = 
   let se = subexpr state
@@ -137,8 +146,8 @@ let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState
   rules, currentDepth, exprPreorderString se
 
 let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str) as ext: ProgramExternalState): string = 
-  let extRulesIndex = rs |> Set.toList |> List.map (fun r -> (rulesIndexMap |> Map.find r).ToString())
-  sprintf ">> %s %d %s" (String.concat " " extRulesIndex) depth str
+  let extRulesIndex = rs |> Set.toSeq |> Seq.map (fun r -> rulesIndexMap |> Map.find r) |> Seq.sort |> Seq.map(fun i -> i.ToString())
+  sprintf ">> %s %d %s" str depth (String.concat " " extRulesIndex) 
 
 let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string = 
   let (tp, desc) = 
@@ -238,17 +247,17 @@ let appliedRulesToSteps (e: Expr) (appliedRules: MetaData list): Step list =
 
 
 let log_optimize (e: Expr) (rs: List<Rule>) = 
-  let debug = true
+  let debug = false
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
-  let t = tic()
+  //let t = tic()
   let ((best, appliedRules), _) = 
     beamSearch<Expr * MetaData list> 30 1 reporter (e, []) (
       fun (e, historyRules) -> 
         let applicableRules = examineAllRulesPositioned rs e
         applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
       ) (fun (e, _) -> fopCost e)
-  toc t "beam searching"
+  //toc t "beam searching"
 
   let steps = 
     appliedRulesToSteps e (appliedRules |> List.rev)
@@ -267,9 +276,9 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
             printfn "%s" (externalToString rulesIndexMap ext)
             newState
           )  
-  let (finalProgRoot, _, _) = finalProg
-  printfn "final exp: %s" (ccodegen.prettyprint finalProgRoot)
-
+  //let (finalProgRoot, _, _) = finalProg
+  //printfn "final exp: %s" (ccodegen.prettyprint finalProgRoot)
+  printfn "****"
   best
 
 [<Test>]
@@ -372,7 +381,8 @@ open cardinality
 let main_ml_engine(): unit = 
   //compiler.compileModule "linalg" [] false false
   //let trainingModule = "training_programs"
-  let trainingModule = "training_base"
+  //let trainingModule = "training_base"
+  let trainingModule = "training_generated"
   let methods = compiler.getMethodsOfModule trainingModule
   let comp = ruleengine.compilePatternToRule
   let rs = 
@@ -380,11 +390,12 @@ let main_ml_engine(): unit =
      rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
      rules_old.letInlinerOnce_old; rules_old.dce_old;
      methodDefToLambda ; lambdaAppToLet;
+     constantFold;
      comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
      rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old] @
      algebraicRulesScalar
   let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
-  printfn "rule index: %s" (rulesIndexMap |> String.concat "\n")
+  printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
   let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
   //training_generator()
   ()
