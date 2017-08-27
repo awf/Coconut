@@ -143,7 +143,10 @@ let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState
   let (_, _, moves) = stateToMoves state
   let currentDepth = moves |> List.length
   let se = subexpr state
-  rules, currentDepth, exprPreorderString se
+  let str = exprPreorderString se
+  //let (e, _, _) = state
+  //let str = fscodegen.fscodegenTopLevel e
+  rules, currentDepth, str
 
 let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str) as ext: ProgramExternalState): string = 
   let extRulesIndex = rs |> Set.toSeq |> Seq.map (fun r -> rulesIndexMap |> Map.find r) |> Seq.sort |> Seq.map(fun i -> i.ToString())
@@ -252,7 +255,7 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
   let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
   //let t = tic()
   let ((best, appliedRules), _) = 
-    beamSearch<Expr * MetaData list> 30 1 reporter (e, []) (
+    beamSearch<Expr * MetaData list> 30 1 (fun x y -> alphaEquals (fst x) (fst y) (Map.empty)) reporter (e, []) (
       fun (e, historyRules) -> 
         let applicableRules = examineAllRulesPositioned rs e
         applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
@@ -322,7 +325,7 @@ let testPositionToSubexpr () =
   areEqual (positionToSubexpr exp1 3) <@ 43. @>
 
 let training_generator(): unit = 
-  let outputFile = "../../../outputs/training_generated.fs"
+  let outputFile = "../../../outputs/training/training_generated.fs"
   let trainingBase = "training_base"
   let methodsName = compiler.getMethodsOfModule trainingBase
   let methods = methodsName |> List.map (compiler.getMethodExpr trainingBase)
@@ -396,6 +399,9 @@ let main_ml_engine(): unit =
      algebraicRulesScalar
   let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
   printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
-  let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
+  let opts = 
+    methods 
+      //|> Seq.take 3 |> List.ofSeq 
+      |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
   //training_generator()
   ()
