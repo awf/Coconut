@@ -401,7 +401,9 @@ let main_ml_engine(): unit =
   printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
   let opts = 
     methods 
-      //|> Seq.take 3 |> List.ofSeq 
+      //|> Seq.take 3 
+      //|> Seq.skip 2 
+      //|> List.ofSeq
       |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
   //training_generator()
   ()
