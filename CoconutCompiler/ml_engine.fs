@@ -150,14 +150,18 @@ let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState
 
 let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str) as ext: ProgramExternalState): string = 
   let extRulesIndex = rs |> Set.toSeq |> Seq.map (fun r -> rulesIndexMap |> Map.find r) |> Seq.sort |> Seq.map(fun i -> i.ToString())
-  sprintf ">> %s %d %s" str depth (String.concat " " extRulesIndex) 
+  //let prefix = ">> "
+  let prefix = ""
+  sprintf "%s%s %d %s" prefix str depth (String.concat " " extRulesIndex) 
 
 let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string = 
   let (tp, desc) = 
     match step with
     | StepRule r -> "R", (rulesIndexMap |> Map.find (snd r)).ToString()
     | StepMove m -> "M", m.ToString()
-  sprintf "<< %s %s" tp desc
+  //let prefix = "<< "
+  let prefix = ""
+  sprintf "%s%s %s" prefix tp desc
 
 let movesToState ((e, s, moves): ProgramMoves): ProgramState = 
   let rec rcr exp moves rootPos: int = 
@@ -267,7 +271,7 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
  
   let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x) |> Map.ofList
   //printfn ">> %A" (stateToExternal rs (e, 0))
-  printfn "%s" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0)))
+  printf "%s\t" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0)))
   let finalProg = 
     ((e, Some(e), 0), steps)
       ||> List.fold (fun (exp, sexp, pos) step ->
@@ -276,7 +280,7 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
             //printfn "<< %A" step
             //printfn ">> %A" ext
             printfn "%s" (stepToString rulesIndexMap step)
-            printfn "%s" (externalToString rulesIndexMap ext)
+            printf "%s\t" (externalToString rulesIndexMap ext)
             newState
           )  
   //let (finalProgRoot, _, _) = finalProg
@@ -324,8 +328,7 @@ let testPositionToSubexpr () =
   areEqual (positionToSubexpr exp1 2) <@ 42. @>
   areEqual (positionToSubexpr exp1 3) <@ 43. @>
 
-let training_generator(): unit = 
-  let outputFile = "../../../outputs/training/training_generated.fs"
+let training_generator_k (init: unit -> unit) (cont1: int -> Expr -> unit) (cont2: int -> Expr -> unit): unit = 
   let trainingBase = "training_base"
   let methodsName = compiler.getMethodsOfModule trainingBase
   let methods = methodsName |> List.map (compiler.getMethodExpr trainingBase)
@@ -344,18 +347,10 @@ let training_generator(): unit =
            | _ -> failwithf ""
         )
     )
-  System.IO.File.WriteAllText(outputFile, """[<ReflectedDefinition>]
-module training_generated
-
-open types
-open corelang
-open cardinality
-""")
+  init()
   methodsScalarOne' |>
     List.iteri (fun i m ->
-      let str = sprintf "let scalar_1_%d: Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
-      printfn "%s" str
-      System.IO.File.AppendAllText(outputFile, str)
+      cont1 i m
     )
   let methodsScalaOneAll = (methodsScalarOne, methodsScalarOne') ||> List.append
   let methodsScalarTwo' = 
@@ -376,9 +371,31 @@ open cardinality
     )
   methodsScalarTwo' |>
     List.iteri (fun i m ->
+      cont2 i m
+    )
+
+let training_generator(): unit = 
+  let outputFile = "../../../outputs/training/training_generated.fs"
+  let init = fun () ->
+    System.IO.File.WriteAllText(outputFile, """[<ReflectedDefinition>]
+module training_generated
+
+open types
+open corelang
+open cardinality
+""")
+  let cont1 = fun i m -> (
+      let str = sprintf "let scalar_1_%d: Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
+      printfn "%s" str
+      System.IO.File.AppendAllText(outputFile, str)
+    )
+  let cont2 = fun i m -> (
       let str = sprintf "let scalar_2_%d: Number -> Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
       System.IO.File.AppendAllText(outputFile, str)
     )
+  training_generator_k init cont1 cont2
+
+  
   
 
 let main_ml_engine(): unit = 
@@ -399,11 +416,15 @@ let main_ml_engine(): unit =
      algebraicRulesScalar
   let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
   printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
-  let opts = 
-    methods 
-      //|> Seq.take 3 
-      //|> Seq.skip 2 
-      //|> List.ofSeq
-      |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
+  //let opts = 
+  //  methods 
+  //    |> Seq.take 3 
+  //    |> Seq.skip 2 
+  //    |> List.ofSeq
+  //    |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
+  let init = fun () -> printfn "STARTED!"
+  let cont1 = fun i m -> (log_optimize m rs; ())
+  let cont2 = fun i m -> (log_optimize m rs; ())
+  training_generator_k init cont1 cont2
   //training_generator()
   ()
