@@ -70,6 +70,7 @@
     <Compile Include="bundle.fs" />
     <Compile Include="z_main.fs" />
     <None Include="InteractiveScribbles.fsx" />
+    <Compile Include="bundle_fsalg.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
