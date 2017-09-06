@@ -1,0 +1,177 @@
+\documentclass[acmlarge,review,anonymous]{acmart}\settopmatter{printfolios=true}
+% \documentclass[acmlarge,review]{acmart}\settopmatter{printfolios=true}
+% \documentclass[acmlarge]{acmart}\settopmatter{}
+\usepackage[utf8]{inputenc}
+%\geometry{letterpaper}
+%\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{relsize}
+\usepackage{stmaryrd}
+% \usepackage[usenames,dvipsnames]{xcolor}
+% \usepackage[hidelinks]{hyperref}
+\usepackage{rotating}
+\usepackage{paralist}
+\usepackage{epstopdf}
+%\usepackage{todonotes}
+\usepackage{algpseudocode}
+\algnotext{EndFor}
+\algnotext{EndIf}
+\algnotext{EndProcedure}
+\usepackage{algorithm}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{tikz}
+\DeclareCaptionType{copyrightbox}
+\usepackage{subcaption}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{appendix}
+\usepackage{soul}
+\usepackage{tabularx}% http://ctan.org/pkg/tabularx
+\usepackage{booktabs}% http://ctan.org/pkg/booktabs
+\usepackage{mathrsfs}
+\usepackage{amsbsy}
+\usepackage{xspace}
+%\usepackage{microtype}
+
+\usepackage{lstlinebgrd}
+\usepackage{listings}
+\usepackage{capt-of}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{beramono}
+\usepackage{booktabs}
+\usepackage{balance}
+
+\usepackage{defs}
+\usepackage{mathpartir}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+
+\input{macros}
+
+% \newlength\titlepageskip\setlength{\titlepageskip}{50.0mm}
+
+
+% \title{Using Destination-Passing Style to Compile a Functional Language into Efficient Low-Level Code}
+
+% \long\def\mydrafttitle#1{\title{\vspace*{-\titlepageskip}\centering\mbox{\small In submission}\\[\titlepageskip]#1}}
+
+% \mydrafttitle{Using Destination-Passing Style to Compile a Functional Language into Efficient Low-Level Code}
+
+\newcommand{\dv}[1]{{\bf DV: #1}}
+
+\begin{document}
+
+\title{Using Destination-Passing Style to Compile a Functional Language into Efficient Low-Level Code}
+
+% \author{Amir Shaikhha}
+% \title{Formalization of \lafsharp{} }
+% \authorinfo{Amir Shaikhha}
+
+% \maketitle
+
+% \authorinfo{Amir Shaikhha\thanks{This work was done while the author was at Microsoft Research, Cambridge.}}
+% {
+% \makebox{EPFL}}
+% {amir.shaikhha@epfl.ch}
+
+% \authorinfo{Andrew Fitzgibbon}
+% {\makebox{Microsoft Research, Cambridge}}
+% {awf@microsoft.com}
+
+% \authorinfo{Simon Peyton-Jones}
+% {\makebox{Microsoft Research, Cambridge}}
+% {simonpj@microsoft.com}
+
+% % \authorinfo{Don Syme}
+% % {\makebox{Microsoft Research, Cambridge}}
+% % {don.syme@microsoft.com}
+
+
+% \authorinfo{Dimitrios Vytiniotis}
+% {\makebox{Microsoft Research, Cambridge}}
+% {dimitris@microsoft.com}
+
+\author{Amir Shaikhha}
+\authornote{This work was done while the author was at Microsoft Research, Cambridge.}          %% \authornote is optional;
+                                        %% can be repeated if necessary
+\affiliation{
+%   \position{Position1}
+%   \department{Department1}              %% \department is recommended
+  \institution{EPFL}            %% \institution is required
+%   \streetaddress{Street1 Address1}
+  \city{Lausanne}
+%   \state{State1}
+%   \postcode{Post-Code1}
+  \country{Switzerland}
+}
+\email{amir.shaikhha@epfl.ch}          %% \email is recommended
+
+\author{Andrew Fitzgibbon}
+
+\affiliation{
+  \institution{Microsoft Research}
+  \city{Cambridge}
+  \country{United Kingdom}
+}
+\email{awf@microsoft.com}
+
+\author{Simon Peyton-Jones}
+
+\affiliation{
+  \institution{Microsoft Research}
+  \city{Cambridge}
+  \country{United Kingdom}
+}
+\email{simonpj@microsoft.com}
+
+\author{Dimitrios Vytiniotis}
+
+\affiliation{
+  \institution{Microsoft Research}
+  \city{Cambridge}
+  \country{United Kingdom}
+}
+\email{dimitris@microsoft.com}
+
+
+% \authorinfo{Submission \#129}
+% {}
+% {}
+
+\begin{abstract}
+We show how to compile high-level functional array-processing programs, drawn
+from image processing and machine learning, into C code that runs
+as fast as hand-written C.  The key idea is to transform the program to \emph{destination passing style}, which in turn enables a highly-efficient stack-like memory allocation discipline.
+% Functional programming languages provide a high level of abstraction which improves productivity. However, from a performance point of view, they lag behind their low-level imperative language counterparts, often because of excessive allocation and memory management costs. In this
+% paper we propose a technique for efficient memory management for a higher-order strict functional language aimed at computer vision and machine learning workloads, \lafsharp{}. Our observation is that, in this domain of application, the amount of memory that a function needs to allocate can be pre-computed either entirely statically, or very cheaply dynamically, allowing us to perform a transformation that we refer to as {\em destination-passing style} (DPS). In DPS the destination storage is pre-allocated and passed to every computation, allowing a stack-like allocation discipline. We show how to use DPS to generate efficient C code with bump-allocation and experimentally evaluate the runtime performance and memory consumption of test programs from computer vision and machine learning. 
+\end{abstract}
+\maketitle
+
+\input{intro}
+\input{fsmooth}
+\input{dps}
+\input{fsmooth_to_dps}
+\input{impl}
+\input{exp}
+\input{related}
+
+\begin{small}
+\bibliographystyle{abbrvnat}
+\bibliography{ref} 
+\end{small}
+
+% \bibliographystyle{abbrvnat}
+
+% % The bibliography should be embedded for final submission.
+
+% \begin{thebibliography}{}
+% \softraggedright
+
+% \bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
+% P. Q. Smith, and X. Y. Jones. ...reference text...
+
+% \end{thebibliography}
+\end{document}

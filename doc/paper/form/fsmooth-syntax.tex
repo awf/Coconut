@@ -1,0 +1,33 @@
+\begin{figure}[t]
+\centering
+\def\comment{\hfill -- }
+\begin{tabular}{r c l}
+% Prog & ::= & $\overline{\text{\cod{let} \text{x} = \expr{}}}$ \inn{} \expr{}
+% \\
+\expr & ::= & \expr{} $\vmore{\expr}$ \comment Application\\
+& | & $\lambda \vmore{\text{x}}. \expr$ \comment Abstraction\\
+& | & \text{x} \comment Variable Access\\
+& | & \text{n} \comment Scalar Value\\
+& | & \text{i} \comment Index Value\\
+& | & \valcard \comment Cardinality Value\\
+& | & \text{c} \comment Constants\\
+& | & \lett{} x = \expr{} \inn{} \expr{} \comment(Non-Rec.) Let Binding\\
+& | & \vifthenelse{\expr{}}{\expr{}}{\expr{}} \comment Conditional\\
+% & | & \varr{\expr, ..., \expr} \comment Vector Constructor\\
+\text{c} & ::= & \vbuildk{} |
+\viteratek{} | 
+\vlengthk{} |
+\vgetk{} \\
+& | & \textit{[More on Figure~\ref{fig:laf_type_system}]} \\
+\typet{} & ::= & \typemat{} \comment Matrix Type\\
+& | & \typefun{\typet}{\typemat} \comment Function Types (No Currying)\\
+& | & \typecard \comment Cardinality Type\\
+& | & \typebool \comment Boolean Type\\
+\typemat{} & ::= & \typenum{} \comment Numeric Type\\
+& | & \typearray{\typemat{}} \comment Vector, Matrix, ... Type\\
+\typenum & ::= & \typedouble{} \comment Scalar Type\\
+& | & \typeindex \comment Index Type\\
+\end{tabular}
+\caption{The core \lafsharp{} syntax.}
+\label{fig:laf_core_syntax}
+\end{figure}

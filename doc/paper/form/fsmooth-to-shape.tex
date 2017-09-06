@@ -1,0 +1,163 @@
+\begin{figure*}
+\centering
+% \def\comment{\hfill -- }
+% \begin{tabular}{r c l}
+% \carddom{} & ::= & \carddommat{} \comment Matrix Cardinality \\
+% & | & \typefun{\carddom}{\carddommat} \comment Function Cardinality \\
+% & | & \cardempty \comment No Cardinality\\
+% & | & \typecard \comment Cardinality\\
+% \\
+% \carddommat{} & ::= & \carddouble{} \comment Scalar Width\\
+% & | & \cardvector{\carddommat{}}{\typecard} \comment Vector, Matrix, ... Cardinality\\
+% \end{tabular}
+% % \infer{\expr{}=\exprind{0}\ \vmore{\expr}\tab \expr{}: \typemat \tab \typemat \neq \typedouble}
+% \vspace{1cm}
+
+\begin{tabular}{l r c l}
+% & \cardtrans{\lafsharp{} Expression} &=&
+% \shapefsmooth{} Expression
+& \cardtrans{\expr} &=&
+\exprshape{}
+\\ \\
+(S-App) & 
+\cardtrans{\vapp{\exprind{0}}{\exprind{1} ... \exprind{k}}
+}&=&
+\vapp{\cardtrans{\exprind{0}}}{\cardtrans{\exprind{1}} ... \cardtrans{\exprind{k}}}\\
+(S-Abs) & 
+\cardtrans{\vabs{$x_1$: $T_1$, ..., $x_k$: $T_k$}{\expr}
+}&=&
+\vabscard{\cardvarpostfix{$x_1$}: \cardtranstype{$T_1$}, ..., \cardvarpostfix{$x_k$}: \cardtranstype{$T_k$}}{\cardtrans{\expr}}\\
+(S-Var) & 
+\cardtrans{\text{x}}&=&
+\cardvarpostfix{\text{x}}\\
+(S-Let) & 
+\cardtrans{\vlet{\text{x}}{\exprind{1}}{\exprind{2}}}&=&
+\vlet{\cardvarpostfix{\text{x}}}{\cardtrans{\exprind{1}}}{\cardtrans{\exprind{2}}}\\
+(S-If) & 
+\cardtrans{\vifthenelse{\exprind{1}}{\exprind{2}}{\exprind{3}}}&=&
+$\begin{cases}
+    \cardtrans{\exprind{2}}       & \qquad \qquad \cardtrans{\exprind{2}} \shpeq{} \cardtrans{\exprind{3}}\\
+    \text{Compilation Error!}  & \qquad \qquad \cardtrans{\exprind{2}} \shpneq{} \cardtrans{\exprind{3}}\\
+  \end{cases}
+$
+\\
+% (C-Vector) & \cardtrans{\varr{\exprind{1}, ..., \exprind{\valcard}}} &=&
+% \cardvector{\cardtrans{\exprind{1}}}{\valcard} \\
+% (S-Vector) &  \cardtrans{\varr{\exprind{1}, ..., \exprind{\valcard}}} &=&
+% $\begin{cases}
+%     \valcard{}       & \quad \forall k.\ \exprind{k}: \typenum{}\\
+%       & \quad \forall k.\ \exprind{k}: \typearray{\typemat{}}
+%     \\
+%     \cardvector{\cardtrans{\exprind{1}}}{\valcard} & \quad \text{and}
+%     \\
+%     & \quad \forall k,k'.\ \cardtrans{\exprind{k}}\shpeq{}\cardtrans{\exprind{k'}}\\
+%     \text{Compilation Error!} & \quad \text{otherwise}
+%   \end{cases}
+% $
+% (S-Vector) &  \cardtrans{\varr{\exprind{1}, ..., \exprind{\valcard}}} &=&
+% $\begin{cases}
+%     \cardvector{\valcard}{\cardtrans{\exprind{1}}} & \quad \forall k,k'.\ \cardtrans{\exprind{k}}\shpeq{}\cardtrans{\exprind{k'}}
+%     \\
+%     \text{Compilation Error!} & \qquad \qquad \text{otherwise}
+%   \end{cases}
+% $
+%  \\
+% (C-Matrix) & \exprind{k}: \typearray{\typemat{}} $\vdash$ \cardtrans{\varr{\exprind{1}, ..., \exprind{\valcard}}} &=&
+% \cardvector{\cardtrans{\exprind{1}}}{\valcard} \\
+% (C-Build) &
+% \cardtrans{\vbuild{\exprind{0}}{\exprind{1}}} &=&
+% \cardvector{(\vapp{\cardtrans{\exprind{1}}}{\cardempty})}{\cardtrans{\exprind{0}}} \\
+% (C-Get) &
+% \cardtrans{\vget{\exprind{0}}{\exprind{1}}} &=&
+% \cardvectorelem{\cardtrans{\exprind{0}}} \\
+% (C-Length) &
+% \cardtrans{\vlength{\exprind{0}}} &=&
+% \cardvectorsize{\cardtrans{\exprind{0}}} \\
+% (C-Fold) &
+% \cardtrans{\vfold{\exprind{2}}{\exprind{3}}{\exprind{1}}} &=&
+% \cardtrans{\exprind{2}} \\
+\\
+(S-ExpNum) &
+\expr{}: \typenum{} $\vdash$
+\cardtrans{\expr{}} &=&
+\cardempty \\
+(S-ExpBool) &
+\expr{}: \typebool{} $\vdash$
+\cardtrans{\expr{}} &=&
+\cardempty \\
+(S-ValCard) &
+\cardtrans{\text{N}} &=&
+\text{N} \\
+(S-AddCard) &
+\cardtrans{\exprind{0} \vcaddcard{} \exprind{1}} &=&
+\cardtrans{\exprind{0}} \vcaddcard{} \cardtrans{\exprind{1}} \\
+(S-MulCard) &
+\cardtrans{\exprind{0} \vcmulcard{} \exprind{1}} &=&
+\cardtrans{\exprind{0}} \vcmulcard{} \cardtrans{\exprind{1}} \\
+(S-Build) &
+\cardtrans{\vbuild{\exprind{0}}{\exprind{1}}}
+ &=&
+\cardvector{\cardtrans{\exprind{0}}}{(\vapp{\cardtrans{\exprind{1}}}{\cardempty})} \\
+(S-Get) &
+\cardtrans{\vget{\exprind{0}}{\exprind{1}}}
+&=&
+\cardvectorelem{\cardtrans{\exprind{0}}} \\
+(S-Length) &
+\cardtrans{\vlength{\exprind{0}}}
+&=&
+\cardvectorsize{\cardtrans{\exprind{0}}} \\
+(S-Reduce) &
+\cardtrans{
+\viteratek{} \exprind{1} \exprind{2} \exprind{3}
+} &=&
+$\begin{cases}
+    \cardtrans{\exprind{2}}       & \quad \forall n. \cardtrans{\exprind{1} \exprind{2} n} \shpeq{} \cardtrans{\exprind{2}}\\
+    \text{Compilation Error!}  & \qquad \qquad \text{otherwise}\\
+  \end{cases}
+$
+\\ \\
+& \cardtranstype{\typet{}} &=& \typetshape{}
+\\ \\
+
+(ST-Fun) &
+\cardtranstype{\typefunone{\typeind{1}, \typeind{2}, ..., \typeind{k}}{\typemat}} &=&
+\typefunone{\cardtranstype{\typeind{1}}, \cardtranstype{\typeind{2}}, ..., \cardtranstype{\typeind{k}}}{\cardtranstype{\typemat}} \\
+(ST-Num) &
+\cardtranstype{\typenum} &=&
+\typecard \\
+(ST-Bool) &
+\cardtranstype{\typebool} &=&
+\typecard \\
+(ST-Card) &
+\cardtranstype{\typecard} &=&
+\typecard \\
+% (CT-Vector) &
+% \cardtranstype{\typearray{\typemat}} &=&
+% \cardvector{\cardtranstype{\typemat}}{\typecard} \\
+% (ST-Vector) &
+% \cardtranstype{\typearray{\typenum}} &=&
+% {\typecard} \\
+(ST-Vector) &
+\cardtranstype{\typearray{\typemat}} &=&
+\cardvector{\typecard}{\cardtranstype{\typemat}} \\
+% \\
+% (W-NoCard) &
+% \cardwidth{\cardempty} &=&
+% 0
+% \\
+% (W-Card) &
+% \cardwidth{\valcard} &=&
+% \valcard
+% \\
+% (W-Scalar) &
+% \cardwidth{\carddouble} &=&
+% 4
+% \\
+% (W-Vector) &
+% \cardwidth{\cardvector{c}{\valcard}} &=&
+% \cardwidth{c} $\times$ \valcard
+% \\
+\end{tabular}
+\caption{Shape Translation of \lafsharp{}}
+\label{fig:laf_card}
+\end{figure*}

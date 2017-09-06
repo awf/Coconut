@@ -1,0 +1,15 @@
+\newcommand{\maybenot}[1]{}
+\newcommand{\hateit}[1]{}
+
+\def\allowspace{\hskip 0em plus 1em minus 0em\relax}
+\newcommand{\smartparagraph}[1]{\vspace{1ex}\noindent
+{\bf #1}\allowspace}
+
+% \newcommand{\cod}[1]{\text{\lstinline{#1}}}
+\newcommand{\cod}[1]{\texttt{#1}}
+
+\newcommand{\Isym}{\mathrm{I}}
+\newcommand{\Is}[1]{\Isym_{\mathsf{#1}}}  % e.g. \Is{elem.L}
+
+\newcommand{\Rsym}{\mathrm{R}}
+\newcommand{\Rs}[2]{\Rsym(#1)_{\mathsf{#2}}}  % e.g. \Rs{elem.L}

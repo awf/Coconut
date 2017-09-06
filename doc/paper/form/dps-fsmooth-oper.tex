@@ -1,0 +1,186 @@
+\begin{figure*}
+\def\comment{\hfill -- }
+\centering
+\begin{subfigure}[b]{\columnwidth}
+\begin{tabular}{r c l}
+\expr & ::= & ...\\
+& | & \stgctx{\expr}{\stgvar} \comment Storage Context\\
+\\
+$\Delta$ & ::= & \stgmapping{\stgvar}{\stgarea{\text{w}}} \comment Uninitialized storage\\
+& | & \stgmapping{\stgvar}{\text{v}} \comment Filled storage\\
+\end{tabular}
+\end{subfigure}
+\begin{subfigure}[b]{\columnwidth}
+\begin{tabular}{r c l}
+\text{w} & ::= & \text{w} $\times$ \text{w}\\
+& | & \valcard\\
+& | & \widthexpr{\expr}\\ \\
+\valvar & ::= & \vabs{\vmore{\text{x}}}{\expr} \comment Storage-Aware Abstraction\\
+% & | & \vabscard{\vmore{\text{x}}}{\expr} \comment Cardinality Abstraction \\
+& | & \stgval \comment Memory Location\\
+& | & \stgempty \comment Empty Memory Location\\
+& | & \text{n} \comment Scalar Value\\
+& | & \text{i} \comment Index Value\\
+& | & \shapevar \comment Shape Value\\
+& | & \varrsat{\stgvar}{...\varr{\text{n}, ..., \text{n}}...} \comment Vector Value\\
+\end{tabular}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\vspace{1cm}
+\centering
+\begin{tabular}{l r c l}
+(E-IfTrue) &
+\vifthenelse{true}{\exprind{2}}{\exprind{3}} 
+&\evalsto&
+\exprind{2} \\
+(E-IfFalse) &
+\vifthenelse{false}{\exprind{2}}{\exprind{3}} 
+&\evalsto&
+\exprind{3} \\
+(E-AppBeta) &
+$\Delta, \stgmapping{\stgvarind{1}}{\stgarea{\widthexpr{\exprind{1}}}} \vdash$
+$(\lambda \stgvar{} \vmore{\text{x}}. \exprind{1})\ \stgvarind{1} \ \vmore{\text{v}}$
+&\evalsto&
+$\Delta, \stgmapping{\stgvarind{1}}{\stgarea{\widthexpr{\exprind{1}}}} \vdash$
+$\exprind{1}[\stgvar{} \mapsto \stgvarind{1}, \vmore{\text{x}} \mapsto \vmore{\text{v}}]$ \\
+(E-LetBeta)& 
+\text{\lett{} x = \text{v} \inn{} \exprind{2}} 
+&\evalsto&
+\exprind{2}[\text{x} $\mapsto$ \text{v}]\\
+(E-Alloc) &
+$\Delta \vdash$ \withstg{\valvarind{0}}{\stgvar}{\exprind{1}}
+&\evalsto&
+$\Delta, \stgmapping{\stgvar}{\stgarea{\valvarind{0}}} \vdash$
+\stgctx{\exprind{1}}{\stgvar} \\
+(E-BuildsEval)&
+$\Delta, \stgmapping{\stgvar}{\stgarea{\widthexpr{\text{v} 1} \times \valcard}} \vdash$ \vbuilds{\stgvar}{\valcard}{\text{v}} 
+&\evalsto& \\
+& \multicolumn{3}{r}{
+$\Delta, \stgmapping{\stgvar}{\stgarea{\widthexpr{\text{v} 1} \times \valcard}} \vdash$
+\varrs{\stgvar}{\vabs{\stgvarind{1}}{\text{v}\ \stgvarind{1}\ 1}, ..., \vabs{\stgvarind{\valcard}}{\text{v}\ \stgvarind{\valcard}\ \valcard}}
+} \\
+(E-VectorEval)&
+\multicolumn{3}{l}{
+$\Delta, \stgmapping{\stgvar}{\stgarea{\widthexpr{\valscalarind{1}} \times \valcard}} \vdash$ 
+\varrs{\stgvar}{\vabs{\stgvarind{1}}{\valscalarind{1}}, ...,  \vabs{\stgvarind{\valcard}}{\valscalarind{\valcard}}}
+}
+\\
+&
+&\evalsto&
+$\Delta, \stgmapping{\stgvar}{\varr{\valscalarind{1..\valcard}}} \vdash$
+\varrsat{\stgvar}{\valscalarind{1..\valcard}} \\
+(E-MatrixEval)&
+\multicolumn{3}{l}{
+$\Delta, \stgmapping{\stgvar}{\stgarea{\widthexpr{\valscalarind{1,1}} \times \valcard1 \times \valcard2}} \vdash$ 
+\varrs{\stgvar}{\vabs{\stgvarind{1}}{\varrsat{\stgvarind{1}}{\valscalarind{1,1}, ...}}, ...,  \vabs{\stgvarind{\valcard1}}{\varrsat{\stgvarind{\valcard1}}{..., \valscalarind{\valcard1, \valcard2}}}}
+}
+\\
+&
+&\evalsto&
+\\
+\multicolumn{4}{r}{
+$\Delta, \stgmapping{\stgvar}{\varr{\varr{\valscalarind{1,1..\valcard1, \valcard2}}}} \vdash$
+\varrsat{\stgvar}{\varr{\valscalarind{1,1..\valcard1, \valcard2}}}
+}\\
+(E-Free)&
+$\Delta, \stgmapping{\stgvarind{2}}{\stgarea{?}} \vdash$ 
+\stgctx{\varrsat{\stgvarind{1}}{\valscalarind{1..\valcard}}}{\stgvarind{2}}
+&\evalsto&
+$\begin{cases}
+    \Delta \vdash 
+\varrsat{\stgvarind{1}}{\valscalarind{1..\valcard}}       & \stgvarind{1} \neq \stgvarind{2}\\
+    \text{Runtime Error!}  & \stgvarind{1} = \stgvarind{2}\\
+  \end{cases}
+$ \\
+(E-GetsEvalV)&
+\multicolumn{3}{l}{
+$\Delta, \stgmapping{\stgvarind{1}}{\stgarea{\widthexpr{\valscalarind{1,1}} \times \valcard2}} \vdash$ \vgets{\stgvarind{1}}{(\varrsat{\stgvarind{2}}{\varr{\valscalarind{1,1}, ..., \valscalarind{\valcard1, \valcard2}}})}{\text{i}}
+}
+\\
+&
+&\evalsto&
+$\Delta, \stgmapping{\stgvarind{1}}{\valscalarind{i,1..i,\valcard2}} \vdash$ \varrsat{\stgvarind{1}}{\valscalarind{i,1..i,\valcard2}}\\
+(E-GetsEvalS)&
+\vgets{\stgempty}{(\varrsat{\stgvar}{\valscalarind{1}, ..., \valscalarind{\valcard}})}{\text{i}} 
+&\evalsto&
+\valscalarind{\text{i}} \\
+(E-LengthEvalV)&
+\vlength{(\varrsat{\stgvar}{\varr{\valscalarind{1,1}, ..., \valscalarind{\valcard1,\valcard2}}})}
+&\evalsto&
+\valcard1 \\
+(E-LengthEvalS)&
+\vlength{(\varrsat{\stgvar}{\valscalarind{1}, ..., \valscalarind{\valcard}})}
+&\evalsto&
+\valcard \\
+% (E-FoldsStep)&
+% \vfolds{\stgvarind{2}}{\valvarind{2}\vprime}{\valvarind{3}\vprime}{(\varrsat{\stgvarind{1}}{\valscalarind{1}, ..., \valscalarind{\valcard}})} 
+% &\evalsto& \\
+% & 
+% \multicolumn{3}{r}{
+% \vfolds{\stgvarind{2}}{\valvarind{3}\vprime\ \stgvarind{2} \valvarind{2}\vprime\ \valvarind{1}}{\valvarind{3}\vprime}{(\varrsat{(\stgoffset{} \stgvarind{1} 1)}{\valscalarind{2}, ..., \valscalarind{\valcard}})}
+% }\\
+% (E-FoldsLastV)&
+% $\Delta, \stgmapping{\stgvar}{\stgarea{\widthexpr{\valvarind{2}}}} \vdash$ \vfolds{\stgvar}{\valvarind{2}}{\valvarind{3}}{\varr{}} 
+% &\evalsto&
+% $\Delta, \stgmapping{\stgvar}{\valvarind{2}} \vdash$ 
+% \valvarind{2}\\
+% (E-FoldsLastS)&
+% $\valvarind{2}: \typedouble \vdash$
+% \vfolds{\stgempty}{\valvarind{2}}{\valvarind{3}}{\varr{}} 
+% &\evalsto&
+% \valvarind{2}\\
+(E-ReducesStep)&
+$\valcard > 0 \vdash$ \viterates{\stgvar}{\valvarind{1}}{\valvarind{2}}{\valcard} 
+&\evalsto& \viterates{\stgvar}{\valvarind{1}}{(\valvarind{1}\ \stgvar{} \valvarind{2}\ (\valcard{} - 1))}{(\valcard{} - 1)}
+\\
+(E-ReducesLastV)&
+$\Delta, \stgmapping{\stgvar}{\stgarea{\widthexpr{\valvarind{2}}}} \vdash$ \viterates{\stgvar}{\valvarind{1}}{\valvarind{2}}{0} 
+&\evalsto&
+$\Delta, \stgmapping{\stgvar}{\valvarind{2}} \vdash$ 
+\valvarind{2}\\
+(E-ReducesLastS)&
+$\valvarind{2}: \typedouble \vdash$
+\viterates{\stgempty}{\valvarind{1}}{\valvarind{2}}{0} 
+&\evalsto&
+\valvarind{2}\\
+\end{tabular}
+\subcaption{Computation Rules}
+
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\centering
+\begin{tabular}{r c l}
+\evalctx{} & ::= & \comment Evaluation Context\\
+& | & [] \comment Evaluation Hole\\
+& | & \vifthenelse{\evalctx}{\exprind{2}}{\exprind{3}} \comment If Condition \\
+& | & \vapp{\evalctx}{\stgvar{} $\vmore{\expr}$} \comment Application Function\\
+& | & \vapp{\valvarind{0}}{\stgvar{} \valvarind{1} ... \valvarind{k-1} \evalctx{} \exprind{k+1} ... \exprind{N}} \comment Application Arguments\\
+& | & \vlet{\text{x}}{\evalctx}{\exprind{1}} \comment Let Binding\\
+& | & \withstg{\evalctx}{\stgvar}{\exprind{1}} \comment Alloc Length\\
+% & | & \withstg{\valvarind{0}}{\stgvar}{\evalctx} \comment Alloc Body\\
+& | & \varrs{\stgvar}{\vabs{\stgvarind{1}}{\valvarind{1}}, ...,
+% \vabs{\stgvarind{k-1}}{\valvarind{k-1}},
+\vabs{\stgvarind{k}}{\evalctx{}}, 
+% \vabs{\stgvarind{k+1}}{\exprind{k+1}},
+..., \vabs{\stgvarind{\valcard}}{\exprind{\valcard}}} \comment Vector Construct\\
+% & | & \vbuilds{\stgvar}{\evalctx}{\exprind{1}} \comment Build Size\\
+% & | & \vbuilds{\stgvar}{\valvarind{0}}{\evalctx} \comment Build Function\\
+% & | & \vgets{\stgvar}{\evalctx}{\exprind{1}} \comment Get Vector\\
+% & | & \vgets{\stgvar}{\valvarind{0}}{\evalctx} \comment Get Index\\
+% & | & \vlength{\evalctx} \comment Length\\
+% & | & \vfolds{\stgvar}{\exprind{2}}{\exprind{3}}{\evalctx} \comment Fold Range\\
+% & | & \vfolds{\stgvar}{\evalctx}{\exprind{3}}{\valvarind{1}} \comment Fold Init\\
+% & | & \vfolds{\stgvar}{\valvarind{2}}{\evalctx}{\valvarind{1}} \comment Fold Function \\
+& | & \stgctx{\evalctx}{\stgvar} \comment Storage Context
+\\
+\\ \\
+& & \hspace*{1.7cm}
+\infer{\Delta \vdash \expr{} \evalsto \Delta\vprime{} \vdash \expr{}\vprime}{\Delta \vdash \evalctx[\expr{}] \evalsto \Delta\vprime{} \vdash \evalctx[\expr{}\vprime]
+}
+\end{tabular}
+\\
+\subcaption{Congruence Rules}
+\end{subfigure}
+\caption{Operational Semantics of \salafsharp{}}
+\label{fig:salaf_red}
+\end{figure*}

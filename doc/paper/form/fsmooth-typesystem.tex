@@ -1,0 +1,115 @@
+\begin{figure*}[!htbp]
+\centering
+\def\comment{\hfill -- }
+% \begin{flushleft}
+% \textbf{Type Syntax:}
+% \end{flushleft}
+% \begin{subfigure}[b]{.48\textwidth}
+% \begin{tabular}{r c l}
+% \typet{} & ::= & \typemat{} \comment Matrix Type\\
+% & | & \typefun{\typet}{\typemat} \comment Function Types (No Currying)\\
+% & | & \typecard \comment Cardinality Type\\
+% & | & \typebool \comment Boolean Type\\
+% \end{tabular}
+% \end{subfigure}
+% \begin{subfigure}[b]{.50\textwidth}
+% \begin{tabular}{r c l}
+% \typemat{} & ::= & \typenum{} \comment Numeric Type\\
+% & | & \typearray{\typemat{}} \comment Vector, Matrix, ... Type\\
+% \\
+% \typenum & ::= & \typedouble{} \comment Scalar Type\\
+% & | & \typeindex \comment Index Type\\
+% \end{tabular}
+% \end{subfigure}
+\begin{flushleft}
+\textbf{Typing Rules:}
+\end{flushleft}
+\centering
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+(T-If) $\infer{\exprind{1}: \typebool{} \tab \tab \exprind{2}: \typemat \tab \tab \exprind{3}: \typemat }{\vifthenelse{\exprind{1}}{\exprind{2}}{\exprind{3}}: \typemat}$ \tab 
+(T-App) $\infer{\exprind{0}: \typefun{\typet}{\typemat} \tab \tab \vmore{\expr} : \vmore{\typet}}{\exprind{0}\ \vmore{\expr}: \typemat}$
+\\
+(T-Abs) $\infer{ \Gamma  \cup  \vmore{\text{x}}: \vmore{\typet} \vdash \expr{}: \typemat }{\Gamma \vdash \lambda \vmore{\text{x}}. \expr: \typefun{\typet}{\typemat}}$ \tab \tab
+(T-Var) $\infer{\text{x}: \typet \in \Gamma }{\Gamma \vdash \text{x}: \typet}$  \\
+(T-Let) $\infer{ \Gamma \vdash \exprind{1}: \typeind{1} \tab \tab \Gamma, \text{x}: \typeind{1} \vdash \exprind{2}: \typeind{2}}{\Gamma \vdash \text{\lett{} x = \exprind{1} \inn{} \exprind{2}: \typeind{2}}}$ \tab \tab 
+% \tab \tab 
+% (T-Vector) $\infer{\exprind{1}: \typemat\tab ... \tab \exprind{\valcard}: \typemat}{\varr{\exprind{1}, ..., \exprind{\valcard}}: \typearray{\typemat}}$\\
+\end{subfigure}
+\begin{flushleft}
+\begin{subfigure}[t]{.44\textwidth}
+\textbf{Scalar Function Constants:}\\
+\begin{tabular}{l c l}
+% \multicolumn{3}{c}{\textit{Element Constants}} \\
+\vconst{+} | \vconst{$-$} | \vconst{*} | \vconst{/} &:& \typefunone{\typenum, \typenum}{\typenum}\\
+% \vconst{\^} &:& \typefunone{\typenum, \typeindex}{\typenum}\\
+\vconst{\%}  &:& \typefunone{\typeindex, \typeindex}{\typeindex}\\
+\vconst{>} | \vconst{<} | \vconst{==} &:& \typefunone{\typenum, \typenum}{\typebool} \\
+\vconst{\&\&} | \vconst{||} &:& \typefunone{\typebool, \typebool}{\typebool} \\
+\vconst{!} &:& \typefunone{\typebool}{\typebool} \\
+\vcaddcard{} | \vcsubcard{} | \vcmulcard{} | \\
+\vcdivcard{} | \vcmodcard{} &:& \typefunone{\typecard, \typecard}{\typecard} \\
+\end{tabular}
+\end{subfigure}
+\begin{subfigure}[t]{.52\textwidth}
+\textbf{Vector Function Constants:}\\
+\begin{tabular}{l c l}
+% \multicolumn{3}{c}{\textit{Vector Constants}} \\
+\vbuildk{} &:& 
+\typefunone{
+\typecard{}
+% }{
+ % \typefunone{
+ ,
+ (\typefunone{\typeindex}{\typemat})
+ }{
+ \typearray{\typemat}
+ % }
+}\\
+\viteratek{} &:& 
+\typefunone{
+(\typefunone{
+% \typefunone{
+$\typemat$
+% }{
+,
+\typeindex
+% }
+}{$\typemat$})
+% }{
+% \typefunone{
+% \typefunone{
+,
+$\typemat$
+% }{
+,
+\typecard
+% }
+}{$\typemat$
+% }
+}\\
+\vcget &:& 
+\typefunone{
+\typearray{\typemat}
+% }{
+% \typefunone{
+,
+\typeindex
+}{
+\typemat
+% }
+}\\
+\vclength &:& 
+\typefunone{
+\typearray{\typemat}
+}{\typecard}\\
+\end{tabular}\\
+\textbf{Syntactic Sugars:} \\
+\vget{\exprind{0}}{\exprind{1}} = \vcget{} \exprind{0} \exprind{1}
+\\ 
+\textit{for all binary operators $bop$:} \exprind{1} $bop$ \exprind{2} = $bop$ \exprind{1} \exprind{2}
+\end{subfigure}
+\end{flushleft}
+\caption{The type system and built-in constants of \lafsharp{}}
+\label{fig:laf_type_system}
+\end{figure*}

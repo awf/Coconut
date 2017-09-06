@@ -1,0 +1,167 @@
+\begin{figure*}[h]
+\centering
+\def\comment{\hfill -- }
+% \begin{flushleft}
+% \textbf{Type Syntax:}
+% \end{flushleft}
+% \begin{subfigure}[b]{.50\textwidth}
+% \begin{tabular}{r c l}
+% \typetdps{} & ::= & \typemat{} \comment Matrix Type\\
+% & | & \typefun{\typetdps}{\typemat} \comment Function Types (No Currying)\\
+% & | & \carddom \comment Shape Type\\
+% & | & \typebool \comment Boolean Type\\
+% & | & \typestg \tab \tab \tab \tab \tab \comment Machine Address\\
+% \end{tabular}
+% \end{subfigure}
+% \begin{subfigure}[b]{.48\textwidth}
+% \begin{tabular}{r c l}
+% \typemat{} & ::= & \typenum{} \comment Numeric Type\\
+% & | & \typearray{\typemat{}} \comment Vector, Matrix, ... Type\\
+% \typenum & ::= & \typedouble{} \comment Scalar Type\\
+% & | & \typeindex \comment Index Type\\
+% \carddom{} & ::= & \typecard{} \comment Cardinality Type\\
+% & | & \typenestedcard{\typecard{}}{\carddom{}} \comment Vector Shape Type\\
+
+% \end{tabular}
+% \end{subfigure}
+% \\
+\begin{flushleft}
+\textbf{Typing Rules:}
+\end{flushleft}
+% \begin{subfigure}[b]{.48\textwidth}
+% (T-App) $\infer{\Gamma \vdash \exprdpsind{0}: \typestg, \typefun{\typetdps}{\typemat} \tab \stgvar: \typestg \in \Gamma \tab \Gamma \vdash \vmore{\exprdps} : \vmore{\typetdps}}{\Gamma \vdash \exprdpsind{0}\ \stgvar{}\ \vmore{\exprdps}: \typemat}$ \\
+% (T-Abs) $\infer{ \Gamma, \stgvar: \typestg  \cup  \vmore{\text{x}}: \vmore{\typetdps} \vdash \exprdps{}: \typemat }{\Gamma \vdash \lambda \stgvar \vmore{\text{x}}. \exprdps{}: \typestg, \typefun{\typetdps}{\typemat}}$ \\
+% \end{subfigure}
+\begin{subfigure}[b]{.48\textwidth}
+(T-Alloc) $\infer{\Gamma \vdash \exprdpsind{0}: \typecard \tab \tab \Gamma, \stgvar: \typestg \vdash  \exprdpsind{1}: \typemat}{\text{\withstg{\exprdpsind{0}}{\stgvar}{\exprdpsind{1}}: \typemat}}$\\
+% (T-Vectors) $\infer{\Gamma, \stgvarind{i}: \typestg \vdash \exprdpsind{i}: \typemat \tab \stgvar{}: \typestg \in \Gamma}{\Gamma \vdash \varrs{\stgvar}{\vabs{\stgvarind{1}}{\exprdpsind{1}}, ..., \vabs{\stgvarind{\valcard}}{\exprdpsind{\valcard}}}: \typearray{\typemat}}$\\
+\end{subfigure}
+% (T-Builds) $\infer{\Gamma \vdash \exprind{0}: \typecard \tab \Gamma \vdash \exprind{1}: \typefunone{\typestg, \typeindex}{\typemat} \tab \stgvar: \typestg \in \Gamma}{\Gamma \v\dash \text{\vbuilds{\stgvar}{\exprind{0}}{\exprind{1}}: \typearray{\typemat}}}$\\
+% (T-Folds) $\infer{\Gamma \vdash \exprind{1}: \typearray{$\typemat_1$} \tab \Gamma \vdash \exprind{2}: \text{$\typemat_2$}  \tab \Gamma \vdash \exprind{3}: \typefunone{\typestg, \typemat_2, \typemat_1}{\typemat_2} \tab \stgvar{}: \typestg \in \Gamma}{\text{\vfolds{\stgvar}{\exprind{2}}{\exprind{3}}{\exprind{1}}: $\typemat_2$}}$\\
+\vspace{.5cm}
+\begin{flushleft}
+\begin{subfigure}[t]{.50\textwidth}
+\textbf{Vector Function Constants:}
+\\
+\setlength\tabcolsep{1.5pt}
+\begin{tabular}{l c l}
+\stgvarpostfix{\vcbuild} &:& \typestg{}, \typecard{}, 
+(\typefunone{\typestg, \typeindex}{\typemat}),
+\\
+& &
+\multicolumn{1}{l}{
+\tab \tab \tab
+\typecard{},
+(\typefunone{\typecard}{\typeshape})
+}
+\\
+& &
+\multicolumn{1}{c}{
+\typefunone{}{\typearray{\typemat}}
+}
+\\
+\stgvarpostfix{\viteratek} &:&
+\typestg{},
+(\typefunone{\typestg, $\typemat$, \typeindex}{$\typemat$}),
+$\typemat$,
+\typecard{},
+\\
+& &
+\multicolumn{1}{l}{
+\tab \tab \tab
+(\typefunone{\typeshape, \typecard}{\typeshape}),
+\typeshape{},
+\typecard{}
+}
+\\
+& &
+\multicolumn{1}{c}{
+\typefunone{}{\typemat}
+}
+\\
+\stgvarpostfix{\vcget} &:&
+\typestg{},
+\typearray{\typemat},
+\typeindex{},
+\\
+& &
+\multicolumn{1}{l}{
+\tab \tab \tab
+\typefunone{\typeshape{}, \typecard{}}{\typemat}
+}
+\\
+\stgvarpostfix{\vclength} &:& 
+\typefunone{\typestg{},
+\typearray{\typemat},
+\typeshape
+}{\typecard}
+\\
+% \stgvarpostfix{\vcfold} &:&
+% \typefunone{\typestg}{
+% \typefunone{(\typefunone{\typestg, $\typemat_2$, $\typemat_1$}{$\typemat_2$})}{}
+% }\\
+% & &
+% \multicolumn{1}{c}{
+% \typefunone{\typefunone{$\typemat_2$}{\typearray{$\typemat_1$}}}{$\typemat_2$}
+% }
+% \\
+\vcopys{}{} &:& \typefunone{\typestg{},
+\typearray{\typemat}}{
+  \typearray{\typemat}
+}
+\end{tabular}
+\end{subfigure}
+\begin{subfigure}[t]{.48\textwidth}
+\textbf{Scalar Function Constants:}
+\\
+\begin{tabular}{l c l}
+\multicolumn{3}{l}{\textit{DPS version of \lafsharp{} Scalar Constants (See  Figure~\ref{fig:laf_type_system}).}} \\
+\stgoffset{} &:& \typefunone{\typestg{}, \carddom}{\typestg} \\
+\vcvecshape{} & : & \typefunone{\typecard{}, \carddom{}}{\typenestedcard{\typecard}{\carddom}} \\
+\cardvectorsize{} &:& \typefunone{\typenestedcard{\typecard}{\carddom}}{\typecard} \\
+\cardvectorelem{} &:& \typefunone{\typenestedcard{\typecard}{\carddom}}{\carddom} \\
+\cardwidth{} &:& \typefunone{\carddom}{\typecard} \\
+\end{tabular}\\
+\textbf{Syntactic Sugars:} \\
+\vgets{\stgvar}{\exprdpsind{0}}{\exprdpsind{1}}
+=
+\stgvarpostfix{\vcget{}} \stgvar{} \exprdpsind{0} \exprdpsind{1}
+\tab
+\vlength{\exprdps}
+=
+\stgvarpostfix{\vclength{}} \stgempty{} \exprdps{}\\
+\cardvector{\exprdpsind{0}}{\exprdpsind{1}}
+=
+\vcvecshape{} \exprdpsind{0} \exprdpsind{1} 
+\\
+\textit{for all binary ops $bop$:}
+\exprind{1} $bop$ \exprind{2} = $bop$ \stgempty{} \exprind{1} \exprind{2}
+\end{subfigure}
+\\
+% \vspace{.5cm}
+% \textbf{Syntactic Sugars:} \\
+% \begin{subfigure}[b]{.50\textwidth}
+% \begin{tabular}{l c l}
+% \vgets{\stgvar}{\exprdpsind{0}}{\exprdpsind{1}}
+% &=&
+% \stgvarpostfix{\vcget{}} \stgvar{} \exprdpsind{0} \exprdpsind{1}\\
+% \vlength{\exprdps}
+% &=&
+% \stgvarpostfix{\vclength{}} \stgempty{} \exprdps{}\\
+% \end{tabular}
+% \end{subfigure}
+% \begin{subfigure}[b]{.48\textwidth}
+% \begin{tabular}{l c l}
+% % \vfolds{\stgvar}{\exprind{2}}{\exprind{1}}{\exprind{3}}
+% % &=& 
+% % \stgvarpostfix{\vcfold{}} \stgvar{} \exprind{1} \exprind{2} \exprind{3}\\
+% \cardvector{\exprdpsind{0}}{\exprdpsind{1}}
+% &=&
+% \vcvecshape{} \exprdpsind{0} \exprdpsind{1} \\
+% $\forall bop.$ \exprind{1} $bop$ \exprind{2} &=& $bop$ \stgempty{} \exprind{1} \exprind{2}
+% \end{tabular}
+% \end{subfigure}
+\end{flushleft}
+\caption{The type system and built-in constants of \salafsharp{}}
+\label{fig:salaf_type_system}
+\end{figure*}

@@ -1,0 +1,49 @@
+\begin{figure}[!t]
+\centering
+\def\comment{\hfill -- }
+\begin{tabular}{r c l}
+% Prog & ::= & $\overline{\text{\cod{let} \text{x} = \expr{}}}$ \inn{} \expr{}
+% \\
+\exprdps & ::= & \exprdps{} $\vmore{\exprdps}$ \comment Application\\
+& | & \vabs{\vmore{\text{x}}}{\exprdps} \comment Abstraction\\
+& | & \stgempty \comment Empty Memory Location\\
+& | & \text{n} \comment Scalar Value\\
+& | & \text{i} \comment Index Value\\
+& | & \shapevar \comment Shape Value \\
+& | &  \text{x} \comment Variable Access \\
+& | &  \stgvar{} \comment Reference Access\\
+& | & \text{c} \comment Constants\\
+& | & \lett{} x = \exprdps{} \inn{} \exprdps{} \comment (Non-Rec.) Let Binding\\
+& | & \vifthenelse{\exprdps{}}{\exprdps{}}{\exprdps{}} \comment Conditional\\
+& | & \withstg{\exprdps}{\stgvar}{\exprdps} \comment Memory Allocation\\
+% & | & \varrs{\stgvar}{\vabs{\stgvar}{\exprdps}, ..., \vabs{\stgvar}{\exprdps}} \comment Vector Constructor\\
+% \valvar & ::= & \vabs{\stgvar{} \vmore{\text{x}}}{\expr} \comment Storage-Aware Abstraction\\
+% & | & \vabscard{\vmore{\text{x}}}{\expr} \comment Cardinality Abstraction \\
+% & | & \stgval \comment Memory Location\\
+% & | & \stgempty \comment Empty Memory Location\\
+% & | & \text{n} \comment Scalar Value\\
+% & | & \text{i} \comment Index Value\\
+% & | & \shapevar \comment Shape Value\\
+% & | & \varrsat{\stgvar}{...\varr{\text{n}, ..., \text{n}}...} \comment Vector Value\\
+% \shapevar & ::= & \valcard \comment Cardinality Value \\
+% & | & \cardvector{\shapevar}{\valcard} \comment Vector Shape Value \\
+% & | & \cardempty \comment No Cardinality\\
+\shapevar & ::= & \cardempty \comment Zero Cardinality\\
+& | & \valcard \comment Cardinality Value \\
+& | & \cardvector{\valcard}{\shapevar} \comment Vector Shape Value \\
+\text{c} & ::= & \textit{[See Figure~\ref{fig:salaf_type_system}]} \\
+\typetdps{} & ::= & \typemat{} | 
+\typefun{\typetdps}{\typemat} |
+\typebool \\
+& | & \carddom \comment Shape Type\\
+& | & \typestg \tab \tab \tab \tab \tab \comment Machine Address\\
+\typemat{} & ::= & \typenum{} |
+\typearray{\typemat{}}\\
+\typenum & ::= & \typedouble{} |
+\typeindex \\
+\carddom{} & ::= & \typecard{} \comment Cardinality Type\\
+& | & \typenestedcard{\typecard{}}{\carddom{}} \comment Vector Shape Type\\
+\end{tabular}
+\caption{The core \salafsharp{} syntax.}
+\label{fig:salaf_core_syntax}
+\end{figure}

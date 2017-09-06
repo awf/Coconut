@@ -1,0 +1,448 @@
+% ----- listings
+
+\lstdefinelanguage{Scala}%
+{morekeywords={abstract,%
+  case,catch,char,class,%
+  def,else,extends,final,finally,for,%
+  if,import,implicit,%
+  match,module,%
+  new,null,%
+  object,override,%
+  package,private,protected,public,%
+  for,public,return,super,%
+  this,throw,trait,try,type,%
+  val,var,%
+  with,while,%
+  yield%
+  },%
+  sensitive,%
+  morecomment=[l]//,%
+  morecomment=[s]{/*}{*/},%
+  morestring=[b]",%
+  morestring=[b]',%
+  showstringspaces=false%
+}[keywords,comments,strings]%
+
+\lstset{language=Scala,%
+  breaklines=true,%
+  mathescape=true,%
+showspaces=false,
+showtabs=false,
+showstringspaces=false,
+breakatwhitespace=true,
+  xleftmargin=2em,
+%  columns=[c]fixed,%
+%  basewidth={0.5em, 0.40em},%
+  aboveskip=1pt,%\smallskipamount,
+  belowskip=1pt,%\negsmallskipamount,
+  lineskip=-0.2pt,
+%  basewidth={0.54em, 0.4em},%
+%  backgroundcolor=\color{listingbg},
+%  basicstyle=\linespread{0.4}\footnotesize\ttfamily,
+%  keywordstyle=\keywordstyle,
+   numbers=left,
+   numbersep=5pt,
+   numberstyle=\tiny\ttfamily,
+   basicstyle=\scriptsize\ttfamily,
+  keywordstyle=\scriptsize\ttfamily\bfseries,%
+columns=fullflexible,
+%  commentstyle=\commentstyle
+  %xleftmargin=1ex
+  escapeinside={(*@}{@*)}
+}
+
+
+\definecolor{listingbg}{RGB}{240, 240, 240}
+\newcommand{\code}[1]{\lstinline[language=Scala,columns=fixed,basicstyle=\ttfamily]|#1|}
+%\newcommand{\systemname}{Lego\-Base}
+
+% ----- comments and todo
+
+\newcommand{\note}[1]{{\color{red}[#1]}}
+% \newcommand{\todo}[1]{\note{TODO: #1}}
+\newcommand{\todo}[1]{}
+%\newcommand{\comment}[1]{}
+
+\newcommand{\para}[1]{\noindent {\bf #1.}}
+
+% Notation consistency macros (NCMs :-)
+\def\tpch{\mbox{TPC-H}\xspace}
+\def\timesten{\mbox{DBX}\xspace}
+\def\clang{\mbox{CLang}\xspace}
+\def\glib{\mbox{GLib}\xspace}
+\def\legobase{\mbox{LegoBase}\xspace}
+\def\groupby{\mbox{group by}\xspace}
+\def\datastructure{data-stru\-cture\xspace}
+\def\datastructures{data-stru\-ctures\xspace}
+\def\hyper{HyPer\xspace}
+\def\gcc{GCC\xspace}
+
+\def\awfi#1{\textcolor{red}{[awf: #1]}}
+\def\awf#1{\textcolor{red}{${}^{\mathrm{a}}$}%
+\marginpar{\textcolor{red}{${}^{\mathrm{a}}$: \scriptsize #1}}}
+
+
+% general latex
+
+%\newcommand{\kw}[1]{\operatorname{#1}} % Clemens
+\newcommand{\kw}[1]{\mathsf{#1}} % Viktor
+\newcommand{\dts}{,\ldots,}
+
+% Theorem environments
+
+% \newtheorem{theorem}{Theorem} 
+\newtheorem{fact}{Fact} [section]
+% \newtheorem{corollary}[fact]{Corollary}
+% \newtheorem{proposition}[fact]{Proposition}
+% \newtheorem{definition}[fact]{Definition}
+% \newtheorem{conjecture}{Conjecture}
+% \newtheorem{lemma}[theorem]{Lemma} 
+\newtheorem{magic}[fact]{Magic} 
+\newtheorem{question}{Question}
+% \newtheorem{example}{Example}
+\newenvironment{claim}{\begin{changemargin}{0.8cm}{0.8cm}\it}{\end{changemargin}}
+\newenvironment{claimproof}{\begin{changemargin}{0.8cm}{0.8cm}}{\qed\end{changemargin}}
+\newenvironment{subclaim}{\begin{changemargin}{0.6cm}{0.6cm}\it}{\end{changemargin}}
+\newenvironment{subclaimproof}{\begin{changemargin}{0.6cm}{0.6cm}}{\qed\end{changemargin}}
+
+\newcommand{\nat}{\mathbb{N}} % the natural numbers
+\newcommand{\true}{\kw{true}}
+\newcommand{\false}{\kw{false}}
+\newcommand{\Id}{\kw{Id}}
+
+\def\concat{\sqcup}
+
+% Rule names
+\newcommand{\applyblock}{\cod{apply-block}}
+\newcommand{\blockfor}{\cod{fr-block}}
+\newcommand{\blockunfold}{\cod{unfold-block}}
+%\newcommand{\swapforfor}{\cod{swap-fr-fr}}
+\newcommand{\swapforfor}{\cod{swap-iter}}
+\newcommand{\orderinputs}{\cod{order-inputs}}
+\newcommand{\hashpart}{\cod{hash-part}}
+\newcommand{\incbranch}{\cod{inc-branching}}
+\newcommand{\ltotr}{\cod{fldL-to-trfld}}
+\newcommand{\seqfor}{\cod{seq-ac}}
+\newcommand{\wsup}{\cod{wr-seq-up}}
+\newcommand{\wbup}{\cod{wr-bloc-up}}
+
+%\newcommand{\transformsto}{$\Downarrow$}
+\newcommand{\transformsto}{$\rightarrow$}
+\newcommand{\equivalentto}{$\leftrightarrow$\xspace}
+\newcommand{\generates}{$\leadsto$}
+
+ % The language
+ 
+\newcommand{\langmm}{\textsf{OCAL}\xspace}
+\newcommand{\lang}{$\langmm$}
+
+\newcommand{\intt}{\kw{Int}}
+\newcommand{\bool}{\kw{Bool}}
+\newcommand{\option}{\kw{Option}}
+\newcommand{\some}{\kw{Some}}
+\newcommand{\none}{\kw{None}}
+
+\newcommand{\var}{\kw{Var}}
+\newcommand{\type}{\kw{Type}}
+
+\newcommand{\mainmem}{\kw{MainMem}}
+\newcommand{\hdd}{\kw{HDD}}
+
+\newcommand{\elem}{\kw{elem}}
+\newcommand{\flatsize}{\kw{flat}}
+\newcommand{\size}{\kw{size}}
+\newcommand{\pagesize}{\kw{pageSize}}
+\newcommand{\maxx}{\kw{max}}
+
+\newcommand{\eq}{\; \cod{==} \;}
+\newcommand{\Neq}{\; \cod{!=} \;}
+\newcommand{\funcPow}{\cod{funcPow}}
+\newcommand{\treeFold}{\cod{treeFold}}
+\newcommand{\tuple}[1]{\langle{#1}\rangle}
+\newcommand{\map}{\cod{map}}
+\newcommand{\flatten}{\cod{flatten}}
+\newcommand{\sng}{\cod{sng}}
+%\newcommand{\for}{\cod{for}}
+\newcommand{\range}{\cod{range}}
+\newcommand{\pred}{\cod{pred}}
+\newcommand{\yield}{\cod{yield}}
+\newcommand{\forblock}{\cod{forBlock}}
+\newcommand{\unfoldR}{\cod{unfoldR}}
+\newcommand{\unfoldRtwo}{\cod{unfoldR2}}
+\newcommand{\unfoldRBlock}{\cod{unfoldRBlock}}
+\newcommand{\unfoldRtwoblock}{\cod{unfoldRBlock}}
+\newcommand{\nil}{\cod{nil}}
+\newcommand{\lett}{\cod{let}}
+\newcommand{\inn}{\cod{in}}
+\newcommand{\iif}{\cod{if}}
+\newcommand{\then}{\cod{then}}
+\newcommand{\elsee}{\cod{else}}
+%\newcommand{\ifthenelse}{\cod{if-then-else}}
+\newcommand{\transfer}{\cod{transfer}}
+\newcommand{\transferExplicit}{\cod{transfer}}
+\newcommand{\partition}{\cod{partition}}
+\newcommand{\length}{\cod{length}}
+\newcommand{\head}{\cod{head}}
+\newcommand{\tail}{\cod{tail}}
+\newcommand{\funcpow}{\cod{funcPow}}
+\newcommand{\RR}{\cod{R}}
+\newcommand{\RS}{\cod{S}}
+\newcommand{\Flatten}{\cod{size}}
+\newcommand{\SSize}{\cod{sizeof}}
+\newcommand{\NestedCard}{\cod{nesCard}}
+\newcommand{\LLength}{\cod{length}}
+\newcommand{\avg}{\cod{avg}}
+\newcommand{\EElem}{\cod{elem}}
+\newcommand{\zip}{\cod{zip}}
+\newcommand{\TT}{\cod{T}}
+\newcommand{\D}{\cod{D}}
+\newcommand{\Int}{\cod{Int}}
+\newcommand{\z}{\cod{z}}
+\newcommand{\UnitTr}[2]{\cod{UnitTr}[#1 \rightarrow #2]}
+\newcommand{\CC}{\cod{C}}
+\newcommand{\InitCom}[2]{\cod{InitCom}[#1 \rightarrow #2]}
+\newcommand{\fun}[2]{\lambda #1 . #2}
+%\newcommand{\For}[3]{\cod{for}(#1 \leftarrow #2)\; #3}
+%\newcommand{\Ext}[1]{\cod{ext}(#1)}
+%\newcommand{\ext}{\cod{ext}}
+\newcommand{\ext}{\cod{flatMap}}
+\newcommand{\Ext}[1]{\cod{flatMap}(#1)}
+% Yannis: DO NOT USE THIS, IT IS A WORKAROUND FOR THE TABLE!!!
+\newcommand{\foldL}{\cod{foldL}}
+\newcommand{\FoldL}[2]{\cod{foldL}(#1, #2)}
+\newcommand{\Pair}[2]{\langle #1, #2 \rangle}
+\newcommand{\Tuple}[1]{\langle #1 \rangle}
+\newcommand{\True}{\cod{true}}
+\newcommand{\False}{\cod{false}}
+\newcommand{\mrg}{\cod{mrg}}
+\newcommand{\card}{\cod{card}}
+\newcommand{\Card}[1]{\cod{card}(#1)}
+\newcommand{\IfThenElse}[3]{\cod{if} \; #1 \; \cod{then} \; #2 \; \cod{else} \; #3}
+
+% Code
+
+\newcommand{\leftar}{\(\leftarrow\)}
+\newcommand{\rightar}{\(\rightarrow\)}
+\newcommand{\Leftar}{\(\Leftarrow\)}
+\newcommand{\Rightar}{\(\Rightarrow\)}
+\newcommand{\compose}{\(\circ\)}
+\newcommand{\mat}{$\mathfrak{m}$}
+\newcommand{\matpow}{$\mathfrak{m}^k$}
+\newcommand{\matind}[1]{\text{$\text{\mat}_#1$}}
+\newcommand{\varx}{$\mathrm{x}$\xspace}
+\newcommand{\vari}{$\mathrm{i}$\xspace}
+\newcommand{\varj}{$\mathrm{j}$\xspace}
+\newcommand{\scal}{$\mathfrak{s}$}
+\newcommand{\scalind}[1]{$\text{\scal}_#1$}
+\newcommand{\matsng}[1]{\cod{mat}(#1)}
+\newcommand{\matrows}[1]{\cod{rows}(#1)}
+\newcommand{\matcols}[1]{\cod{cols}(#1)}
+\newcommand{\vect}[2]{\cod{vect}[#2](#1)}
+\newcommand{\matmult}[2]{#1 $\times$ #2}
+\newcommand{\matmultgen}[2]{#1 $\otimes$ #2}
+\newcommand{\matadd}[2]{\matbin{#1}{#2}{$+$}}
+\newcommand{\matsub}[2]{\matbin{#1}{#2}{$-$}}
+\newcommand{\matbin}[3]{#1 #3 #2}
+\newcommand{\matbino}[2]{\matbin{#1}{#2}{\binop}}
+\newcommand{\cathor}[2]{#1 $\rightrightarrows$ #2}
+\newcommand{\catver}[2]{#1 $\downdownarrows$ #2}
+\newcommand{\fold}[5]{#1.\cod{fold}(#2, (#3, #4) $\Rightarrow$ #5)}
+\newcommand{\letvar}[3]{\cod{let} #1 = #2 \cod{in} #3}
+\newcommand{\binop}{$\oplus$}
+\newcommand{\binopscal}{$\circ$}
+\newcommand{\trans}[1]{$\text{#1}^{\top}$}
+\newcommand{\invers}[1]{$\text{#1}^{\text{-1}}$}
+\newcommand{\dimens}[2]{\text{$\mathcal{D}_{(#1, #2)}$}}
+\newcommand{\build}[5]{\cod{build}[#1, #2]((#3, #4) $\Rightarrow$ #5)}
+\newcommand{\rangevect}[1]{\cod{range}(#1)}
+\newcommand{\matslice}[2]{\cod{slice}[#2](#1)}
+\newcommand{\matget}[3]{#1[#2, #3]}
+\newcommand{\matfill}[3]{\cod{fill}[#2, #3](#1)}
+\newcommand{\iterate}[4]{\cod{iterate}[#1](#2)(#3 $\Rightarrow$ #4)}
+\newcommand{\lowertrgl}{\text{$\mathcal{L}$}}
+\newcommand{\sym}{\text{$\mathcal{S}$}}
+\newcommand{\diag}{\text{$\mathfrak{D}$}}
+\newcommand{\uppertrgl}{\text{$\mathcal{U}$}}
+\newcommand{\rowlayout}{\text{$\mathcal{R}$}}
+\newcommand{\collayout}{\text{$\mathcal{C}$}}
+\newcommand{\matrixtype}[1]{\text{$\mathcal{M[#1]}$}}
+\newcommand{\elemtype}[1]{\text{$\mathcal{#1}$}}
+\newcommand{\ringplus}[1]{$+_{#1}$}
+\newcommand{\ringtimes}[1]{$\times_{#1}$}
+\newcommand{\ones}[2]{\cod{ones}[#1, #2]}
+\newcommand{\zeros}[2]{\cod{zeros}[#1, #2]}
+\newcommand{\identity}[1]{\cod{identity}[#1]}
+\newcommand{\diff}[2]{$\nabla_\text{#1}\left(\text{#2}\right)$}
+\newcommand{\matdelta}[2]{$\Delta_\text{#1}\left(\text{#2}\right)$}
+\newcommand{\vardelta}[2]{$\delta_\text{#1}\left(\text{#2}\right)$}
+\newcommand{\matringadd}[3]{\matbin{#2}{#3}{$\oplus_{#1}$}}
+\newcommand{\matringmult}[3]{\matbin{#2}{#3}{$\otimes_{#1}$}}
+\newcommand{\scalmatmult}[2]{#1 $\cdot$ #2}
+\newcommand{\matifthenelse}[3]{\cod{if} #1 \cod{then} #2 \cod{else} #3}
+\newcommand{\matzipmap}[5]{\cod{zipMap}(#1, #2)((#3, #4) $\Rightarrow$ #5)}
+\newcommand{\matmap}[3]{\cod{map}(#1)(#2 $\Rightarrow$ #3)}
+\newcommand{\matsum}[3]{$\sum_{#1}^{#2}$#3}
+\newcommand{\matprod}[3]{$\prod_{#1}^{#2}$#3}
+\newcommand{\matcost}[1]{\text{$\mathcal{C}_{(#1)}$}}
+
+\newcommand{\resultSize}{Q(M,N)}
+\newcommand{\TR}[1]{\textit{#1}}
+\newcommand{\parDomain}{\cod{partition}_a}
+
+\newcommand{\tab}{\;\;\;}
+
+%%%%%%% LA-F#
+% \newcommand{\lafsharp}{$\text{F}^\sim$}
+% \newcommand{\salafsharp}{$\text{DPS-F}^\sim$}
+\newcommand{\lafsharp}{$\widetilde{\text{F}}$}
+\newcommand{\salafsharp}{$\text{DPS-}\widetilde{\text{F}}$}
+\newcommand{\shapefsmooth}{$\text{Shape-}\widetilde{\text{F}}$}
+
+% storage and cardinality postfix
+\newcommand{\cardvarpostfix}[1]{\text{$\text{#1}^{shp}$}}
+%\newcommand{\stgvarpostfix}[1]{\text{$\text{#1}^{dps}$}}
+\newcommand{\stgvarpostfix}[1]{\text{$\text{#1}$}}
+
+%
+\newcommand{\viteratek}{\cod{reduce}}
+\newcommand{\vfoldk}{vectorFold}
+\newcommand{\vbuildk}{\cod{build}}
+\newcommand{\vlengthk}{\cod{length}}
+\newcommand{\vgetk}{\cod{get}}
+\newcommand{\vvarind}[1]{\text{$\text{x}_{#1}$}}
+\newcommand{\expr}{\text{e}}
+\newcommand{\exprdps}{\text{t}}
+\newcommand{\exprshape}{\text{s}}
+\newcommand{\exprconst}{\text{c}}
+\newcommand{\exprind}[1]{\text{$\text{\expr}_{#1}$}}
+\newcommand{\exprdpsind}[1]{\text{$\text{\exprdps}_{#1}$}}
+\newcommand{\vbuild}[2]{\text{\vbuildk{} #1 #2}}
+\newcommand{\vget}[2]{#1[#2]}
+\newcommand{\vlength}[1]{\vlengthk{}\,#1}
+\newcommand{\vifthenelse}[3]{\text{\iif{} #1 \then{} #2 \elsee{} #3}}
+% \newcommand{\vfold}[3]{\text{#3.\cod{fold}(#1, #2)}}
+\newcommand{\vfold}[3]{\text{\vfoldk{} #1 #2 #3}}
+\newcommand{\viterate}[3]{\text{\viteratek{} #1 #2 #3}}
+\newcommand{\vabs}[2]{\text{$\lambda$#1. #2}}
+% \newcommand{\vabscard}[2]{\text{$\lambda_c$#1. #2}}
+\newcommand{\vabscard}[2]{\vabs{#1}{#2}}
+\newcommand{\vapp}[2]{\text{#1 #2}}
+\newcommand{\vlet}[3]{\text{\lett{} #1 = #2 \cod{in} #3}}
+\newcommand{\varr}[1]{\text{[ #1 ]}}
+% storage version
+\newcommand{\vgets}[3]{\text{#2.[#3]\{#1\}}}
+% \newcommand{\vfolds}[4]{\text{#4.\stgvarpostfix{\cod{fold}}(#2, #3)\{#1\}}}
+\newcommand{\vfolds}[4]{\text{\stgvarpostfix{\vfoldk} #1 #2 #3 #4}}
+\newcommand{\viterates}[4]{\text{\stgvarpostfix{\viteratek} #1 #2 #3 #4}}
+\newcommand{\vbuilds}[3]{\text{\stgvarpostfix{\vbuildk} #1 #2 #3}}
+\newcommand{\varrs}[2]{\text{[ #2 ]\{#1\}}}
+\newcommand{\vcopys}[2]{\text{\cod{copy} #1 #2}}
+% card version
+\newcommand{\vgetc}[2]{\text{\cardvarpostfix{\cod{get}} #1 #2}}
+\newcommand{\vfoldc}[3]{\text{\cardvarpostfix{\cod{fold}} #1 #2 #3}}
+\newcommand{\vbuildc}[2]{\text{\cardvarpostfix{\cod{build}} #1 #2}}
+\newcommand{\vlengthc}[1]{\text{\cardvarpostfix{\cod{length}} #1}}
+
+\newcommand{\vmore}[1]{\text{$\overline{\text{#1}}$}}
+\newcommand{\vnull}{\text{$\bigcirc$}}
+\newcommand{\vconst}[1]{\text{\cod{#1}}}
+\newcommand{\vcastcardtoind}{\vconst{carToInd}}
+
+\newcommand{\typewrapper}[1]{\text{\cod{#1}}}
+\newcommand{\typewrappernonterm}[1]{\textnormal{#1}}
+\newcommand{\typemat}{\typewrappernonterm{M}}
+\newcommand{\typet}{\typewrappernonterm{T}}
+\newcommand{\typetdps}{\typewrappernonterm{D}}
+\newcommand{\typetshape}{\typewrappernonterm{S}}
+\newcommand{\typeind}[1]{\text{$\typet{}_{#1}$}}
+\newcommand{\typematind}[1]{\text{$\typemat_{#1}$}}
+\newcommand{\typefun}[2]{\text{$\vmore{#1} \Rightarrow #2$} }
+\newcommand{\typefunone}[2]{\text{#1 $\Rightarrow$ #2} }
+\newcommand{\typeindex}{\typewrapper{Index}}
+\newcommand{\typecard}{\typewrapper{Card}}
+\newcommand{\typedouble}{\typewrapper{Double}}
+\newcommand{\typestg}{\typewrapper{Ref}}
+\newcommand{\typebool}{\typewrapper{Bool}}
+\newcommand{\typearray}[1]{\typewrapper{Array<#1>}}
+\newcommand{\typenestedcard}[2]{\text{(#1 * #2)}}
+\def\typenum{\typewrappernonterm{Num}}
+
+\newcommand{\stgvar}{\text{r}}
+\newcommand{\stgempty}{\text{$\bullet$}}
+\newcommand{\stgvarind}[1]{\text{$\stgvar_{#1}$}}
+\newcommand{\stgval}{\text{l}}
+\newcommand{\vallocterm}{\text{\cod{alloc}}}
+\newcommand{\withstg}[3]{\text{\vallocterm{} #1 (\vabs{#2}{#3})}}
+\newcommand{\stgtranss}[2]{\text{$\mathcal{D}\llbracket$#1$\rrbracket$#2}}
+\newcommand{\stgtrans}[1]{\stgtranss{#1}{\stgvar}}
+\newcommand{\stgtranse}[1]{\stgtranss{#1}{\stgempty}}
+\newcommand{\stgtranstype}[1]{\text{$\mathcal{D_T}\llbracket$#1$\rrbracket$}}
+\newcommand{\stgmapping}[2]{\text{#1 $\mapsto$ #2}}
+\newcommand{\stgcontext}{\text{$\Delta$}}
+\newcommand{\stgoffset}{\text{\cod{stgOff}}}
+
+\newcommand{\evalsto}{\text{ $\leadsto$ }}
+\newcommand{\vprime}{\text{$'$}}
+\newcommand{\valvar}{\text{v}}
+\newcommand{\valvarind}[1]{\text{$\valvar_{#1}$}}
+\newcommand{\valcard}{\text{N}}
+\newcommand{\valcardind}[1]{\text{$\text{N}_{#1}$}}
+\newcommand{\shapevar}{\text{P}}
+% \newcommand{\cardwidth}[1]{\text{$\mathcal{W}\llbracket$#1$\rrbracket$}}
+\newcommand{\cardwidth}[1]{\text{\cod{bytes} #1}}
+\newcommand{\cardtrans}[1]{\text{$\mathcal{S}\llbracket$#1$\rrbracket$}}
+\newcommand{\evalctx}{\text{\textbf{E}}}
+\newcommand{\cardtranstype}[1]{\text{$\mathcal{S_T}\llbracket$#1$\rrbracket$}}
+
+\newcommand{\carddom}{\typewrappernonterm{Shp}}
+\newcommand{\cardempty}{\text{$\circ$}}
+\newcommand{\cardvector}[2]{\text{$(#1, #2)$}}
+\newcommand{\cardvectorelem}[1]{\text{\cod{snd} #1}}
+\newcommand{\cardvectorsize}[1]{\text{\cod{fst} #1}}
+\newcommand{\carddommat}{\text{MCard}}
+\newcommand{\typeshape}{\carddom}
+
+\newcommand{\carddouble}{\typewrapper{DWidth}}
+\newcommand{\stgctx}[2]{\text{$\text{<#1>}^{\text{#2}}$}}
+
+% \newcommand{\vatstg}{\text{\cod{at}}}
+\newcommand{\varrsat}[2]{\text{\varr{#2} \cod{at} #1}}
+\newcommand{\valscalarind}[1]{\text{$\text{n}_{#1}$}}
+
+% BYTES INFO
+\newcommand{\vectorheader}[1]{\text{#1 \vcaddcard{} \cod{HDR\_BYTES}}}
+\newcommand{\vectorelembytes}{\cod{NUM\_BYTES}}
+
+\def\tabt{\hspace*{0.35cm}}
+\def\tabtm{\hspace*{0.20cm}}
+
+% constants
+\def\vcadd{\text{+}}
+\def\vcaddcard{\text{$\text{$+$}^{c}$}}
+\def\vcsubcard{\text{$\text{$-$}^{c}$}}
+\def\vcmulcard{\text{$\text{$*$}^{c}$}}
+\def\vcdivcard{\text{$\text{$/$}^{c}$}}
+\def\vcmodcard{\text{$\text{$\%$}^{c}$}}
+\def\vcsub{\text{-}}
+\def\vcmul{\text{*}}
+\def\vcdiv{\text{/}}
+\def\vcmod{\text{\%}}
+\def\vclt{\text{<}}
+\def\vcgt{\text{>}}
+\def\vceq{\text{==}}
+\def\vcnot{\text{!}}
+\def\vcbuild{\text{\cod{build}}}
+\def\vcget{\text{\cod{get}}}
+\def\vclength{\text{\cod{length}}}
+\def\vcfold{\text{\cod{fold}}}
+\def\vcvecshape{\text{\cod{vecShp}}}
+\newtheorem{theorems}{Theorem}
+
+\def\shpneq{\text{$\ncong$}}
+\def\shpeq{\text{$\cong$}}
+
+\newcommand{\stgarea}[1]{%
+  \tikz[baseline=(char.base)]\node[anchor=south west, draw,rectangle, rounded corners, inner sep=2pt, minimum size=4mm,
+    text height=2.5mm](char){\ensuremath{#1}} ;}
+    
+\newcommand{\widthexpr}[1]{\text{$\mathcal{W}$(#1)}}

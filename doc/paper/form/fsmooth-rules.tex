@@ -1,0 +1,23 @@
+\begin{figure}
+\centering
+\begin{tabular}{l r c l}
+(EQ-BldGt) &
+\vget{(\vbuild{\exprind{0}}{\exprind{1}})}{\exprind{2}} 
+&\evalsto& 
+\exprind{1}\  \exprind{2} \\
+(EQ-BldLn) &
+\vlength{(\vbuild{\exprind{0}}{\exprind{1}})} 
+&\evalsto&
+\exprind{0} \\
+(EQ-VecGt)&
+\vget{\varr{\exprind{1}, ..., \exprind{\valcard}}}{\text{i}} 
+&\evalsto&
+\exprind{\text{i}} \\
+(EQ-VecLn)&
+\vlength{\varr{\exprind{1}, ..., \exprind{\valcard}}}
+&\evalsto&
+\valcard\\
+\end{tabular}
+\caption{Equality rules of \lafsharp{}}
+\label{fig:laf_eq}
+\end{figure}

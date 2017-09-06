@@ -1,0 +1,186 @@
+\subsection{Translation from \lafsharp{} to \salafsharp}
+\label{sec:fsmooth_to_dps}
+
+\input{form/fsmooth-to-dps}
+
+We now turn our attention to the translation from \lafsharp{} to \salafsharp{}.  Before translating \lafsharp{} expressions to their DPS form, the expressions should be transformed into a normal form similar to Administrative-Normal Form~\cite{flanagan1993essence} (ANF). In this representation, 
+each subexpression of an application is either a constant value or a variable.
+This greatly simplifies the translation rules, specially the (D-App) rule.\footnote{
+In a true ANF representation, \textit{every} subexpression is a constant value or a variable,
+whereas in our case, we only care about the subexpressions of an application.
+Hence, our reprsentation is \textit{almost} ANF.
+}
+The representation of our working example in ANF is as follows:
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+f = \vabs{vec1 vec2}{}
+\\
+\tabt \vlet{tmp}{vectorAdd vec1 vec2}{}
+\\
+\tabt vectorNorm tmp
+\end{minipage}\hfill
+\end{figure}
+
+Figure~\ref{fig:salaf_trans} shows the translation from \lafsharp{} to \salafsharp{}, where $\stgtranss{\expr}{\stgvar}$ is the translation of a \lafsharp{} expression $\expr$ into a \salafsharp{} expression that stores $\expr$'s value in memory $\stgvar$. Rule (D-Let) is a good place to start.  It uses $\vallocterm$ to allocate enough space for the value of $\exprind{1}$, the right hand side of the let --- but how much space is that?  We use an auxiliary translation $\cardtrans{\exprind{1}}$ to translate $\exprind{1}$ to an expression that computes $\exprind{1}$'s \emph{shape} rather than its \emph{value}. The shape of an array expression specifies the cardinality of each dimension. We will discuss why we need shape (what goes wrong with just using bytes) and the shape translation in Section~\ref{sec:card}.  This shape is bound to $\cardvarpostfix{x}$, and used in the argument to $\vallocterm$.  The freshly-allocated storage $\stgvarind{2}$ is used as 
+the destination for translating the right hand side $\exprind{1}$, while the original destination $\stgvar$ is used as the destination for the body $\exprind{2}$. 
+
+In general, every variable $x$ in \lafsharp{} becomes a \emph{pair} of variables $\stgvarpostfix{x}$ (for $x$'s value) and $\cardvarpostfix{x}$ (for $x$'s shape) in \salafsharp{}.  You can see this same phenomenon in
+rules (D-App) and (D-Abs), which deal with lambdas and application: we turn each lambda-bound argument $x$ into \emph{two} arguments $\stgvarpostfix{x}$ and $\cardvarpostfix{x}$.
+
+Finally, in rule (D-App) the destination memory $\stgvar$ for the context is passed on to the function being called, as its additional first argument; and in (D-Abs) each lambda gets an additional first argument, which is used as the destination when translating the body of the lambda.  Figure~\ref{fig:salaf_trans} also gives a translation of an \lafsharp{} type $\typet$ to the corresponding \salafsharp{} type $\typetdps$.
+
+
+% As all expression are in ANF form, there is no need to apply the DPS transformation to the arguments of the application. 
+% Furthermore, the applied function does not require any memory (i.e. \stgempty{} should be passed as the output storage). This is because there is no heap memory needed for expressions of function type.
+
+% To prove this, we require presenting the following theorem.
+% \begin{theorems}
+% \label{theor2}
+% In the application expression \vapp{\expr}{\vmore{\expr}} of \lafsharp{}, the subexpression \expr{} is either an abstraction (\vabs{\text{x}}{\expr}) or a variable access (\text{x}).
+% \end{theorems}
+% \text{Proof.} Immediate from the fact that the expressions are in ANF representation.
+
+% Figure~\ref{fig:salaf_trans} shows the translation from \lafsharp{} to \salafsharp{}. There are two important points regarding the first rule for application.
+% First, this rule uses Theorem \ref{no_heap_scalar_thrm} and Theorem \ref{theor2} in order to use an empty memory (\stgempty) for the function that is applied. Second, this rule assumes some sort of normal form (i.e. ANF) in which the arguments are let bound. This simplifies the specification of transformation rule. The rule for the original form of application can be derived by combining this rule and the rule for let binding.
+
+% DPS version of $\lambda$ expressions involves adding two sets of arguments. First, a single argument representing the storage which stores the output result. Second, a list of arguments representing the shape information associated with the input arguments. The body of the $\lambda$ expression is converted to its DPS form using the output storage specified for this expression.
+
+For variables there are two cases. In rule (D-VarScalar) a scalar variable is translated to itself, while in rule (D-VarVector) we must copy the array into the designated result storage
+using the \cod{copy} function. The \cod{copy} function copies the array elements as well as the header information into the given storage. % First, a variable is a non-array type variable. In this case, the needed memory can be stack allocated and there is no heap memory needed for it. Second case is when the variable is of array type. As we would like to avoid aliasing the variables allocated in a particular scope, we copy that value into the given output storage.
+
+%All allocation/deallocation constructs are introduced in the transformation rule for let binding. This fact clearly shows how translating \lafsharp{} expressions into their ANF representation simplifies the DPS translation rules. After translating the shape of the binding expression, we allocate the number of bytes specifies by that shape expression. This allocated memory is used for the DPS translation of the binding expression. The DPS version of the body of let binding uses the output storage provided for the whole let expression.
+
+\input{card}
+
+\subsection{An example}
+
+Using this translation, the running example at the beginning of Section~\ref{sec:fsmooth_to_dps}
+is translated as follows:
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+% \vlet{\cardvarpostfix{add}}{\vabscard{\cardvarpostfix{a} \cardvarpostfix{b}}{\cardvector{\cardempty}{\cardvectorsize{\cardvarpostfix{a}}}}}{}
+% \\
+% \vallocterm{} (\cardwidth{\cardvarpostfix{add}}) (\vabs{\stgvarind{1}}{}
+% \\
+% \tabt \lett{} \stgvarpostfix{add} = \vabs{\stgvarind{2} \stgvarpostfix{a} \stgvarpostfix{b}}{}
+% \\
+% \tabt \tabt \vbuilds{\stgvarind{2}}{(\vlength{\stgvarpostfix{a}})}{\vabs{\stgvarind{3} \stgvarpostfix{i}}{\vget{\stgvarpostfix{a}}{\stgvarpostfix{i}} + \vget{\stgvarpostfix{b}}{\stgvarpostfix{i}}}}
+% \\
+f = \vabs{\stgvarind{0} \stgvarpostfix{vec1} \stgvarpostfix{vec2} \cardvarpostfix{vec1} \cardvarpostfix{vec2}}{}
+\\
+\tabt \vlet{\cardvarpostfix{tmp}}{\cardvarpostfix{vectorAdd} \cardvarpostfix{vec1} \cardvarpostfix{vec2}}{}
+\\
+\tabt \vallocterm{} (\cardwidth{\cardvarpostfix{tmp}}) (\vabs{\stgvarind{1}}{}
+\\
+\tabt \tabt \lett{} \stgvarpostfix{tmp} =
+\\
+\tabt \tabt \tabt 
+\stgvarpostfix{vectorAdd} \stgvarind{1} \stgvarpostfix{vec1} \stgvarpostfix{vec2}
+\\
+\tabt \tabt \tabt \tabt \tabt \cardvarpostfix{vec1} \cardvarpostfix{vec2} \code{in}
+\\
+\tabt \tabt 
+\stgvarpostfix{vectorNorm} \stgvarind{0} \stgvarpostfix{tmp} \cardvarpostfix{tmp}
+\\
+\tabt )
+\end{minipage}\hfill
+\end{figure}
+
+The shape translations of some \lafsharp{} functions from Figure~\ref{fig:smooth_lib} are as follows:
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+\lett{} \cardvarpostfix{vectorRange} = \vabscard{\cardvarpostfix{n}}{}
+% \cardvarpostfix{\code{build}} \cardvarpostfix{n} (\vabscard{\cardvarpostfix{i}}{\cardempty})
+\cardvector{\cardvarpostfix{n}}{\vapp{(\vabscard{\cardvarpostfix{i}}{\cardempty})}{ \cardempty}}
+\\
+\lett{} \cardvarpostfix{vectorMap2} = \vabscard{\cardvarpostfix{v1} \cardvarpostfix{v2} \cardvarpostfix{f}}{}
+\\
+\tabt 
+% \cardvarpostfix{\code{build}} (\cardvarpostfix{\code{length}}  \cardvarpostfix{v1}) (\vabscard{\cardvarpostfix{i}}{\cardempty})
+\cardvector{\cardvectorsize{\cardvarpostfix{v1}}}{\vapp{(\vabscard{\cardvarpostfix{i}}{\cardempty})}{ \cardempty}}
+\\
+\lett{} \cardvarpostfix{vectorAdd} = \vabscard{\cardvarpostfix{v1} \cardvarpostfix{v2}}{}
+\\
+\tabt
+\cardvarpostfix{vectorMap2} \cardvarpostfix{v1} \cardvarpostfix{v2}
+(\vabscard{\cardvarpostfix{a} \cardvarpostfix{b}}{\cardempty})
+\\
+\lett{} \cardvarpostfix{vectorNorm} = \vabscard{\cardvarpostfix{v}}{\cardempty}
+\end{minipage}\hfill
+\end{figure}
+
+\subsection{Simplification}
+\label{sec_simplification}
+\input{form/dps-fsmooth-rules}
+
+As is apparent from the examples in the previous section,
+code generated by the translation has many optimisation opportunities.
+This optimisation, or simplification, is applied in three stages: 1) \lafsharp{} expressions, 2) translated \shapefsmooth{} expressions, and 3) translated \salafsharp{} expressions. In the first stage, \lafsharp{} expressions are simplified to exploit fusion opportunities that remove intermediate arrays entirely. Furthermore, other compiler transformations such as constant folding, dead-code elimination, and common-subexpression elimination are also applied at this stage.
+
+In the second stage, the \shapefsmooth{} expressions are simplified. The simplification process for these expressions mainly involves partial evaluation. By inlining all shape functions, and performing $\beta$-reduction and constant folding, shapes can often be computed at compile time, or at least can be greatly simplified. For example, the shape translations presented in Section~\ref{sec:shapetrans} after performing simplification are as follows:
+
+
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+\lett{} \cardvarpostfix{vectorRange} = \vabscard{\cardvarpostfix{n}}{\cardvector{\cardvarpostfix{n}}{\cardempty}}
+\\
+\lett{} \cardvarpostfix{vectorMap2} = \vabscard{\cardvarpostfix{v1} \cardvarpostfix{v2} \cardvarpostfix{f}}{
+\cardvarpostfix{v1}
+}
+\\
+\lett{} \cardvarpostfix{vectorAdd} = \vabscard{\cardvarpostfix{v1} \cardvarpostfix{v2}}{
+\cardvarpostfix{v1}
+}
+\\
+\lett{} \cardvarpostfix{vectorNorm} = \vabscard{\cardvarpostfix{v}}{\cardempty}
+\end{minipage}\hfill
+\end{figure}
+
+The final stage involves both partially evaluating the shape expressions in \salafsharp{} and simplifying the storage accesses in the \salafsharp{} expressions. Figure~\ref{fig:salaf_eq} demonstrates simplification rules for storage accesses. The first two rules remove empty allocations 
+and merge consecutive allocations, respectively. The third rule removes a dead allocation, 
+i.e. an allocation for which its storage is never used. The fourth rule hoists an allocation outside 
+an abstraction whenever possible. The benefit of this rule is amplified more in the 
+case that the storage is allocated inside a loop (\vcbuild{} or \viteratek{}). Note that none of these
+transformation rules are available in \lafsharp{}, due to the lack of explicit storage facilities.
+
+After applying the presented simplification process, out working example is translated to the following program:
+\begin{figure}[H]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+f = \vabs{\stgvarind{0} \stgvarpostfix{vec1} \stgvarpostfix{vec2} \cardvarpostfix{vec1} \cardvarpostfix{vec2}}{}
+\\
+\tabt \vallocterm{} (\code{bytes} \cardvarpostfix{vec1}) (\vabs{\stgvarind{1}}{}
+\\
+\tabt \tabt \lett{} \stgvarpostfix{tmp} =
+\\
+\tabt \tabt \tabt 
+\stgvarpostfix{vectorAdd} \stgvarind{1} \stgvarpostfix{vec1} \stgvarpostfix{vec2} \\
+\tabt \tabt \tabt \tabt \tabt \cardvarpostfix{vec1} \cardvarpostfix{vec2} \code{in}
+\\
+\tabt \tabt 
+\stgvarpostfix{vectorNorm} \stgvarind{0} \stgvarpostfix{tmp} \cardvarpostfix{vec1}
+\\
+\tabt )
+\end{minipage}\hfill
+\end{figure}
+\noindent
+In this program, there is no shape computation at runtime. 
+
+
+% Next, we show that the presented DPS transformation preserves the semantic of the original program.
+
+% \subsection{Correctness}
+% In order to show the correctness of the translation process, we present the operational semantics of \lafsharp{} and \salafsharp{} in Figures~\ref{fig:laf_red} and~\ref{fig:salaf_red}. Based on the operation semantics of the two languages and the translation scheme from \lafsharp{} to \salafsharp{} the following theorem can be stated:
+% \begin{theorems}
+% \label{laissala}
+% If \expr{} is an expression with an array type (vector or matrix) in \lafsharp{}, then for all inputs and a large enough memory location \stgvar{}, the expression \stgtrans{\expr} will always produce a value which is equivalent to the result of evaluation of \expr{}.
+% \end{theorems}
+% % \textit{Proof.} Structural induction on the operation semantic rules of the \lafsharp{} expression with array type. For each of these rules, one should match the corresponding translation rule from Figure~\ref{fig:salaf_trans} and check the evaluation rule of the result \salafsharp{} expression from Figure~\ref{fig:salaf_red}.
+
+
+% \input{form/fsmooth-oper}
+% \input{form/dps-fsmooth-oper}
+
+\input{card-properties}

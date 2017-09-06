@@ -1,0 +1,77 @@
+\begin{figure}
+\centering
+\begin{tabular}{l c l r}
+% % (EQ-BuildsGets)&
+% \vgets{\stgvarind{2}}{(\vbuilds{\stgvarind{1}}{\exprind{0}}{\exprind{1}})}{\exprind{2}} 
+% &\evalsto&
+% \exprind{1}\ \stgvarind{2}\   \exprind{2} \\
+% % (EQ-BuildsLength)&
+% \vlength{(\vbuilds{\stgvar}{\exprind{0}}{\exprind{1}})} 
+% &\evalsto&
+% \exprind{0} \\
+% % (EQ-VectorsGets)&
+% \vgets{\stgvarind{2}}{\varrs{\stgvarind{1}}{\exprind{1}, ..., \exprind{\valcard}}}{\text{i}} 
+% &\evalsto&
+% \exprind{\text{i}} \ \stgvarind{2} \\
+% % (EQ-VectorsLength)&
+% \vlength{\varrs{\stgvar}{\exprind{1}, ..., \exprind{\valcard}}}
+% &\evalsto&
+% \valcard\\
+% (EQ-AllocEmpty)&
+\withstg{\cardempty}{\stgvar}{\exprdpsind{1}}
+&\evalsto&
+\exprdpsind{1}[\stgvar{} $\mapsto$ \stgempty]
+& Empty Allocation\\
+% (EQ-AllocMerge)&
+\vallocterm{} \exprdpsind{1} (\vabs{\stgvarind{1}}{}
+% \withstg{\valcardind{1}}{\stgvarind{1}}{\withstg{\valcardind{2}}{\stgvarind{2}}{\exprind{1}}}
+&\evalsto&
+\vallocterm{} (\exprdpsind{1} \vcaddcard{} \exprdpsind{2}) (\vabs{\stgvarind{1}}{}
+\\
+% & 
+\tab
+\vallocterm{} \exprdpsind{2} (\vabs{\stgvarind{2}}{}
+& & \tab 
+\vlet{\stgvarind{2}}{\stgoffset{} \stgvarind{1} \exprdpsind{1}}{}
+& Allocation Merging
+\\
+\tab \tab \exprdpsind{3} ))
+& & \tab
+\exprdpsind{3} )
+\\
+% \vgets{\stgvar{}}{\exprdpsind{0}}{\exprdpsind{1}}
+% &\evalsto&
+% \vgets{\stgempty}{\exprdpsind{0}}{\exprdpsind{1}}
+% \\
+\withstg{\exprdpsind{1}}{\stgvar}{\exprdpsind{2}}
+&\evalsto&
+\exprdpsind{2}
+\hfill \text{if $\stgvar{} \notin FV(\exprdpsind{2})$}
+& Dead Allocation
+\\
+$\lambda x. $
+\withstg{\exprdpsind{1}}{\stgvar}{\exprdpsind{2}}
+&\evalsto&
+\withstg{\exprdpsind{1}}{\stgvar}{$\lambda x. $ \exprdpsind{2}}
+\hfill \text{if $x \notin FV(\exprdpsind{1})$}
+& Allocation Hoisting
+\\
+\cardwidth{\cardempty} 
+& \evalsto &
+\cardempty 
+\\
+\cardwidth{\cardvector{\cardempty}{\cardempty}} 
+& \evalsto &
+\cardempty 
+\\
+\cardwidth{\cardvector{\valcard}{\cardempty}} 
+& \evalsto & 
+\vectorheader{\vectorelembytes{} \vcmulcard{} \valcard}
+\\
+\cardwidth{\cardvector{\valcard}{\exprshape}} 
+& \evalsto & 
+\vectorheader{(\cardwidth{\exprshape}) \vcmulcard{} \valcard}
+\end{tabular}
+\caption{Simplification rules of \salafsharp{}}
+\label{fig:salaf_eq}
+\end{figure}

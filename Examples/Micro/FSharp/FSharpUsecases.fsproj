@@ -114,9 +114,13 @@
     <Reference Include="DiffSharp">
       <HintPath>..\..\..\packages\DiffSharp.0.6.3\lib\DiffSharp.dll</HintPath>
     </Reference>
-    <Reference Include="FsAlg">
-      <HintPath>..\..\..\packages\FsAlg.0.5.13\lib\FsAlg.dll</HintPath>
-    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\FsAlg\src\FsAlg\FsAlg.fsproj">
+      <Name>FsAlg</Name>
+      <Project>{8715ea25-3b32-4cf5-a595-d4034442fe58}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

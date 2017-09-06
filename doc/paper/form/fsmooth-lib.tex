@@ -1,0 +1,102 @@
+\begin{figure}[t]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+\lett{} vectorRange = \vabs{n}{} 
+\vbuild{n}{(\vabs{i}{i})}
+\\
+\lett{} vectorMap = \vabs{v f}{} 
+\vbuild{(\vlength{v})}{(\vabs{i}{f \vget{v}{i}})}
+\\
+\lett{} vectorMap2 = \vabs{v1 v2 f}{}
+\\
+\tabt 
+\vbuild{(\vlength{v1})}{(\vabs{i}{f \vget{v1}{i} \vget{v2}{i}})}
+\\
+\lett{} vectorAdd = \vabs{v1 v2}{
+vectorMap2 v1 v2 (+)}
+\\
+\lett{} vectorEMul = \vabs{v1 v2}{
+vectorMap2 v1 v2 ($\times$)}
+\\
+\lett{} vectorSMul = \vabs{v s}{
+vectorMap v (\vabs{a}{a $\times$ s})}
+\\
+% \lett{} \vfoldk{} = \vabs{f z v}{}\\
+% \tabt
+% \viterate{(\vabs{acc idx}{f acc \vget{v}{idx}})}{z}{(\vlength{v})}
+% \\
+% \lett{} vectorSum = \vabs{v}{}
+% \vfold{(\vabs{sum a}{sum + a})}{0}{v}
+% \\
+\lett{} vectorSum = \vabs{v}{}\\
+\tabt \viterate{(\vabs{sum idx}{sum + \vget{v}{idx}})}{0}{(\vlength{v})}
+\\
+\lett{} vectorDot = \vabs{v1 v2}{}\\
+\tabt
+vectorSum (vectorEMul v1 v2)
+\\
+\lett{} vectorNorm = \vabs{v}{}
+sqrt (vectorDot v v)
+\\
+% \lett{} iterate = \vabs{v f n}{}
+% \vfold{f}{v}{(vectorRange n)}
+% \\
+\lett{} vectorSlice = \vabs{v s e}{} \\
+\tabt \vbuild{(e \vcsubcard{} s \vcaddcard{} 1)}{(\vabs{i}{\vget{v}{i + s}})}
+\\
+\lett{} matrixRows = \vabs{m}{} \vlength{m} 
+\\
+\lett{} matrixCols = \vabs{m}{} \vlength{\vget{m}{0}} 
+\\
+\lett{} matrixMap = \vabs{m f}{
+\vbuild{(\vlength{m})}{(\vabs{i}{f \vget{m}{i}})}}
+\\
+\lett{} matrixMap2 = \vabs{m1 m2 f}{}
+\\
+\tabt 
+\vbuild{(\vlength{m1})}{(\vabs{i}{f \vget{m1}{i} \vget{m2}{i}})}
+\\
+\lett{} matrixAdd = \vabs{m1 m2}{}
+\\
+\tabt
+matrixMap2 m1 m2 vectorAdd
+\\
+\lett{} matrixTranspose = \vabs{m}{} 
+\\
+\tabt
+\vbuild{(matrixCols m)}{}(\vabs{i}{}
+\\
+\tabt \tabt \vbuild{(matrixRows m)}{}(\vabs{j}{}
+\\
+\tabt \tabt \tabt \vget{\vget{m}{j}}{i}
+\\
+\tabt ) )
+\\
+\lett{} matrixMul = \vabs{m1 m2}{} 
+\\
+\tabt \lett{} m2T = matrixTranspose m2
+\\
+\tabt
+\vbuild{(matrixRows m1)}{}(\vabs{i}{}
+\\
+\tabt \tabt \vbuild{(matrixCols m2)}{}(\vabs{j}{}
+\\
+\tabt \tabt \tabt vectorDot (\vget{m1}{i}) (\vget{m2T}{j})
+\\
+\tabt ) )
+\\
+\lett{} vectorOutProd = \vabs{v1 v2}{}
+\\
+\tabt \lett{} m1 = \vbuild{1}{(\vabs{i}{v1})} %\code{in}
+\\
+% \tabt \lett{} m2T = \vbuild{\vlength{v2}}{(\vabs{i}{\varr{\vget{v2}{i}}})} \code{in}
+% \tabt \lett{} m2T = \vbuild{\vlength{v2}}{(\vabs{i}{\vbuild{1}{(\vabs{j}{\vget{v2}{i}})}})}
+\tabt \lett{} m2 = \vbuild{1}{(\vabs{i}{v2})} %\code{in}
+\\
+\tabt \lett{} m2T = matrixTranspose m2
+\\
+\tabt matrixMul m1 m2T
+\\
+\end{minipage}\hfill
+\caption{Several Linear Algebra and Matrix operations defined in \lafsharp{}.}
+\label{fig:smooth_lib}
+\end{figure}

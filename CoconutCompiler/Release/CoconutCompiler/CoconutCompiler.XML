@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>CoconutCompiler</name></assembly>
+<members>
+<member name="M:ruleengine.generalize(Microsoft.FSharp.Collections.FSharpMap{ruleengine.QExpr,Microsoft.FSharp.Quotations.FSharpVar},Microsoft.FSharp.Quotations.FSharpExpr)">
+<summary>
+ Replace the given expressions by the given variables (generalize the expressions)  
+</summary>
+</member>
+<member name="M:rules_old.letMerging_old(Microsoft.FSharp.Quotations.FSharpExpr)">
+<summary>
+ The composition of this rule, let introduction, and letFloatOutwards results in 
+ common-subexpression elimination (CSE).
+</summary>
+</member>
+<member name="P:rules.lambdaAppStoraged">
+<summary>
+ (\x1...xN e0) e1 ... eN ---&gt; (\s0 x1...xN copy s0 e0) e1 ... eN (let s1 = e0.length in s1))
+</summary>
+</member>
+<member name="P:rules.allocToAllocOnStack">
+<summary>
+ vectorAlloc size --&gt; vectorAllocOnStack size (if size is statically known is &lt; 10)
+</summary>
+</member>
+<member name="P:rules.newArrayLength">
+<summary>
+  [| e1; ...; eN |].length --&gt; N
+</summary>
+</member>
+<member name="P:rules.methodDefInliner">
+<summary>
+ This rule is composition of one application of methodDefToLambda and lambdaAppToLet followed
+ by several applications of letInliner.
+</summary>
+</member>
+<member name="P:rules.betaReduction">
+<summary>
+ This rule is composition of one application of lambdaAppToLet and several applications of letInliner
+</summary>
+</member>
+</members>
+</doc>

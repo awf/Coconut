@@ -1,0 +1,97 @@
+
+\begin{figure*}
+\centering
+\begin{subfigure}[t]{\columnwidth}
+
+\def\comment{\hfill -- }
+\begin{flushleft}
+\textbf{Value Syntax:}\\
+\end{flushleft}
+\centering
+\begin{tabular}{r c l}
+\valvar & ::= & $\lambda \vmore{\text{x}}. \expr$ \comment Abstraction\\
+& | & \text{n} \comment Scalar Value\\
+& | & \text{i} \comment Index Value\\
+& | & \valcard \comment Cardinality Value\\
+& | & \varr{\valvar, ..., \valvar} \comment Vector Value\\
+\end{tabular}
+\\
+\begin{flushleft}
+\textbf{Computation Rules:}\\
+\end{flushleft}
+\begin{tabular}{r c l}
+% (E-IfTrue) &
+\vifthenelse{true}{\exprind{2}}{\exprind{3}} 
+&\evalsto&
+\exprind{2} \\
+% (E-IfFalse) &
+\vifthenelse{false}{\exprind{2}}{\exprind{3}} 
+&\evalsto&
+\exprind{3} \\
+% (E-AppBeta) &
+$\lambda$ \vmore{\text{x}}. \exprind{1}\ \vmore{\text{v}} 
+&\evalsto&
+\exprind{1}[\vmore{\text{x}} $\mapsto$ \vmore{\text{v}}] \\
+% (E-LetBeta)& 
+\text{\lett{} x = \text{v} \inn{} \exprind{2}} 
+&\evalsto&
+\exprind{2}[\text{x} $\mapsto$ \text{v}]\\
+% (E-BuildEval)&
+\vbuild{\valcard}{\text{v}} 
+&\evalsto&
+\varr{\text{v}\ 1, ..., \text{v}\ \valcard} \\
+% (E-GetEval)&
+\vget{\varr{\valvarind{1}, ..., \valvarind{\valcard}}}{\text{i}} 
+&\evalsto&
+\valvarind{\text{i}} \\
+% (E-LengthEval)&
+\vlength{\varr{\valvarind{1}, ..., \valvarind{\valcard}}}
+&\evalsto&
+\valcard \\
+% (E-FoldStep)&
+$\forall \valcard > 0.$ \viterate{\valvarind{1}}{\valvarind{2}}{\valcard} 
+&\evalsto& \viterate{\valvarind{1}}{(\valvarind{1} \valvarind{2} (\valcard{} - 1))}{(\valcard{} - 1)}
+\\
+% (E-FoldLast)&
+\viterate{\valvarind{1}}{\valvarind{2}}{0} 
+&\evalsto&
+\valvarind{2}\\
+\end{tabular}
+% \subcaption{Computation Rules}
+
+\end{subfigure}
+\begin{subfigure}[t]{\columnwidth}
+% \newcommand{\comment}[1]{\hfill -- #1}
+\newcommand{\comment}[1]{}
+\begin{flushleft}
+\textbf{Evaluation Context:}\\
+\end{flushleft}
+\centering
+\begin{tabular}{r c l}
+\evalctx{} & ::= & \comment{Evaluation Context}\\
+& | & [] \comment{ Evaluation Hole}\\
+& | & \vifthenelse{\evalctx}{\exprind{2}}{\exprind{3}} \comment{If Condition} \\
+& | & \vapp{\evalctx}{$\vmore{\expr}$} \comment{Application Function}\\
+& | & \vapp{\valvarind{0}}{\valvarind{1} ... \valvarind{k-1} \evalctx{} \exprind{k+1} ... \exprind{N}} \comment{Application Arguments}\\
+& | & \vlet{\text{x}}{\evalctx}{\exprind{1}} \comment{Let Binding}\\
+& | & \varr{\valvarind{1}, ..., \valvarind{k-1}, \evalctx{}, \exprind{k+1}, ..., \exprind{N}} \comment{Vector Construct}\\
+% & | & \vbuild{\evalctx}{\exprind{1}} \comment{Build Size}\\
+% & | & \vbuild{\valvarind{0}}{\evalctx} \comment{Build Function}\\
+% & | & \vget{\evalctx}{\exprind{1}} \comment{Get Vector}\\
+% & | & \vget{\valvarind{0}}{\evalctx} \comment{Get Index}\\
+% & | & \vlength{\evalctx} \comment{Length}\\
+% & | & \vfold{\exprind{2}}{\exprind{3}}{\evalctx} \comment{Fold Range}\\
+% & | & \vfold{\evalctx}{\exprind{3}}{\valvarind{1}} \comment{Fold Init}\\
+% & | & \vfold{\valvarind{2}}{\evalctx}{\valvarind{1}} \comment{Fold Function}
+\\ \\
+& & %\hspace*{0.2cm}
+\infer{\expr{} \evalsto \expr{}\vprime}{\evalctx[\expr{}] \evalsto \evalctx[\expr{}\vprime]
+}
+\end{tabular}
+
+% \subcaption{Congruence Rules}
+\end{subfigure}
+
+\caption{Operational Semantics of \lafsharp{}}
+\label{fig:laf_red}
+\end{figure*}

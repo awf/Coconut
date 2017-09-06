@@ -1,0 +1,37 @@
+\begin{figure}[t]
+\hfill\begin{minipage}{.75\textwidth}\raggedright
+\lett{} radialDistort = \vabs{(radical: Vector) (proj: Vector)}{}\\
+\tabt \lett{} rsq = vectorNorm proj\\
+\tabt \lett{} L = 1.0 + radical.[0] * rsq + radical.[1] * rsq * rsq\\
+\tabt vectorSMul proj L\\
+\lett{} rodriguesRotate = \vabs{(rotation: Vector) (x: Vector)}{}\\
+\tabt \lett{} sqtheta = vectorNorm rotation\\
+\tabt \cod{if} sqtheta != 0. \cod{then}\\
+\tabt\tabt \lett{} theta = sqrt sqtheta\\
+\tabt\tabt \lett{} thetaInv = 1.0 / theta\\
+\tabt\tabt \lett{} w = vectorSMul rotation thetaInv\\
+\tabt\tabt \lett{} wCrossX = vectorCross w x\\
+\tabt\tabt \lett{} tmp = (vectorDot w x) * (1.0 - (cos theta))\\
+\tabt\tabt \lett{} v1 = vectorSMul x (cos theta)\\
+\tabt\tabt \lett{} v2 = vectorSMul wCrossX (sin theta) \\
+\tabt\tabt vectorAdd (vectorAdd v1 v2) (vectorSMul w tmp)\\
+\tabt \cod{else} \\
+\tabt\tabt vectorAdd x (vectorCross rotation x)\\
+\lett{} project = \vabs{(cam: Vector) (x: Vector)}{}\\
+\tabt\lett{} rotation = vectorSlice cam 0 2 \\
+\tabt\lett{} center = vectorSlice cam 3 5 \\
+\tabt\lett{} radical = vectorSlice cam 9 10 \\
+\tabt\lett{} Xcam =  \\
+\tabt\tabt rodriguesRotate rotation (vectorSub x center) \\
+\tabt\lett{} distorted =  \\
+\tabt\tabt radialDistort radical ( \\
+\tabt\tabt \tabt vectorSMul ( \\
+\tabt\tabt \tabt \tabt vectorSlice Xcam 0 1 \\
+\tabt\tabt \tabt ) (1.0/Xcam.[2])) \\
+\tabt vectorAdd (vectorSlice cam 7 8) ( \\
+\tabt\tabt vectorSMul distorted cam.[6] \\
+\tabt  )
+\end{minipage}\hfill
+\caption{Bundle Adjustment functions in \lafsharp{}.}
+\label{fig:ba_code}
+\end{figure}
