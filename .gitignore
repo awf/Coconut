@@ -23,6 +23,7 @@ ipch/
 *.exe
 *.obj
 .vs
+AutodiffTools.VC.VC.opendb
 
 # Build results
 **/Debug/
@@ -33,11 +34,5 @@ ipch/
 # Python
 __pycache__
 *.db
-AutodiffTools.VC.VC.opendb
-ba - Copy.txt
-ba.txt
-ba-old.txt
-ba.txt
 *.opendb
 coconut/FSharp.Core.dll
-
