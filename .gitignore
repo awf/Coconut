@@ -2,6 +2,7 @@
 *_J_*
 *_times_*
 estimates_backup.mat
+outputs/C/
 
 **/packages
 
@@ -18,19 +19,21 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+*.obj
+*.exe
+*.obj
 .vs
 
 # Build results
-/Debug/
-/Release/
+**/Debug/
+**/Release/
+**/bin
+**/obj
 
 # Python
 __pycache__
 *.db
 AutodiffTools.VC.VC.opendb
-*.exe
-coconut/sample.obj
-*.obj
 ba - Copy.txt
 ba.txt
 ba-old.txt
@@ -38,5 +41,3 @@ ba.txt
 *.opendb
 coconut/FSharp.Core.dll
 
-**/bin
-**/obj
