@@ -348,6 +348,16 @@ let rec FunctionType (inputs: Type list) (output: Type): Type =
   | x :: xs -> 
     typeof<_ -> _>.GetGenericTypeDefinition().MakeGenericType(x, FunctionType xs output)
 
+let rec (|Tuple2Type|_|) (t: Type): (Type * Type) option =
+  match t with 
+  | _ when t.Name = typeof<_ * _>.Name ->
+    let args = t.GenericTypeArguments
+    Some(args.[0], args.[1])
+  | _ -> None
+
+let rec Tuple2Type (tp1: Type) (tp2: Type): Type =
+  typeof<_ * _>.GetGenericTypeDefinition().MakeGenericType(tp1, tp2)
+
 open utils
 
 let EMPTY_STORAGE: Var = Var.Global("empty_storage", typeof<Storage>)

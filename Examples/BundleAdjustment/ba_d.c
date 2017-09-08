@@ -1,6 +1,6 @@
 #ifdef DPS
 #ifdef FUSED
-#include "../../outputs/C/usecases_ba_opt_storaged_d.h"
+#include "../../outputs/C/usecases_ba_opt_dps_d.h"
 #else
 #include "../../outputs/C/usecases_ba_storaged_d.h"
 #endif
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 #ifndef HOIST
     storage_t s = storage_alloc(256);
 #endif
-        total += TOP_LEVEL_linalg_sqnorm_dps(empty_storage, TOP_LEVEL_usecases_ba_project_dps(s, cam, X, 11, 3), 2);
+        total += TOP_LEVEL_linalg_sqnorm_dps(empty_storage, TOP_LEVEL_usecases_ba_project_dps_d(s, cam, X, cam, X, 11, 3, 11, 3), 2);
 #ifndef HOIST
     storage_free(s, 256);
 #endif

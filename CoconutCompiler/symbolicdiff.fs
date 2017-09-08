@@ -55,7 +55,7 @@ let compileD (opt: bool) (moduleName: string) (methodName: string): string =
      let expr = compiler.getMethodExpr moduleName methodName
      let e = expr |> transformDiff
      let optimized = if opt then e else e // TODO
-     let debug = true
+     let debug = false
      if(debug) then 
        printfn "/* Original code:\n%A\n*/\n" (prettyprint e)
        if(opt) then 
@@ -107,6 +107,13 @@ let test_symdiff () =
         |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
         |> trans [rules_old.dce_old]
         |> trans [rules_old.letCSE] 
+
+        //|> (fun p -> storagedtransformer.transformStoraged p transformer.EMPTY_STORAGE Map.empty)
+        //|> storagedtransformer.getAliasSimplify
+        //|> storagedtransformer.simplifyStoraged 
+        //|> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        //|> trans [rules_old.dce_old]
+
         //|> fscodegen.fscodegenTopLevel
         |> (fun e -> ccodegenTopLevel e finalName true)
     let res = 

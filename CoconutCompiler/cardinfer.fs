@@ -30,6 +30,8 @@ let rec cardTransformType (t: Type) =
     | _ when t = typeof<Vector>                             -> typeof<VectorShape>
     | _ when t = typeof<Matrix>                             -> typeof<MatrixShape>
     | _ when t = typeof<Matrix3D>                           -> typeof<Matrix3DShape>
+    | Tuple2Type(tp1, tp2)                                  -> 
+      Tuple2Type (cardTransformType tp1) (cardTransformType tp2)
     | FunctionType(inputs, output)                          -> 
       FunctionType (inputs |> List.map cardTransformType) (cardTransformType output)
     | _ -> failwithf "Does not know how to convert the cardinality type `%A`" t
@@ -73,6 +75,15 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     else 
       let ce1 = C es.[0]
       MakeCall <@@ nestedShape @@> ([ce1; N]) ([CT tp])
+  | Patterns.NewTuple([e0; e1]) ->
+    // TODO
+    Expr.NewTuple([C e0; C e1])
+  | DerivedPatterns.SpecificCall <@ fst @> (_, tps, [e]) ->
+    // TODO
+    MakeCall <@ fst @> [C e] (tps |> List.map CT)
+  | DerivedPatterns.SpecificCall <@ snd @> (_, tps, [e]) ->
+    // TODO
+    MakeCall <@ snd @> [C e] (tps |> List.map CT)
   | DerivedPatterns.SpecificCall <@ corelang.build @> (_, [t], [e0; e1]) ->
     let ce0 = C e0
     let ce1 = C e1
@@ -100,6 +111,8 @@ let rec inferCardinality (exp: Expr) (env: CardEnv): Expr =
     let rows_c = C rows
     <@@ nestedShape<VectorShape> (%%cols_c) (%%rows_c) @@>
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> exp
+  | Patterns.NewTuple([e0; e1]) ->
+    Expr.NewTuple([C e0; C e1])
   | DerivedPatterns.SpecificCall <@ (.+) @> (_, _, [e0; e1]) ->
     let ce0 = Expr.Cast<Cardinality>(C e0)
     let ce1 = Expr.Cast<Cardinality>(C e1)

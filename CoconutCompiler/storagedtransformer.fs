@@ -134,6 +134,7 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
     | _ when t = typeof<Cardinality>                        -> t
     | _ when t = typeof<Vector> || t = typeof<Matrix> || 
         t = typeof<Matrix3D>                                -> t
+    | Tuple2Type(tp1, tp2)                                  -> t
     | FunctionType(inputs, o)                               -> 
       let sinputs = inputs |> List.map ST
       let cinputs = inputs |> List.map CT
@@ -195,6 +196,15 @@ let rec transformStoraged (exp: Expr) (outputStorage: StorageOutput) (env: Map<V
   | Patterns.NewArray(tp, es)        -> 
     let ses = es |> List.map (fun x -> let s = newStgVar() in Expr.Lambda(s, S x s))
     NewArrayS outputStorage ses
+  | Patterns.NewTuple([e0; e1]) ->
+    // TODO
+    Expr.NewTuple([S e0 O; S e1 O])
+  | DerivedPatterns.SpecificCall <@ fst @> (_, tps, [e]) ->
+    // TODO
+    MakeCall <@ fst @> [S e O] tps
+  | DerivedPatterns.SpecificCall <@ snd @> (_, tps, [e]) ->
+    // TODO
+    MakeCall <@ snd @> [S e O] tps
   | ScalarOperation(name, args, _) ->
     let op = getMethodInfo exp
     Expr.Call(op, args |> List.map (fun x -> S x O))

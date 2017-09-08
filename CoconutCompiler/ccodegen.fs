@@ -119,7 +119,13 @@ let rec ccodegen (e:Expr): string =
   | Patterns.Call (None, op, _) when isMonomorphicMacro op -> 
     ccodegenMonomorphicMacro e
   | Patterns.NewTuple([e1; e2]) ->
-    sprintf "pair(%s, %s)" (ccodegen e1) (ccodegen e2)
+    let postfix = 
+      match e1.Type with
+      | x when x = typeof<Number> -> ""
+      | x when x = typeof<Vector> -> "_v_v"
+      | x when x = typeof<Matrix> -> "_m_m"
+      | x when x = typeof<Cardinality> -> "_c_c"
+    sprintf "pair%s(%s, %s)" postfix (ccodegen e1) (ccodegen e2)
   | DerivedPatterns.SpecificCall <@ fst @> (_, _, [e]) ->
     sprintf "%s._1" (ccodegen e)
   | DerivedPatterns.SpecificCall <@ snd @> (_, _, [e]) ->

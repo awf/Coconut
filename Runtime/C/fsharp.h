@@ -221,10 +221,21 @@ card_t width_matrix3d_shape_t(matrix3d_shape_t shape) {
   return width_matrix_shape_t(cols) * rows + MATRIX_HEADER_BYTES(rows);
 }
 
+card_t width_tuple_card_t_card_t(tuple_card_t_card_t shape) {
+  return 0;
+}
+
 // tuple related methods
 
 tuple_number_t_number_t pair(number_t _1, number_t _2) {
 	tuple_number_t_number_t res;
+	res._1 = _1;
+	res._2 = _2;
+	return res;
+}
+
+tuple_card_t_card_t pair_c_c(card_t _1, card_t _2) {
+	tuple_card_t_card_t res;
 	res._1 = _1;
 	res._2 = _2;
 	return res;
