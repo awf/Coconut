@@ -50,16 +50,18 @@ type Step =
 // In essence similar to a zipper data structure
 type SubExpr<'p> = 
   Expr (* Root *) * 
-  //Expr (* Sub Expression *) * 
+  Expr option (* Sub Expression *) * 
   'p (* Position Representation *)
 type ProgramState = SubExpr<RulePosition>
 type ProgramMoves = SubExpr<Move list>
 
 type ProgramExternalState = 
-  (* Set of Applicable Rules *)
+  (* Set of Applicable Rules to the Current Position *)
   RuleInfo Set * 
   (* Current Depth *)
-  int 
+  int *
+  (* Preorder repr of the Subexpr in the Current Position *)
+  string
 
 let positionToMoves (e: Expr) (pos: RulePosition): Move list =
   let rec rcr (exp: Expr) (rootPos: RulePosition): Move list = 
@@ -79,26 +81,89 @@ let positionToMoves (e: Expr) (pos: RulePosition): Move list =
           move :: (rcr exp childPos)
   rcr e zeroMetaData
 
-let stateToMoves ((e, pos): ProgramState): ProgramMoves = 
-  e, positionToMoves e pos
+let positionToSubexpr (e: Expr) (pos: RulePosition): Expr =
+  let rec rcr (exp: Expr) (rootPos: RulePosition): Expr = 
+    if rootPos = pos then
+      exp
+    else
+      match exp with 
+      | ExprShape.ShapeLambda(i, e) -> rcr e (rootPos + 1)
+      | ExprShape.ShapeVar(v)       -> failwithf "shouldn't reach to var %A" exp
+      | Patterns.Value(v, tp)       -> failwithf "shouldn't reach to value %A" exp
+      | ExprShape.ShapeCombination(o, exprs) ->
+          let exprsPos = ([rootPos + 1], exprs) ||> List.fold (fun list cur -> (List.head list) + exprSize cur :: list) |> List.rev
+          let idx = exprsPos |> List.findIndex (fun p -> p > pos)
+          let childPos = List.nth exprsPos (idx - 1)
+          let exp = List.nth exprs (idx - 1)
+          rcr exp childPos
+  rcr e zeroMetaData
 
-let stateToExternal (rs: Rule list) ((e, pos) as state: ProgramState) : ProgramExternalState = 
-  let rules = examineAllRulesPositioned rs e |> List.map (fun i -> snd (snd i)) |> Set.ofList
-  let currentDepth = snd (stateToMoves state) |> List.length
-  rules, currentDepth
+let subexpr ((e, s, pos) as state: ProgramState): Expr = 
+  match s with 
+  | Some(se) -> se
+  | None -> positionToSubexpr e pos
 
-let externalToString (rulesIndexMap: Map<RuleInfo, int>) (ext: ProgramExternalState): string = 
-  let extRulesIndex = (fst ext) |> Set.toList |> List.map (fun r -> (rulesIndexMap |> Map.find r).ToString())
-  sprintf ">> %s %d" (String.concat " " extRulesIndex) (snd ext)
+let stateToMoves ((e, s, pos) as state: ProgramState): ProgramMoves = 
+  e, s, positionToMoves e pos
+
+let exprPreorderString (exp: Expr): string = 
+  let rec rcr e = 
+    match e with 
+    | ExprShape.ShapeLambda(i, e) -> sprintf "LV%s" (rcr e)
+    | ExprShape.ShapeVar(v)       -> "V"
+    | Patterns.Value(v, tp)       -> 
+      if(tp = typeof<double>) then
+        let dv = unbox<double>(v)
+        if (dv = 0.) then
+          "0"
+        elif (dv = 1.) then
+          "1"
+        elif (dv = 2.) then
+          "2"
+        else 
+          "C"
+      else 
+        "C"
+    | Patterns.Call (None, op, elist) -> 
+      let opName = 
+        match op.Name with
+        | OperatorName opname -> opname.ToCharArray().[0]
+        | "GetArray"          -> 'G'
+        | _                   -> '_' 
+      let exprsStr = elist |> List.map rcr
+      sprintf "%c%s" opName (exprsStr |> String.concat "")
+    | ExprShape.ShapeCombination(o, exprs) ->
+        let exprsStr = exprs |> List.map rcr
+        sprintf "U%s" (exprsStr |> String.concat "")
+  rcr exp
+
+let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState = 
+  let se = subexpr state
+  let rules = examineAllRulesPositioned rs se |> List.filter (fun r -> (fst r) = 0) |> List.map (fun i -> snd (snd i)) |> Set.ofList
+  let (_, _, moves) = stateToMoves state
+  let currentDepth = moves |> List.length
+  let se = subexpr state
+  let str = exprPreorderString se
+  //let (e, _, _) = state
+  //let str = fscodegen.fscodegenTopLevel e
+  rules, currentDepth, str
+
+let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str) as ext: ProgramExternalState): string = 
+  let extRulesIndex = rs |> Set.toSeq |> Seq.map (fun r -> rulesIndexMap |> Map.find r) |> Seq.sort |> Seq.map(fun i -> i.ToString())
+  //let prefix = ">> "
+  let prefix = ""
+  sprintf "%s%s %d %s" prefix str depth (String.concat " " extRulesIndex) 
 
 let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string = 
   let (tp, desc) = 
     match step with
     | StepRule r -> "R", (rulesIndexMap |> Map.find (snd r)).ToString()
     | StepMove m -> "M", m.ToString()
-  sprintf "<< %s %s" tp desc
+  //let prefix = "<< "
+  let prefix = ""
+  sprintf "%s%s %s" prefix tp desc
 
-let movesToState ((e, moves): ProgramMoves): ProgramState = 
+let movesToState ((e, s, moves): ProgramMoves): ProgramState = 
   let rec rcr exp moves rootPos: int = 
     match moves with
     | [] -> rootPos
@@ -116,7 +181,7 @@ let movesToState ((e, moves): ProgramMoves): ProgramState =
         let childPos = List.nth sizes idx
         let childExp = List.nth exprs idx
         rcr childExp tl childPos
-  e, rcr e moves 0
+  e, s, rcr e moves 0
 
 let movesUpdate (p: Move list) (nextMove: Move): Move list =
   p |> List.iter (fun m -> assert(m <> Up))
@@ -125,14 +190,14 @@ let movesUpdate (p: Move list) (nextMove: Move): Move list =
   | _  -> p @ [nextMove]
 
 let stepProg (prog: ProgramState) (step: Step): ProgramState = 
-  let (e, pos) = prog
+  let (e, s, pos) = prog
   match step with 
   | StepMove(m) -> 
-    let (_, moves) = stateToMoves prog
+    let (_, _, moves) = stateToMoves prog
     let moves' = movesUpdate moves m
-    movesToState (e, moves')
+    movesToState (e, None, moves')
   | StepRule(r) ->
-    applyRuleAtParticularPosition e (pos, r), pos
+    applyRuleAtParticularPosition e (pos, r), None, pos
 
 let deltaPos (p1: Move list) (p2: Move list): Move list = 
   let rec commonPrefix l1 l2 = 
@@ -188,54 +253,43 @@ let appliedRulesToSteps (e: Expr) (appliedRules: MetaData list): Step list =
   steps
 
 
-let log_optimize (e: Expr) = 
-  let debug = true
-  let comp = ruleengine.compilePatternToRule
-  let rs = 
-    [//comp <@ letInliner @> ; 
-     rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
-     rules_old.letInlinerOnce_old; rules_old.dce_old;
-     methodDefToLambda ; lambdaAppToLet;
-     comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
-     rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old] @
-     algebraicRulesScalar
+let log_optimize (e: Expr) (rs: List<Rule>) = 
+  let debug = false
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
-  let t = tic()
+  //let t = tic()
   let ((best, appliedRules), _) = 
-    beamSearch<Expr * MetaData list> 30 1 reporter (e, []) (
+    beamSearch<Expr * MetaData list> 30 1 (fun x y -> alphaEquals (fst x) (fst y) (Map.empty)) reporter (e, []) (
       fun (e, historyRules) -> 
         let applicableRules = examineAllRulesPositioned rs e
         applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
       ) (fun (e, _) -> fopCost e)
-  toc t "beam searching"
+  //toc t "beam searching"
 
   let steps = 
     appliedRulesToSteps e (appliedRules |> List.rev)
  
   let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x) |> Map.ofList
   //printfn ">> %A" (stateToExternal rs (e, 0))
-  printfn "%s" (externalToString rulesIndexMap (stateToExternal rs (e, 0)))
+  printf "%s\t" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0)))
   let finalProg = 
-    ((e, 0), steps)
-      ||> List.fold (fun (exp, pos) step ->
-            let newState = stepProg (exp, pos) step
+    ((e, Some(e), 0), steps)
+      ||> List.fold (fun (exp, sexp, pos) step ->
+            let newState = stepProg (exp, sexp, pos) step
             let ext = stateToExternal rs newState
             //printfn "<< %A" step
             //printfn ">> %A" ext
             printfn "%s" (stepToString rulesIndexMap step)
-            printfn "%s" (externalToString rulesIndexMap ext)
+            printf "%s\t" (externalToString rulesIndexMap ext)
             newState
           )  
-
-  printfn "final exp: %s" (ccodegen.prettyprint (fst finalProg))
-
+  //let (finalProgRoot, _, _) = finalProg
+  //printfn "final exp: %s" (ccodegen.prettyprint finalProgRoot)
+  printfn "****"
   best
 
 [<Test>]
 let testPositionToMoves () =
-  let trainingModule = "training_programs"
-  let methods = compiler.getMethodsOfModule trainingModule
   let exp1 = 
     <@ 
       fun a -> 
@@ -260,7 +314,21 @@ let testPositionToMoves () =
     @>
   Assert.AreEqual(positionToMoves exp2 0, [])
 
-let training_generator(): unit = 
+[<Test>]
+let testPositionToSubexpr () =
+  let exp1 = 
+    <@ 
+      fun a -> 
+        42. + 43.
+    @>
+  let areEqual e1 e2 =
+    Assert.AreEqual(e1, e2, sprintf "Expected: %A\nActual: %A" e2 e1)
+  areEqual (positionToSubexpr exp1 0) exp1
+  areEqual (positionToSubexpr exp1 1) <@ 42. + 43. @>
+  areEqual (positionToSubexpr exp1 2) <@ 42. @>
+  areEqual (positionToSubexpr exp1 3) <@ 43. @>
+
+let training_generator_k (init: unit -> unit) (cont1: int -> Expr -> unit) (cont2: int -> Expr -> unit): unit = 
   let trainingBase = "training_base"
   let methodsName = compiler.getMethodsOfModule trainingBase
   let methods = methodsName |> List.map (compiler.getMethodExpr trainingBase)
@@ -279,17 +347,84 @@ let training_generator(): unit =
            | _ -> failwithf ""
         )
     )
+  init()
   methodsScalarOne' |>
     List.iteri (fun i m ->
-      printfn "let scalar_1_%d: Number -> Number = %s" i (fscodegen.fscodegenTopLevel m)
+      cont1 i m
     )
-  //printfn "methods: %A" (methodsScalarOne' |> List.map fscodegen.fscodegenTopLevel)
+  let methodsScalaOneAll = (methodsScalarOne, methodsScalarOne') ||> List.append
+  let methodsScalarTwo' = 
+    methodsScalarTwo |>
+    List.collect (fun met ->
+      methodsScalaOneAll |>
+      List.collect (fun m1 ->
+        methodsScalaOneAll |>
+        List.map (fun m2 ->
+          match (met, m1, m2) with
+          | LambdaN([xt1; xt2], bodyt), Patterns.Lambda(x1, body1), Patterns.Lambda(x2, body2) -> 
+            let body1' = captureAvoidingSubstitution body1 [x1, Expr.Var(xt1)]
+            let body2' = captureAvoidingSubstitution body2 [x2, Expr.Var(xt2)]
+            LambdaN([xt1; xt2], captureAvoidingSubstitution bodyt [xt1, body1'; xt2, body2'])
+          | _ -> failwithf ""
+        )
+      )
+    )
+  methodsScalarTwo' |>
+    List.iteri (fun i m ->
+      cont2 i m
+    )
+
+let training_generator(): unit = 
+  let outputFile = "../../../outputs/training/training_generated.fs"
+  let init = fun () ->
+    System.IO.File.WriteAllText(outputFile, """[<ReflectedDefinition>]
+module training_generated
+
+open types
+open corelang
+open cardinality
+""")
+  let cont1 = fun i m -> (
+      let str = sprintf "let scalar_1_%d: Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
+      printfn "%s" str
+      System.IO.File.AppendAllText(outputFile, str)
+    )
+  let cont2 = fun i m -> (
+      let str = sprintf "let scalar_2_%d: Number -> Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
+      System.IO.File.AppendAllText(outputFile, str)
+    )
+  training_generator_k init cont1 cont2
+
+  
   
 
 let main_ml_engine(): unit = 
   //compiler.compileModule "linalg" [] false false
   //let trainingModule = "training_programs"
-  //let methods = compiler.getMethodsOfModule trainingModule
-  //let opts = methods |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m))
-  training_generator()
+  //let trainingModule = "training_base"
+  let trainingModule = "training_generated"
+  let methods = compiler.getMethodsOfModule trainingModule
+  let comp = ruleengine.compilePatternToRule
+  let rs = 
+    [//comp <@ letInliner @> ; 
+     rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
+     rules_old.letInlinerOnce_old; rules_old.dce_old;
+     methodDefToLambda ; lambdaAppToLet;
+     constantFold;
+     comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
+     rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old] @
+     algebraicRulesScalar
+  let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
+  printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
+  //let opts = 
+  //  methods 
+  //    |> Seq.take 3 
+  //    |> Seq.skip 2 
+  //    |> List.ofSeq
+  //    |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
+  let init = fun () -> printfn "STARTED!"
+  let cont1 = fun i m -> (log_optimize m rs; ())
+  let cont2 = fun i m -> (log_optimize m rs; ())
+  training_generator_k init cont1 cont2
+  //training_generator()
   ()

@@ -127,6 +127,22 @@ let letFloatOutwards_exp = <@
 
 let allocToCPS: Rule = compilePatternWithNameToRule allocToCPS_exp "allocToCPS"
 
+let comAddConst: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ (+) @> (_, [t1; t2; tr], [e1; Patterns.Value(v2, _) as e2]) -> 
+        [transformer.MakeCall <@ (+) @> [e2; e1] [t2; t1; tr]]
+    | _ -> []
+  ), "comAddConst"
+
+let comMultConst: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall <@ (*) @> (_, [t1; t2; tr], [e1; Patterns.Value(v2, _) as e2]) -> 
+        [transformer.MakeCall <@ (*) @> [e2; e1] [t2; t1; tr]]
+    | _ -> []
+  ), "comMultConst"
+
 let algebraicRulesScalar = 
   [ compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
   compilePatternToRule <@ distrMult @>; 
@@ -137,7 +153,9 @@ let algebraicRulesScalar =
   compilePatternToRule <@ subSame @> ; compilePatternToRule <@ multDivide @>; 
   compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
   compilePatternToRule <@ assocSubSub @>;
-  compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @> ]
+  compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @>;
+  //comAddConst; comMultConst
+  ]
 
 //let algebraicRulesVector_exp = [ <@ vectorBuildGet_exp @>; <@ vectorSliceToBuild_exp @>]
 
