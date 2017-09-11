@@ -12,7 +12,7 @@ cd BundleAdjustment;
 echo "Compiling BA ..."
 clang ba_d.c -O3 -DBUMP -o ba_d.exe
 clang ba_d.c -O3 -DFUSED -DBUMP -o ba_opt_d.exe
-clang ba_d.c -O3 -DFUSED -DBUMP -DDPS -o ba_opt_dps_d.exe
+clang ba_d.c -O3 -DFUSED -DBUMP -DDPS -DHOIST -o ba_opt_dps_d.exe
 cd ../Micro;
 echo "Compiling Micro Benchmarks ..."
 echo "Compiling dot product ..."

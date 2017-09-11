@@ -44,7 +44,7 @@ let letNormalization_old =
     match e with 
     | Patterns.Let(v, Patterns.Var(x), e1) -> 
       [e1.Substitute(fun v2 -> if v2 = v then Some(Expr.Var(x)) else None)]
-    | Patterns.Let(v, (Patterns.Value(_, tp) as vExpr), e1) -> 
+    | Patterns.Let(v, ((Patterns.Value(_, _) | CardConstructor(_)) as vExpr), e1) -> 
       [e1.Substitute(fun v2 -> if v2 = v then Some(vExpr) else None)]
     | Patterns.Let(v, (Patterns.Lambda(_, _) as vExpr), e1) -> 
       [e1.Substitute(fun v2 -> if v2 = v then Some(vExpr) else None)]

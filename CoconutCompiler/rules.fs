@@ -387,3 +387,20 @@ let foldPartiallyDCE: Rule =
       | _ -> []
     | _ -> []
   ), "foldPartiallyDCE"
+
+let foldUnroll: Rule = 
+  (fun (e: Expr) ->
+    match e with
+    | DerivedPatterns.SpecificCall 
+       <@ corelang.foldOnRange @> 
+        (_, _, 
+         [f; z; 
+          (Patterns.Value(_) | CardConstructor(_)) as st; 
+          (Patterns.Value(_) | CardConstructor(_)) as en]) ->
+      let stv = unbox<Cardinality>(st.EvaluateUntyped())
+      let env = unbox<Cardinality>(en.EvaluateUntyped())
+      let inliner f args = (fst betaReduction) (AppN(f, args)) |> List.head
+      let finalRes = foldOnRange (fun c i -> inliner f [c; Expr.Value(i)]) z stv env
+      [finalRes]
+    | _ -> []
+  ), "foldUnroll"

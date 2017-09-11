@@ -7,9 +7,9 @@ open phase_based_optimizer
 open types
 open ccodegen
 
-let symdiff (exp: Expr): Expr = 
+let symdiff (rs: ruleengine.Rule list) (exp: Expr): Expr = 
   exp
-    |> trans [ruleengine.compilePatternToRule <@ add_d @>;
+    |> trans (rs @ [ruleengine.compilePatternToRule <@ add_d @>;
               ruleengine.compilePatternToRule <@ sub_d @>;
               ruleengine.compilePatternToRule <@ mult_d @>; 
               ruleengine.compilePatternToRule <@ div_d @>; 
@@ -42,18 +42,18 @@ let symdiff (exp: Expr): Expr =
               lambda_d;
               mio_d;
               //rules.lambdaAppToLet;
-              ] 
+              ])
 
-let transformDiff (e: Expr): Expr = 
+let transformDiff (rs: ruleengine.Rule list) (e: Expr): Expr = 
   let (inputs, body) = match e with transformer.TopLevelFunction (i, b) -> (i, b)
   let inputsd = inputs |> List.map MakeDVar
   let diffBody = Diff body (Expr.Var(new Var("dx", typeof<Number>)))
-  transformer.LambdaN(List.append inputs inputsd, diffBody |> symdiff)
+  transformer.LambdaN(List.append inputs inputsd, diffBody |> symdiff rs)
 
 let compileD (opt: bool) (moduleName: string) (methodName: string): string = 
      printf "compile [d]%s.%s: " moduleName methodName
      let expr = compiler.getMethodExpr moduleName methodName
-     let e = expr |> transformDiff
+     let e = expr |> transformDiff []
      let optimized = if opt then e else e // TODO
      let debug = false
      if(debug) then 
@@ -97,9 +97,10 @@ let test_symdiff () =
     let optimizeD moduleName methodName finalName = 
       compiler.getMethodExpr moduleName methodName 
         |> fusion_optimize 
+        |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old; rules.foldUnroll]
         //|> ctransformer.anfConversion false 
         |> ctransformer.fullAnfConversion
-        |> transformDiff 
+        |> transformDiff [letIf_d]
         |> fusion_optimize 
         |> trans [rules.foldPartiallyDCE] 
         //|> fscodegen.fspreprocess 
