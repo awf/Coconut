@@ -122,6 +122,6 @@ let main argv =
     // test_ruleengine ()
     // test_feature ()
     // test_card()
-    symbolicdiff.test_symdiff()
-    //ml_engine.main_ml_engine()
+    //symbolicdiff.test_symdiff()
+    ml_engine.main_ml_engine()
     0

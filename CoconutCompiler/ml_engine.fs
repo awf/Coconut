@@ -253,7 +253,7 @@ let appliedRulesToSteps (e: Expr) (appliedRules: MetaData list): Step list =
   steps
 
 
-let log_optimize (e: Expr) (rs: List<Rule>) = 
+let log_optimize (e: Expr) (rs: List<Rule>) (logger: string -> unit)= 
   let debug = false
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
@@ -271,7 +271,7 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
  
   let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x) |> Map.ofList
   //printfn ">> %A" (stateToExternal rs (e, 0))
-  printf "%s\t" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0)))
+  sprintf "%s\t" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0))) |> logger
   let finalProg = 
     ((e, Some(e), 0), steps)
       ||> List.fold (fun (exp, sexp, pos) step ->
@@ -279,13 +279,13 @@ let log_optimize (e: Expr) (rs: List<Rule>) =
             let ext = stateToExternal rs newState
             //printfn "<< %A" step
             //printfn ">> %A" ext
-            printfn "%s" (stepToString rulesIndexMap step)
-            printf "%s\t" (externalToString rulesIndexMap ext)
+            sprintf "%s\n" (stepToString rulesIndexMap step) |> logger
+            sprintf "%s\t" (externalToString rulesIndexMap ext) |> logger
             newState
           )  
   //let (finalProgRoot, _, _) = finalProg
   //printfn "final exp: %s" (ccodegen.prettyprint finalProgRoot)
-  printfn "****"
+  sprintf "****\n" |> logger
   best
 
 [<Test>]
@@ -423,8 +423,35 @@ let main_ml_engine(): unit =
   //    |> List.ofSeq
   //    |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
   let init = fun () -> printfn "STARTED!"
-  let cont1 = fun i m -> (log_optimize m rs; ())
-  let cont2 = fun i m -> (log_optimize m rs; ())
+  //let cont1 = fun i m -> (log_optimize m rs |> ignore; ())
+  //let cont2 = fun i m -> (log_optimize m rs |> ignore; ())
+  let tinyProgs = 342
+  let numberBigProgs = (tinyProgs * tinyProgs) * 4
+  let allBigProgs = Array.create numberBigProgs (Expr.Value(true))
+  let cont1 = fun i m -> ()
+  let cont2 = fun i m -> (allBigProgs.[i] <- m)
+  let t = tic()
   training_generator_k init cont1 cont2
+  toc t (sprintf "storing generated programs in memory")
+  let numberTrnProgs = 10000
+  let numberTstProgs = 250
+  let rnd = System.Random 100
+  let folder = "../../../outputs/training"
+  let datePostfix = System.DateTime.Now.ToString "yy-MM-dd-hh-mm"
+  let trainingFile = sprintf "%s/fsm-rzm-%s.txt" folder datePostfix
+  let testFile = sprintf "%s/fsm-rzm-test-%s.txt" folder datePostfix
+  let generateProgs num file = 
+    for i = 1 to num do
+      let index = rnd.Next numberBigProgs
+      let e = allBigProgs.[index]
+      log_optimize e rs (fun s -> System.IO.File.AppendAllText(file, s)) |> ignore
+  let t = tic()
+  printfn "Logging test data in %s" testFile
+  generateProgs numberTstProgs testFile
+  toc t "logging testing"
+  let t = tic()
+  printfn "Logging training data in %s" trainingFile
+  generateProgs numberTrnProgs trainingFile
+  toc t "logging training"
   //training_generator()
   ()
