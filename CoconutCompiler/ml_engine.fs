@@ -61,6 +61,8 @@ type ProgramExternalState =
   (* Current Depth *)
   int *
   (* Preorder repr of the Subexpr in the Current Position *)
+  string *
+  (* Preorder repr of the context *)
   string
 
 let positionToMoves (e: Expr) (pos: RulePosition): Move list =
@@ -106,6 +108,19 @@ let subexpr ((e, s, pos) as state: ProgramState): Expr =
 let stateToMoves ((e, s, pos) as state: ProgramState): ProgramMoves = 
   e, s, positionToMoves e pos
 
+let exprLabel (exp: Expr): string = 
+   match exp with 
+   | Patterns.Call (None, op, elist) -> 
+     let opName = 
+       match op.Name with
+       | OperatorName opname -> opname.ToCharArray().[0]
+       | "GetArray"          -> 'G'
+       | _                   -> '_' 
+     sprintf "%c" opName 
+   | ExprShape.ShapeCombination(o, exprs) ->
+     "?"
+   | _ -> failwithf "Cannot compute label for %A" exp
+
 let exprPreorderString (exp: Expr): string = 
   let rec rcr e = 
     match e with 
@@ -124,18 +139,36 @@ let exprPreorderString (exp: Expr): string =
           "C"
       else 
         "C"
-    | Patterns.Call (None, op, elist) -> 
-      let opName = 
-        match op.Name with
-        | OperatorName opname -> opname.ToCharArray().[0]
-        | "GetArray"          -> 'G'
-        | _                   -> '_' 
-      let exprsStr = elist |> List.map rcr
-      sprintf "%c%s" opName (exprsStr |> String.concat "")
     | ExprShape.ShapeCombination(o, exprs) ->
-        let exprsStr = exprs |> List.map rcr
-        sprintf "U%s" (exprsStr |> String.concat "")
+      let exprsStr = exprs |> List.map rcr
+      let label = exprLabel e
+      sprintf "%s%s" label (exprsStr |> String.concat "")
   rcr exp
+
+let stateContextToString ((e, _, pos): ProgramState): string =
+  let rec rcr (exp: Expr) (rootPos: RulePosition): string = 
+    if rootPos = pos then
+      ""
+    else
+      match exp with 
+      | ExprShape.ShapeLambda(i, e) -> sprintf "L%sV%s" (Down2.ToString()) (rcr e (rootPos + 1))
+      | ExprShape.ShapeVar(v)       -> if rootPos + 1 = pos then "" else failwithf "shouldn't reach to var %A" exp
+      | Patterns.Value(v, tp)       -> if rootPos + 1 = pos then "" else failwithf "shouldn't reach to value %A" exp
+      | ExprShape.ShapeCombination(o, exprs) ->
+          let exprsPos = ([rootPos + 1], exprs) ||> List.fold (fun list cur -> (List.head list) + exprSize cur :: list) |> List.rev
+          let idx = exprsPos |> List.findIndex (fun p -> p > pos)
+          let childPos = List.nth exprsPos (idx - 1)
+          //let exp = List.nth exprs (idx - 1)
+          //let expsWithOutHole = 
+          //  exprs |> 
+          //  List.mapi (fun i e -> (i, e)) |> 
+          //  List.filter (fun (i, e) -> i <> idx - 1) |>
+          //  List.map (fun (i, e) -> e)
+          let exprsStr = exprs |> List.mapi (fun i e -> if (i = idx - 1) then rcr e childPos else exprPreorderString e)
+          let move = downNth (idx - 1)
+          let label = exprLabel exp
+          sprintf "%s%s%s" label (move.ToString()) (exprsStr |> String.concat "")
+  rcr e zeroMetaData
 
 let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState = 
   let se = subexpr state
@@ -144,15 +177,18 @@ let stateToExternal (rs: Rule list) (state: ProgramState) : ProgramExternalState
   let currentDepth = moves |> List.length
   let se = subexpr state
   let str = exprPreorderString se
-  //let (e, _, _) = state
+  //let (e, _, p) = state
   //let str = fscodegen.fscodegenTopLevel e
-  rules, currentDepth, str
+  let contextString = stateContextToString state
+  rules, currentDepth, str, contextString
 
-let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str) as ext: ProgramExternalState): string = 
+let externalToString (rulesIndexMap: Map<RuleInfo, int>) ((rs, depth, str, contextStr) as ext: ProgramExternalState): string = 
   let extRulesIndex = rs |> Set.toSeq |> Seq.map (fun r -> rulesIndexMap |> Map.find r) |> Seq.sort |> Seq.map(fun i -> i.ToString())
   //let prefix = ">> "
   let prefix = ""
-  sprintf "%s%s %d %s" prefix str depth (String.concat " " extRulesIndex) 
+  //let contextString = sprintf "%d" depth
+  let contextString = contextStr
+  sprintf "%s%s %s %s" prefix str contextString (String.concat " " extRulesIndex) 
 
 let stepToString (rulesIndexMap: Map<RuleInfo, int>) (step: Step): string = 
   let (tp, desc) = 
@@ -328,6 +364,21 @@ let testPositionToSubexpr () =
   areEqual (positionToSubexpr exp1 2) <@ 42. @>
   areEqual (positionToSubexpr exp1 3) <@ 43. @>
 
+[<Test>]
+let testContextToString () =
+  let exp1 = 
+    <@ 
+      fun a -> 
+        42. + 43.
+    @>
+  let areEqual e1 e2 =
+    Assert.AreEqual(e1, e2, sprintf "Expected: %A\nActual: %A" e2 e1)
+  let contextToString e p = stateContextToString (e, None, p)
+  areEqual (contextToString exp1 0) ""
+  areEqual (contextToString exp1 1) "LD2V"
+  areEqual (contextToString exp1 2) "LD2V+D1C"
+  areEqual (contextToString exp1 3) "LD2V+D2C"
+
 let training_generator_k (init: unit -> unit) (cont1: int -> Expr -> unit) (cont2: int -> Expr -> unit): unit = 
   let trainingBase = "training_base"
   let methodsName = compiler.getMethodsOfModule trainingBase
@@ -435,6 +486,8 @@ let main_ml_engine(): unit =
   toc t (sprintf "storing generated programs in memory")
   let numberTrnProgs = 10000
   let numberTstProgs = 250
+  //let numberTrnProgs = 10
+  //let numberTstProgs = 2
   let rnd = System.Random 100
   let folder = "../../../outputs/training"
   let datePostfix = System.DateTime.Now.ToString "yy-MM-dd-hh-mm"
