@@ -54,6 +54,36 @@ let bfs<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e
   reporter.finish allNodes best
   best
 
+type HashSet<'a> = System.Collections.Generic.HashSet<'a>
+
+(* A fast version of the Breadth First Search Algorithm *)
+let fastBfs<'a> (levels: int) (same: 'a -> 'a -> bool) (hash: 'a -> int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e: 'a) (children: 'a -> 'a list) (costModel: 'a -> double) -> 
+  let comparer = 
+    { 
+      new System.Collections.Generic.IEqualityComparer<'a> with 
+        member x.Equals (a: 'a, b: 'a) = same a b
+        member x.GetHashCode (a: 'a): int = hash a
+    }
+  let allNodes = new HashSet<'a>(comparer)
+  let currentLevelNodes = new HashSet<'a>(comparer)
+  let nextLevelNodes = new HashSet<'a>(comparer)
+  allNodes.Add(e) |> ignore
+  currentLevelNodes.Add(e) |> ignore
+  for i = 1 to levels do 
+    nextLevelNodes.Clear() |> ignore
+    for n in currentLevelNodes do
+        for c in children n do 
+          if(not (allNodes.Contains(c))) then
+            allNodes.Add(c) |> ignore
+            nextLevelNodes.Add(c) |> ignore
+    currentLevelNodes.Clear()
+    currentLevelNodes.UnionWith(nextLevelNodes)
+
+  let best = allNodes |> Seq.minBy costModel
+
+  best, costModel best
+
+
 (* Beam Search Algorithm *)
 let beamSearch<'a> (levels: int) (width: int) (same: 'a -> 'a -> bool): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e: 'a) (children: 'a -> 'a List) (costModel: 'a -> double) -> 
   reporter.init (sprintf "Beam Search started with %d levels and width %d" levels width)
