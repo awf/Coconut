@@ -62,3 +62,9 @@ let vectorSMult1 (v1: Vector): Vector =
 
 //let matrixMult3 (m1: Matrix) (m2: Matrix) (m3: Matrix): Matrix = 
 //  matrixMult m1 (matrixMult m2 m3)
+
+let scalarHard1 (a: Number): Number = 
+  (1. / a) / (1. + 1. / a)
+
+let scalarHard2 (a: Number): Number =
+  (1. / a + 1.) * a

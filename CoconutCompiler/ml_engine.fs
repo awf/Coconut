@@ -379,6 +379,31 @@ let testContextToString () =
   areEqual (contextToString exp1 2) "LD2V+D1C"
   areEqual (contextToString exp1 3) "LD2V+D2C"
 
+[<Test>]
+let testSearchOnHardProgram () = 
+  let debug = true
+  let debugger = Logging.consoleLogger debug
+  let reporter = Logging.completeReporter (ccodegen.prettyprint) debugger
+  let comp = ruleengine.compilePatternToRule
+  let rs = [comp <@ comAdd @>; comp <@ comMult @>] @ algebraicRulesScalar
+  let optim levels e = 
+    let t = tic()
+    //let algo levels = bfs levels
+    let algo levels = 
+      let exprHash e = (exprPreorderString e).GetHashCode()
+      //let exprHash e = e.GetHashCode()
+      fastBfs levels (fun a b -> alphaEquals a b Map.empty) exprHash
+    let o = algo levels reporter e ((optimizer.examineAllRules rs) ) (cost.fopCost) |> fst
+    toc t "BFS"
+    o
+  let areEqual e1 e2 =
+    let isEqual = transformer.alphaEquals e1 e2 Map.empty
+    Assert.IsTrue(isEqual, sprintf "Expected: %A\nActual: %A" e2 e1)
+  let exp1 = <@ fun a -> (1. / a) / (1. + 1. / a) @>
+  areEqual (optim 5 exp1) <@@ fun a -> 1. / (a + 1.) @@>
+  let exp2 = <@ fun a -> (1. / a + 1.) * a @>
+  areEqual (optim 5 exp2) <@@ fun a -> 1. + a @@>
+
 let training_generator_k (init: unit -> unit) (cont1: int -> Expr -> unit) (cont2: int -> Expr -> unit): unit = 
   let trainingBase = "training_base"
   let methodsName = compiler.getMethodsOfModule trainingBase
@@ -445,8 +470,6 @@ open cardinality
       System.IO.File.AppendAllText(outputFile, str)
     )
   training_generator_k init cont1 cont2
-
-  
   
 
 let main_ml_engine(): unit = 
@@ -458,24 +481,18 @@ let main_ml_engine(): unit =
   let comp = ruleengine.compilePatternToRule
   let rs = 
     [//comp <@ letInliner @> ; 
-     rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
-     rules_old.letInlinerOnce_old; rules_old.dce_old;
-     methodDefToLambda ; lambdaAppToLet;
+     //rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
+     //rules_old.letInlinerOnce_old; rules_old.dce_old;
+     //methodDefToLambda ; lambdaAppToLet;
      constantFold;
-     comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
-     rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old] @
+     //comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
+     //rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old
+     comAddConst; comMultConst
+     ] @
      algebraicRulesScalar
   let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
   printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
-  //let opts = 
-  //  methods 
-  //    |> Seq.take 3 
-  //    |> Seq.skip 2 
-  //    |> List.ofSeq
-  //    |> List.map (fun m -> log_optimize (compiler.getMethodExpr trainingModule m) rs)
   let init = fun () -> printfn "STARTED!"
-  //let cont1 = fun i m -> (log_optimize m rs |> ignore; ())
-  //let cont2 = fun i m -> (log_optimize m rs |> ignore; ())
   let tinyProgs = 342
   let numberBigProgs = (tinyProgs * tinyProgs) * 4
   let allBigProgs = Array.create numberBigProgs (Expr.Value(true))

@@ -154,7 +154,7 @@ let algebraicRulesScalar =
   compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
   compilePatternToRule <@ assocSubSub @>;
   //compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @>;
-  comAddConst; comMultConst
+  //comAddConst; comMultConst
   ]
 
 //let algebraicRulesVector_exp = [ <@ vectorBuildGet_exp @>; <@ vectorSliceToBuild_exp @>]
