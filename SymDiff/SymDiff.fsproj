@@ -65,12 +65,12 @@
   </Target>
   <ItemGroup>
     <Content Include="packages.config" />
+    <None Include="InteractiveScribbles.fsx" />
     <Compile Include="Tuple.fs" />
     <Compile Include="VecMat.fs" />
     <Compile Include="bundle.fs" />
-    <Compile Include="z_main.fs" />
-    <None Include="InteractiveScribbles.fsx" />
     <Compile Include="bundle_fsalg.fs" />
+    <Compile Include="z_main.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
