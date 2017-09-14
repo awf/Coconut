@@ -15,7 +15,9 @@ let distrMultSub       = <@ %a * (%b - %c)                <==>   %a * %b - %a * 
 let addDiv1            = <@ %a + (%b / %c)                <==>   (%a * %c + %b) / %c @>
 let constFoldAdd0      = <@ %a + 0.0                      <==>   %a                  @>
 let constFoldMult0     = <@ %a * 0.0                      <==>   0.0                 @>
+let constFold0Mult     = <@ 0.0 * %a                      <==>   0.0                 @>
 let constFoldMult1     = <@ %a * 1.0                      <==>   %a                  @>
+let constFold1Mult     = <@ 1.0 * %a                      <==>   %a                  @>
 let constFoldSub0      = <@ %a - 0.0                      <==>   %a                  @>
 let constFold0Sub      = <@ 0.0 - %a                      <==>   - %a                @>
 let constFoldDiv1      = <@ %a / 1.0                      <==>   %a                  @>
@@ -155,9 +157,9 @@ let comMultConst: Rule =
 
 let algebraicSimplificationRules = 
   [ 
-    compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
-    compilePatternToRule <@ constFoldAdd0 @>; compilePatternToRule <@ constFoldMult0 @>; 
-    compilePatternToRule <@ constFoldMult1 @>; 
+    compilePatternToRule <@ constFoldAdd0 @>; 
+    compilePatternToRule <@ constFoldMult0 @>; compilePatternToRule <@ constFold0Mult @>; 
+    compilePatternToRule <@ constFoldMult1 @>; compilePatternToRule <@ constFold1Mult @>; 
     compilePatternToRule <@ constFoldSub0 @>; compilePatternToRule <@ constFold0Sub @>; 
     compilePatternToRule <@ constFoldDiv1 @>; 
     compilePatternToRule <@ divSame @>;
@@ -168,6 +170,7 @@ let algebraicSimplificationRules =
 
 let algebraicEquivalenceRules = 
   [
+    compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
     compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
     compilePatternToRule <@ assocSubSub1 @>; compilePatternToRule <@ assocSubSub2 @>; 
     compilePatternToRule <@ assocSubAdd1 @>; compilePatternToRule <@ assocSubAdd2 @>;
@@ -188,6 +191,7 @@ let algebraicRulesScalarAll =
 let algebraicRulesScalar = 
   algebraicSimplificationRules @ 
   [ 
+    compilePatternToRule <@ divide2Mult1 @>; 
     compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
     compilePatternToRule <@ assocSubSub1 @>;
     compilePatternToRule <@ assocSubAdd1 @>;

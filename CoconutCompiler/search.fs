@@ -36,6 +36,12 @@ module Logging =
       finish = fun len (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" len (nodeCostToString printer node cost))
     }
 
+  let emptyReporter<'a> =
+    { init = fun msg -> ()
+      step = fun stp ruleIdx rulesSize (node, cost) -> ()
+      finish = fun len (node, cost) -> ()
+    }
+
 open Logging
 
 type SearchAlgorithm<'a> = Reporter<'a> -> 'a -> ('a -> 'a List) -> ('a -> double) -> ('a * double)
@@ -106,6 +112,55 @@ let beamSearch<'a> (levels: int) (width: int) (same: 'a -> 'a -> bool): SearchAl
   reporter.finish (allNodes |> List.length) best
   best
 
+let hybridBfsBeamSearch<'a> (trials: int) (depth: int) (same: 'a -> 'a -> bool) (hash: 'a -> int) (bfsChildren: 'a -> 'a list): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e: 'a) (children: 'a -> 'a list) (costModel: 'a -> double) -> 
+  let comparer = 
+    { 
+      new System.Collections.Generic.IEqualityComparer<'a> with 
+        member x.Equals (a: 'a, b: 'a) = same a b
+        member x.GetHashCode (a: 'a): int = hash a
+    }
+  let allNodes = new HashSet<'a>(comparer)
+  let currentLevelNodes = new HashSet<'a>(comparer)
+  let nextLevelNodes = new HashSet<'a>(comparer)
+  let gradientSearch expr = 
+    let mutable gradBest = expr, costModel expr
+    let mutable shouldStop = false
+    let mutable counter = 0
+    while(counter < 10 && not(shouldStop)) do
+       let cs = gradBest |> fst |> children
+       let bestChild = cs |> List.minBy costModel |> (fun e -> e, costModel e)
+       //printfn "bestChild: %A" bestChild
+       if((snd bestChild) < (snd gradBest)) then
+         //printfn "updated: %f -> %f" (snd gradBest) (snd bestChild)
+         gradBest <- bestChild
+         counter <- counter + 1
+       else
+         shouldStop <- true
+    gradBest
+  let mutable best = gradientSearch e
+  allNodes.Add(e) |> ignore
+  allNodes.Add(fst best) |> ignore
+  //printfn "started with %A\n best %A" e best
+  for i = 1 to trials do 
+    currentLevelNodes.Clear()
+    currentLevelNodes.Add(fst best) |> ignore
+    for j = 1 to depth do 
+      nextLevelNodes.Clear() |> ignore
+      for n in currentLevelNodes do
+          for c in bfsChildren n do 
+            if(not (allNodes.Contains(c))) then
+              allNodes.Add(c) |> ignore
+              nextLevelNodes.Add(c) |> ignore
+      currentLevelNodes.Clear()
+      currentLevelNodes.UnionWith(nextLevelNodes)
+    let bfsBest = allNodes |> Seq.map gradientSearch |> Seq.minBy snd
+    //printfn "bfsBest: %A" bfsBest
+    if(snd bfsBest < snd best) then 
+      best <- bfsBest
+    allNodes.Clear()
+    
+  best
+  
 (* Random Walk *)
 let randomWalk<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>)  (e: 'a)  (children: 'a -> 'a List) (costModel: 'a -> double) -> 
   reporter.init (sprintf "Random Walk started with %d levels" levels)
