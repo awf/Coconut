@@ -12,7 +12,7 @@ module Logging =
     { 
       init: string -> unit; 
       step: int -> int -> int -> ('a * double) -> unit;  // Step#, Rule index, Rules#, NodeCost
-      finish: ('a * double) list -> ('a * double) -> unit // All NodeCosts, Best NodeCost
+      finish: int -> ('a * double) -> unit // # of Examined nodes, Best NodeCost
     }
   
   type Logger = string -> unit
@@ -33,7 +33,7 @@ module Logging =
   let completeReporter<'a> (printer: 'a -> string) (logger: Logger) =
     { init = fun msg -> logger msg;
       step = fun stp ruleIdx rulesSize (node, cost) -> logger (sprintf "Step %d, rule %d out of %d: %s" stp ruleIdx rulesSize (nodeCostToString printer node cost))
-      finish = fun allPrograms (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" (List.length allPrograms) (nodeCostToString printer node cost))
+      finish = fun len (node, cost) -> logger (sprintf "examined programs: %d\nBest: %s" len (nodeCostToString printer node cost))
     }
 
 open Logging
@@ -51,7 +51,7 @@ let bfs<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<'a>) (e
   //  printfn "all children:\n%s\n*******" (String.concat "\n=======\n" lines)
   let allNodes = (List.concat revertedResult)
   let best = List.minBy snd allNodes
-  reporter.finish allNodes best
+  reporter.finish (allNodes |> List.length) best
   best
 
 type HashSet<'a> = System.Collections.Generic.HashSet<'a>
@@ -80,8 +80,11 @@ let fastBfs<'a> (levels: int) (same: 'a -> 'a -> bool) (hash: 'a -> int): Search
     currentLevelNodes.UnionWith(nextLevelNodes)
 
   let best = allNodes |> Seq.minBy costModel
+  let bestWithCost = best, costModel best
 
-  best, costModel best
+  reporter.finish (allNodes |> Seq.length) bestWithCost
+
+  bestWithCost
 
 
 (* Beam Search Algorithm *)
@@ -100,7 +103,7 @@ let beamSearch<'a> (levels: int) (width: int) (same: 'a -> 'a -> bool): SearchAl
         |> listTopN width) (List.head acc)) :: acc) [[e, costModel e]] range
   let allNodes = (List.concat revertedResult)
   let best = List.minBy snd allNodes
-  reporter.finish allNodes best
+  reporter.finish (allNodes |> List.length) best
   best
 
 (* Random Walk *)
@@ -126,7 +129,7 @@ let randomWalk<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporter<
   //if debug then
   //  printfn "random expressions:\n%s\n" (nodesListToString printer (List.rev revertedResult))
   let best = List.minBy snd revertedResult
-  reporter.finish revertedResult best
+  reporter.finish (revertedResult |> List.length) best
   best
 
 exception CurrentListReturn of (double) list
@@ -157,7 +160,7 @@ let hillClimbing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: Reporte
     with
        | CurrentListReturn costs -> costs |> List.map (fun x -> e, x)
   let best = (currentBest, currentBestCost)
-  reporter.finish revertedResult best
+  reporter.finish (revertedResult |> List.length) best
   best
 
 
@@ -198,5 +201,5 @@ let simulatedAnnealing<'a> (levels: int): SearchAlgorithm<'a> = fun (reporter: R
           temprature <- temprature * 0.95
           (nextChild, nextChildCost) :: acc) [e, costModel e] range
   let best = (currentBest, currentBestCost)
-  reporter.finish revertedResult best
+  reporter.finish (revertedResult |> List.length) best
   best
