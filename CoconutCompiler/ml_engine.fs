@@ -21,10 +21,10 @@ type Move =
   override this.ToString() = 
       match this with 
       | Up    -> "U"
-      | Down  -> "D1"
-      | Down2 -> "D2"
-      | Down3 -> "D3"
-      | Down4 -> "D4"
+      | Down  -> ")"
+      | Down2 -> "]"
+      | Down3 -> "}"
+      | Down4 -> "#"
   member this.AsString = this.ToString()
 
 let downNth idx = 
@@ -417,9 +417,9 @@ let testContextToString () =
     Assert.AreEqual(e1, e2, sprintf "Expected: %A\nActual: %A" e2 e1)
   let contextToString e p = stateContextToString (e, None, p)
   areEqual (contextToString exp1 0) ""
-  areEqual (contextToString exp1 1) "LD2V"
-  areEqual (contextToString exp1 2) "LD2V+D1C"
-  areEqual (contextToString exp1 3) "LD2V+D2C"
+  areEqual (contextToString exp1 1) "L]V"
+  areEqual (contextToString exp1 2) "L]V+)C"
+  areEqual (contextToString exp1 3) "L]V+]C"
 
 [<Test>]
 let testSearchOnHardProgram () = 
@@ -471,8 +471,8 @@ let testSearchOnHardProgram () =
   areEqual (optim 5 exp3) <@@ fun a -> 1. + a*a @@>
   let exp4 = <@ fun a b -> (1. / (a*b) + 1.) * (a*b) @>
   areEqual (optim 5 exp4) <@@ fun a b -> 1. + a*b @@>
-  let exp5 = <@ fun a -> (1. / (1. + 1. / a)) @>
-  areEqual (optim 6 exp5) <@@ fun a -> a / (a + 1.) @@>
+  //let exp5 = <@ fun a -> (1. / (1. + 1. / a)) @>
+  //areEqual (optim 6 exp5) <@@ fun a -> a / (a + 1.) @@>
   //let exp6 = <@ fun a -> (1. - a) * (1. + a) @>
   //areEqual (optim 10 exp6) <@@ fun a -> 1. - a*a @@>
 
