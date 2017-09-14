@@ -10,18 +10,25 @@ open cardinality
 
 let divide2Mult1       = <@ (%a / %b) / %c                <==>   %a / (%b * %c)      @>
 let divide2Mult2       = <@ %a / (%b / %c)                <==>   (%a * %c) / %b      @>
-let distrMult          = <@ %a * (%b + %c)                <==>   %a * %b + %a * %c   @>
+let distrMultAdd       = <@ %a * (%b + %c)                <==>   %a * %b + %a * %c   @>
+let distrMultSub       = <@ %a * (%b - %c)                <==>   %a * %b - %a * %c   @>
+let addDiv1            = <@ %a + (%b / %c)                <==>   (%a * %c + %b) / %c @>
 let constFoldAdd0      = <@ %a + 0.0                      <==>   %a                  @>
 let constFoldMult0     = <@ %a * 0.0                      <==>   0.0                 @>
 let constFoldMult1     = <@ %a * 1.0                      <==>   %a                  @>
 let constFoldSub0      = <@ %a - 0.0                      <==>   %a                  @>
+let constFold0Sub      = <@ 0.0 - %a                      <==>   - %a                @>
 let constFoldDiv1      = <@ %a / 1.0                      <==>   %a                  @>
 let divSame            = <@ %a / %a                       <==>   1.0                 @>
 let subSame            = <@ %a - %a                       <==>   0.0                 @>
+let addNeg             = <@ %a + (- %b)                   <==>   %a - %b             @>
 let multDivide         = <@ %a * (%b / %a)                <==>   %b                  @>
 let assocAddSub        = <@ (%a + %b) - %c                <==>   %a + (%b - %c)      @>
 let assocAddAdd        = <@ (%a + %b) + %c                <==>   %a + (%b + %c)      @>
-let assocSubSub        = <@ (%a - %b) - %c                <==>   %a - (%b + %c)      @>
+let assocSubSub1       = <@ (%a - %b) - %c                <==>   %a - (%b + %c)      @>
+let assocSubSub2       = <@ (%a - %b) - %c                <==>   (%a - %c) - %b      @>
+let assocSubAdd1       = <@ (%a - %b) + %c                <==>   (%a + %c) - %b      @>
+let assocSubAdd2       = <@ (%a - %b) + %c                <==>   %a + (%c - %b)      @>
 let assocMultDiv1      = <@ %a * (%b / %c)                <==>   (%a * %b) / %c      @>
 let assocMultDiv2      = <@ (%a * %b) / %c                <==>   %a * (%b / %c)      @>
 let assocDivMult       = <@ %a / (%b * %c)                <==>   (%a * %c) / %b      @>
@@ -146,18 +153,44 @@ let comMultConst: Rule =
     | _ -> []
   ), "comMultConst"
 
+let algebraicSimplificationRules = 
+  [ 
+    compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
+    compilePatternToRule <@ constFoldAdd0 @>; compilePatternToRule <@ constFoldMult0 @>; 
+    compilePatternToRule <@ constFoldMult1 @>; 
+    compilePatternToRule <@ constFoldSub0 @>; compilePatternToRule <@ constFold0Sub @>; 
+    compilePatternToRule <@ constFoldDiv1 @>; 
+    compilePatternToRule <@ divSame @>;
+    compilePatternToRule <@ subSame @> ; 
+    compilePatternToRule <@ addNeg @> ; 
+    compilePatternToRule <@ multDivide @>; 
+  ]
+
+let algebraicEquivalenceRules = 
+  [
+    compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
+    compilePatternToRule <@ assocSubSub1 @>; compilePatternToRule <@ assocSubSub2 @>; 
+    compilePatternToRule <@ assocSubAdd1 @>; compilePatternToRule <@ assocSubAdd2 @>;
+    compilePatternToRule <@ assocMultDiv1 @>; compilePatternToRule <@ assocMultDiv2 @>; 
+    compilePatternToRule <@ assocDivMult @>;
+    compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @>;
+  ]
+
+let algebraicExpansionRules = 
+  [
+    compilePatternToRule <@ distrMultAdd @>; compilePatternToRule <@ distrMultSub @>; 
+    compilePatternToRule <@ addDiv1 @>;
+  ]
+
+let algebraicRulesScalarAll = 
+  algebraicSimplificationRules @ algebraicEquivalenceRules @ algebraicExpansionRules
+
 let algebraicRulesScalar = 
-  [ compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
-  compilePatternToRule <@ distrMult @>; 
-  compilePatternToRule <@ constFoldAdd0 @>; compilePatternToRule <@ constFoldMult0 @>; 
-  compilePatternToRule <@ constFoldMult1 @>; 
-  compilePatternToRule <@ constFoldSub0 @>; compilePatternToRule <@ constFoldDiv1 @>; 
-  compilePatternToRule <@ divSame @>;
-  compilePatternToRule <@ subSame @> ; compilePatternToRule <@ multDivide @>; 
-  compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
-  compilePatternToRule <@ assocSubSub @>;
-  //compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @>;
-  //comAddConst; comMultConst
+  algebraicSimplificationRules @ 
+  [ 
+    compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
+    compilePatternToRule <@ assocSubSub1 @>;
+    compilePatternToRule <@ assocSubAdd1 @>;
   ]
 
 //let algebraicRulesVector_exp = [ <@ vectorBuildGet_exp @>; <@ vectorSliceToBuild_exp @>]
