@@ -1,73 +1,42 @@
 ﻿[<ReflectedDefinition>]
-module training_base
+module training_hard_base
 
 open types
 open corelang
 open cardinality
 
-let scalar0 (x: Number): Number =
-  x + 42.
+//let scalarHard1 (a: Number): Number = 
+  //(1. / a) / (1. + 1. / a)
 
-let scalar1 (x: Number): Number =
-  x - 42.
+let scalarSimple1 (a: Number): Number =
+  1. / a
 
-let scalar2 (x: Number): Number =
-  x + 0.
+let scalarSimple2 (a: Number): Number =
+  1. * a
 
-let scalar3 (x: Number): Number =
-  x - 0.
+let scalarSimple3 (a: Number): Number =
+  a / 1.
 
-let scalar4 (x: Number): Number =
-  x + x
+let scalarSimple4 (a: Number): Number =
+  a + 42.
 
-let scalar5 (x: Number): Number =
-  x - x
+let scalarSimple5 (a: Number): Number =
+  a + 0.
 
-let scalar6 (x: Number): Number =
-  x * 0.
+let scalarSimple6 (a: Number): Number =
+  a - 0.
 
-let scalar7 (x: Number): Number =
-  x * 1.
+let scalarHard2 (a: Number): Number =
+  (1. / a + 1.) * a
 
-let scalar8 (x: Number): Number =
-  x * 2.
-
-let scalar9 (x: Number): Number =
-  x * 42.
-
-let scalar10 (x: Number): Number =
-  x / 42.
-
-let scalar11 (x: Number): Number =
-  x * x
-
-let scalar12 (x: Number): Number =
-  x / x
-
-let scalar13 (x: Number): Number =
-  1. / x
-
-let scalar14 (x: Number): Number =
-  0. / x
-
-let scalar15 (x: Number): Number =
-  2. / x
-
-let scalar16 (x: Number): Number =
-  x / 2.
-
-let scalar17 (x: Number): Number =
-  x / 1.
-
-let scalar18 (a: Number) (b: Number): Number =
+let scalar0 (a: Number) (b: Number): Number =
   a + b
 
-let scalar19 (a: Number) (b: Number): Number =
+let scalar1 (a: Number) (b: Number): Number =
   a - b
 
-let scalar20 (a: Number) (b: Number): Number =
+let scalar2 (a: Number) (b: Number): Number =
   a * b
 
-let scalar21 (a: Number) (b: Number): Number =
-  a / b
-
+//let scalar3 (a: Number) (b: Number): Number =
+//  a / b
