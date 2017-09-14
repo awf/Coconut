@@ -22,6 +22,9 @@ let multDivide         = <@ %a * (%b / %a)                <==>   %b             
 let assocAddSub        = <@ (%a + %b) - %c                <==>   %a + (%b - %c)      @>
 let assocAddAdd        = <@ (%a + %b) + %c                <==>   %a + (%b + %c)      @>
 let assocSubSub        = <@ (%a - %b) - %c                <==>   %a - (%b + %c)      @>
+let assocMultDiv1      = <@ %a * (%b / %c)                <==>   (%a * %b) / %c      @>
+let assocMultDiv2      = <@ (%a * %b) / %c                <==>   %a * (%b / %c)      @>
+let assocDivMult       = <@ %a / (%b * %c)                <==>   (%a * %c) / %b      @>
 let comAdd             = <@ %a + %b                       <==>   %b + %a             @>
 let comMult            = <@ %a * %b                       <==>   %b * %a             @>
 let comAddIndex        = <@ %i + %j                       <==>   %j + %i             @>
