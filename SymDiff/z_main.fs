@@ -5,19 +5,24 @@ open System.Text.RegularExpressions
 open NUnit.Framework
 open Swensen.Unquote
 
-let floatstr (v:float) = let s = sprintf "%g" v in if s.Contains(".") then s else (s + ".0")
+let floatstr (v:float) = let s = sprintf "%g" v in if s.Contains(".") then s else (s + ".")
 
 type Tree =
  | LeafS of string
  | LeafV of float
  | Node of Tree[]
+ | Hole // We could write the zipper less intrusively, e.g. using an Empty node, but this program is doing a particular thing
+        // and we shouldn't be afraid to do that thing, nor should we design for generality we won't use
  override x.ToString() = match x with
                          | LeafS(s) -> if Regex.IsMatch(s, "^[a-zA-Z0-9._+*/-]+$") then s else "\"" + s + "\""
                          | LeafV(v) -> floatstr v
                          | Node(ts) -> "("  + (Array.fold (fun s t -> s + " " + t.ToString()) ""  ts) + ")"
-                         
+                         | Hole ->  "<_>"
 
-printf "TREE[%s]\n" ((Node [| LeafS "+"; LeafV 1.0; Node [|LeafS "*"; LeafV 2.0; LeafV 3.12|] |]).ToString())
+// (+ 1 (* 2 3))                         
+let t1 = Node [| LeafS "+"; LeafV 1.0; Node [|LeafS "*"; LeafV 2.0; LeafV 3.0|] |]
+
+printf "TREE[%s]\n" (t1.ToString())
  
 let rec totree (expr:Expr) =
         match expr with
@@ -68,25 +73,50 @@ type TreeZipper(focus:Tree, context:List<Tree * int>) =
     member this.Focus = focus
     member this.Context = context
     member this.Child(n:int) = 
-            match this.Focus with 
-            | Node ts -> TreeZipper(ts.[n], (focus, n) :: context)
+            match focus with 
+            | Node ts -> TreeZipper(ts.[n], (Node (replace_nth ts n Hole), n) :: context)
             | _ -> failwith "Child on a leaf"
-    member this.Parent() = 
-            match this.Context with 
-            | (c, n)::cs -> TreeZipper(c, cs)
-            | _ -> failwith "Parent on the root"
-    override this.ToString() = sprintf "ZIP[%A, %A]" focus context 
+    member this.Parent = 
+            match context with 
+            | (Node ts, n) :: grandparents -> TreeZipper(Node (replace_nth ts n focus), grandparents)
+            | _ -> failwith "Parent on the root, or parent isn't a Node"
+    override this.ToString() = sprintf "ZIPPER[%s%s]" (focus.ToString()) (context |> List.fold (fun s (t,n) -> s + " WITHIN " + t.ToString()) "")
+    override this.GetHashCode() = hash (this.Focus, this.Context)
+    override this.Equals(yobj) =
+            match yobj with
+            | :? TreeZipper as y  -> focus = y.Focus && context = y.Context
+            | _ -> false
 
-let z = TreeZipper(totree q1)
-printf "ZIP %A\n" z
+             
 
-printf "ZIP %A\n" (z.Child(1))
+let z = TreeZipper(t1)
+let z1 = TreeZipper(totree q1)
+
+printf "\n\ntree: %A\n" z    
+printf "\n D2: %A\n" (z.Child(2))
+printf "\n D1: %A\n" (z.Child(2).Child(1))
+printf "\n UP: %A\n" (z.Child(2).Child(1).Parent)
+printf "\n UP: %A\n" (z.Child(2).Child(1).Parent.Parent)
+printf "\n D1: %A\n" (z.Child(1))
+printf "\n UP: %A\n" (z.Child(2).Child(1).Parent.Parent)
+printf "  z: %A\n" z
+printf "child.par.par = z: %A\n" (z.Child(2).Child(1).Parent.Parent = z)
 
 [<Test>]
 let test_zipper () =
     let z = TreeZipper(totree q1)
+    let z1 = TreeZipper(t1)
     test <@ replace_nth [|1; 2; 3|] 0 11 = [|11;  2;  3|] @>
+    test <@ z1.Child(2).Parent = z1 @>
+    test <@ z.Child(2).Child(1).Parent.Parent = z @>
 
+let rules = 
+    let x = 0.0 in
+    [
+    <@  x + 0. = x @>    
+    ] |> List.map totree
+
+let expr = totree <@ let a = 1.0 in (1./a) /(1./a + 1.) @>
 
 [<EntryPoint>]
 let main args =
