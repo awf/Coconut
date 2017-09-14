@@ -10,8 +10,10 @@ open cardinality
 
 let divide2Mult1       = <@ (%a / %b) / %c                <==>   %a / (%b * %c)      @>
 let divide2Mult2       = <@ %a / (%b / %c)                <==>   (%a * %c) / %b      @>
-let distrMultAdd       = <@ %a * (%b + %c)                <==>   %a * %b + %a * %c   @>
-let distrMultSub       = <@ %a * (%b - %c)                <==>   %a * %b - %a * %c   @>
+let distrMultAdd1      = <@ %a * (%b + %c)                <==>   %a * %b + %a * %c   @>
+let distrMultAdd2      = <@ (%a + %b) * %c                <==>   %a * %c + %b * %c   @>
+let distrMultSub1      = <@ %a * (%b - %c)                <==>   %a * %b - %a * %c   @>
+let distrMultSub2      = <@ (%a - %b) * %c                <==>   %a * %c - %b * %c   @>
 let addDiv1            = <@ %a + (%b / %c)                <==>   (%a * %c + %b) / %c @>
 let constFoldAdd0      = <@ %a + 0.0                      <==>   %a                  @>
 let constFoldMult0     = <@ %a * 0.0                      <==>   0.0                 @>
@@ -24,7 +26,8 @@ let constFoldDiv1      = <@ %a / 1.0                      <==>   %a             
 let divSame            = <@ %a / %a                       <==>   1.0                 @>
 let subSame            = <@ %a - %a                       <==>   0.0                 @>
 let addNeg             = <@ %a + (- %b)                   <==>   %a - %b             @>
-let multDivide         = <@ %a * (%b / %a)                <==>   %b                  @>
+let multDivide1        = <@ %a * (%b / %a)                <==>   %b                  @>
+let multDivide2        = <@ (%b / %a) * %a                <==>   %b                  @>
 let assocAddSub        = <@ (%a + %b) - %c                <==>   %a + (%b - %c)      @>
 let assocAddAdd        = <@ (%a + %b) + %c                <==>   %a + (%b + %c)      @>
 let assocSubSub1       = <@ (%a - %b) - %c                <==>   %a - (%b + %c)      @>
@@ -165,7 +168,8 @@ let algebraicSimplificationRules =
     compilePatternToRule <@ divSame @>;
     compilePatternToRule <@ subSame @> ; 
     compilePatternToRule <@ addNeg @> ; 
-    compilePatternToRule <@ multDivide @>; 
+    compilePatternToRule <@ multDivide1 @>; 
+    compilePatternToRule <@ multDivide2 @>; 
   ]
 
 let algebraicEquivalenceRules = 
@@ -179,9 +183,16 @@ let algebraicEquivalenceRules =
     compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @>;
   ]
 
+let algebraicEquivalenceLimitedRules = 
+  [
+    compilePatternToRule <@ divide2Mult1 @>;
+    //compilePatternToRule <@ comMult @>;
+  ]
+
 let algebraicExpansionRules = 
   [
-    compilePatternToRule <@ distrMultAdd @>; compilePatternToRule <@ distrMultSub @>; 
+    compilePatternToRule <@ distrMultAdd1 @>; compilePatternToRule <@ distrMultAdd2 @>; 
+    compilePatternToRule <@ distrMultSub1 @>; compilePatternToRule <@ distrMultSub2 @>; 
     compilePatternToRule <@ addDiv1 @>;
   ]
 

@@ -128,14 +128,17 @@ let hybridBfsBeamSearch<'a> (trials: int) (depth: int) (same: 'a -> 'a -> bool) 
     let mutable counter = 0
     while(counter < 10 && not(shouldStop)) do
        let cs = gradBest |> fst |> children
-       let bestChild = cs |> List.minBy costModel |> (fun e -> e, costModel e)
-       //printfn "bestChild: %A" bestChild
-       if((snd bestChild) < (snd gradBest)) then
-         //printfn "updated: %f -> %f" (snd gradBest) (snd bestChild)
-         gradBest <- bestChild
-         counter <- counter + 1
-       else
+       if (cs |> List.isEmpty) then 
          shouldStop <- true
+       else 
+         let bestChild = cs |> List.minBy costModel |> (fun e -> e, costModel e)
+         //printfn "bestChild: %A" bestChild
+         if((snd bestChild) < (snd gradBest)) then
+           //printfn "updated: %f -> %f" (snd gradBest) (snd bestChild)
+           gradBest <- bestChild
+           counter <- counter + 1
+         else
+           shouldStop <- true
     gradBest
   let mutable best = gradientSearch e
   allNodes.Add(e) |> ignore

@@ -301,22 +301,47 @@ let exprHashCode (exp: Expr): int =
   rcr exp
 
 let log_optimize (e: Expr) (rs: List<Rule>) (logger: string -> unit)= 
+  //let debug = false
+  //let debugger = Logging.consoleLogger debug
+  //let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
+  ////let t = tic()
+  //let ((best, appliedRules), _) = 
+  //  beamSearch<Expr * MetaData list> 30 1 (fun x y -> alphaEquals (fst x) (fst y) (Map.empty)) reporter (e, []) (
+  //    fun (e, historyRules) -> 
+  //      let applicableRules = examineAllRulesPositioned rs e
+  //      applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
+  //    ) (fun (e, _) -> fopCost e)
+  ////toc t "beam searching"
   let debug = false
   let debugger = Logging.consoleLogger debug
   let reporter = Logging.completeReporter (fun (e, _) -> ccodegen.prettyprint e) debugger
-  //let t = tic()
-  let ((best, appliedRules), _) = 
-    beamSearch<Expr * MetaData list> 30 1 (fun x y -> alphaEquals (fst x) (fst y) (Map.empty)) reporter (e, []) (
-      fun (e, historyRules) -> 
-        let applicableRules = examineAllRulesPositioned rs e
-        applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
-      ) (fun (e, _) -> fopCost e)
-  //toc t "beam searching"
+  let childrenWithRules rs (e, historyRules) =
+    let applicableRules = examineAllRulesPositioned rs e
+    applicableRules |> List.map (fun r -> applyRuleAtParticularPosition e r, r :: historyRules)
+  let children (e, historyRules) = childrenWithRules rs (e, historyRules)
+  let costModel = fun e -> e |> fst |> cost.fopCost
+  let optim levels e = 
+    let init = (e, [])
+    let equals a b = alphaEquals (fst a) (fst b) Map.empty
+    let exprHash e = e |> fst |> exprHashCode
+    let extractExp e = e |> fst |> fst
+    let algo levels = 
+      let bfsChildren = 
+        childrenWithRules 
+          (
+          algebraicExpansionRules 
+          @ algebraicEquivalenceLimitedRules 
+          )
+      hybridBfsBeamSearch 1 2 equals exprHash bfsChildren
+    let o = algo levels reporter init children costModel 
+    o
+  let ((best, appliedRules), _) = optim 1 e
 
   let steps = 
     appliedRulesToSteps e (appliedRules |> List.rev)
  
   let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x) |> Map.ofList
+  let logCost = true
   //printfn ">> %A" (stateToExternal rs (e, 0))
   sprintf "%s\t" (externalToString rulesIndexMap (stateToExternal rs (e, Some(e), 0))) |> logger
   let finalProg = 
@@ -326,13 +351,19 @@ let log_optimize (e: Expr) (rs: List<Rule>) (logger: string -> unit)=
             let ext = stateToExternal rs newState
             //printfn "<< %A" step
             //printfn ">> %A" ext
-            sprintf "%s\n" (stepToString rulesIndexMap step) |> logger
+            sprintf "%s" (stepToString rulesIndexMap step) |> logger
+            if logCost then 
+              sprintf "\t//%f" (cost.fopCost exp) |> logger
+            "\n" |> logger
             sprintf "%s\t" (externalToString rulesIndexMap ext) |> logger
             newState
           )  
   //let (finalProgRoot, _, _) = finalProg
   //printfn "final exp: %s" (ccodegen.prettyprint finalProgRoot)
-  sprintf "****\n" |> logger
+  sprintf "****" |> logger
+  if logCost then 
+    sprintf "\t//%f" (cost.fopCost best) |> logger
+  "\n" |> logger
   best
 
 [<Test>]
@@ -392,7 +423,6 @@ let testContextToString () =
 
 [<Test>]
 let testSearchOnHardProgram () = 
-  let comp = ruleengine.compilePatternToRule
   let rs = algebraicRulesScalarAll
   let debug = true
   let debugger = Logging.consoleLogger debug
@@ -420,8 +450,7 @@ let testSearchOnHardProgram () =
         childrenWithRules 
           (
           algebraicExpansionRules 
-          @ algebraicEquivalenceRules 
-          //@ algebraicSimplificationRules
+          @ algebraicEquivalenceLimitedRules 
           )
       hybridBfsBeamSearch 1 2 equals exprHash bfsChildren
     //let algo levels = bfs levels
@@ -447,8 +476,7 @@ let testSearchOnHardProgram () =
   //let exp6 = <@ fun a -> (1. - a) * (1. + a) @>
   //areEqual (optim 10 exp6) <@@ fun a -> 1. - a*a @@>
 
-let training_generator_k (init: unit -> unit) (cont1: int -> Expr -> unit) (cont2: int -> Expr -> unit): unit = 
-  let trainingBase = "training_base"
+let training_generator_k (trainingBase: string) (init: unit -> unit) (cont1: int -> Expr -> unit) (cont2: int -> Expr -> unit): unit = 
   let methodsName = compiler.getMethodsOfModule trainingBase
   let methods = methodsName |> List.map (compiler.getMethodExpr trainingBase)
   let numberOfInputs exp = 
@@ -512,42 +540,47 @@ open cardinality
       let str = sprintf "let scalar_2_%d: Number -> Number -> Number = \n %s\n" i (fscodegen.fscodegenTopLevel m)
       System.IO.File.AppendAllText(outputFile, str)
     )
-  training_generator_k init cont1 cont2
+  training_generator_k "training_base" init cont1 cont2
   
 
 let main_ml_engine(): unit = 
   //compiler.compileModule "linalg" [] false false
   //let trainingModule = "training_programs"
   //let trainingModule = "training_base"
-  let trainingModule = "training_generated"
-  let methods = compiler.getMethodsOfModule trainingModule
+  //let trainingModule = "training_generated"
+  //let methods = compiler.getMethodsOfModule trainingModule
   let comp = ruleengine.compilePatternToRule
-  let rs = 
-    [//comp <@ letInliner @> ; 
-     //rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
-     //rules_old.letInlinerOnce_old; rules_old.dce_old;
-     //methodDefToLambda ; lambdaAppToLet;
-     constantFold;
-     //comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
-     //rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old
-     comAddConst; comMultConst
-     ] @
-     algebraicRulesScalar
+  //let rs = 
+  //  [//comp <@ letInliner @> ; 
+  //   //rules_old.letCommutingConversion_old; rules_old.letNormalization_old;
+  //   //rules_old.letInlinerOnce_old; rules_old.dce_old;
+  //   //methodDefToLambda ; lambdaAppToLet;
+  //   constantFold;
+  //   //comp <@ vectorBuildGet @>; comp <@ vectorBuildLength @>;
+  //   //rules_old.letVectorBuildLength_old; rules_old.letVectorBuildGet_old
+  //   comAddConst; comMultConst
+  //   ] @
+  //   algebraicRulesScalar
+  let rs = algebraicRulesScalarAll
   let rulesIndexMap = rs |> List.mapi (fun x y -> sprintf "%i -> %s" x (snd y))
   printfn "rule index:\n %s" (rulesIndexMap |> String.concat "\n ")
   let init = fun () -> printfn "STARTED!"
-  let tinyProgs = 342
-  let numberBigProgs = (tinyProgs * tinyProgs) * 4
+  //let tinyProgs = 342
+  let tinyProgs = 49 + 7
+  let numberBigProgs = (tinyProgs * tinyProgs) * 3
+  //let numberBigProgs = tinyProgs
   let allBigProgs = Array.create numberBigProgs (Expr.Value(true))
   let cont1 = fun i m -> ()
   let cont2 = fun i m -> (allBigProgs.[i] <- m)
+  //let cont1 = fun i m -> (allBigProgs.[i] <- m)
+  //let cont2 = fun i m -> ()
   let t = tic()
-  training_generator_k init cont1 cont2
+  training_generator_k "training_hard_base" init cont1 cont2
   toc t (sprintf "storing generated programs in memory")
-  let numberTrnProgs = 10000
-  let numberTstProgs = 250
-  //let numberTrnProgs = 10
-  //let numberTstProgs = 2
+  //let numberTrnProgs = 10000
+  let numberTstProgs = numberBigProgs
+  //let numberTrnProgs = 2
+  //let numberTstProgs = tinyProgs
   let rnd = System.Random 100
   let folder = "../../../outputs/training"
   let datePostfix = System.DateTime.Now.ToString "yy-MM-dd-hh-mm"
@@ -555,16 +588,16 @@ let main_ml_engine(): unit =
   let testFile = sprintf "%s/fsm-rzm-test-%s.txt" folder datePostfix
   let generateProgs num file = 
     for i = 1 to num do
-      let index = rnd.Next numberBigProgs
+      //let index = rnd.Next numberBigProgs
+      let index = i - 1
       let e = allBigProgs.[index]
       log_optimize e rs (fun s -> System.IO.File.AppendAllText(file, s)) |> ignore
   let t = tic()
   printfn "Logging test data in %s" testFile
   generateProgs numberTstProgs testFile
   toc t "logging testing"
-  let t = tic()
-  printfn "Logging training data in %s" trainingFile
-  generateProgs numberTrnProgs trainingFile
-  toc t "logging training"
-  //training_generator()
+  //let t = tic()
+  //printfn "Logging training data in %s" trainingFile
+  //generateProgs numberTrnProgs trainingFile
+  //toc t "logging training"
   ()
