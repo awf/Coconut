@@ -634,10 +634,38 @@ let run_python_script(ink: unit -> string) (outk: string -> unit): unit =
   ()
 
 let run_nn_optimizer(): unit =
+  let rs = algebraicRulesScalarAll
+  let rulesIndexMap = rs |> List.mapi (fun x y -> snd y, x)
+  let rulesIndexedMap = rs |> List.mapi (fun x y -> x, y) |> Map.ofSeq
+  let exp1 = <@ fun a b -> (1. / a) + (1. * b) @>.Raw
+  let mutable state = exp1, Some(exp1), 0
   let mutable step = 0
   run_python_script 
-    (fun () -> if(step = 0) then step <- step + 1; "+/1V+V0 L]VL]V 24" else "END") 
-    (fun out -> printfn "result: %A" out)
+    (fun () -> 
+      if(step < 4) then 
+        step <- step + 1; 
+        let stateStr = (stateToExternal rs state) |> externalToString (rulesIndexMap |> Map.ofSeq)
+        printfn "reported state: %s" stateStr
+        stateStr
+      else "END") 
+    (fun out -> 
+      let step = 
+        match out.[0] with 
+        | 'M' -> 
+           let move = 
+             match out.[2] with 
+             | 'U' -> Up
+             | ')' -> Down
+             | ']' -> Down2
+             | '}' -> Down3
+           StepMove(move)
+        | 'R' -> 
+           let ruleIndex = int (out.Substring(2))
+           StepRule(rulesIndexedMap.[ruleIndex])
+        | _ -> failwithf "invalid action %s" out
+      state <- stepProg state (StepMove Down2)
+      printfn "action: %s" out
+      )
   ()
 
 
