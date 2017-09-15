@@ -541,9 +541,8 @@ open cardinality
       System.IO.File.AppendAllText(outputFile, str)
     )
   training_generator_k "training_base" init cont1 cont2
-  
 
-let main_ml_engine(): unit = 
+let generate_training_optimization_steps () : unit = 
   //compiler.compileModule "linalg" [] false false
   //let trainingModule = "training_programs"
   //let trainingModule = "training_base"
@@ -590,6 +589,7 @@ let main_ml_engine(): unit =
     for i = 1 to num do
       //let index = rnd.Next numberBigProgs
       let index = i - 1
+      //let index = 2690 + i
       let e = allBigProgs.[index]
       log_optimize e rs (fun s -> System.IO.File.AppendAllText(file, s)) |> ignore
   let t = tic()
@@ -601,3 +601,46 @@ let main_ml_engine(): unit =
   //generateProgs numberTrnProgs trainingFile
   //toc t "logging training"
   ()
+
+//open Python.Runtime
+//open FSharp.Interop.Dynamic
+
+let run_python_script(ink: unit -> string) (outk: string -> unit): unit = 
+  let pythonScript = "../../../Scripts/compilerRNN.sh"
+  let p = new System.Diagnostics.Process()
+  p.StartInfo.Arguments <- pythonScript
+  p.StartInfo.FileName <- "sh"
+  p.StartInfo.RedirectStandardOutput <- true
+  p.StartInfo.RedirectStandardInput <- true
+  p.StartInfo.UseShellExecute <- false
+  p.Start() |> ignore
+
+  for i = 1 to 7 do p.StandardOutput.ReadLine() |> ignore
+  let mutable finished = false
+  while(not finished) do
+      let input = ink()
+      p.StandardInput.WriteLine(input); 
+      if(input = "END") then
+          finished <- true
+      else 
+        let output = p.StandardOutput.ReadLine()
+        outk output
+  p.WaitForExit()
+  //use gil = Py.GIL()
+  //PythonEngine.Initialize();
+  //let torch = Py.Import("torch")
+  //let enc1 = torch?load("")
+  //printfn "%A" enc1
+  ()
+
+let run_nn_optimizer(): unit =
+  let mutable step = 0
+  run_python_script 
+    (fun () -> if(step = 0) then step <- step + 1; "+/1V+V0 L]VL]V 24" else "END") 
+    (fun out -> printfn "result: %A" out)
+  ()
+
+
+let main_ml_engine(): unit = 
+  //generate_training_optimization_steps ()
+  run_nn_optimizer()
