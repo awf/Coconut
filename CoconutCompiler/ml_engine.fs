@@ -668,7 +668,14 @@ let run_nn_optimizer(): unit =
       )
   ()
 
+let compileRulesToScala(): unit = 
+  let rs = algebraicRulesScalarAllExp
+  let rs' = rs |> List.map (compilePatternToRuleGeneric compilePatternWithNameToScalaCode)
+  rs' |> List.iter (printfn "%s") 
+  ()
+
 
 let main_ml_engine(): unit = 
   //generate_training_optimization_steps ()
-  run_nn_optimizer()
+  //run_nn_optimizer()
+  compileRulesToScala()

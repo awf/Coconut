@@ -158,46 +158,61 @@ let comMultConst: Rule =
     | _ -> []
   ), "comMultConst"
 
-let algebraicSimplificationRules = 
+let algebraicSimplificationRulesExp = 
   [ 
-    compilePatternToRule <@ constFoldAdd0 @>; 
-    compilePatternToRule <@ constFoldMult0 @>; compilePatternToRule <@ constFold0Mult @>; 
-    compilePatternToRule <@ constFoldMult1 @>; compilePatternToRule <@ constFold1Mult @>; 
-    compilePatternToRule <@ constFoldSub0 @>; compilePatternToRule <@ constFold0Sub @>; 
-    compilePatternToRule <@ constFoldDiv1 @>; 
-    compilePatternToRule <@ divSame @>;
-    compilePatternToRule <@ subSame @> ; 
-    compilePatternToRule <@ addNeg @> ; 
-    compilePatternToRule <@ multDivide1 @>; 
-    compilePatternToRule <@ multDivide2 @>; 
+    <@ constFoldAdd0 @>; 
+    <@ constFoldMult0 @>; <@ constFold0Mult @>; 
+    <@ constFoldMult1 @>; <@ constFold1Mult @>; 
+    <@ constFoldSub0 @>; <@ constFold0Sub @>; 
+    <@ constFoldDiv1 @>; 
+    <@ divSame @>;
+    <@ subSame @> ; 
+    <@ addNeg @> ; 
+    <@ multDivide1 @>; 
+    <@ multDivide2 @>; 
+  ]
+
+let algebraicSimplificationRules = 
+  algebraicSimplificationRulesExp |> List.map compilePatternToRule
+
+let algebraicEquivalenceRulesExp = 
+  [
+    <@ divide2Mult1 @>; <@ divide2Mult2 @>; 
+    <@ assocAddSub @>; <@ assocAddAdd @>; 
+    <@ assocSubSub1 @>; <@ assocSubSub2 @>; 
+    <@ assocSubAdd1 @>; <@ assocSubAdd2 @>;
+    <@ assocMultDiv1 @>; <@ assocMultDiv2 @>; 
+    <@ assocDivMult @>;
+    <@ comAdd @>; <@ comMult @>;
   ]
 
 let algebraicEquivalenceRules = 
+  algebraicEquivalenceRulesExp |> List.map compilePatternToRule
+
+let algebraicEquivalenceLimitedRulesExp = 
   [
-    compilePatternToRule <@ divide2Mult1 @>; compilePatternToRule <@ divide2Mult2 @>; 
-    compilePatternToRule <@ assocAddSub @>; compilePatternToRule <@ assocAddAdd @>; 
-    compilePatternToRule <@ assocSubSub1 @>; compilePatternToRule <@ assocSubSub2 @>; 
-    compilePatternToRule <@ assocSubAdd1 @>; compilePatternToRule <@ assocSubAdd2 @>;
-    compilePatternToRule <@ assocMultDiv1 @>; compilePatternToRule <@ assocMultDiv2 @>; 
-    compilePatternToRule <@ assocDivMult @>;
-    compilePatternToRule <@ comAdd @>; compilePatternToRule <@ comMult @>;
+    <@ divide2Mult1 @>;
+    // <@ comMult @>;
   ]
 
 let algebraicEquivalenceLimitedRules = 
+  algebraicEquivalenceLimitedRulesExp |> List.map compilePatternToRule
+
+let algebraicExpansionRulesExp = 
   [
-    compilePatternToRule <@ divide2Mult1 @>;
-    //compilePatternToRule <@ comMult @>;
+    <@ distrMultAdd1 @>; <@ distrMultAdd2 @>; 
+    <@ distrMultSub1 @>; <@ distrMultSub2 @>; 
+    <@ addDiv1 @>;
   ]
 
 let algebraicExpansionRules = 
-  [
-    compilePatternToRule <@ distrMultAdd1 @>; compilePatternToRule <@ distrMultAdd2 @>; 
-    compilePatternToRule <@ distrMultSub1 @>; compilePatternToRule <@ distrMultSub2 @>; 
-    compilePatternToRule <@ addDiv1 @>;
-  ]
+  algebraicExpansionRulesExp |> List.map compilePatternToRule
+
+let algebraicRulesScalarAllExp = 
+  algebraicSimplificationRulesExp @ algebraicEquivalenceRulesExp @ algebraicExpansionRulesExp
 
 let algebraicRulesScalarAll = 
-  algebraicSimplificationRules @ algebraicEquivalenceRules @ algebraicExpansionRules
+  algebraicRulesScalarAllExp |> List.map compilePatternToRule
 
 let algebraicRulesScalar = 
   algebraicSimplificationRules @ 

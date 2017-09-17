@@ -367,9 +367,87 @@ let compilePatternWithNameToRule (ruleExpr: Expr) (name: string): Rule =
       | NotMatched _ -> []
   ruleFunction, name
 
-let compilePatternToRule<'a> (ruleExprWithName: Expr<Expr<'a>>): Rule =
+let compilePatternToRuleGeneric<'a, 'b> (compiler: Expr -> string -> 'b) (ruleExprWithName: Expr<Expr<'a>>): 'b =
   match ruleExprWithName.Raw with
   | Patterns.PropertyGet(None, op, []) -> 
     let expr = op.GetMethod.Invoke(assembly.GetModule("rules"), [| |]) :?> Expr
-    compilePatternWithNameToRule expr op.Name
+    compiler expr op.Name
   | exp             -> failwithf "compileNamedPatternToRule should receive a property from the rules module, but received `%A` instead" exp
+
+let compilePatternToRule<'a> (ruleExprWithName: Expr<Expr<'a>>): Rule =
+  compilePatternToRuleGeneric compilePatternWithNameToRule ruleExprWithName 
+
+let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
+  let (pat, rhs) =
+    match ruleExpr with 
+    | SpecificCall <@ (<==>) @> (None, _, [p; rhs]) -> 
+      (*printfn "pattern is %A and rhs is %A" p rhs*)
+      p, rhs
+    | _ -> failwith "Rewrite patterns should be of the form `lhs <==> rhs`"
+  let patternVars: Var list = 
+    let rec rcr(e: Expr): Var list = 
+      match e with
+      | Patterns.Var(v) -> [v]
+      | ExprShape.ShapeCombination(op, es) -> es |> List.map rcr |> List.concat
+      | _ -> failwithf "Patterns do not support %A" e
+    rcr pat
+  //printfn "patternVars: %A" patternVars
+  let patternVarsCount = patternVars |> Seq.countBy (id) |> Map.ofSeq
+  //printfn "patternVarsCount: %A" patternVarsCount
+  let compilePattern (p: Expr): string = 
+    let rec rcr (varsCount: Map<Var, int>) (e: Expr): (string * Map<Var, int>) = 
+      match e with
+      | Patterns.Var(v) -> 
+        if(patternVarsCount.[v] > 1) then
+          match varsCount |> Map.tryFind v with
+          | Some c -> sprintf "%s%d" (v.ToString()) c, varsCount |> Map.add v (c + 1)
+          | None -> v.ToString(), varsCount |> Map.add v 2
+        else
+          v.ToString(), varsCount
+      | Patterns.Call(None, op, es) ->
+        let (ss, m') = 
+          (([], varsCount), es) ||> 
+          List.fold (fun (l, m) e -> 
+            let (s, m') = rcr m e
+            (s :: l, m')
+          )
+        let opName = 
+          match op.Name with
+          | OperatorName opname -> opname
+          | n -> failwithf "Operator %s not supported!" n
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> List.rev |> String.concat ", "), m'
+      | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString()), varsCount
+      | _ ->
+        failwithf "Pattern %A not supported!" e
+    rcr Map.empty p |> fst
+  let gaurd = 
+    if patternVarsCount |> Map.exists (fun k c -> c > 1) then
+      let vs = patternVarsCount |> Map.filter (fun k c -> c > 1)
+      let conds = 
+        vs |> Map.toSeq 
+        |> Seq.collect (fun (k,c) -> 
+             [
+               for i = 2 to c do 
+                 yield sprintf "%s == %s%d" (k.ToString()) (k.ToString()) i
+             ])
+      sprintf " if %s" (conds |> String.concat " && ")
+    else
+      ""
+  let compileSubs (s: Expr): string = 
+    let rec rcr (e: Expr): string = 
+      match e with
+      | Patterns.Var(v) -> v.ToString()
+      | Patterns.Call(None, op, es) ->
+        let ss = es |> List.map rcr
+        let opName = 
+          match op.Name with
+          | OperatorName opname -> opname
+          | n -> failwithf "Operator %s not supported!" n
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
+      | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
+      | _ ->
+        failwithf "Substitution %A not supported!" e
+    rcr s
+  sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => Some(%s)\n  case _ => None\n}"
+    name (pat |> compilePattern) gaurd (rhs |> compileSubs)
+    
