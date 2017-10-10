@@ -384,17 +384,27 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
       (*printfn "pattern is %A and rhs is %A" p rhs*)
       p, rhs
     | _ -> failwith "Rewrite patterns should be of the form `lhs <==> rhs`"
-  let patternVars: Var list = 
-    let rec rcr(e: Expr): Var list = 
+  let rec extractVars(e: Expr): Var list = 
+    match e with
+    | Patterns.Var(v) -> [v]
+    | ExprShape.ShapeCombination(op, es) -> es |> List.map extractVars |> List.concat
+    | _ -> failwithf "Patterns do not support %A" e
+  let compileSubs (s: Expr): string = 
+    let rec rcr (e: Expr): string = 
       match e with
-      | Patterns.Var(v) -> [v]
-      | ExprShape.ShapeCombination(op, es) -> es |> List.map rcr |> List.concat
-      | _ -> failwithf "Patterns do not support %A" e
-    rcr pat
-  //printfn "patternVars: %A" patternVars
-  let patternVarsCount = patternVars |> Seq.countBy (id) |> Map.ofSeq
-  //printfn "patternVarsCount: %A" patternVarsCount
-  let compilePattern (p: Expr): string = 
+      | Patterns.Var(v) -> v.ToString()
+      | Patterns.Call(None, op, es) ->
+        let ss = es |> List.map rcr
+        let opName = 
+          match op.Name with
+          | OperatorName opname -> opname
+          | n -> failwithf "Operator %s not supported!" n
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
+      | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
+      | _ ->
+        failwithf "Substitution %A not supported!" e
+    rcr s
+  let compilePattern (patternVarsCount: Map<Var, int>) (p: Expr) : string = 
     let rec rcr (varsCount: Map<Var, int>) (e: Expr): (string * Map<Var, int>) = 
       match e with
       | Patterns.Var(v) -> 
@@ -420,34 +430,35 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst
-  let gaurd = 
-    if patternVarsCount |> Map.exists (fun k c -> c > 1) then
-      let vs = patternVarsCount |> Map.filter (fun k c -> c > 1)
-      let conds = 
-        vs |> Map.toSeq 
-        |> Seq.collect (fun (k,c) -> 
-             [
-               for i = 2 to c do 
-                 yield sprintf "%s == %s%d" (k.ToString()) (k.ToString()) i
-             ])
-      sprintf " if %s" (conds |> String.concat " && ")
+  let patternVars: Var list = extractVars pat
+  let subsVars: Var list = extractVars rhs
+  let generateScalaPatMat name pat rhs patternVars = 
+    //printfn "patternVars: %A" patternVars
+    let patternVarsCount = patternVars |> Seq.countBy (id) |> Map.ofSeq
+    //printfn "patternVarsCount: %A" patternVarsCount
+    let gaurd = 
+      if patternVarsCount |> Map.exists (fun k c -> c > 1) then
+        let vs = patternVarsCount |> Map.filter (fun k c -> c > 1)
+        let conds = 
+          vs |> Map.toSeq 
+          |> Seq.collect (fun (k,c) -> 
+               [
+                 for i = 2 to c do 
+                   yield sprintf "%s == %s%d" (k.ToString()) (k.ToString()) i
+               ])
+        sprintf " if %s" (conds |> String.concat " && ")
+      else
+        ""
+    sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => Some(%s)\n  case _ => None\n}"
+      name (pat |> (compilePattern patternVarsCount)) gaurd (rhs |> compileSubs)
+  let ruleStr = generateScalaPatMat name pat rhs patternVars
+  let canInvRule = (patternVars |> Set.ofList, subsVars |> Set.ofList) ||> Set.difference |> Set.isEmpty
+  let invRuleStr = 
+    if canInvRule then
+      generateScalaPatMat (name + "_inv") rhs pat subsVars
     else
       ""
-  let compileSubs (s: Expr): string = 
-    let rec rcr (e: Expr): string = 
-      match e with
-      | Patterns.Var(v) -> v.ToString()
-      | Patterns.Call(None, op, es) ->
-        let ss = es |> List.map rcr
-        let opName = 
-          match op.Name with
-          | OperatorName opname -> opname
-          | n -> failwithf "Operator %s not supported!" n
-        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
-      | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
-      | _ ->
-        failwithf "Substitution %A not supported!" e
-    rcr s
-  sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => Some(%s)\n  case _ => None\n}"
-    name (pat |> compilePattern) gaurd (rhs |> compileSubs)
-    
+  let ruleInfo = 
+    sprintf "val %s_info = RuleInfo(\"%s\", %s, %s, %s _, %s)"
+      name name (pat |> compileSubs) (rhs |> compileSubs) name (if canInvRule then sprintf "Some(%s_inv _)" name else "None")
+  sprintf "%s\n%s\n%s" ruleInfo ruleStr invRuleStr
