@@ -449,8 +449,12 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         sprintf " if %s" (conds |> String.concat " && ")
       else
         ""
-    sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => Some(%s)\n  case _ => None\n}"
-      name (pat |> (compilePattern patternVarsCount)) gaurd (rhs |> compileSubs)
+    let noneCase = 
+      match pat with
+      | Patterns.Var(_) -> "" // in order to not generate a warning by the scala compiler for an unreachable pattern.
+      | _ -> "  case _ => None\n"
+    sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => Some(%s)\n%s}"
+      name (pat |> (compilePattern patternVarsCount)) gaurd (rhs |> compileSubs) noneCase
   let ruleStr = generateScalaPatMat name pat rhs patternVars
   let canInvRule = (patternVars |> Set.ofList, subsVars |> Set.ofList) ||> Set.difference |> Set.isEmpty
   let invRuleStr = 
