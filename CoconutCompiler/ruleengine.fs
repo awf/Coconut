@@ -430,9 +430,9 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst
-  let patternVars: Var list = extractVars pat
-  let subsVars: Var list = extractVars rhs
-  let generateScalaPatMat name pat rhs patternVars = 
+  let generateScalaPatMat name pat rhs = 
+    let patternVars: Var list = extractVars pat
+    let subsVars: Var list = extractVars rhs
     //printfn "patternVars: %A" patternVars
     let patternVarsCount = patternVars |> Seq.countBy (id) |> Map.ofSeq
     //printfn "patternVarsCount: %A" patternVarsCount
@@ -449,20 +449,22 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         sprintf " if %s" (conds |> String.concat " && ")
       else
         ""
+    let introducedVars = (subsVars |> Set.ofList, patternVars |> Set.ofList) ||> Set.difference |> Set.toList
+    let someCase = 
+      match introducedVars with
+      | []   -> sprintf "Some(%s)" (rhs |> compileSubs)
+      | vars -> sprintf "{%s; Some(%s)}" (vars |> List.map (fun v -> sprintf "val %s = randTerm()" (v.ToString())) |> String.concat ";") (rhs |> compileSubs)
     let noneCase = 
       match pat with
       | Patterns.Var(_) -> "" // in order to not generate a warning by the scala compiler for an unreachable pattern.
       | _ -> "  case _ => None\n"
-    sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => Some(%s)\n%s}"
-      name (pat |> (compilePattern patternVarsCount)) gaurd (rhs |> compileSubs) noneCase
-  let ruleStr = generateScalaPatMat name pat rhs patternVars
-  let canInvRule = (patternVars |> Set.ofList, subsVars |> Set.ofList) ||> Set.difference |> Set.isEmpty
+    sprintf "def %s(t: Term): Option[Term] = t match {\n  case %s%s => %s\n%s}"
+      name (pat |> (compilePattern patternVarsCount)) gaurd someCase noneCase
+  let ruleStr = generateScalaPatMat name pat rhs
+  let invName = sprintf "%s_inv" name
   let invRuleStr = 
-    if canInvRule then
-      generateScalaPatMat (name + "_inv") rhs pat subsVars
-    else
-      ""
+      generateScalaPatMat invName rhs pat
   let ruleInfo = 
-    sprintf "val %s_info = RuleInfo(\"%s\", %s, %s, %s _, %s)"
-      name name (pat |> compileSubs) (rhs |> compileSubs) name (if canInvRule then sprintf "Some(%s_inv _)" name else "None")
+    sprintf "val %s_info = RuleInfo(\"%s\", %s, %s, %s _, %s _)"
+      name name (pat |> compileSubs) (rhs |> compileSubs) name invName
   sprintf "%s\n%s\n%s" ruleInfo ruleStr invRuleStr
