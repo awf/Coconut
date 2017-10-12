@@ -42,6 +42,14 @@ type M3 = Matrix3D
 type C = Cardinality
 type I = Index
 
+let add_D        = <@ D (%a + %b)        <==>   (D %a) + (D %b)            @>
+let sub_D        = <@ D (%a - %b)        <==>   (D %a) - (D %b)            @>
+let mult_D       = <@ D (%a * %b)        <==>   (D %a) * %b + %a * (D %b)  @>
+let div_D        = <@ D (%a / %b)        
+                                         <==>   
+                      ((D %a) * %b - %a * (D %b)) / (%b * %b)                            
+                                                                           @>
+
 let add_d        = <@ diff<N,N,N> (%a + %b) %dx        <==>   (diff<N,N,N> %a %dx) + (diff<N,N,N> %b %dx)            @>
 let sub_d        = <@ diff<N,N,N> (%a - %b) %dx        <==>   (diff<N,N,N> %a %dx) - (diff<N,N,N> %b %dx)            @>
 let mult_d       = <@ diff<N,N,N> (%a * %b) %dx        <==>   (diff<N,N,N> %a %dx) * %b + %a * (diff<N,N,N> %b %dx)  @>

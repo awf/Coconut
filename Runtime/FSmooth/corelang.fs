@@ -124,6 +124,9 @@ let newArray_s<'a> (storage: Storage) ([<ParamArray>] args: (Storage -> 'a) arra
 let diff<'a, 'b, 'c> (v: 'a) (x: 'b): 'c =
   failwith "diff is not implemented!"
 
+let D<'a> (v: 'a): 'a =
+  failwith "diff is not implemented!"
+
 [<CMirror("matrix_read_s")>]
 let matrixRead_s (storage: Storage) 
       (fn: string) (startLine: Index) (rows: Cardinality) (cols: Cardinality): Matrix = 
