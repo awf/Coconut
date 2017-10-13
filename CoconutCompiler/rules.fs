@@ -34,11 +34,19 @@ let assocSubSub1       = <@ (%a - %b) - %c                <==>   %a - (%b + %c) 
 let assocSubSub2       = <@ (%a - %b) - %c                <==>   (%a - %c) - %b      @>
 let assocSubAdd1       = <@ (%a - %b) + %c                <==>   (%a + %c) - %b      @>
 let assocSubAdd2       = <@ (%a - %b) + %c                <==>   %a + (%c - %b)      @>
+let assocMultMult      = <@ (%a * %b) * %c                <==>   %a * (%b * %c)      @>
 let assocMultDiv1      = <@ %a * (%b / %c)                <==>   (%a * %b) / %c      @>
 let assocMultDiv2      = <@ (%a * %b) / %c                <==>   %a * (%b / %c)      @>
-let assocDivMult       = <@ %a / (%b * %c)                <==>   (%a * %c) / %b      @>
+let assocDivMult       = <@ %a / (%b * %c)                <==>   (%a / %c) / %b      @>
 let comAdd             = <@ %a + %b                       <==>   %b + %a             @>
 let comMult            = <@ %a * %b                       <==>   %b * %a             @>
+let negZero            = <@ - (0.0)                       <==>   0.0                 @>
+let invOne             = <@ 1.0 / 1.0                     <==>   1.0                 @>
+// new basic axioms
+let subAddNeg          = <@ %a - %b                       <==>   %a + (- %b)         @>
+let divMult            = <@ %a / %b                       <==>   %a * (1.0 / %b)     @>
+let invInv             = <@ 1.0 / (1.0 / %a)              <==>   %a                  @>
+let invMult            = <@ 1.0 / (%a * %b)               <==>   (1.0/ %b)*(1.0/ %a) @>
 let comAddIndex        = <@ %i + %j                       <==>   %j + %i             @>
 let assocAddSubIndex   = <@ (%i + %j) - %k                <==>   %i + (%j - %k)      @>
 let assocSubAddIndex   = <@ (%i - %j) + %k                <==>   %i - (%j - %k)      @>
@@ -170,6 +178,9 @@ let algebraicSimplificationRulesExp =
     <@ addNeg @> ; 
     <@ multDivide1 @>; 
     <@ multDivide2 @>; 
+    <@ negZero @>;
+    <@ invOne @>
+    <@ invInv @>
   ]
 
 let algebraicSimplificationRules = 
@@ -182,7 +193,7 @@ let algebraicEquivalenceRulesExp =
     <@ assocSubSub1 @>; <@ assocSubSub2 @>; 
     <@ assocSubAdd1 @>; <@ assocSubAdd2 @>;
     <@ assocMultDiv1 @>; <@ assocMultDiv2 @>; 
-    <@ assocDivMult @>;
+    <@ assocDivMult @>; <@ assocMultMult @>;
     <@ comAdd @>; <@ comMult @>;
   ]
 
@@ -202,7 +213,8 @@ let algebraicExpansionRulesExp =
   [
     <@ distrMultAdd1 @>; <@ distrMultAdd2 @>; 
     <@ distrMultSub1 @>; <@ distrMultSub2 @>; 
-    <@ addDiv1 @>;
+    <@ addDiv1 @>; <@ subAddNeg @>;
+    <@ divMult @>; <@ invMult @>
   ]
 
 let algebraicExpansionRules = 
