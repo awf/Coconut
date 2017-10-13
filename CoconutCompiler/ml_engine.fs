@@ -668,8 +668,10 @@ let run_nn_optimizer(): unit =
       )
   ()
 
+open rules_d
+
 let compileRulesToScala(): unit = 
-  let rs = algebraicRulesScalarAllExp
+  let rs = List.append algebraicRulesScalarAllExp [ <@ add_D @>; <@ sub_D @>; <@ mult_D @>; <@ div_D @>;]
   let rs' = rs |> List.map (compilePatternToRuleGeneric compilePatternWithNameToScalaCode)
   rs' |> List.iter (printfn "%s") 
   ()

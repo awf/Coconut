@@ -398,6 +398,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         let opName = 
           match op.Name with
           | OperatorName opname -> opname
+          | "D" -> "D"
           | n -> failwithf "Operator %s not supported!" n
         sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
@@ -424,6 +425,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         let opName = 
           match op.Name with
           | OperatorName opname -> opname
+          | "D" -> "D"
           | n -> failwithf "Operator %s not supported!" n
         sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> List.rev |> String.concat ", "), m'
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString()), varsCount
