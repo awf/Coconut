@@ -397,6 +397,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         let ss = es |> List.map rcr
         let opName = 
           match op.Name with
+          | "op_UnaryNegation" -> "_"
           | OperatorName opname -> opname
           | "D" -> "D"
           | n -> failwithf "Operator %s not supported!" n
@@ -424,6 +425,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
           )
         let opName = 
           match op.Name with
+          | "op_UnaryNegation" -> "_"
           | OperatorName opname -> opname
           | "D" -> "D"
           | n -> failwithf "Operator %s not supported!" n
