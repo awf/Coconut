@@ -45,8 +45,13 @@ let invOne             = <@ 1.0 / 1.0                     <==>   1.0            
 // new basic axioms
 let subAddNeg          = <@ %a - %b                       <==>   %a + (- %b)         @>
 let divMult            = <@ %a / %b                       <==>   %a * (1.0 / %b)     @>
+let negNeg             = <@ -(- %a)                       <==>   %a                  @>
 let invInv             = <@ 1.0 / (1.0 / %a)              <==>   %a                  @>
 let invMult            = <@ 1.0 / (%a * %b)               <==>   (1.0/ %b)*(1.0/ %a) @>
+let addNegSame         = <@ %a + (- %a)                   <==>   0.0                 @>
+let multInvSame        = <@ %a * (1.0 / %a)               <==>   1.0                 @>
+let multNeg            = <@ %a * (- %b)                   <==>   -(%a * %b)          @>
+let negMult            = <@ (- %a) * %b                   <==>   -(%a * %b)          @>
 let comAddIndex        = <@ %i + %j                       <==>   %j + %i             @>
 let assocAddSubIndex   = <@ (%i + %j) - %k                <==>   %i + (%j - %k)      @>
 let assocSubAddIndex   = <@ (%i - %j) + %k                <==>   %i - (%j - %k)      @>
@@ -179,8 +184,11 @@ let algebraicSimplificationRulesExp =
     <@ multDivide1 @>; 
     <@ multDivide2 @>; 
     <@ negZero @>;
-    <@ invOne @>
-    <@ invInv @>
+    <@ invOne @>;
+    <@ negNeg @>;
+    <@ invInv @>;
+    <@ addNegSame @>;
+    <@ multInvSame @>
   ]
 
 let algebraicSimplificationRules = 
@@ -195,6 +203,7 @@ let algebraicEquivalenceRulesExp =
     <@ assocMultDiv1 @>; <@ assocMultDiv2 @>; 
     <@ assocDivMult @>; <@ assocMultMult @>;
     <@ comAdd @>; <@ comMult @>;
+    <@ multNeg @>; <@ negMult @>
   ]
 
 let algebraicEquivalenceRules = 
