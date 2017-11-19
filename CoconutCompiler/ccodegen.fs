@@ -444,8 +444,9 @@ let rec ccodegenStatement (withTypeDef: bool) (var: Var, e: Expr): string * stri
     | Patterns.IfThenElse(cond, e1, e2) ->
       let (e1code, e1closures) = ccodegenStatements "\t\t" e1 None
       let (e2code, e2closures) = ccodegenStatements "\t\t" e2 None
-      (sprintf "%s %s = 0;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
-        (ccodegenType var.Type) (var.Name) (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
+      let initValue = if(isScalarType (var.Type)) then "= 0" else ""
+      (sprintf "%s %s %s;\n\tif(%s) {\n\t\t%s\n\t} else {\n\t\t%s\n\t}"
+        (ccodegenType var.Type) (var.Name) initValue (ccodegen cond) e1code e2code, List.append e1closures e2closures, true)
     (*
     | IterateNumberDPS(f, elist) ->
         //let (Patterns.Lambda(num, Patterns.Lambda(idx, body))) = elist.[1]

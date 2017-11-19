@@ -17,7 +17,7 @@ array_number_t TOP_LEVEL_usecases_ba_radial_distort_d(array_number_t rad_params,
 array_number_t TOP_LEVEL_usecases_ba_rodrigues_rotate_point_d(array_number_t rot, array_number_t x, array_number_t rot_d, array_number_t x_d) {
 	number_t sqtheta = TOP_LEVEL_linalg_sqnorm(rot);
 	number_t sqtheta_d = TOP_LEVEL_linalg_sqnorm_d(rot, rot_d);
-	array_number_t ite1248 = 0;
+	array_number_t ite1248 ;
 	if((sqtheta) != (0)) {
 		number_t theta = sqrt(sqtheta);
 		number_t theta_d = (sqtheta_d) / ((2) * (sqrt(sqtheta)));

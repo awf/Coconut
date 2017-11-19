@@ -109,11 +109,11 @@ let test_symdiff () =
         |> trans [rules_old.dce_old]
         |> trans [rules_old.letCSE] 
 
-        //|> (fun p -> storagedtransformer.transformStoraged p transformer.EMPTY_STORAGE Map.empty)
-        //|> storagedtransformer.getAliasSimplify
-        //|> storagedtransformer.simplifyStoraged 
-        //|> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
-        //|> trans [rules_old.dce_old]
+        |> (fun p -> storagedtransformer.transformStoraged p transformer.EMPTY_STORAGE Map.empty)
+        |> storagedtransformer.getAliasSimplify
+        |> storagedtransformer.simplifyStoraged 
+        |> trans [rules_old.letCommutingConversion_old; rules_old.letNormalization_old]
+        |> trans [rules_old.dce_old]
 
         //|> fscodegen.fscodegenTopLevel
         |> (fun e -> ccodegenTopLevel e finalName true)
