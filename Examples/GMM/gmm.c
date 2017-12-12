@@ -76,8 +76,11 @@ int main(int argc, char** argv)
       means->arr[k]->arr[j] = dist(rng) - 0.5;
       qs->arr[k]->arr[j] = 10.0*dist(rng) - 5.0;
     }
-    for (int j = 0; j < ls->arr[k]->length; ++j)
+    for (int j = 0; j < ls->arr[k]->length; ++j) {
       ls->arr[k]->arr[j] = dist(rng) - 0.5;
+      if(j >= ls->arr[k]->length - d)
+        ls->arr[k]->arr[j] = 0;
+    }
   }
 
   // Declare and fill xs
