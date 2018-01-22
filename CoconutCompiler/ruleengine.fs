@@ -68,6 +68,9 @@ module metaVars =
   let c1 = makeMetaVar<Cardinality>("c1")
   let c2 = makeMetaVar<Cardinality>("c2")
   let c3 = makeMetaVar<Cardinality>("c3")
+  let b1 = makeMetaVar<Boolean>("b1")
+  let b2 = makeMetaVar<Boolean>("b2")
+  let b3 = makeMetaVar<Boolean>("b3")
   let a = makeMetaVar<Number>("a")
   let b = makeMetaVar<Number>("b")
   let c = makeMetaVar<Number>("c")
@@ -367,14 +370,14 @@ let compilePatternWithNameToRule (ruleExpr: Expr) (name: string): Rule =
       | NotMatched _ -> []
   ruleFunction, name
 
-let compilePatternToRuleGeneric<'a, 'b> (compiler: Expr -> string -> 'b) (ruleExprWithName: Expr<Expr<'a>>): 'b =
-  match ruleExprWithName.Raw with
+let compilePatternToRuleGeneric<'a, 'b> (compiler: Expr -> string -> 'b) (ruleExprWithName: Expr): 'b =
+  match ruleExprWithName with
   | Patterns.PropertyGet(None, op, []) -> 
     let expr = op.GetMethod.Invoke(assembly.GetModule("rules"), [| |]) :?> Expr
     compiler expr op.Name
   | exp             -> failwithf "compileNamedPatternToRule should receive a property from the rules module, but received `%A` instead" exp
 
-let compilePatternToRule<'a> (ruleExprWithName: Expr<Expr<'a>>): Rule =
+let compilePatternToRule<'a> (ruleExprWithName: Expr): Rule =
   compilePatternToRuleGeneric compilePatternWithNameToRule ruleExprWithName 
 
 let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
@@ -389,25 +392,40 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     | Patterns.Var(v) -> [v]
     | ExprShape.ShapeCombination(op, es) -> es |> List.map extractVars |> List.concat
     | _ -> failwithf "Patterns do not support %A" e
+
+  let operatorName (op: Reflection.MethodInfo) = 
+    match op.Name with
+    | "op_UnaryNegation" -> "_"
+    | OperatorName opname -> opname
+    | "D"    -> "D"
+    | "AD_N" -> "AD"
+    | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 
+      let rcrArgs es opName = 
+        let ss = es |> List.map rcr
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
       match e with
       | Patterns.Var(v) -> v.ToString()
       | Patterns.Call(None, op, es) ->
-        let ss = es |> List.map rcr
-        let opName = 
-          match op.Name with
-          | "op_UnaryNegation" -> "_"
-          | OperatorName opname -> opname
-          | "D" -> "D"
-          | n -> failwithf "Operator %s not supported!" n
-        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
+        let opName = operatorName op
+        rcrArgs es opName
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
+      | Patterns.IfThenElse(e1, e2, e3) ->
+        rcrArgs [e1; e2; e3] "I"
       | _ ->
         failwithf "Substitution %A not supported!" e
     rcr s
   let compilePattern (patternVarsCount: Map<Var, int>) (p: Expr) : string = 
     let rec rcr (varsCount: Map<Var, int>) (e: Expr): (string * Map<Var, int>) = 
+      let rcrArgs es opName = 
+        let (ss, m') = 
+          (([], varsCount), es) ||> 
+          List.fold (fun (l, m) e -> 
+            let (s, m') = rcr m e
+            (s :: l, m')
+          )
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", "), m'
       match e with
       | Patterns.Var(v) -> 
         if(patternVarsCount.[v] > 1) then
@@ -417,20 +435,11 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         else
           v.ToString(), varsCount
       | Patterns.Call(None, op, es) ->
-        let (ss, m') = 
-          (([], varsCount), es) ||> 
-          List.fold (fun (l, m) e -> 
-            let (s, m') = rcr m e
-            (s :: l, m')
-          )
-        let opName = 
-          match op.Name with
-          | "op_UnaryNegation" -> "_"
-          | OperatorName opname -> opname
-          | "D" -> "D"
-          | n -> failwithf "Operator %s not supported!" n
-        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> List.rev |> String.concat ", "), m'
+        let opName = operatorName op
+        rcrArgs es opName
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString()), varsCount
+      | Patterns.IfThenElse(e1, e2, e3) ->
+        rcrArgs [e1; e2; e3] "I"
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst
@@ -469,6 +478,6 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
   let invRuleStr = 
       generateScalaPatMat invName rhs pat
   let ruleInfo = 
-    sprintf "val %s_info = RuleInfo(\"%s\", %s, %s, %s _, %s _)"
+    sprintf "val %s_info = BidirectionalRule(\"%s\", %s, %s, %s _, %s _)"
       name name (pat |> compileSubs) (rhs |> compileSubs) name invName
   sprintf "%s\n%s\n%s" ruleInfo ruleStr invRuleStr

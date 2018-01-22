@@ -125,7 +125,12 @@ let diff<'a, 'b, 'c> (v: 'a) (x: 'b): 'c =
   failwith "diff is not implemented!"
 
 let D<'a> (v: 'a): 'a =
-  failwith "diff is not implemented!"
+  failwith "D is not implemented!"
+
+let AD<'a, 'b> (v: 'a): 'b =
+  failwith "AD is not implemented!"
+
+let AD_N (v: Number): Number * Number = AD<Number, Number * Number> v
 
 [<CMirror("matrix_read_s")>]
 let matrixRead_s (storage: Storage) 

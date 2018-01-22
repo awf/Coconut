@@ -49,7 +49,10 @@ let div_D        = <@ D (%a / %b)
                                          <==>   
                       ((D %a) * %b - %a * (D %b)) / (%b * %b)                            
                                                                            @>
-
+let if_AD        = <@ AD_N (if %b1 then %a else %b )
+                                         <==>   
+                      if %b1 then (AD_N %a) else (AD_N %b)
+                                                                           @>
 let add_d        = <@ diff<N,N,N> (%a + %b) %dx        <==>   (diff<N,N,N> %a %dx) + (diff<N,N,N> %b %dx)            @>
 let sub_d        = <@ diff<N,N,N> (%a - %b) %dx        <==>   (diff<N,N,N> %a %dx) - (diff<N,N,N> %b %dx)            @>
 let mult_d       = <@ diff<N,N,N> (%a * %b) %dx        <==>   (diff<N,N,N> %a %dx) * %b + %a * (diff<N,N,N> %b %dx)  @>
