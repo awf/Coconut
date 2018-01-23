@@ -74,6 +74,9 @@ module metaVars =
   let a = makeMetaVar<Number>("a")
   let b = makeMetaVar<Number>("b")
   let c = makeMetaVar<Number>("c")
+  let v1 = makeMetaVar<Vector>("v1")
+  let v2 = makeMetaVar<Vector>("v2")
+  let v3 = makeMetaVar<Vector>("v3")
   let dx = makeMetaVar<Number>("dx")
   let T = makeMetaVar<Vector>("T")
   let U = makeMetaVar<Vector>("U")
@@ -97,7 +100,7 @@ module metaVars =
   let private indexMetaVars = List.map getExprRaw [i; j; k]
   let private cardMetaVars = List.map getExprRaw [c1; c2; c3]
   let private scalarMetaVars = List.map getExprRaw [a; b; c; dx]
-  let private vectorMetaVars = List.map getExprRaw [T; U; V]
+  let private vectorMetaVars = List.map getExprRaw [T; U; V; v1; v2; v3]
   let private matrixMetaVars = List.map getExprRaw [M; N; O]
   let private matrix3DMetaVars = List.map getExprRaw [MM; NN; OO]
   let private storageMetaVars = List.map getExprRaw [stg1; stg2]
@@ -395,10 +398,13 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
 
   let operatorName (op: Reflection.MethodInfo) = 
     match op.Name with
-    | "op_UnaryNegation" -> "_"
+    | "op_UnaryNegation"  -> "_"
     | OperatorName opname -> opname
-    | "D"    -> "D"
-    | "AD_N" -> "AD"
+    | "D"                 -> "D"
+    | "AD"                -> "AD"
+    | "AD_N"              -> "AD"
+    | "AD_V"              -> "AD"
+    | "GetArray"          -> "G"
     | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 

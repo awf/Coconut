@@ -131,6 +131,7 @@ let AD<'a, 'b> (v: 'a): 'b =
   failwith "AD is not implemented!"
 
 let AD_N (v: Number): Number * Number = AD<Number, Number * Number> v
+let AD_V (v: Vector): array<Number * Number> = AD<Vector, array<Number * Number>> v
 
 [<CMirror("matrix_read_s")>]
 let matrixRead_s (storage: Storage) 

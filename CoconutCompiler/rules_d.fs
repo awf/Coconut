@@ -53,6 +53,13 @@ let if_AD        = <@ AD_N (if %b1 then %a else %b )
                                          <==>   
                       if %b1 then (AD_N %a) else (AD_N %b)
                                                                            @>
+//let build_AD     = 
+//                   <@ AD_V (build<Number> %c1 %F)
+//                                         <==>   
+//                      (build<Number * Number> %c1 (fun i -> (AD<Index -> Number, Index * Index -> Number * Number> %F) (i, 0)))
+//                                                                           @>
+let get_AD       = <@ AD_N ((%v1).[%i])  <==>    (AD_V %v1).[%i]          @>
+
 let add_d        = <@ diff<N,N,N> (%a + %b) %dx        <==>   (diff<N,N,N> %a %dx) + (diff<N,N,N> %b %dx)            @>
 let sub_d        = <@ diff<N,N,N> (%a - %b) %dx        <==>   (diff<N,N,N> %a %dx) - (diff<N,N,N> %b %dx)            @>
 let mult_d       = <@ diff<N,N,N> (%a * %b) %dx        <==>   (diff<N,N,N> %a %dx) * %b + %a * (diff<N,N,N> %b %dx)  @>
