@@ -91,6 +91,8 @@ module metaVars =
   let stg2 = makeMetaVar<Storage>("stg2")
   let F<'a, 'b> = makeMetaVar<'a -> 'b>("F_metavar")
   let G<'a, 'b> = makeMetaVar<'a -> 'b>("G_metavar")
+  let f1<'a, 'b> = makeMetaVar<'a -> 'b>("f1")
+  let f2<'a, 'b> = makeMetaVar<'a -> 'b>("f2")
   let E1<'a> = makeMetaVar<'a>("E1_metavar")
   let E2<'a> = makeMetaVar<'a>("E2_metavar")
   let E3<'a> = makeMetaVar<'a>("E3_metavar")
@@ -105,7 +107,7 @@ module metaVars =
   let private matrix3DMetaVars = List.map getExprRaw [MM; NN; OO]
   let private storageMetaVars = List.map getExprRaw [stg1; stg2]
   let private allMetaVars = storageMetaVars @ indexMetaVars @ cardMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars @ matrix3DMetaVars
-  let private genericFunctionMetaVars = List.map getExprRaw [F; G]
+  let private genericFunctionMetaVars = List.map getExprRaw [F; G; f1; f2]
   let private genericExpressionMetaVars = List.map getExprRaw [E1; E2; E3; B1; B2; B3]
   let private allGenericMetaVars = genericFunctionMetaVars @ genericExpressionMetaVars
   let getQMetaVar (var: Var): QVar option =
@@ -394,6 +396,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     match e with
     | Patterns.Var(v) -> [v]
     | ExprShape.ShapeCombination(op, es) -> es |> List.map extractVars |> List.concat
+    | Patterns.Lambda(x, body) -> x :: (extractVars body)
     | _ -> failwithf "Patterns do not support %A" e
 
   let operatorName (op: Reflection.MethodInfo) = 
@@ -405,6 +408,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     | "AD_C"              -> "AD"
     | "GetArray"          -> "G"
     | "length"            -> "S"
+    | "build"             -> "B"
     | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 
@@ -423,6 +427,10 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         rcrArgs [e1; e2] "P"
       | CardConstructor c -> 
         rcr c
+      | Patterns.Lambda(x, body) ->
+        rcrArgs [Expr.Var(x); body] "L"
+      | Patterns.Application(e1, e2) ->
+        rcrArgs [e1; e2] "A"
       | _ ->
         failwithf "Substitution %A not supported!" e
     rcr s
@@ -454,6 +462,10 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         rcrArgs [e1; e2] "P"
       | CardConstructor c -> 
         rcr varsCount c
+      | Patterns.Lambda(x, body) ->
+        rcrArgs [Expr.Var(x); body] "L"
+      | Patterns.Application(e1, e2) ->
+        rcrArgs [e1; e2] "A"
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst
