@@ -425,7 +425,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
             let (s, m') = rcr m e
             (s :: l, m')
           )
-        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", "), m'
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> List.rev |> String.concat ", "), m'
       match e with
       | Patterns.Var(v) -> 
         if(patternVarsCount.[v] > 1) then
