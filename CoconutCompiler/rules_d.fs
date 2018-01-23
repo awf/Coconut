@@ -58,7 +58,8 @@ let if_AD        = <@ AD_N (if %b1 then %a else %b )
 //                                         <==>   
 //                      (build<Number * Number> %c1 (fun i -> (AD<Index -> Number, Index * Index -> Number * Number> %F) (i, 0)))
 //                                                                           @>
-let get_AD       = <@ AD_N ((%v1).[%i])  <==>    (AD_V %v1).[%i]          @>
+let get_AD       = <@ AD_N ((%v1).[%i])  <==>   (AD_V %v1).[%i]            @>
+let length_AD    = <@ AD_C (length (%v1))<==>   (length (AD_V %v1), Card 0)@>
 
 let add_d        = <@ diff<N,N,N> (%a + %b) %dx        <==>   (diff<N,N,N> %a %dx) + (diff<N,N,N> %b %dx)            @>
 let sub_d        = <@ diff<N,N,N> (%a - %b) %dx        <==>   (diff<N,N,N> %a %dx) - (diff<N,N,N> %b %dx)            @>

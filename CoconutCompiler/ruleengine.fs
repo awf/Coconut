@@ -401,10 +401,10 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     | "op_UnaryNegation"  -> "_"
     | OperatorName opname -> opname
     | "D"                 -> "D"
-    | "AD"                -> "AD"
-    | "AD_N"              -> "AD"
-    | "AD_V"              -> "AD"
+    | "AD" | "AD_N" | "AD_V"
+    | "AD_C"              -> "AD"
     | "GetArray"          -> "G"
+    | "length"            -> "S"
     | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 
@@ -419,6 +419,10 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
       | Patterns.IfThenElse(e1, e2, e3) ->
         rcrArgs [e1; e2; e3] "I"
+      | Patterns.NewTuple([e1; e2]) ->
+        rcrArgs [e1; e2] "P"
+      | CardConstructor c -> 
+        rcr c
       | _ ->
         failwithf "Substitution %A not supported!" e
     rcr s
@@ -446,6 +450,10 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString()), varsCount
       | Patterns.IfThenElse(e1, e2, e3) ->
         rcrArgs [e1; e2; e3] "I"
+      | Patterns.NewTuple([e1; e2]) ->
+        rcrArgs [e1; e2] "P"
+      | CardConstructor c -> 
+        rcr varsCount c
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst

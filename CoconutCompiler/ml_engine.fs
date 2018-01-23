@@ -674,7 +674,7 @@ let compileRulesToScala(): unit =
   let ad_rules = 
     [ 
       <@@ add_D @@>; <@@ sub_D @@>; <@@ mult_D @@>; <@@ div_D @@>; 
-      <@@ if_AD @@>; <@@ get_AD @@>;
+      <@@ if_AD @@>; <@@ get_AD @@>; <@@ length_AD @@>;
     ]
   let rs = List.append (algebraicRulesScalarAllExp |> List.map (fun x -> x.Raw)) ad_rules
   let rs' = rs |> List.map (compilePatternToRuleGeneric compilePatternWithNameToScalaCode)
