@@ -27,7 +27,7 @@ The function vadd implements vector addition, and for the purposes of our exampl
 struct Vector { size_t size; double* data };
 Vector vadd(Vector a, Vector b)
 {
-    out = gcnew double[max(a.size, b.size)];   // Allocate space for the return value on the GC heap
+    double* out = gcnew double[max(a.size, b.size)];   // Allocate space for the return value on the GC heap
     vadd_blas(min(a.size,b.size), a.data, b.data, out);  // vadd_blas is some efficient implementation
     std::fill(out + min(a.size, b.size), out + max(a.size, b.size), 0.0);
     return Vector {max(a.size,b.size), out};
