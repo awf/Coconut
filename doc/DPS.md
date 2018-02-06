@@ -1,10 +1,10 @@
 ### Destination-passing Style
 
-This is a brief overview of our paper Shaikhha et al, "Destination-passing style for efficient memory management", SIGPLAN FHPC 2017
+This is a brief overview of our paper Shaikhha et al, "Destination-passing style for efficient memory management", SIGPLAN FHPC 2017.
 [ACM](https://dl.acm.org/citation.cfm?id=3122949), 
-[PDF](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/dps-submitted.pdf)
+[PDF](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/dps-submitted.pdf).
 
-The goal of DPS is to allow ahead-of-time compilation of traditionally garbage collected languages to efficient native code.   In particular, we would like to minimize dependency of the produced code on garbage collection (GC) or heap allocation, and this is possible in a number of real-world scenarios, particularly with numerical workloads, such as computer vision, VR/AR, and AI/machine learning.
+The goal of DPS is to allow ahead-of-time compilation of traditionally garbage collected languages (for example F#) to efficient native code.   In particular, we would like to minimize dependency of the produced code on garbage collection (GC) or heap allocation, and this is possible in a number of real-world scenarios, particularly with numerical workloads, such as computer vision, VR/AR, and AI/machine learning.
 
 Such workloads may do lots of matrix/vector math, with lots of temporary array variables.  Of course some temporaries can be eliminated by loop fusion, but many must remain (e.g. a temporary is used multiple times, so it would be expensive to recompute it) and they incur the costs of heap allocation.
 
@@ -45,7 +45,7 @@ size_t vadd_size(Vector a, Vector b)
 }
 ```
 
-And another version vadd_dps which takes a pre-sized result buffer
+And another version `vadd_dps` which takes a pre-sized result buffer
 
 ```c++
 void vadd_dps(Vector* out, Vector a, Vector b)
@@ -89,7 +89,7 @@ double main(Vector a, Vector b)
 
 Now, there  are perennial arguments of the form "GC is faster than ​new/delete", but notice here that the allocator can be a bump allocator, so the arguments for GC/regions do not apply.
 
-So, what a lovely story.  There's one problem though.  The writer of the vadd function *didn't* give us vadd_size, just vadd.  And in general it's impossible to determine the result size for an arbitrary block of 3rd party code.  OK, but we can still write vadd_size, just inefficiently:
+So, what a lovely story.  There's one problem though.  The writer of the vadd function *didn't* give us `vadd_size`, just `vadd`.  And in general it's impossible to determine the result size for an arbitrary block of 3rd party code.  OK, but we can still write `vadd_size`, just inefficiently:
 
 ```c++
 size_t vadd_size(Vector a, Vector b)
@@ -101,7 +101,7 @@ size_t vadd_size(Vector a, Vector b)
 }
 ```
 
-And of course, we could use new/delete, or a bump allocator.  What's more, when the compiler tries to inline vadd in vadd_size, the fact that tmp.data is never accessed allows dead code elimination to remove the call to vadd_blas (remember we're compiling *to* C++, so the semantics are defined by the source language, which has referential transparency, i.e. can make assumptions about side effects).   Similarly vadd_dps has an inefficient implementation
+And of course, we could use new/delete, or a bump allocator.  What's more, when the compiler tries to inline vadd in `vadd_size`, the fact that tmp.data is never accessed allows dead code elimination to remove the call to `vadd_blas` (remember we're compiling *to* C++, so the semantics are defined by the source language, which has referential transparency, i.e. can make assumptions about side effects).   Similarly `vadd_dps` has an inefficient implementation
 
 ```c++
 void vadd_dps(Vector* out, Vector a, Vector b)
@@ -114,6 +114,8 @@ void vadd_dps(Vector* out, Vector a, Vector b)
 
 Again, the copy and allocations can be removed by DCE.  So, what's the point?   We seem to have just made vadd less efficient, and any gains we talk about could have been made by inlining vadd in main.
 
-The point is this: when compiling vadd, we can easily compile and optimize vadd_size and vadd_dps, without cross-module inlining.   When a caller sees vadd, it can observe the existence of the _size and _dps variants, and know that stack-discipline allocation will yield more efficient code.  This will mean less stuff on the GC heap, and less GC overhead.  With careful subsetting of the source language (and with the introduction of an explicit gcnew or new/delete in the source), we can compile many sensible programs from a functional language such as F# to non-garbage-collected C.
+The point is this: when compiling vadd, we can easily compile and optimize `vadd_size` and `vadd_dps`, without cross-module inlining.   When a caller sees vadd, it can observe the existence of the `_size` and `_dps` variants, and know that stack-discipline allocation will yield more efficient code.  This will mean less stuff on the GC heap, and less GC overhead.  With careful subsetting of the source language (and with the introduction of an explicit `gcnew` or `new/delete` in the source), we can compile many sensible programs from a functional language such as F# to non-garbage-collected C.
 
-Examples.   Here's a piece of F# to compute the log-likelihood of a Gaussian Mixture model, which is a canonical machine learning model.  Slightly more old fashioned than a deep neural network, but with arguably more interesting code complexity.  And this compiles to non-GC C, so can be directly incorporated into projects with no runtime, so we get the joy of functional programming with none of the runtime overhead.
+## Examples.   
+
+Here's a piece of F# to compute the log-likelihood of a Gaussian Mixture model, which is a canonical machine learning model.  Slightly more old fashioned than a deep neural network, but with arguably more interesting code complexity.  And this compiles to non-GC C, so can be directly incorporated into projects with no runtime, so we get the joy of functional programming with none of the runtime overhead.
