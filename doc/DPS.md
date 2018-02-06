@@ -8,7 +8,7 @@ The goal of DPS is to allow ahead-of-time compilation of traditionally garbage c
 
 Such workloads may do lots of matrix/vector math, with lots of temporary array variables.  Of course some temporaries can be eliminated by loop fusion, but many must remain (e.g. a temporary is used multiple times, so it would be expensive to recompute it) and they incur the costs of heap allocation.
 
-The key idea of DPS is that when a function returns a large object, such as an array, the space for the returned value is allocated by the caller rather than the called function.   This opens many opportunities for stack allocation, leading to much more efficient code.  The problem is that in general, we can't compute the space needed for the result without computing the result.  We will handle that problem below, but first let's look at a concrete example.
+The key idea of DPS is that when a function returns a large object, such as an array, the space for the returned value is allocated by the caller rather than the called function.   This opens many opportunities for stack allocation, leading to much more efficient code.  But there's a but: in general we can't compute the space needed for the result without computing the result.  We will handle that problem below, but first let's look at a concrete example.
 
 Let's see an example function `main`, which takes vectors a,b,c and computes ‖(a+b)+c‖.
 
