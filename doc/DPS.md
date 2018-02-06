@@ -118,4 +118,4 @@ The point is this: when compiling vadd, we can easily compile and optimize `vadd
 
 ## Examples.   
 
-Here's a piece of F# to compute the log-likelihood of a Gaussian Mixture model, which is a canonical machine learning model.  Slightly more old fashioned than a deep neural network, but with arguably more interesting code complexity.  And this compiles to non-GC C, so can be directly incorporated into projects with no runtime, so we get the joy of functional programming with none of the runtime overhead.
+[Here](https://github.com/awf/Coconut/blob/master/Examples/GMM/FSmooth/usecases_gmm.fs) is a piece of F# to compute the log-likelihood of a Gaussian Mixture model, which is a canonical machine learning model.  Slightly more old fashioned than a deep neural network, but with arguably more interesting code complexity.  And this compiles to non-GC C (see [here](https://github.com/awf/Coconut/blob/master/Examples/GMM/C/usecases_gmm.c)), so can be directly incorporated into projects with no runtime, so we get the joy of functional programming with none of the runtime overhead.
