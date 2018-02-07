@@ -115,8 +115,12 @@ Again, the copy and allocations can be removed by DCE.  So, what's the point?   
 
 The point is this: when compiling vadd, we can easily compile and optimize `vadd_size` and `vadd_dps`, without cross-module inlining.   When a caller sees vadd, it can observe the existence of the `_size` and `_dps` variants, and know that stack-discipline allocation will yield more efficient code.  This will mean less stuff on the GC heap, and less GC overhead.  With careful subsetting of the source language (and with the introduction of an explicit `gcnew` or `new/delete` in the source), we can compile many sensible programs from a functional language such as F# to non-garbage-collected C.
 
-## Examples.   
+### Examples.   
 
-[Here](https://github.com/awf/Coconut/blob/master/Examples/GMM/FSmooth/usecases_gmm.fs) is a piece of F# to compute the log-likelihood of a Gaussian Mixture model, which is a canonical machine learning model.  Slightly more old fashioned than a deep neural network, but with arguably more interesting code complexity.  And this compiles to non-GC C (see [here](https://github.com/awf/Coconut/blob/master/outputs/C/usecases_gmm_opt.h)), so can be directly incorporated into projects with no runtime, so we get the joy of functional programming with none of the runtime overhead.
+[Here](https://github.com/awf/Coconut/blob/master/Examples/GMM/FSmooth/usecases_gmm.fs) is a piece of F# to compute the log-likelihood of a Gaussian Mixture model, which is a canonical machine learning model.  Slightly more old fashioned than a deep neural network, but with arguably more interesting code complexity.  And this compiles to non-GC C (see [here](https://github.com/awf/Coconut/blob/master/outputs/C/usecases_gmm_opt.h)), so can be directly incorporated into projects with no runtime, so we get the joy of functional programming while being another step closer to optimal performance.
 
+### Related work
+
+We didn't invent DPS, we just used it for F#.  It is a technique with a long history. From an Aaron Turon blog post: In a 1998 paper, Yasuhiko Minamide studied an idea that has come to be known as "destination-passing style".  There, a common special case of continuation-passing was noticed, where the continuation's only job was to allocated a cons cell.
+It was also common in the early windows APIs to have a call `foo_size` which would report the buffer size needed for `foo`. 
 
