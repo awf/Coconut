@@ -1,3 +1,4 @@
+
 ### Destination-passing Style
 
 This is a brief overview of our paper Shaikhha et al, "Destination-passing style for efficient memory management", SIGPLAN FHPC 2017.
@@ -23,7 +24,8 @@ end
 The function `vadd` implements vector addition, and for the purposes of our example has a peculiar implementation where if the vectors have different sizes, it pads the shorter one with zeros.    Its C++ code looks something like this.  (Ignore the trivial optimization opportunities.)
 
 ```c++
-struct Vector { size_t size; double* data };
+struct Vector { size_t size; double* data }; // Small fixed struct, can return in registers/on stack
+
 Vector vadd(Vector a, Vector b)
 {
     double* out = gcnew double[max(a.size, b.size)];   // Allocate space for the return value on the GC heap
