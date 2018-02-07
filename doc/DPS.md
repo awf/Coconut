@@ -63,6 +63,7 @@ double main(Vector a, Vector b)
     Vector tmp1 { vadd_size(a,b), alloca<double>(vadd_size(a,b)) };
     vadd_dps(&tmp1, a, b);
 
+
     Vector tmp2 { vadd_size(a,b), alloca<double>(vadd_size(a,b)) };
     vadd_dps(&tmp1, tmp2, c);
     return norm(tmp2);
@@ -123,4 +124,10 @@ The point is this: when compiling vadd, we can easily compile and optimize `vadd
 
 We didn't invent DPS, we just used it for F#.  It is a technique with a long history. From an Aaron Turon blog post: In a 1998 paper, Yasuhiko Minamide studied an idea that has come to be known as "destination-passing style".  There, a common special case of continuation-passing was noticed, where the continuation's only job was to allocated a cons cell.
 It was also common in the early windows APIs to have a call `foo_size` which would report the buffer size needed for `foo`. 
+
+### Limitations, future work
+
+In the paper linked above, we didn't talk about F#, but a simpler language F~ (pronounced "F smooth").  That was so we could prove that `foo_size` would compile to an O(1) operation.   However, this isn't necessary in general.  Even if the function is complicatedly recursive (e.g. an array of Ackerman size), we can indeed compute the size first, and then fill the array.  It may cost twice as much, but look at the alternatives: build a list or tree, then convert to an array?    In some cases that will be the better way to go, in some cases the 2x cost of precomputing the size will be better.
+
+Also, as written F~ doesn't allow for _any_ heap allocation, so you can't create a linked list.  This is easily overcome by adding a `new` operator to the language which makes explicit when heap allocation occurs.  This can be paired with manual memory management, smart pointers, or full GC, just as C++ programmers choose today.  The point is that the numerical parts of the program can be fast, while the remainder is no slower than today.
 
