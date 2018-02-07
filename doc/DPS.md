@@ -20,7 +20,7 @@ function main(a::Vector,b::Vector, c::Vector)::Real
 end
 ```
 
-The function vadd implements vector addition, and for the purposes of our example has a peculiar implementation where if the vectors have different sizes, it pads the shorter one with zeros.    Its C++ code looks something like this.  (Ignore the trivial optimization opportunities.)
+The function `vadd` implements vector addition, and for the purposes of our example has a peculiar implementation where if the vectors have different sizes, it pads the shorter one with zeros.    Its C++ code looks something like this.  (Ignore the trivial optimization opportunities.)
 
 ```c++
 struct Vector { size_t size; double* data };
@@ -35,7 +35,7 @@ Vector vadd(Vector a, Vector b)
 
 Therefore calling main above involves two calls to gcnew, and incurs garbage collector overhead to clean up the memory.   One can use region allocators and lifetime analysis to turn this into simpler heap allocation or bump allocation, but this simply localizes the memory management overhead.  Instead DPS is a simple transformation that cleanly yields efficient memory management.
 
-Imagine that the writer of vadd had kindly supplied a function which computed the size of vadd's result:
+Imagine that the writer of `vadd` had kindly supplied a function which computed the size of `vadd`'s result:
 
 ```c++
 size_t vadd_size(Vector a, Vector b)
@@ -47,10 +47,12 @@ size_t vadd_size(Vector a, Vector b)
 And another version `vadd_dps` which takes a pre-sized result buffer
 
 ```c++
-void vadd_dps(Vector* out, Vector a, Vector b)
+Vector vadd_dps(void* buf, Vector a, Vector b)
 {
-    vadd_blas(min(a.size,b.size), a.data, b.data, out->data);  
-    std::fill(out->data + min(a.size, b.size), out->data + max(a.size, b.size), 0.0);
+    double* out = (double*)buf; // Function body exactly as before, but no alloc in vadd.
+    vadd_blas(min(a.size,b.size), a.data, b.data, out);  
+    std::fill(out + min(a.size, b.size), out + max(a.size, b.size), 0.0);
+    return Vector {max(a.size,b.size), out};
 }
 ```
 
@@ -60,11 +62,8 @@ Then we could eliminate all heap allocations in main using alloca:
 ```c++
 double main(Vector a, Vector b)
 {
-    Vector tmp1 { vadd_size(a,b), alloca<double>(vadd_size(a,b)) };
-    vadd_dps(&tmp1, a, b);
-
-
-    Vector tmp2 { vadd_size(a,b), alloca<double>(vadd_size(a,b)) };
+    Vector tmp1 = vadd_dps(alloca<double>(vadd_size(a,b)), a, b);
+    Vector tmp2 = vadd_dps(alloca<double>(vadd_size(tmp1,c)), tmp1, c);
     vadd_dps(&tmp1, tmp2, c);
     return norm(tmp2);
 }
@@ -75,11 +74,8 @@ Even if we can't use alloca, maybe because stack space is limited, we can elimin
 ```c++
 double main(Vector a, Vector b)
 {
-    Vector tmp1 { vadd_size(a,b), new double[vadd_size(a,b)] };
-    vadd_dps(&tmp1, a, b);
-
-    Vector tmp2 { vadd_size(a,b), new double[vadd_size(a,b)] };
-    vadd_dps(&tmp1, tmp2, c);
+    Vector tmp1 = vadd_dps(new double[vadd_size(a,b)], a, b);
+    Vector tmp2 = vadd_dps(new double[vadd_size(tmp1,c)], tmp1, c);
     double ret = norm(tmp2);
     delete [] tmp2.data;
     delete [] tmp1.data;
@@ -87,9 +83,9 @@ double main(Vector a, Vector b)
 }
 ```
 
-Now, there  are perennial arguments of the form "GC is faster than ​new/delete", but notice here that the allocator can be a bump allocator, so the arguments for GC/regions do not apply.
+Now, there  are perennial arguments of the form "GC is faster than "new/delete", but notice here that the allocator can be a bump allocator, so the arguments for GC/regions do not apply.
 
-So, what a lovely story.  There's one problem though.  The writer of the vadd function *didn't* give us `vadd_size`, just `vadd`.  And in general it's impossible to determine the result size for an arbitrary block of 3rd party code.  OK, but we can still write `vadd_size`, just inefficiently:
+So, what a lovely story.  There's one problem though.  The writer of the `vadd` function *didn't* give us `vadd_size`, just `vadd`.  And in general it's impossible to determine the result size for an arbitrary block of 3rd party code.  OK, but we can still write `vadd_size`, just inefficiently:
 
 ```c++
 size_t vadd_size(Vector a, Vector b)
@@ -101,7 +97,7 @@ size_t vadd_size(Vector a, Vector b)
 }
 ```
 
-And of course, we could use new/delete, or a bump allocator.  What's more, when the compiler tries to inline vadd in `vadd_size`, the fact that tmp.data is never accessed allows dead code elimination to remove the call to `vadd_blas` (remember we're compiling *to* C++, so the semantics are defined by the source language, which has referential transparency, i.e. can make assumptions about side effects).   Similarly `vadd_dps` has an inefficient implementation
+And of course, we could use new/delete, or a bump allocator.  What's more, when the compiler tries to inline `vadd` in `vadd_size`, the fact that tmp.data is never accessed allows dead code elimination to remove the call to `vadd_blas` (remember we're compiling *to* C++, so the semantics are defined by the source language, which has referential transparency, i.e. can make assumptions about side effects).   Similarly `vadd_dps` has an inefficient implementation
 
 ```c++
 void vadd_dps(Vector* out, Vector a, Vector b)
@@ -112,9 +108,9 @@ void vadd_dps(Vector* out, Vector a, Vector b)
 }
 ```
 
-Again, the copy and allocations can be removed by DCE.  So, what's the point?   We seem to have just made vadd less efficient, and any gains we talk about could have been made by inlining vadd in main.
+Again, the copy and allocations can be removed by DCE.  So, what's the point?   We seem to have just made `vadd` less efficient, and any gains we talk about could have been made by inlining `vadd` in main.
 
-The point is this: when compiling vadd, we can easily compile and optimize `vadd_size` and `vadd_dps`, without cross-module inlining.   When a caller sees vadd, it can observe the existence of the `_size` and `_dps` variants, and know that stack-discipline allocation will yield more efficient code.  This will mean less stuff on the GC heap, and less GC overhead.  With careful subsetting of the source language (and with the introduction of an explicit `gcnew` or `new/delete` in the source), we can compile many sensible programs from a functional language such as F# to non-garbage-collected C.
+The point is this: when compiling `vadd`, we can easily compile and optimize `vadd_size` and `vadd_dps`, without cross-module inlining.   When a caller sees `vadd`, it can observe the existence of the `_size` and `_dps` variants, and know that stack-discipline allocation will yield more efficient code.  This will mean less stuff on the GC heap, and less GC overhead.  With careful subsetting of the source language (and with the introduction of an explicit `gcnew` or `new/delete` in the source), we can compile many sensible programs from a functional language such as F# to non-garbage-collected C.
 
 ### Examples.   
 
