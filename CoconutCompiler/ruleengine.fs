@@ -68,9 +68,15 @@ module metaVars =
   let c1 = makeMetaVar<Cardinality>("c1")
   let c2 = makeMetaVar<Cardinality>("c2")
   let c3 = makeMetaVar<Cardinality>("c3")
+  let b1 = makeMetaVar<Boolean>("b1")
+  let b2 = makeMetaVar<Boolean>("b2")
+  let b3 = makeMetaVar<Boolean>("b3")
   let a = makeMetaVar<Number>("a")
   let b = makeMetaVar<Number>("b")
   let c = makeMetaVar<Number>("c")
+  let v1 = makeMetaVar<Vector>("v1")
+  let v2 = makeMetaVar<Vector>("v2")
+  let v3 = makeMetaVar<Vector>("v3")
   let dx = makeMetaVar<Number>("dx")
   let T = makeMetaVar<Vector>("T")
   let U = makeMetaVar<Vector>("U")
@@ -85,6 +91,8 @@ module metaVars =
   let stg2 = makeMetaVar<Storage>("stg2")
   let F<'a, 'b> = makeMetaVar<'a -> 'b>("F_metavar")
   let G<'a, 'b> = makeMetaVar<'a -> 'b>("G_metavar")
+  let f1<'a, 'b> = makeMetaVar<'a -> 'b>("f1")
+  let f2<'a, 'b> = makeMetaVar<'a -> 'b>("f2")
   let E1<'a> = makeMetaVar<'a>("E1_metavar")
   let E2<'a> = makeMetaVar<'a>("E2_metavar")
   let E3<'a> = makeMetaVar<'a>("E3_metavar")
@@ -94,12 +102,12 @@ module metaVars =
   let private indexMetaVars = List.map getExprRaw [i; j; k]
   let private cardMetaVars = List.map getExprRaw [c1; c2; c3]
   let private scalarMetaVars = List.map getExprRaw [a; b; c; dx]
-  let private vectorMetaVars = List.map getExprRaw [T; U; V]
+  let private vectorMetaVars = List.map getExprRaw [T; U; V; v1; v2; v3]
   let private matrixMetaVars = List.map getExprRaw [M; N; O]
   let private matrix3DMetaVars = List.map getExprRaw [MM; NN; OO]
   let private storageMetaVars = List.map getExprRaw [stg1; stg2]
   let private allMetaVars = storageMetaVars @ indexMetaVars @ cardMetaVars @ scalarMetaVars @ vectorMetaVars @ matrixMetaVars @ matrix3DMetaVars
-  let private genericFunctionMetaVars = List.map getExprRaw [F; G]
+  let private genericFunctionMetaVars = List.map getExprRaw [F; G; f1; f2]
   let private genericExpressionMetaVars = List.map getExprRaw [E1; E2; E3; B1; B2; B3]
   let private allGenericMetaVars = genericFunctionMetaVars @ genericExpressionMetaVars
   let getQMetaVar (var: Var): QVar option =
@@ -367,14 +375,14 @@ let compilePatternWithNameToRule (ruleExpr: Expr) (name: string): Rule =
       | NotMatched _ -> []
   ruleFunction, name
 
-let compilePatternToRuleGeneric<'a, 'b> (compiler: Expr -> string -> 'b) (ruleExprWithName: Expr<Expr<'a>>): 'b =
-  match ruleExprWithName.Raw with
+let compilePatternToRuleGeneric<'a, 'b> (compiler: Expr -> string -> 'b) (ruleExprWithName: Expr): 'b =
+  match ruleExprWithName with
   | Patterns.PropertyGet(None, op, []) -> 
     let expr = op.GetMethod.Invoke(assembly.GetModule("rules"), [| |]) :?> Expr
     compiler expr op.Name
   | exp             -> failwithf "compileNamedPatternToRule should receive a property from the rules module, but received `%A` instead" exp
 
-let compilePatternToRule<'a> (ruleExprWithName: Expr<Expr<'a>>): Rule =
+let compilePatternToRule<'a> (ruleExprWithName: Expr): Rule =
   compilePatternToRuleGeneric compilePatternWithNameToRule ruleExprWithName 
 
 let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
@@ -388,26 +396,54 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     match e with
     | Patterns.Var(v) -> [v]
     | ExprShape.ShapeCombination(op, es) -> es |> List.map extractVars |> List.concat
+    | Patterns.Lambda(x, body) -> x :: (extractVars body)
     | _ -> failwithf "Patterns do not support %A" e
+
+  let operatorName (op: Reflection.MethodInfo) = 
+    match op.Name with
+    | "op_UnaryNegation"  -> "_"
+    | OperatorName opname -> opname
+    | "D"                 -> "D"
+    | "AD" | "AD_N" | "AD_V"
+    | "AD_C"              -> "AD"
+    | "GetArray"          -> "G"
+    | "length"            -> "S"
+    | "build"             -> "B"
+    | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 
+      let rcrArgs es opName = 
+        let ss = es |> List.map rcr
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
       match e with
       | Patterns.Var(v) -> v.ToString()
       | Patterns.Call(None, op, es) ->
-        let ss = es |> List.map rcr
-        let opName = 
-          match op.Name with
-          | "op_UnaryNegation" -> "_"
-          | OperatorName opname -> opname
-          | "D" -> "D"
-          | n -> failwithf "Operator %s not supported!" n
-        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> String.concat ", ")
+        let opName = operatorName op
+        rcrArgs es opName
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
+      | Patterns.IfThenElse(e1, e2, e3) ->
+        rcrArgs [e1; e2; e3] "I"
+      | Patterns.NewTuple([e1; e2]) ->
+        rcrArgs [e1; e2] "P"
+      | CardConstructor c -> 
+        rcr c
+      | Patterns.Lambda(x, body) ->
+        rcrArgs [Expr.Var(x); body] "L"
+      | Patterns.Application(e1, e2) ->
+        rcrArgs [e1; e2] "A"
       | _ ->
         failwithf "Substitution %A not supported!" e
     rcr s
   let compilePattern (patternVarsCount: Map<Var, int>) (p: Expr) : string = 
     let rec rcr (varsCount: Map<Var, int>) (e: Expr): (string * Map<Var, int>) = 
+      let rcrArgs es opName = 
+        let (ss, m') = 
+          (([], varsCount), es) ||> 
+          List.fold (fun (l, m) e -> 
+            let (s, m') = rcr m e
+            (s :: l, m')
+          )
+        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> List.rev |> String.concat ", "), m'
       match e with
       | Patterns.Var(v) -> 
         if(patternVarsCount.[v] > 1) then
@@ -417,20 +453,19 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         else
           v.ToString(), varsCount
       | Patterns.Call(None, op, es) ->
-        let (ss, m') = 
-          (([], varsCount), es) ||> 
-          List.fold (fun (l, m) e -> 
-            let (s, m') = rcr m e
-            (s :: l, m')
-          )
-        let opName = 
-          match op.Name with
-          | "op_UnaryNegation" -> "_"
-          | OperatorName opname -> opname
-          | "D" -> "D"
-          | n -> failwithf "Operator %s not supported!" n
-        sprintf "Comb(Seq(Var('%s), %s))" opName (ss |> List.rev |> String.concat ", "), m'
+        let opName = operatorName op
+        rcrArgs es opName
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString()), varsCount
+      | Patterns.IfThenElse(e1, e2, e3) ->
+        rcrArgs [e1; e2; e3] "I"
+      | Patterns.NewTuple([e1; e2]) ->
+        rcrArgs [e1; e2] "P"
+      | CardConstructor c -> 
+        rcr varsCount c
+      | Patterns.Lambda(x, body) ->
+        rcrArgs [Expr.Var(x); body] "L"
+      | Patterns.Application(e1, e2) ->
+        rcrArgs [e1; e2] "A"
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst
@@ -469,6 +504,6 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
   let invRuleStr = 
       generateScalaPatMat invName rhs pat
   let ruleInfo = 
-    sprintf "val %s_info = RuleInfo(\"%s\", %s, %s, %s _, %s _)"
+    sprintf "val %s_info = BidirectionalRule(\"%s\", %s, %s, %s _, %s _)"
       name name (pat |> compileSubs) (rhs |> compileSubs) name invName
   sprintf "%s\n%s\n%s" ruleInfo ruleStr invRuleStr
