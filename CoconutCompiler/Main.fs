@@ -124,4 +124,7 @@ let main argv =
     // test_card()
     symbolicdiff.test_symdiff()
     //ml_engine.main_ml_engine()
+    //compiler.compileModuleToLisp "linalg"
+    //compiler.compileModuleToLisp "usecases_ba"
+    //compiler.compileModuleToLisp "usecases_gmm"
     0

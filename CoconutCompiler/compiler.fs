@@ -100,6 +100,17 @@ let compileModule (moduleName: string) (dependentModules: string List) (opt: boo
   let depModulesString = dependentModules |> List.map nameWithPostfix
   compileModuleGeneric moduleName depModulesString nameWithPostfix compiler
 
+let compileModuleToLisp (moduleName: string): unit =
+  let methods = getMethodsOfModule moduleName
+  let methods = methods //|> Seq.take 10 |> Seq.toList
+  let genMethods = 
+    compileAllMethods moduleName methods (fun md mt -> 
+      let body = lispcodegen.lispcodegenTopLevel (getMethodExpr md mt)
+      sprintf "defun %s_%s %s" md mt body
+      )
+  printf "Compiling %s.fs [%d methods] to %s.lisp\n" moduleName (methods.Length) moduleName 
+  printf "%s" (String.concat "\n" genMethods)
+
 open FSharp.Compiler.CodeDom
 open System.CodeDom.Compiler
 

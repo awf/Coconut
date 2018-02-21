@@ -109,6 +109,7 @@
     <Compile Include="ctransformer.fs" />
     <Compile Include="ccodegen.fs" />
     <Compile Include="fscodegen.fs" />
+    <Compile Include="lispcodegen.fs" />
     <Compile Include="cost.fs" />
     <Compile Include="ruleengine.fs" />
     <Compile Include="rules_old.fs" />
