@@ -34,6 +34,8 @@ let rec lispcodegenExpr (e:Expr) (tabsNumber: int): string =
   | Patterns.Lambda(i, body) -> sprintf "(lambda %s \n%s%s)" i.Name tabsInd (rcrInd body)
   | Patterns.Let(x, e1, e2) -> sprintf "(apply (lambda %s\n%s%s)\n%s%s)" (x.Name) tabsInd (rcrInd e2) tabs (rcr e1)
   // | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map fscodegenExpr argList))
+  | ArraySlice(e1, e2, e3) ->
+      sprintf "(apply (apply (apply linalg_vectorSlice %s) %s) %s)" (rcr e1) (rcr e2) (rcr e3)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | FsOperatorName opname -> 
@@ -48,7 +50,8 @@ let rec lispcodegenExpr (e:Expr) (tabsNumber: int): string =
         if(op.DeclaringType.Name = "corelang") then
           sprintf "(%s %s)" op.Name (elist |> List.map (rcr) |> String.concat " ")
         else
-          (sprintf "%s_%s" op.DeclaringType.Name op.Name, elist) ||> List.fold (fun acc cur -> sprintf "(apply %s %s)" acc (rcr cur))
+          let (md, mt) = (op.DeclaringType.Name, op.Name)
+          (sprintf "%s_%s" md mt, elist) ||> List.fold (fun acc cur -> sprintf "(apply %s %s)" acc (rcr cur))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
     sprintf "(array \n%s%s )" tabsInd (String.concat (sprintf "\n%s" tabsInd) (List.map rcrInd elems))
