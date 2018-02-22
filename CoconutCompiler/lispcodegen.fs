@@ -4,6 +4,7 @@ open Microsoft.FSharp.Quotations
 open utils
 open types
 open transformer
+open cardinality
 
 let TABS = "  "
 
@@ -35,7 +36,11 @@ let rec lispcodegenExpr (e:Expr) (tabsNumber: int): string =
   | Patterns.Let(x, e1, e2) -> sprintf "(apply (lambda %s\n%s%s)\n%s%s)" (x.Name) tabsInd (rcrInd e2) tabs (rcr e1)
   // | LibraryCall(name, argList) -> sprintf "%s(%s)" name (String.concat ", " (List.map fscodegenExpr argList))
   | ArraySlice(e1, e2, e3) ->
-      sprintf "(apply (apply (apply linalg_vectorSlice %s) %s) %s)" (rcr e1) (rcr e2) (rcr e3)
+      let vec = Expr.Cast<Vector>(e1)
+      let s = Expr.Cast<Index>(e2)
+      let e = Expr.Cast<Index>(e3)
+      rcr (<@ corelang.build<Number> (((Card %e) .- (Card %s)) .+ (Card 1)) (fun i -> (%vec).[i + %s]) @>.Raw)
+      //sprintf "(apply (apply (apply linalg_vectorSlice (.- (Card %s) )) %s) %s)" (rcr e3) (rcr e2) (rcr e3)
   | Patterns.Call (None, op, elist) -> 
     match op.Name with
       | FsOperatorName opname -> 
@@ -62,7 +67,7 @@ let rec lispcodegenExpr (e:Expr) (tabsNumber: int): string =
   | Patterns.Value(v, tp) when tp = typeof<double> -> sprintf "%f" (unbox<double>(v))
   | Patterns.Value(v, tp) -> v.ToString()
   | Patterns.Sequential(e1, e2) -> sprintf "%s;\n%s%s" (rcr e1) tabs (rcr e2)
-  | Patterns.NewUnionCase (uci, args) -> 
+  | Patterns.NewUnionCase (uci, args) when uci.Name = "Card" -> 
      sprintf "(%s %s)" uci.Name (String.concat ", " (List.map rcr args))
   | Patterns.PropertyGet (Some(var), pi, args) -> 
      sprintf "%s.%s" (rcr var) pi.Name
