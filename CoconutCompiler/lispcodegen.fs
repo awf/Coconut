@@ -53,13 +53,18 @@ let rec lispcodegenExpr (e:Expr) (tabsNumber: int): string =
       | "GetArray" -> sprintf "(get %s %s)" (rcr elist.[0]) (rcr elist.[1])
       | _ -> 
         if(op.DeclaringType.Name = "corelang") then
-          sprintf "(%s %s)" op.Name (elist |> List.map (rcr) |> String.concat " ")
+          let args = 
+            if(op.Name = "foldOnRange") then
+              [ elist.[0]; elist.[1]; elist.[3] ]
+            else
+              elist
+          sprintf "(%s %s)" op.Name (args |> List.map (rcr) |> String.concat " ")
         else
           let (md, mt) = (op.DeclaringType.Name, op.Name)
           (sprintf "%s_%s" md mt, elist) ||> List.fold (fun acc cur -> sprintf "(apply %s %s)" acc (rcr cur))
   | Patterns.Var(x) -> sprintf "%s" x.Name
   | Patterns.NewArray(tp, elems) -> 
-    sprintf "(array \n%s%s )" tabsInd (String.concat (sprintf "\n%s" tabsInd) (List.map rcrInd elems))
+    sprintf "(array \n%s%s)" tabsInd (String.concat (sprintf "\n%s" tabsInd) (List.map rcrInd elems))
   | Patterns.Value(v, tp) when tp = typeof<Unit> -> "()"
   | Patterns.Value(v, tp) when tp = typeof<Cardinality> -> 
     let (Card(card)) = unbox<Cardinality>(v)
