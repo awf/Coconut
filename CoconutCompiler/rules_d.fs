@@ -87,7 +87,7 @@ let div_AD       = <@ AD_N (%a / %b)     <==>
                                                                            @>
 let if_AD        = <@ AD_N (if %b1 then %a else %b )
                                          <==>   
-                      if %b1 then (AD_N %a) else (AD_N %b)
+                      if (fst (AD<bool, bool * bool> %b1)) then (AD_N %a) else (AD_N %b)
                                                                            @>
 let build_AD     = 
                    <@ AD_V (build<Number> %c1 %f1)
