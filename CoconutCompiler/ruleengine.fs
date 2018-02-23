@@ -405,10 +405,12 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     | OperatorName opname -> opname
     | "D"                 -> "D"
     | "AD" | "AD_N" | "AD_V"
-    | "AD_C"              -> "AD"
+    | "AD_C" | "AD_I"     -> "AD"
     | "GetArray"          -> "G"
     | "length"            -> "S"
     | "build"             -> "B"
+    | "Fst"               -> "_1"
+    | "Snd"               -> "_2"
     | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 
@@ -431,6 +433,8 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         rcrArgs [Expr.Var(x); body] "L"
       | Patterns.Application(e1, e2) ->
         rcrArgs [e1; e2] "A"
+      | Patterns.Let(x, e1, e2) ->
+        rcr(Expr.Application(Expr.Lambda(x, e2), e1))
       | _ ->
         failwithf "Substitution %A not supported!" e
     rcr s
@@ -466,6 +470,8 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
         rcrArgs [Expr.Var(x); body] "L"
       | Patterns.Application(e1, e2) ->
         rcrArgs [e1; e2] "A"
+      | Patterns.Let(x, e1, e2) ->
+        rcr varsCount (Expr.Application(Expr.Lambda(x, e2), e1))
       | _ ->
         failwithf "Pattern %A not supported!" e
     rcr Map.empty p |> fst
