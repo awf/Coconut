@@ -409,6 +409,7 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     | "GetArray"          -> "G"
     | "length"            -> "S"
     | "build"             -> "B"
+    | "foldOnRange"       -> "F"
     | "Fst"               -> "_1"
     | "Snd"               -> "_2"
     | n -> failwithf "Operator %s not supported!" n
@@ -421,7 +422,8 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
       | Patterns.Var(v) -> v.ToString()
       | Patterns.Call(None, op, es) ->
         let opName = operatorName op
-        rcrArgs es opName
+        let args = if(opName = "F") then [ es.[0]; es.[1]; es.[3] ] else es 
+        rcrArgs args opName
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString())
       | Patterns.IfThenElse(e1, e2, e3) ->
         rcrArgs [e1; e2; e3] "I"
@@ -458,7 +460,8 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
           v.ToString(), varsCount
       | Patterns.Call(None, op, es) ->
         let opName = operatorName op
-        rcrArgs es opName
+        let args = if(opName = "F") then [ es.[0]; es.[1]; es.[3] ] else es 
+        rcrArgs args opName
       | Patterns.Value(v, _) -> sprintf "Value(%s)" (v.ToString()), varsCount
       | Patterns.IfThenElse(e1, e2, e3) ->
         rcrArgs [e1; e2; e3] "I"

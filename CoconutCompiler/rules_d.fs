@@ -94,6 +94,13 @@ let build_AD     =
                                          <==>   
                       (build<Number * Number> %c1 (fun i -> (AD<Index -> Number, Index * Index -> Number * Number> %f1) (i, 0)))
                                                                            @>
+let fold_AD     = 
+                   <@ AD_N (foldOnRange<Number> %f1 %a %c2 %c1)
+                                         <==>   
+                      (foldOnRange<Number * Number> (fun acc i -> 
+                        (AD<Number -> Index -> Number, (Number * Number) -> (Index * Index) -> (Number * Number)> %f1) acc (i, 0)) 
+                        (AD_N %a)(fst (AD_C %c2)) (fst (AD_C %c1)))
+                                                                           @>
 let get_AD       = <@ AD_N ((%v1).[%i])  <==>   (AD_V %v1).[fst (AD_I %i)]            @>
 let length_AD    = <@ AD_C (length (%v1))<==>   (length (AD_V %v1), Card 0)@>
 
