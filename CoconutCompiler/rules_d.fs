@@ -49,6 +49,42 @@ let div_D        = <@ D (%a / %b)
                                          <==>   
                       ((D %a) * %b - %a * (D %b)) / (%b * %b)                            
                                                                            @>
+let add_AD       = <@ AD_N (%a + %b)     <==> 
+                      let ada = (AD_N %a)
+                      let adb = (AD_N %b)
+                      let pa = fst ada 
+                      let da = snd ada 
+                      let pb = fst adb 
+                      let db = snd adb 
+                      (pa + pb, da + db)            
+                                                                           @>
+let sub_AD       = <@ AD_N (%a - %b)     <==>   
+                      let ada = (AD_N %a)
+                      let adb = (AD_N %b)
+                      let pa = fst ada 
+                      let da = snd ada 
+                      let pb = fst adb 
+                      let db = snd adb 
+                      (pa - pb, da - db)
+                                                                           @>
+let mult_AD      = <@ AD_N (%a * %b)     <==>   
+                      let ada = (AD_N %a)
+                      let adb = (AD_N %b)
+                      let pa = fst ada 
+                      let da = snd ada 
+                      let pb = fst adb 
+                      let db = snd adb 
+                      (pa * pb, da * pb + pa * db)
+                                                                           @>
+let div_AD       = <@ AD_N (%a / %b)     <==>   
+                      let ada = (AD_N %a)
+                      let adb = (AD_N %b)
+                      let pa = fst ada 
+                      let da = snd ada 
+                      let pb = fst adb 
+                      let db = snd adb 
+                      (pa / pb, (da * pb - pa * db) / (pb * pb))
+                                                                           @>
 let if_AD        = <@ AD_N (if %b1 then %a else %b )
                                          <==>   
                       if %b1 then (AD_N %a) else (AD_N %b)
@@ -58,7 +94,7 @@ let build_AD     =
                                          <==>   
                       (build<Number * Number> %c1 (fun i -> (AD<Index -> Number, Index * Index -> Number * Number> %f1) (i, 0)))
                                                                            @>
-let get_AD       = <@ AD_N ((%v1).[%i])  <==>   (AD_V %v1).[%i]            @>
+let get_AD       = <@ AD_N ((%v1).[%i])  <==>   (AD_V %v1).[fst (AD_I %i)]            @>
 let length_AD    = <@ AD_C (length (%v1))<==>   (length (AD_V %v1), Card 0)@>
 
 let add_d        = <@ diff<N,N,N> (%a + %b) %dx        <==>   (diff<N,N,N> %a %dx) + (diff<N,N,N> %b %dx)            @>

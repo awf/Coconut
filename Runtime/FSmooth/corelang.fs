@@ -131,6 +131,7 @@ let AD<'a, 'b> (v: 'a): 'b =
   failwith "AD is not implemented!"
 
 let AD_N (n: Number): Number * Number = AD<Number, Number * Number> n
+let AD_I (i: Index): Index * Index = AD<Index, Index * Index> i
 let AD_V (v: Vector): array<Number * Number> = AD<Vector, array<Number * Number>> v
 let AD_C (c: Cardinality): Cardinality * Cardinality = AD<Cardinality, Cardinality * Cardinality> c
 
