@@ -412,6 +412,13 @@ let compilePatternWithNameToScalaCode (ruleExpr: Expr) (name: string): string =
     | "foldOnRange"       -> "F"
     | "Fst"               -> "_1"
     | "Snd"               -> "_2"
+    | "Log"               -> "log"
+    | "Sin"               -> "sin"
+    | "Cos"               -> "cos"
+    | "Tan"               -> "tan"
+    | "Exp"               -> "exp"
+    | "Sqrt"              -> "sqrt"
+    | "op_Exponentiation" -> "pow"
     | n -> failwithf "Operator %s not supported!" n
   let compileSubs (s: Expr): string = 
     let rec rcr (e: Expr): string = 

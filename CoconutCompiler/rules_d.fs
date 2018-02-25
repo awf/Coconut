@@ -85,6 +85,36 @@ let div_AD       = <@ AD_N (%a / %b)     <==>
                       let db = snd adb 
                       (pa / pb, (da * pb - pa * db) / (pb * pb))
                                                                            @>
+let log_AD       = <@ AD_N (log %a)  
+                                     <==>   
+                      let ada = (AD_N %a)
+                      (log (fst ada), (snd ada) / (fst ada))               @>
+let exp_AD       = <@ AD_N (exp %a)  
+                                     <==>   
+                      let ada = (AD_N %a)
+                      let b = exp (fst ada)
+                      (b, (snd ada) * b)                                   @>
+let sin_AD       = <@ AD_N (sin %a)  
+                                     <==>   
+                      let ada = (AD_N %a)
+                      let pa = fst ada
+                      (sin pa, (snd ada) * (cos pa))                       @>
+let cos_AD       = <@ AD_N (cos %a)  
+                                     <==>   
+                      let ada = (AD_N %a)
+                      let pa = fst ada
+                      (cos pa, (snd ada) * -(sin pa))                      @>
+let tan_AD       = <@ AD_N (tan %a)  
+                                     <==>   
+                      let ada = (AD_N %a)
+                      let pa = fst ada
+                      (tan pa, (snd ada) * ((cos pa) ** 2.))
+                                                                           @>
+let sqrt_AD      = <@ AD_N (sqrt %a) 
+                                     <==>   
+                      let ada = (AD_N %a)
+                      let b = sqrt (fst ada)
+                      (b, (snd ada) / (2. * b))                            @>
 let if_AD        = <@ AD_N (if %b1 then %a else %b )
                                          <==>   
                       if (fst (AD<bool, bool * bool> %b1)) then (AD_N %a) else (AD_N %b)
