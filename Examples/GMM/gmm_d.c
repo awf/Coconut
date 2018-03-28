@@ -13,7 +13,7 @@
 #endif
 
 const size_t GMM_K = 5;
-const size_t GMM_D = 3;
+const size_t GMM_D = 2;
 
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   // std::uniform_real_distribution<Real> dist(0, 1);
 
   // Problem size
-  size_t n = 10000;
+  size_t n = 100000;
   size_t d = GMM_D;
   size_t K = GMM_K;
 #ifdef DPS
@@ -104,6 +104,7 @@ int main(int argc, char** argv)
 #endif
   double wishart_m = 2.0;
   for (int count = 0; count < N; ++count) {
+    alphas->arr[0] += 1;
     double wishart_gamma = 1.0 / (1.0 + count);
 #ifdef DPS
     total += TOP_LEVEL_usecases_gmm_gmm_objective_dps(empty_storage, xs, alphas, means, qs, ls, wishart_gamma, wishart_m, 
