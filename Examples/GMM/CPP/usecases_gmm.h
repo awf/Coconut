@@ -34,7 +34,7 @@ VectorD Qtimesv(VectorD const& q, Vector const& l, VectorD const& v);
 Real gmm_objective(std::vector<VectorD> const& x,
 Vector const& alphas, std::vector<VectorD> const& means, std::vector<VectorD> const& qs, std::vector<Vector> const& ls, Real wishart_gamma, Real wishart_m);
 
-void Qtimesv_test();
+// void Qtimesv_test();
 
 // nth triangular number (0 1 3 6)
 // tri 0 = 0

@@ -67,6 +67,7 @@ int main()
 #endif
   double wishart_m = 2.0;
   for (cardinality_t count = 0; count < N; ++count) {
+    alphas[0] += 1;
     double wishart_gamma = 1.0 / (1.0 + count);
     total += gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
   }

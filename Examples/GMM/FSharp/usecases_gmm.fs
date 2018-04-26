@@ -10,8 +10,11 @@ open corelang
 open linalg
 
 let inline logsumexp (arr: Vector) =
-    let mx = vectorMax arr
-    let semx = vectorSum (vectorMap (fun x -> exp(x-mx)) arr)
+    //let mx = vectorMax arr
+    //let semx = vectorSum (vectorMap (fun x -> exp(x-mx)) arr)
+    //(log semx) + mx
+    let mx = Array.max arr
+    let semx = Array.map (fun x -> exp(x-mx)) arr |> Array.sum
     (log semx) + mx
 
 // nth triangular number (0 1 3 6)
@@ -57,18 +60,18 @@ let Qtimesv (q : Vector) (l : Vector) (v : Vector) =
       sum + exp(q.[i]) * v.[i]
     )
 
-let Qtimesv_test () =
-  let q = vec3 0.1 -1.0 0.3
-  let l = vec3 5.0 -2.0 7.1
-  let v = vec3 1.4 -7.0 3.1
-  let ans0 = exp(q.[0]) * v.[0]
-  let ans1 =      l.[0] * v.[0] + exp(q.[1]) * v.[1]
-  let ans2 =      l.[1] * v.[0] +      l.[2] * v.[1] + exp(q.[2]) * v.[2]
-  let ans = vec3 ans0 ans1 ans2
-  let qv = Qtimesv q l v
-  let nrm = sqnorm (vectorSub qv ans)
-  //assert (nrm < 0.0001)
-  numberPrint nrm
+//let Qtimesv_test () =
+  //let q = vec3 0.1 -1.0 0.3
+  //let l = vec3 5.0 -2.0 7.1
+  //let v = vec3 1.4 -7.0 3.1
+  //let ans0 = exp(q.[0]) * v.[0]
+  //let ans1 =      l.[0] * v.[0] + exp(q.[1]) * v.[1]
+  //let ans2 =      l.[1] * v.[0] +      l.[2] * v.[1] + exp(q.[2]) * v.[2]
+  //let ans = vec3 ans0 ans1 ans2
+  //let qv = Qtimesv q l v
+  //let nrm = sqnorm (vectorSub qv ans)
+  ////assert (nrm < 0.0001)
+  //numberPrint nrm
 
 let gmm_objective (x:Matrix) (alphas:Vector) (means:Matrix) (qs:Matrix) (ls:Matrix) (wishart_gamma:Number) (wishart_m:Number) =
     let n : Cardinality = rows x

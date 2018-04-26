@@ -48,20 +48,20 @@ VectorD Qtimesv(VectorD const& q, Vector const& l, VectorD const& v)
   return ret;
 }
 
-void Qtimesv_test()
-{
-  auto q = vec(0.1, -1.0, 0.3);
-  auto l = vec(5.0, -2.0, 7.1);
-  auto v = vec(1.4, -7.0, 3.1);
-  auto ans0 = exp(q[0]) * v[0];
-  auto ans1 = l[0] * v[0] + exp(q[1]) * v[1];
-  auto ans2 = l[1] * v[0] + l[2] * v[1] + exp(q[2]) * v[2];
-  auto ans = vec(ans0, ans1, ans2);
-  auto qv = Qtimesv(q, l, v);
-  auto nrm = sumsq(qv - ans);
-  printf("nrm=%f\n", nrm);
-  assert(nrm < 0.0001);
-}
+// void Qtimesv_test()
+// {
+//   auto q = vec(0.1, -1.0, 0.3);
+//   auto l = vec(5.0, -2.0, 7.1);
+//   auto v = vec(1.4, -7.0, 3.1);
+//   auto ans0 = exp(q[0]) * v[0];
+//   auto ans1 = l[0] * v[0] + exp(q[1]) * v[1];
+//   auto ans2 = l[1] * v[0] + l[2] * v[1] + exp(q[2]) * v[2];
+//   auto ans = vec(ans0, ans1, ans2);
+//   auto qv = Qtimesv(q, l, v);
+//   auto nrm = sumsq(qv - ans);
+//   printf("nrm=%f\n", nrm);
+//   assert(nrm < 0.0001);
+// }
 
 Real gmm_objective(std::vector<VectorD> const& x,
   Vector const& alphas, std::vector<VectorD> const& means, std::vector<VectorD> const& qs, std::vector<Vector> const& ls,

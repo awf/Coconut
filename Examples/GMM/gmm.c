@@ -13,7 +13,7 @@
 #endif
 
 const size_t GMM_K = 5;
-const size_t GMM_D = 2;
+const size_t GMM_D = 3;
 
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   // std::uniform_real_distribution<Real> dist(0, 1);
 
   // Problem size
-  size_t n = 100000;
+  size_t n = 100;
   size_t d = GMM_D;
   size_t K = GMM_K;
 #ifdef DPS
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
   // Debug 150s 
     // Release 1s
   double total = 0;
-  int N = 100;
+  int N = 10000;
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif

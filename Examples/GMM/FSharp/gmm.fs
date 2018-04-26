@@ -82,13 +82,13 @@ let inline logsumexp (arr:_[]) =
     (log semx) + mx
 
 let log_wishart_prior p (wishart:Wishart) (Qdiags:_[][]) (sum_qs:_[]) (icf:_[][]) =
-    let log_gamma_distrib a p =
-        log (Math.Pow(Math.PI,(0.25*(float (p*(p-1)))))) + 
-            ([for j = 1 to p do yield SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))] |> List.sum)
+    //let log_gamma_distrib a p =
+        //log (Math.Pow(Math.PI,(0.25*(float (p*(p-1)))))) + 
+            //([for j = 1 to p do yield SpecialFunctions.GammaLn (a + 0.5*(1. - (float j)))] |> List.sum)
     let square x = x*x
     let n = p + wishart.m + 1
     let k = icf.Length
-    let C = (float (n*p))*((log wishart.gamma) - 0.5*(log 2.)) - (log_gamma_distrib (0.5*(float n)) p)
+    //let C = (float (n*p))*((log wishart.gamma) - 0.5*(log 2.)) - (log_gamma_distrib (0.5*(float n)) p)
     let mutable out = 0.
     for ik = 0 to k-1 do
         let frobenius1 = Qdiags.[ik] 

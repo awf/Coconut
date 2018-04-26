@@ -289,6 +289,7 @@ let benchmark_ba () =
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
+#if MODE_AD
 let benchmark_ba_d () = 
     let cam = [| 0.1; 0.1; 0.1; 0.2; 0.1; 0.3; 1.2; 0.01; 0.03; 0.009; 1.2e-4 |] |> Array.map (D)
     let X = [| 0.03; 0.11; -0.7 |] |> Array.map (D)
@@ -302,6 +303,7 @@ let benchmark_ba_d () =
       total <- total + (float res.T)
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
+#endif
 
 let benchmark_gmm () = 
     let tri n = n * (n+1) / 2
@@ -309,7 +311,7 @@ let benchmark_gmm () =
     let rand = System.Random(rng)
     let dist (f: int) = rand.NextDouble()
     let n = 100;
-    let d = 3;
+    let d = 2;
     let K = 5;
     let td = tri d
     let alphas = vector_fill K 0.
@@ -327,15 +329,16 @@ let benchmark_gmm () =
     for i = 0 to n - 1 do 
       for j = 0 to d - 1 do
         xs.[i].[j] <- dist(rng)
-    let N = 1000 * 10
+    let N = 10000
     let mutable total = 0.0
     let t = Stopwatch.StartNew()
     let wishart_m = 2.0
     for i = 0 to N - 1 do
+      alphas.[0] <- alphas.[0] + 1.
       let wishart_gamma = 1.0 / (1.0 + (double)i)
       total <- total + gmm.gmm_objective2 xs alphas means qs ls wishart_gamma wishart_m
 //      total <- total + gmm_opt.gmm_objective xs alphas means qs ls wishart_gamma wishart_m
-//      total <- total + usecases_gmm.gmm_objective xs alphas means qs ls wishart_gamma wishart_m
+      //total <- total + usecases_gmm.gmm_objective xs alphas means qs ls wishart_gamma wishart_m
     t.Stop()
     printfn "total =%f, time per call = %f ms" total (float t.ElapsedMilliseconds / (float)N)
 
@@ -407,10 +410,10 @@ let main argv =
     // let replicate_point = 
     //     (argv.Length >= 6) && (argv.[5].CompareTo("-rep") = 0)
     //benchmark_ba ()
-    //benchmark_gmm ()
+    benchmark_gmm ()
     //benchmark_micro (Int32.Parse argv.[0])
     //benchmark_ht ()
-    benchmark_ba_d ()
+    //benchmark_ba_d ()
 #if DO_GMM_FULL || DO_GMM_SPLIT
     test_gmm (dir_in + fn) (dir_out + fn) nruns_f nruns_J replicate_point
 #endif

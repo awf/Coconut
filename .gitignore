@@ -23,6 +23,8 @@ ipch/
 # Build results
 /Debug/
 /Release/
+Examples/Debug/
+Examples/Release/
 
 # Python
 __pycache__
