@@ -66,7 +66,6 @@ double main(Vector a, Vector b)
 {
     Vector tmp1 = vadd_dps(alloca<double>(vadd_size(a,b)), a, b);
     Vector tmp2 = vadd_dps(alloca<double>(vadd_size(tmp1,c)), tmp1, c);
-    vadd_dps(&tmp1, tmp2, c);
     return norm(tmp2);
 }
 ```
