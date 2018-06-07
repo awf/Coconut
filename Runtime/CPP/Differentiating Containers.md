@@ -148,7 +148,7 @@ So let's just try to write that derivative with grads:
 
 The only thing that goes wrong is the multiply...  So what multiply is intended here?  Matrix product?  Outer product?  Dot product? If you've done this sort of thing before, you'll be worrying about matrix transposes, order of multiplication, and probably rolling the word &ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
 
-In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers `C1<C2<Real>>` and `C2<C3<Real>>`, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
+In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers `C1<C2<Real>>` and `C2<C3<Real>>`, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will generally be a C3.
 ```cpp
    dot(C1<C2<Real>>, C2<C3<Real>>) -> C1<C3<Real>>
 ```
@@ -188,7 +188,8 @@ or
     vec<Real> dot(vec<mat<Real>>, mat<Real>);
 ```
 
-The last detail is implementation of this in say C++.  We can easily use template magic to identify the Containers for simple cases, but we need our definition to work if `C1` is a `vec<vec<T>>` and `C2` is a `vec<vec<T>>` while `C3` is a `vec<T>`.  Then the compiler sees
+The last detail is implementation of this in say C++.  We can easily use template magic to identify the Containers for simple cases, but we need our definition to work in ambiguous cases.  
+For example, if `C1` is a `vec<vec<T>>` and `C2` is a `vec<vec<T>>` while `C3` is a `vec<T>`, then the compiler sees
 ```cpp
 	dot(vec<vec<vec<vec<Real>>>>, vec<vec<vec<Real>>>) -> ???
 ```
@@ -202,12 +203,12 @@ The solution is to specify how to split the second argument, and the easiest way
 ```cpp
    C1<C3<Real>> gdot(C1<Container<Real>>, Container<C3<Real>>, C3<Real>)
 ```
-  and as the third argument is generally used only for type inference, I write
+  and as the third argument is generally used only for type inference, let's also provide an overload with a template parameter instead
 ```cpp
    C1<C3<Real>> gdot<C3Real>(C1<Container<Real>>, Container<C3<Real>>)
 ```
 
-And the general chain rule is (dropping the `<Real>` everywhere)
+And the general chain rule for `f(x) = h(g(x))` is (dropping the `<Real>` everywhere):
 ```cpp
       C3 f(C1 x) {
         C2 gx = g(x);                     // g(C1) -> C2
@@ -215,10 +216,9 @@ And the general chain rule is (dropping the `<Real>` everywhere)
         C3 f = h(gx);                     // h(C2) -> C3
         C2<C3> grad_h = grad_h(gx);
         //                   C1<C2>  C2<C3>  C1
-        C1<C3> grad_f = dot<decltype(x)>(grad_h, grad_g);
+        C1<C3> grad_f = gdot(grad_h, grad_g, x);
       }
 ```
-  where the ``decltype(x)`` is necessary only when the containers are ambiguous, which is in fact often.
 And to go back to our example, the definition of ``grad_trace_of_rot`` is
 ```cpp
 	Vec3<Real> grad_trace_of_rot(Vec3<Real>  x)
@@ -379,6 +379,23 @@ And somehow for me this feels more natural.   So why didn't I do that?
 1. The Jacobian comes out transposed. One might say that if a matrix is a vec<vec>, then one might try to interpret the inner vecs as rows.  But then dot doesn't implement matrix-vector multiply, which it does if the inner vecs are columns.
 2. Some other really important reason which I can't remember right now.   Something like it completely doesn't work.
 
+## References:
+∂ for data: differentiating data structures
+http://www.cs.nott.ac.uk/~txa/publ/jpartial.pdf
+> Derives chain rules for container of container etc
+
+Derivatives of Containers
+Michael Abbott, Thorsten Altenkirch, Neil Ghani, and Conor McBride
+http://www.cs.nott.ac.uk/~txa/publ/tlca03.pdf
+
+http://blog.sigfpe.com/2006/06/fun-with-derivatives-of-containers.html
+Dan Piponi
+
+Comonadic functional attribute evaluation
+Tarmo Uustalu, Varmo Vene
+http://www.cs.ioc.ee/~tarmo/papers/tfp05-book.pdf
+
+----------------------------------------------------------------------------------------------
 
 ### Other stuff
 
@@ -666,23 +683,6 @@ Container1<T1<Real>> gradf = grad_f(g(x));
 T1<T2<Real>> gradg = grad_g(x);
 return DOT(gradf, gradg); // Call DOT(Container<T1<Stuff>>, T1<OtherStuff>)
 }
-
-
-## References:
-∂ for data: differentiating data structures
-http://www.cs.nott.ac.uk/~txa/publ/jpartial.pdf
-> Derives chain rules for container of container etc
-
-Derivatives of Containers
-Michael Abbott, Thorsten Altenkirch, Neil Ghani, and Conor McBride
-http://www.cs.nott.ac.uk/~txa/publ/tlca03.pdf
-
-http://blog.sigfpe.com/2006/06/fun-with-derivatives-of-containers.html
-Dan Piponi
-
-Comonadic functional attribute evaluation
-Tarmo Uustalu, Varmo Vene
-http://www.cs.ioc.ee/~tarmo/papers/tfp05-book.pdf
 
 
 ## More scribbles
