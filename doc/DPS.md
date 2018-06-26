@@ -1,7 +1,8 @@
 
-### Destination-passing Style
+### Destination-passing Style for [a subset of] F#
 
-This is a brief overview of our paper Shaikhha et al, "Destination-passing style for efficient memory management", SIGPLAN FHPC 2017.
+This is a brief overview of our paper "Destination-passing style for efficient memory management", 
+Amir Shaikhha, Andrew Fitzgibbon, Simon Peyton Jones, Dimitrios Vityniotis, SIGPLAN FHPC 2017.
 [ACM](https://dl.acm.org/citation.cfm?id=3122949), 
 [PDF](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/dps-submitted.pdf).
 
