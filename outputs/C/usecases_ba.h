@@ -198,7 +198,7 @@ void TOP_LEVEL_usecases_ba_run_ba_from_file(string_t fn, card_t n, card_t m, car
 			macroDef132->arr[x0] = array141;;
 		}
 	array_array_number_t obs = macroDef132;
-	timer_t t = tic();
+	timer_t2 t = tic();
 	array_number_t range = TOP_LEVEL_linalg_vectorRange(1, 10);
 	env_t_145 env_t_145_value = make_env_t_145(x,w,obs,feat,cam); closure_t closure140 = make_closure(lambda145, &env_t_145_value);
 	number_t tmp = TOP_LEVEL_linalg_vectorFoldNumber(closure140, 0, range);
