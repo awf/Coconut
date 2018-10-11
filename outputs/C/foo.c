@@ -11,7 +11,7 @@ array_number_t make_a_vector(card_t a_shp, const number_t *input) {
 	array_number_t stgVar1416 = storage_alloc(size1443);
 	array_number_t macroDef1433 = (array_number_t)stgVar1416;
 
-	macroDef1433->length=3;
+	macroDef1433->length=a_shp;
 	macroDef1433->arr=(number_t*)(STG_OFFSET(stgVar1416, VECTOR_HEADER_BYTES));
 
         for (int j = 0; j < a_shp; j++) {
@@ -31,19 +31,20 @@ array_number_t make_a_vector(card_t a_shp, const number_t *input) {
 // But that's fine for our purposes because once we're done with the
 // input data our program terminates.
 array_array_number_t make_a_matrix(card_t irange, card_t jrange, const number_t *input) {
-	matrix_shape_t mat1_shp = nested_shape_card_t(irange, jrange);
+	matrix_shape_t mat1_shp = nested_shape_card_t(jrange, irange);
 	card_t size1442 = width_matrix_shape_t(mat1_shp);
 
 	array_number_t stgVar = storage_alloc(size1442);
 	array_array_number_t macroDef = (array_array_number_t)stgVar;
 
-	macroDef->length=3;
+	macroDef->length=irange;
 	macroDef->arr=(array_number_t*)(STG_OFFSET(stgVar, VECTOR_HEADER_BYTES));
 
 	int stgVar_offsetVar = 0;
 
         for (int i = 0; i < irange; i++) {
-          storage_t stgVarInner = STG_OFFSET(stgVar, MATRIX_HEADER_BYTES(jrange) + stgVar_offsetVar);
+          // Skip over the irange elements pointing to the rows (or is it columns?!)
+          storage_t stgVarInner = STG_OFFSET(stgVar, MATRIX_HEADER_BYTES(irange) + stgVar_offsetVar);
           array_number_t macroDef_arr_i = (array_number_t)stgVarInner;
 
           macroDef_arr_i->length=jrange;
@@ -90,11 +91,11 @@ double extract_and_run_gmm(int n,
           ls_dps,
           wishart_gamma_dps,
           wishart_m_dps,
-          nested_shape_card_t(n, d),
+          nested_shape_card_t(d, n),
           k,
-          nested_shape_card_t(k, d),
-          nested_shape_card_t(k, d),
-          nested_shape_card_t(k, l_sz),
+          nested_shape_card_t(d, k),
+          nested_shape_card_t(d, k),
+          nested_shape_card_t(l_sz, k),
           1,
           1);
 }

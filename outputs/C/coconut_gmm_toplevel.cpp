@@ -79,7 +79,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   for (int ik = 0; ik < k; ik++) {
     // Skip over the qs
     lcfi += d;
-    for (int il = 0; il < l_sz; l_sz++) {
+    for (int il = 0; il < l_sz; il++) {
       ls[lsi] = icf[lcfi];
       lsi++;
       lcfi++;
