@@ -91,12 +91,25 @@ let gmm_objective (x:Matrix) (alphas:Vector) (means:Matrix) (qs:Matrix) (ls:Matr
 
 (** Testing **)
 
-let test_gmm (dum: Vector) =
-  let a = [| 1.0; 2.0; 3.0 |]
-  vectorPrint a
-  let mat1 = 
-    [| [| 1.0; 2.0; 3.0; |];
-       [| 4.0; 5.0; 6.0; |];
-       [| 7.0; 8.0; 9.0; |] |]
-  matrixPrint mat1
-  ()
+let test_gmm () =
+  let x =
+    [| [| 1.0; 2.0 |];
+       [| 4.0; 5.0 |];
+       [| 7.0; 8.0 |] |]
+
+  let alphas = [| 1.0; 2.0; 3.0; 4.0 |]
+
+  let means = [| [| 1.0; 2.0 |];
+                 [| 3.0; 4.0 |];
+                 [| 5.0; 6.0 |];
+                 [| 7.0; 8.0 |] |]
+
+  let qs = means;
+
+  let ls = [| [| 1.0 |];
+              [| 2.0 |];
+              [| 3.0 |];
+              [| 4.0 |] |]
+
+
+  numberPrint (gmm_objective x alphas means qs ls 5.0 10.0);
