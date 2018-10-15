@@ -285,8 +285,7 @@ number_t TOP_LEVEL_linalg_vectorFoldNumber_dps(storage_t stgVar95, closure_t f_d
 	card_t anfvar98_dps = 0;
 	number_t macroDef105 = z_dps;
 	storage_t stgVar100 = stgVar95;
-	for(int idx_dps = anfvar98_dps; idx_dps <= l_dps; idx_dps++){
-		
+	for(int idx_dps = anfvar98_dps; idx_dps < l_dps; idx_dps++){
 		macroDef105 = f_dps.lam(f_dps.env, stgVar100, macroDef105, range_dps->arr[idx_dps], 0, 0).number_t_value;;
 	}
 	return macroDef105;
