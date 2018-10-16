@@ -82,7 +82,9 @@ double extract_and_run_gmm(int n,
   array_array_number_t qs_dps = make_a_matrix(k, d, qs);
   array_array_number_t ls_dps = make_a_matrix(k, l_sz, ls);
   
-  *err = TOP_LEVEL_usecases_gmm_gmm_objective_dps(
+  const double CONSTANT = -n*d*0.5*log(2 * M_PI);
+
+  *err = CONSTANT + TOP_LEVEL_usecases_gmm_gmm_objective_dps(
           (storage_t)0,
           x_dps,
           alphas_dps,
