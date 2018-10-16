@@ -88,6 +88,8 @@ void test_gmm(const string& fn_in, const string& fn_out,
 
   preprocess_qs(d, k, &icf[0], &sum_qs[0], &Qdiags[0]);
 
+  for (double &q: Qdiags) q = log(q);
+
   // Test
   double tf = timer([&]() {
       extract_and_run_gmm(n,
