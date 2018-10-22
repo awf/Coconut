@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include "usecases_gmm_storaged.h"
 
 // The return array is never freed.  For that we would need to run
