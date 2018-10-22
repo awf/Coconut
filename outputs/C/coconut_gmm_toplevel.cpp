@@ -15,7 +15,6 @@
 
 #ifdef DO_GMM
 #include "../cpp-common/gmm.h"
-#include "gmm_d.h"
 #endif
 
 #if defined DO_BA
