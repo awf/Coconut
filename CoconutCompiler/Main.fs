@@ -115,14 +115,14 @@ let main argv =
     //compiler.compileModuleFromSource "usecases_ba" ["linalg"] "Examples/FSmoothUsecases" false false
     //compile_modules ()
     // phase_based_optimizer.test_phase_based_optimizer ()
-    //compile_modules_storaged ()
+    compile_modules_storaged ()
     // usecases.test1 [||]
     // guided_optimizer.test_guided_optimizer()
     // benchmark_search ()
     // test_ruleengine ()
     // test_feature ()
     // test_card()
-    symbolicdiff.test_symdiff()
+    //symbolicdiff.test_symdiff()
     //ml_engine.main_ml_engine()
     //compiler.compileModuleToLisp "linalg"
     //compiler.compileModuleToLisp "usecases_ba"
